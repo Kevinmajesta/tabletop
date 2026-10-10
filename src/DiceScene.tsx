@@ -26,7 +26,7 @@ function createDie(die: DiceRoll['dice'][number]) {
     const value = die.percentile ? face.value - 1 : face.value;
     const label = die.percentile === 'tens' ? String(value * 10).padStart(2, '0') : String(value);
     context.fillStyle = '#20170f';
-    context.font = `700 ${label.length > 1 ? 112 : 145}px Georgia, serif`;
+    context.font = `700 ${label.length > 1 ? 140 : 180}px Georgia, serif`;
     context.textAlign = 'center'; context.textBaseline = 'middle';
     context.fillText(label, 128, 132);
     if (value === 6 || value === 9) context.fillRect(105, 208, 46, 9);

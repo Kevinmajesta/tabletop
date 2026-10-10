@@ -1,7 +1,7 @@
 import express from "express";
 import multer from "multer";
 import { createServer } from "node:http";
-import { randomBytes, randomUUID } from "node:crypto";
+import { randomBytes, randomUUID, randomInt } from "node:crypto";
 import { Worker } from "node:worker_threads";
 import { persistence } from "./persistence.js";
 import { resources } from "./resources.js";
@@ -32,6 +32,7 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Server } from "socket.io";
+import { gameKinds, gameCatalog, newGame, gameView, gameAction, declareGame, type Game, type GameKind } from './minigames.js';
 
 type Member = { name: string; secret: string };
 type Token = BoardToken;
@@ -54,6 +55,7 @@ type Room = {
   scenes?: Scene[];
   activeSceneId?: string;
   characters?: Character[];
+  minigames?: Game[];
 };
 type SafeRoom = Omit<Room, "dmKey" | "members"> & {
   members: { id: string; name: string; online: boolean; dm: boolean }[];
@@ -165,8 +167,8 @@ function safeRoom(room: Room, playerId = "", dm = false): SafeRoom {
   const tokens = scene.tokens
     .filter(
       (t) =>
-        dm ||
-        (!t.hidden && (t.ownerId === playerId || visible(t, scene, playerId))),
+        (!t.minigame || gameKinds.includes(t.minigame)) &&
+        (dm || (!t.hidden && (t.ownerId === playerId || visible(t, scene, playerId)))),
     )
     .map((t) => ({
       ...t,
@@ -200,6 +202,7 @@ function safeRoom(room: Room, playerId = "", dm = false): SafeRoom {
     map: scene.map,
     tokens,
     messages: room.messages,
+    minigames: (room.minigames || []).filter(game => gameKinds.includes(game.kind) && (tokens.some(token => token.id === game.tokenId) || (game.declaration && game.players.includes(playerId) && scene.tokens.some(token => token.id === game.tokenId)))).map(game => gameView(game, playerId, dm)),
     activeSceneId: scene.id,
     scenes: dm
       ? room.scenes!.map((s) =>
@@ -1053,6 +1056,49 @@ io.on("connection", (socket) => {
   socket.on("room:patches", () => {
     socket.data.patches = true;
   });
+  socket.on('minigame:action', (payload: unknown, reply?: (result: { error?: string; ok?: boolean }) => void) => {
+    const respond = (result: { error?: string; ok?: boolean }) => { if (typeof reply === 'function') reply(result); };
+    const room = rooms[socket.data.roomId];
+    if (!room || !payload || typeof payload !== 'object') { respond({ error: 'Ruang tidak tersedia.' }); return; }
+    if (!admitted(`minigame:${socket.id}`, 120)) { respond({ error: 'Terlalu banyak aksi. Tunggu sebentar.' }); return; }
+    const action = payload as Record<string, unknown>;
+    if (typeof action.type !== 'string') { respond({ error: 'Aksi permainan tidak valid.' }); return; }
+    const scene = sceneFor(room);
+    if (action.type === 'create') {
+      if (!socket.data.isDM || !gameKinds.includes(action.kind as GameKind) || (room.minigames?.length || 0) >= 30) { respond({ error: 'Token tidak bisa ditambahkan.' }); return; }
+      const id = randomUUID();
+      const kind = action.kind as GameKind;
+      const positions = Array.from({ length: 64 }, (_, i) => ({ x: 15 + (i % 8) * 10, y: 15 + Math.floor(i / 8) * 10 }));
+      const position = positions.find(point => scene.tokens.every(token => Math.hypot(token.x - point.x, token.y - point.y) >= 9)) || positions[(room.minigames?.length || 0) % positions.length];
+      scene.tokens.push({ id, ownerId: socket.data.playerId, name: gameCatalog[kind].name, image: '', minigame: kind, ...position, size: 1.5 });
+      room.tokens = scene.tokens;
+      (room.minigames ??= []).push(newGame(id, kind));
+    } else {
+      const token = scene.tokens.find(token => token.id === action.tokenId);
+      const game = room.minigames?.find(game => game.tokenId === token?.id);
+      if (!token || !game || !gameKinds.includes(game.kind) || (!socket.data.isDM && !(game.declaration && game.players.includes(socket.data.playerId)) && (token.hidden || !visible(token, scene, socket.data.playerId)))) { respond({ error: 'Token permainan tidak tersedia.' }); return; }
+      let error: string | null;
+      if (action.type === 'declare') {
+        if (!socket.data.isDM) { respond({ error: 'Hanya GM boleh deklarasikan permainan.' }); return; }
+        const roomPeers = [...io.sockets.sockets.values()].filter(peer => peer.data.roomId === room.id);
+        const gmIds = new Set(roomPeers.filter(peer => peer.data.isDM).map(peer => peer.data.playerId));
+        const peers = gameCatalog[game.kind].mode === 'duel' ? roomPeers : roomPeers.filter(peer => !gmIds.has(peer.data.playerId));
+        const eligible = [...new Set(peers.map(peer => peer.data.playerId as string))].filter(id => (gameCatalog[game.kind].mode === 'duel' && gmIds.has(id)) || (!token.hidden && visible(token, scene, id)));
+        if (gameCatalog[game.kind].mode === 'duel') {
+          if (!Array.isArray(action.players) || action.players.length !== 2 || !action.players.every(id => typeof id === 'string' && eligible.includes(id))) { respond({ error: 'Pilih dua pemain online yang bisa melihat token.' }); return; }
+          error = declareGame(game, action.players as string[]);
+        } else {
+          if (!eligible.length) { respond({ error: 'Belum ada pemain online yang bisa melihat token.' }); return; }
+          error = declareGame(game, eligible);
+        }
+      } else {
+        if (['join', 'leave', 'remove-player'].includes(action.type) || (action.type === 'start' && !game.declaration)) { respond({ error: 'GM harus deklarasikan peserta lewat token.' }); return; }
+        error = gameAction(game, socket.data.playerId, socket.data.isDM, action, randomInt);
+      }
+      if (error) { respond({ error }); return; }
+    }
+    save(); broadcast(room); respond({ ok: true });
+  });
   socket.on("token:move", (payload: unknown) => {
     const room = rooms[socket.data.roomId];
     if (!room || !payload || typeof payload !== "object") return;
@@ -1116,6 +1162,7 @@ io.on("connection", (socket) => {
     if (!token || (!socket.data.isDM && token.ownerId !== socket.data.playerId))
       return;
     scene.tokens = scene.tokens.filter((t) => t.id !== id);
+    room.minigames = room.minigames?.filter(game => game.tokenId !== id);
     scene.combat.ids = scene.combat.ids.filter((value) => value !== id);
     scene.combat.turn = Math.min(
       scene.combat.turn,

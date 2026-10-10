@@ -46,6 +46,9 @@ function DiceScene(props: { roll: DiceRoll; onComplete: () => void; zoom?: numbe
 }
 import NaturalRollEffect from "./NaturalRollEffect";
 import BoardTools from "./BoardTools";
+import Minigames from './Minigames';
+import type { Game } from '../server/minigames';
+import { gameCatalog } from '../server/minigames';
 import type { Character } from "../server/characters";
 import { distance, type BoardToken, type Scene } from "../server/tabletop";
 import type { DiceRoll } from "../server/dice-physics";
@@ -67,6 +70,7 @@ type Room = {
   scenes?: Scene[];
   activeSceneId?: string;
   characters?: Character[];
+  minigames?: Game[];
   members: { id: string; name: string; online: boolean; dm: boolean }[];
 };
 type Identity = {
@@ -106,6 +110,7 @@ function App() {
   const [busy, setBusy] = useState(false);
   const [chat, setChat] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
+  const [openMinigame, setOpenMinigame] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [sidebar, setSidebar] = useState<"chat" | "players">("chat");
   const [panelOpen, setPanelOpen] = useState(() => window.innerWidth >= 900);
@@ -1006,8 +1011,8 @@ function App() {
                       top: `${token.y}%`,
                       width: `${((token.size ?? 1) * 100) / columns}%`,
                     }}
-                    onClick={() => {
-                      if (mapTool === "select") setSelected(token.id);
+                    onClick={(e) => {
+                      if (mapTool === "select") { setSelected(token.id); if (token.minigame && !e.shiftKey) setOpenMinigame(token.id); }
                     }}
                     onContextMenu={(e) => e.preventDefault()}
                     onPointerDown={(e) => {
@@ -1025,7 +1030,7 @@ function App() {
                       }
                       e.stopPropagation();
                       setSelected(token.id);
-                      if (isDM || token.ownerId === identity.playerId) {
+                      if ((isDM || token.ownerId === identity.playerId) && (!token.minigame || e.shiftKey)) {
                         dragging.current = token.id;
                         tokenDragStart.current = { x: e.clientX, y: e.clientY };
                         e.currentTarget.setPointerCapture(e.pointerId);
@@ -1048,7 +1053,7 @@ function App() {
                     }}
                     title={token.name}
                   >
-                    <img src={token.image} alt={token.name} />
+                    {token.minigame ? <div className="minigame-token-mark" aria-hidden="true">{gameCatalog[token.minigame].mark}</div> : <img src={token.image} alt={token.name} />}
                     <span>
                       {token.name}
                       {token.maxHp
@@ -1110,6 +1115,9 @@ function App() {
               </div>
             )}
           </div>
+          {activeScene && (
+            <Minigames games={room?.minigames || []} socket={socketRef.current} dm={isDM} playerId={identity.playerId} members={room?.members || []} connected={connected} openToken={openMinigame} onClose={() => setOpenMinigame(null)} onOpen={setOpenMinigame} />
+          )}
           {activeScene && (
             <BoardTools
               scene={activeScene}
