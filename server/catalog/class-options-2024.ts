@@ -1,0 +1,33 @@
+export const metamagic = [
+  ['careful-spell','Careful Spell','1 Sorcery Point: CHA modifier makhluk pilihan otomatis sukses save; jika biasanya menerima setengah damage, tidak menerima damage.'],
+  ['distant-spell','Distant Spell','1 point: range minimal 5 ft menjadi dua kali; touch menjadi 30 ft.'],
+  ['empowered-spell','Empowered Spell','1 point: ulang damage dice maksimal CHA modifier (minimal 1). Dapat digabung dengan Metamagic lain.'],
+  ['extended-spell','Extended Spell','1 point: durasi minimal 1 menit menjadi dua kali (maksimal 24 jam); advantage concentration saves spell itu.'],
+  ['heightened-spell','Heightened Spell','2 points: satu target disadvantage saving throws terhadap spell.'],
+  ['quickened-spell','Quickened Spell','2 points: casting time action menjadi bonus action. Tidak dapat digunakan jika sudah memakai spell level 1+ pada turn, dan tidak boleh memakai spell level 1+ lagi pada turn itu.'],
+  ['seeking-spell','Seeking Spell','1 point: ulang spell attack yang meleset, wajib pakai hasil baru. Dapat digabung dengan Metamagic lain.'],
+  ['subtle-spell','Subtle Spell','1 point: hilangkan verbal, somatic, dan material kecuali material berbiaya atau dikonsumsi.'],
+  ['transmuted-spell','Transmuted Spell','1 point: ubah salah satu damage Acid/Cold/Fire/Lightning/Poison/Thunder menjadi tipe lain dalam daftar itu.'],
+  ['twinned-spell','Twinned Spell','1 point: spell yang mendapat target tambahan saat upcast (misalnya Charm Person) dianggap satu level lebih tinggi untuk target tambahan.'],
+];
+export const invocations = [
+  ['pact-of-the-blade','Pact of the Blade',1,'Bonus action mengikat/membuat melee weapon. Gunakan CHA attack/damage; proficiency diberikan; damage normal atau Necrotic/Psychic/Radiant.'],
+  ['pact-of-the-chain','Pact of the Chain',1,'Find Familiar tanpa slot sebagai Magic action. Bentuk tambahan Imp, Pseudodragon, Quasit, Skeleton, Slaad Tadpole, Sphinx of Wonder, Sprite, Venomous Snake. Dapat mengganti attack untuk familiar attack memakai reaction.'],
+  ['pact-of-the-tome','Pact of the Tome',1,'Setelah short/long rest buat Book of Shadows. Pilih tiga cantrip dari class mana pun dan dua ritual level 1; CHA casting.'],
+  ['eldritch-mind','Eldritch Mind',1,'Advantage CON saving throws untuk mempertahankan concentration.'],
+  ['agonizing-blast','Agonizing Blast',2,'Pilih satu cantrip Warlock yang memberi damage, tambah CHA modifier pada damage roll.'],
+  ['armor-of-shadows','Armor of Shadows',2,'Mage Armor pada diri tanpa slot atau material.'],
+  ['ascendant-step','Ascendant Step',5,'Levitate pada diri tanpa slot atau material.'],
+  ['devils-sight','Devil’s Sight',2,'Melihat normal dalam dim light dan darkness (magical/nonmagical) sampai 120 ft.'],
+  ['eldritch-spear','Eldritch Spear',2,'Pilih damage cantrip Warlock dengan range minimal 10 ft; range bertambah 30 kali level Warlock ft.'],
+  ['fiendish-vigor','Fiendish Vigor',2,'False Life pada diri tanpa slot; temporary HP memakai hasil die maksimum.'],
+  ['gaze-of-two-minds','Gaze of Two Minds',5,'Bonus action menyentuh willing Humanoid; melihat melalui inderanya sampai akhir turn berikutnya, dapat mempertahankan dengan bonus action. Spell dapat berasal dari posisi target jika dalam 60 ft.'],
+  ['mask-of-many-faces','Mask of Many Faces',2,'Disguise Self tanpa slot.'],
+  ['misty-visions','Misty Visions',2,'Silent Image tanpa slot atau material.'],
+  ['one-with-shadows','One with Shadows',5,'Invisibility pada diri tanpa slot saat berada dalam dim light atau darkness.'],
+  ['otherworldly-leap','Otherworldly Leap',2,'Jump pada diri tanpa slot.'],
+  ['repelling-blast','Repelling Blast',2,'Pilih damage cantrip Warlock dengan attack roll; hit dapat mendorong Large atau lebih kecil 10 ft.'],
+  ['thirsting-blade','Thirsting Blade',5,'Pact of the Blade: Extra Attack dengan pact weapon.'],
+  ['investment-of-the-chain-master','Investment of the Chain Master',5,'Pact of the Chain: familiar dapat fly/swim 40 ft, bonus action Attack, Radiant/Necrotic damage, memakai spell DC dan reaction resistance damage.'],
+] as const;
+export const maneuvers = ['Ambush','Bait and Switch','Commander’s Strike','Commanding Presence','Disarming Attack','Distracting Strike','Evasive Footwork','Feinting Attack','Goading Attack','Lunging Attack','Maneuvering Attack','Menacing Attack','Parry','Precision Attack','Pushing Attack','Rally','Riposte','Sweeping Attack','Tactical Assessment','Trip Attack'];

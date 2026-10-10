@@ -1,172 +1,134 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
+import { dieShape, frameRate, trayWidth, trayDepth, type DiceRoll } from '../server/dice-physics';
 
-const duration = 2300;
-
-function d10Geometry() {
-  // Ten planar kite faces: the two staggered rings meet at opposite tips.
-  const height = .12;
-  const tip = height * (1 + 2 / (1 - Math.cos(Math.PI / 5)));
-  const ring = Array.from({ length: 10 }, (_, i) => new THREE.Vector3(
-    Math.cos(i * Math.PI / 5), i % 2 ? height : -height, Math.sin(i * Math.PI / 5),
-  ));
+function createDie(die: DiceRoll['dice'][number]) {
+  const shape = dieShape(die.sides);
+  const group = new THREE.Group();
   const vertices: number[] = [];
-  for (let i = 0; i < 10; i++) {
-    const apex = new THREE.Vector3(0, i % 2 ? -tip : tip, 0);
-    const a = ring[i];
-    const b = ring[(i + 1) % 10];
-    const c = ring[(i + 2) % 10];
-    for (const point of [apex, a, b, apex, b, c]) vertices.push(point.x, point.y, point.z);
+  for (const face of shape.faces) {
+    for (let i = 1; i < face.indices.length - 1; i++) {
+      for (const index of [face.indices[0], face.indices[i], face.indices[i + 1]]) vertices.push(...shape.vertices[index]);
+    }
   }
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-  return geometry;
-}
-
-function geometryFor(sides: number) {
-  switch (sides) {
-    case 4: return new THREE.TetrahedronGeometry(1.38);
-    case 6: return new THREE.BoxGeometry(1.9, 1.9, 1.9);
-    case 8: return new THREE.OctahedronGeometry(1.48);
-    case 10: return d10Geometry();
-    case 12: return new THREE.DodecahedronGeometry(1.42);
-    default: return new THREE.IcosahedronGeometry(1.48);
-  }
-}
-
-function numeral(label: string) {
-  const canvas = document.createElement('canvas');
-  canvas.width = canvas.height = 256;
-  const context = canvas.getContext('2d')!;
-  context.fillStyle = '#fff2d7';
-  context.font = `bold ${label.length > 2 ? 87 : label.length > 1 ? 122 : 154}px Arial, sans-serif`;
-  context.textBaseline = 'middle';
-  context.textAlign = 'center';
-  context.fillText(label, 128, 134);
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  return texture;
-}
-
-type Face = { normal: THREE.Vector3; center: THREE.Vector3; triangles: number };
-
-function createDie(sides: number, value: number, labelFor: (value: number) => string) {
-  const group = new THREE.Group();
-  const source = geometryFor(sides);
-  const geometry = source.index ? source.toNonIndexed() : source;
-  if (source !== geometry) source.dispose();
-  // Use flat faces so the numbered faces remain legible while turning.
   geometry.computeVertexNormals();
-  const body = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: 0x75478b, roughness: .43, metalness: .12, flatShading: true, side: THREE.DoubleSide }));
+  const body = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: die.percentile === 'tens' ? 0xb99459 : 0xf3e5cb, roughness: .32, metalness: .12, flatShading: true }));
+  body.castShadow = true;
+  body.receiveShadow = true;
   group.add(body);
-  group.add(new THREE.LineSegments(new THREE.EdgesGeometry(geometry, 9), new THREE.LineBasicMaterial({ color: 0xe2bce9, transparent: true, opacity: .8 })));
-
-  const positions = geometry.getAttribute('position');
-  const faces: Face[] = [];
-  for (let i = 0; i < positions.count; i += 3) {
-    const a = new THREE.Vector3().fromBufferAttribute(positions, i);
-    const b = new THREE.Vector3().fromBufferAttribute(positions, i + 1);
-    const c = new THREE.Vector3().fromBufferAttribute(positions, i + 2);
-    const center = a.clone().add(b).add(c).divideScalar(3);
-    const normal = b.clone().sub(a).cross(c.clone().sub(a)).normalize();
-    if (normal.dot(center) < 0) normal.negate();
-    const face = faces.find(candidate => candidate.normal.dot(normal) > .999);
-    if (face) { face.center.add(center); face.triangles++; }
-    else faces.push({ normal, center, triangles: 1 });
-  }
-
-  faces.forEach((face, i) => {
-    face.center.divideScalar(face.triangles);
-    const label = labelFor((value + i - 2 + sides) % sides + 1);
-    const texture = numeral(label);
-    const size = sides === 20 ? .52 : sides === 12 ? .65 : sides === 10 ? .64 : sides === 4 ? .64 : .82;
-    const number = new THREE.Mesh(new THREE.PlaneGeometry(size, size), new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false, side: THREE.DoubleSide }));
-    number.position.copy(face.center).addScaledVector(face.normal, .027);
-    number.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), face.normal);
+  group.add(new THREE.LineSegments(new THREE.EdgesGeometry(geometry, 12), new THREE.LineBasicMaterial({ color: 0x6b5031, transparent: true, opacity: .4 })));
+  for (const face of shape.faces) {
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 256;
+    const context = canvas.getContext('2d')!;
+    const value = die.percentile ? face.value - 1 : face.value;
+    const label = die.percentile === 'tens' ? String(value * 10).padStart(2, '0') : String(value);
+    context.fillStyle = '#20170f';
+    context.font = `700 ${label.length > 1 ? 112 : 145}px Georgia, serif`;
+    context.textAlign = 'center'; context.textBaseline = 'middle';
+    context.fillText(label, 128, 132);
+    if (value === 6 || value === 9) context.fillRect(105, 208, 46, 9);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    const size = die.sides === 20 ? .46 : die.sides === 12 ? .55 : die.sides === 10 ? .58 : .72;
+    const number = new THREE.Mesh(new THREE.PlaneGeometry(size, size), new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1 }));
+    const normal = new THREE.Vector3(...face.normal);
+    number.position.set(...face.center as [number, number, number]).addScaledVector(normal, .008);
+    number.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
     group.add(number);
-  });
-  const target = new THREE.Quaternion().setFromUnitVectors(faces[0].normal, new THREE.Vector3(0, 0, 1));
-  return { group, target };
+  }
+  return group;
 }
 
-export default function DiceScene({ sides, values, onComplete }: { sides: number; values: number[]; onComplete: () => void }) {
+export default function DiceScene({ roll, onComplete, zoom = 1 }: { roll: DiceRoll; onComplete: () => void; zoom?: number }) {
   const holder = useRef<HTMLDivElement>(null);
   const complete = useRef(onComplete);
+  const [failed, setFailed] = useState(false);
   complete.current = onComplete;
+  const zoomRef = useRef(zoom);
+  zoomRef.current = zoom;
+  const refresh = useRef<(() => void) | null>(null);
+  useEffect(() => { refresh.current?.(); }, [zoom]);
 
   useEffect(() => {
     const element = holder.current;
     if (!element) return;
     let renderer: THREE.WebGLRenderer;
-    try { renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true }); }
-    catch { const timer = window.setTimeout(() => complete.current(), duration); return () => window.clearTimeout(timer); }
-
+    try { renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); }
+    catch { setFailed(true); complete.current(); return; }
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(38, 1, .1, 100);
-    camera.position.set(0, 0, values.length > 1 ? 10 : 8);
-    scene.add(new THREE.HemisphereLight(0xffeed8, 0x29152f, 2.7));
-    const light = new THREE.DirectionalLight(0xffffff, 2.3);
-    light.position.set(-3, 5, 6);
-    scene.add(light);
-
-    const dice = (sides === 100
-      ? [{ value: Math.floor(values[0] % 100 / 10) + 1, label: (v: number) => values[0] === 100 && v === 1 ? '100' : String((v - 1) * 10).padStart(2, '0') }, { value: values[0] % 10 + 1, label: (v: number) => String(v - 1) }]
-      : values.map(value => ({ value, label: (v: number) => String(v) })))
-      .map(({ value, label }, i, all) => {
-        const die = createDie(sides === 100 ? 10 : sides, value, label);
-        die.group.position.x = (i - (all.length - 1) / 2) * 2.2;
-        scene.add(die.group);
-        const start = new THREE.Quaternion().setFromEuler(new THREE.Euler(1.4 + i, 2.2 + i, -.8));
-        return { ...die, start, x: die.group.position.x };
-      });
-
-    const resize = () => {
-      const width = element.clientWidth;
-      const height = element.clientHeight;
-      camera.aspect = width / height;
-      camera.position.z = Math.max(8, dice.length * 2.15 + 5);
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
-    };
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.setClearColor(0x000000, 0);
-    element.appendChild(renderer.domElement);
-    const observer = new ResizeObserver(resize);
-    observer.observe(element);
-    resize();
-    let frame = 0;
-    let done = false;
-    const startTime = performance.now();
-    const spin = new THREE.Quaternion();
-    const axis = new THREE.Vector3(.7, 1, .3).normalize();
-    function animate(now: number) {
-      const progress = Math.min(1, (now - startTime) / duration);
-      const ease = progress < .55 ? progress * .45 : .2475 + (1 - Math.pow(1 - (progress - .55) / .45, 3)) * .7525;
-      dice.forEach(({ group, target, start, x }, i) => {
-        spin.setFromAxisAngle(axis, (1 - ease) * Math.PI * (4 + i));
-        group.quaternion.copy(start).multiply(spin).slerp(target, ease);
-        group.position.set(x, Math.abs(Math.sin(progress * Math.PI * 5 + i)) * .33 * (1 - progress), 0);
-      });
+    const camera = new THREE.PerspectiveCamera(40, 1, .1, 100);
+    camera.position.set(0, 22, 15);
+    camera.lookAt(0, 0, 0);
+    scene.add(new THREE.HemisphereLight(0xfff3da, 0x354539, 2.4));
+    const light = new THREE.DirectionalLight(0xffe6bc, 3);
+    light.position.set(-5, 14, 6); light.castShadow = true;
+    light.shadow.mapSize.set(1024, 1024);
+    Object.assign(light.shadow.camera, { left: -12, right: 12, top: 12, bottom: -12 });
+    light.shadow.bias = -.001;
+    scene.add(light);
+    const floor = new THREE.Mesh(new THREE.BoxGeometry(trayWidth, .3, trayDepth), new THREE.ShadowMaterial({ opacity: .25 }));
+    floor.position.y = -.15; floor.receiveShadow = true; scene.add(floor);
+    const dice = roll.dice.map(die => { const group = createDie(die); scene.add(group); return group; });
+    const resize = () => {
+      const width = Math.max(1, element.clientWidth), height = Math.max(1, element.clientHeight);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      const requestedRatio = Math.min(window.devicePixelRatio || 1, 2) * Math.max(.5, zoomRef.current);
+      const ratio = Math.min(requestedRatio, renderer.capabilities.maxTextureSize / Math.max(width, height), Math.sqrt(16000000 / (width * height)));
+      renderer.setPixelRatio(ratio);
+      renderer.setSize(width, height, false);
       renderer.render(scene, camera);
-      if (progress < 1) frame = requestAnimationFrame(animate);
+    };
+    renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    element.appendChild(renderer.domElement);
+    const observer = new ResizeObserver(resize); observer.observe(element); resize();
+    refresh.current = resize;
+    let frame = 0, done = false;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const start = performance.now();
+    const q = new THREE.Quaternion();
+    const draw = (now: number) => {
+      const index = reduced ? roll.frames.length - 1 : Math.max(0, Math.min(roll.frames.length - 1, (now - start) / 1000 * frameRate));
+      const lower = Math.floor(index), upper = Math.min(lower + 1, roll.frames.length - 1), mix = index - lower;
+      dice.forEach((die, i) => {
+        const a = roll.frames[lower][i], b = roll.frames[upper][i];
+        die.position.fromArray(a.p).lerp(new THREE.Vector3().fromArray(b.p), mix);
+        die.quaternion.fromArray(a.q).slerp(q.fromArray(b.q), mix);
+      });
+      const center = new THREE.Vector3(0, 0, 0);
+      const radius = Math.hypot(trayWidth / 2, trayDepth / 2) + 2;
+      const verticalAngle = THREE.MathUtils.degToRad(camera.fov / 2);
+      const horizontalAngle = Math.atan(Math.tan(verticalAngle) * camera.aspect);
+      const distance = Math.max(9, radius / Math.sin(Math.min(verticalAngle, horizontalAngle)));
+      camera.position.copy(center).add(new THREE.Vector3(0, .84, .56).normalize().multiplyScalar(distance));
+      camera.lookAt(center);
+      renderer.render(scene, camera);
+      if (index < roll.frames.length - 1) frame = requestAnimationFrame(draw);
       else if (!done) { done = true; complete.current(); }
-    }
-    frame = requestAnimationFrame(animate);
+    };
+    frame = requestAnimationFrame(draw);
+    const contextLost = (event: Event) => { event.preventDefault(); cancelAnimationFrame(frame); setFailed(true); complete.current(); };
+    renderer.domElement.addEventListener('webglcontextlost', contextLost);
     return () => {
-      cancelAnimationFrame(frame);
-      observer.disconnect();
+      refresh.current = null;
+      cancelAnimationFrame(frame); observer.disconnect();
+      renderer.domElement.removeEventListener('webglcontextlost', contextLost);
+      const materials = new Set<THREE.Material>();
       scene.traverse(object => {
         if (object instanceof THREE.Mesh || object instanceof THREE.LineSegments) {
           object.geometry.dispose();
-          const materials = Array.isArray(object.material) ? object.material : [object.material];
-          materials.forEach(material => { if ('map' in material && material.map instanceof THREE.Texture) material.map.dispose(); material.dispose(); });
+          (Array.isArray(object.material) ? object.material : [object.material]).forEach(material => materials.add(material));
         }
       });
-      renderer.dispose();
-      renderer.domElement.remove();
+      materials.forEach(material => { if ('map' in material && material.map instanceof THREE.Texture) material.map.dispose(); material.dispose(); });
+      renderer.dispose(); renderer.domElement.remove();
     };
-  }, [sides, values]);
+  }, [roll]);
 
-  return <div className="dice-scene" ref={holder} aria-hidden="true"/>;
+  return <><div className="dice-scene" ref={holder} aria-hidden="true"/>{failed && <p className="dice-render-error">Tampilan 3D tidak tersedia. Hasil fisika server tetap ditampilkan.</p>}</>;
 }

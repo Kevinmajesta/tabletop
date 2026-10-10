@@ -1,0 +1,63 @@
+.board-overlay{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none;overflow:hidden;touch-action:none}
+.board-overlay.interactive{pointer-events:auto;cursor:crosshair}
+.map-canvas .map-token{z-index:1}
+.token-movement{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none}
+.token-movement line{stroke:#f3d49a;stroke-width:3}
+.token-movement text{fill:#fff2d7;stroke:#171d1b;stroke-width:4;paint-order:stroke;font-size:18px}
+.board-tools-panel{position:fixed;top:58px;left:60px;z-index:12;width:min(350px,calc(100vw - 120px));color:#f3e5cb;font-size:13px}
+.board-tools-toggle,.board-tools-body{background:#171d1b;border:1px solid #b99459;border-radius:5px}
+.board-tools-panel button{min-height:44px;border:1px solid #b99459;border-radius:4px;background:#284438;color:#f3e5cb;padding:8px}
+.board-tools-panel button[aria-pressed=true]{background:#f3e5cb;color:#171d1b}
+.board-tools-body{margin-top:8px;padding:0;max-height:calc(100dvh - 125px);overflow:auto;box-shadow:0 12px 32px #0006}
+.board-tools-body nav{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.board-tools-body label{display:block;margin:10px 0}
+.board-tools-body input,.board-tools-body select{width:100%;min-height:44px;padding:8px;background:#171d1b;color:#f3e5cb;border:1px solid #b99459;border-radius:4px}
+.board-tools-body label.board-checkbox{display:flex;align-items:center;gap:8px;min-height:44px}
+.board-tools-body .board-checkbox input{width:20px;min-height:20px;accent-color:#b99459}
+.board-tool-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.board-tools-body p{line-height:1.5;margin:12px 0}
+.board-mark-list{display:grid;gap:6px;margin-top:12px}
+.board-mark-list>div{display:flex;align-items:center;justify-content:space-between;gap:6px;overflow-wrap:anywhere}
+.current-turn{color:#f3d49a;font-weight:700}
+.board-ping{animation:board-ping 2.5s ease-out both}
+@keyframes board-ping{0%{opacity:0}15%,65%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.board-ping{animation:none}}
+@media(max-width:600px){.board-tools-panel{left:49px;width:min(285px,calc(100vw - 100px))}}
+.board-tools-toggle{display:flex;align-items:center;gap:9px;font-weight:600;box-shadow:0 3px 12px #0004}
+.board-tools-toggle .expanded{transform:rotate(180deg)}
+.board-panel-heading{display:flex;justify-content:space-between;align-items:center;padding:16px;border-bottom:1px solid #53675b;gap:12px}
+.board-panel-heading>div{min-width:0;display:grid;gap:4px}
+.board-panel-heading span{font-size:11px;color:#d7c5a8}
+.board-panel-heading strong{font-size:17px;overflow-wrap:anywhere}
+.board-tools-panel .board-panel-heading button{background:transparent;border:0;width:44px;flex:none;display:grid;place-items:center}
+.board-tools-body nav{position:sticky;top:0;background:#171d1b;z-index:1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;padding:6px 8px;margin:0;border-bottom:1px solid #53675b}
+.board-tools-body nav button{display:flex;flex-direction:column;align-items:center;gap:5px;border:0;background:transparent;border-radius:4px;font-size:11px;padding:8px 3px;color:#d7c5a8}
+.board-tools-body nav button[aria-pressed=true]{background:#284438;color:#f3e5cb;box-shadow:inset 0 -2px #b99459}
+.board-tab-content{padding:16px}
+.board-tool-group{margin-bottom:20px}
+.board-tool-group h3{font-size:13px;margin:0 0 3px;font-weight:600}
+.board-tool-group>p{font-size:11px;color:#d7c5a8;margin:0 0 10px}
+.board-tool-buttons button{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:76px;background:#202a24;border-color:#77897b;padding:10px 4px;font-size:11px}
+.board-tool-buttons button[aria-pressed=true]{background:#d7b77e;color:#171d1b;border-color:#d7b77e;font-weight:700}
+.board-tool-buttons button kbd{position:absolute;right:5px;top:5px;font-size:10px;opacity:.8}
+.board-tool-hint{padding:12px;background:#284438;border:1px solid #77897b;border-radius:5px}
+.board-tool-hint strong{font-size:12px}
+.board-tool-hint p{font-size:12px;margin:5px 0 0;color:#f3e5cb}
+.board-mark-section{margin-top:18px;border-top:1px solid #53675b;padding-top:12px}
+.board-mark-section summary{cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:space-between;font-size:12px}
+.board-mark-section summary span{color:#d7c5a8}
+.board-mark-list button{width:44px;flex:none;display:grid;place-items:center;background:transparent}
+.board-panel-footer{display:flex;justify-content:space-between;gap:8px;padding:12px 16px;border-top:1px solid #53675b;color:#d7c5a8;font-size:10px}
+.board-active-compact{display:flex;align-items:center;justify-content:space-between;gap:12px;width:max-content;background:#171d1b;padding:4px 6px 4px 12px;margin-top:6px;border:1px solid #b99459;border-radius:5px}
+.board-active-compact button{display:grid;place-items:center;width:44px;background:transparent;border:0}
+.board-tab-scene>label:not(.board-checkbox),.board-tab-token>label:not(.board-checkbox){padding-bottom:10px;margin-bottom:12px;border-bottom:1px solid #53675b;font-size:12px;color:#d7c5a8}
+.board-tab-scene form{padding:12px;background:#202a24;border-radius:5px;margin:14px 0 20px}
+.board-tab-token>strong,.board-tab-combat>strong{display:block;font-size:17px;margin-bottom:16px}
+.board-tab-combat ol{list-style:none;padding:0;margin:0 0 16px;counter-reset:turn}
+.board-tab-combat li{counter-increment:turn;padding:12px;border-bottom:1px solid #53675b;line-height:1.5}
+.board-tab-combat li:before{content:counter(turn);margin-right:12px;color:#d7c5a8;font-size:11px}
+.board-tab-combat li.current-turn{background:#284438;border-radius:4px;color:#f3d49a}
+.board-tab-combat>button{display:block;width:100%;margin:8px 0}
+.board-tools-panel button:focus-visible,.board-tools-panel summary:focus-visible,.board-tools-panel input:focus-visible,.board-tools-panel select:focus-visible{outline:2px solid #f3e5cb;outline-offset:3px}
+.board-tools-panel button:hover:not(:disabled){border-color:#f3e5cb}
+@media(max-width:600px){.board-tab-content{padding:12px}.board-tool-buttons button{min-height:70px}.board-panel-heading{padding:12px}}
