@@ -30,6 +30,7 @@ import "./style.css";
 import "./dice-animation.css";
 import "./tabletop.css";
 import "./characters.css";
+import "./theme.css";
 const AnimatedDiceScene = lazy(() => import("./DiceScene"));
 function DiceScene(props: { roll: DiceRoll; onComplete: () => void; zoom?: number }) {
   const instant = localStorage.getItem("meja-dice-animation") === "off";
@@ -611,6 +612,18 @@ function App() {
               nasib. Satu ruang untuk seluruh party-mu, di mana pun kalian
               berada.
             </p>
+            <div className="adventure-map" aria-hidden="true">
+              <svg viewBox="0 0 520 150" fill="none">
+                <path d="M25 120 Q100 30 185 86 T350 62 T493 32" stroke="currentColor" strokeDasharray="4 8" />
+                <circle cx="25" cy="120" r="5" fill="currentColor" />
+                <circle cx="185" cy="86" r="8" />
+                <circle cx="350" cy="62" r="8" />
+                <path d="m458 49 24-40 24 40h-48Zm13-20 11 6 10-7M140 128l18-29 18 29m-8 0 24-39 24 39M291 38V17h11V8h12v9h11v21m-34-12h34" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+                <text x="15" y="145">TITIK AWAL</text>
+                <text x="324" y="91">CERITA KALIAN</text>
+              </svg>
+              <span className="map-caption"><Compass size={14} /> Satu meja. Kemungkinan tak terbatas.</span>
+            </div>
             <div className="landing-perks">
               <span>
                 <span className="perk-icon">✦</span> Realtime bersama party
@@ -746,6 +759,7 @@ function App() {
 
   return (
     <div className="app-shell">
+      <div className="session-toolbar" role="region" aria-label="Kontrol sesi">
       <span className="campaign-save-status" role="status">
         {!connected
           ? "Koneksi terputus"
@@ -815,6 +829,10 @@ function App() {
           Karakter
         </button>
       )}
+      {activeScene && (
+        <Minigames games={room?.minigames || []} socket={socketRef.current} dm={isDM} playerId={identity.playerId} members={room?.members || []} connected={connected} openToken={openMinigame} onClose={() => setOpenMinigame(null)} onOpen={setOpenMinigame} />
+      )}
+      </div>
       {diceAnimation && boardRef.current && createPortal(
         <div className="dice-animation">
           <div
@@ -1115,9 +1133,6 @@ function App() {
               </div>
             )}
           </div>
-          {activeScene && (
-            <Minigames games={room?.minigames || []} socket={socketRef.current} dm={isDM} playerId={identity.playerId} members={room?.members || []} connected={connected} openToken={openMinigame} onClose={() => setOpenMinigame(null)} onOpen={setOpenMinigame} />
-          )}
           {activeScene && (
             <BoardTools
               scene={activeScene}

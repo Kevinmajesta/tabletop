@@ -1002,7 +1002,7 @@ export default function BoardTools({
   const canvas = document.querySelector(".map-canvas");
   return (
     <>
-      {createPortal(panel, document.body)}
+      {panel}
       {canvas && createPortal(overlay, canvas)}
     </>
   );

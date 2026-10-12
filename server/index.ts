@@ -1324,7 +1324,8 @@ io.on("connection", (socket) => {
       pendingRooms.add(room.id);
       try {
         simulation = await scheduleRoll(sides, count, modifier);
-      } catch {
+      } catch (error) {
+        console.error("Dice simulation failed:", error);
         if (typeof reply === "function")
           reply({ error: "Dadu belum berhenti. Coba lempar lagi." });
         return;
