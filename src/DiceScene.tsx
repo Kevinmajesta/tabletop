@@ -20,23 +20,41 @@ function createDie(die: DiceRoll['dice'][number]) {
   group.add(body);
   group.add(new THREE.LineSegments(new THREE.EdgesGeometry(geometry, 12), new THREE.LineBasicMaterial({ color: 0x6b5031, transparent: true, opacity: .4 })));
   for (const face of shape.faces) {
+    const normal = new THREE.Vector3(...face.normal);
+    const center = new THREE.Vector3(...face.center);
+    const u = new THREE.Vector3(...shape.vertices[face.indices[0]]).sub(center).normalize();
+    const v = normal.clone().cross(u);
+    const points = face.indices.map(index => {
+      const point = new THREE.Vector3(...shape.vertices[index]).sub(center);
+      return new THREE.Vector2(point.dot(u), point.dot(v));
+    });
+    const bounds = points.reduce((box, point) => box.expandByPoint(point), new THREE.Box2());
+    const size = bounds.getSize(new THREE.Vector2());
+    const uv = (point: THREE.Vector2) => [(point.x - bounds.min.x) / size.x, (point.y - bounds.min.y) / size.y];
     const canvas = document.createElement('canvas');
     canvas.width = canvas.height = 256;
     const context = canvas.getContext('2d')!;
-    const value = die.percentile ? face.value - 1 : face.value;
-    const label = die.percentile === 'tens' ? String(value * 10).padStart(2, '0') : String(value);
     context.fillStyle = '#20170f';
-    context.font = `700 ${label.length > 1 ? 140 : 180}px Georgia, serif`;
     context.textAlign = 'center'; context.textBaseline = 'middle';
-    context.fillText(label, 128, 132);
-    if (value === 6 || value === 9) context.fillRect(105, 208, 46, 9);
+    const labels = die.sides === 4
+      ? face.indices.map(index => String(shape.faces.find(other => !other.indices.includes(index))!.value))
+      : [die.percentile === 'tens' ? String((face.value - 1) * 10).padStart(2, '0') : String(face.value)];
+    context.font = `700 ${labels.length === 1 && labels[0].length > 1 ? 56 : labels.length === 1 ? 72 : 28}px Georgia, serif`;
+    const labelPoint = points.reduce((sum, point) => sum.add(new THREE.Vector2(...uv(point))), new THREE.Vector2()).divideScalar(points.length);
+    if (labels.length === 1) context.fillText(labels[0], labelPoint.x * 256, (1 - labelPoint.y) * 256);
+    else points.forEach((point, index) => { const [x, y] = uv(point); context.fillText(labels[index], 68 + x * 120, 68 + (1 - y) * 120); });
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
-    const size = die.sides === 20 ? .46 : die.sides === 12 ? .55 : die.sides === 10 ? .58 : .72;
-    const number = new THREE.Mesh(new THREE.PlaneGeometry(size, size), new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1 }));
-    const normal = new THREE.Vector3(...face.normal);
-    number.position.set(...face.center as [number, number, number]).addScaledVector(normal, .008);
-    number.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+    const positions: number[] = [], uvs: number[] = [];
+    for (let i = 1; i < face.indices.length - 1; i++) for (const index of [0, i, i + 1]) {
+      positions.push(...shape.vertices[face.indices[index]]);
+      uvs.push(...uv(points[index]));
+    }
+    const labelGeometry = new THREE.BufferGeometry();
+    labelGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    labelGeometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    const number = new THREE.Mesh(labelGeometry, new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -1 }));
+    number.position.copy(normal).multiplyScalar(.008);
     group.add(number);
   }
   return group;

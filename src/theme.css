@@ -8,6 +8,25 @@
 }
 button, input { transition: background-color .16s, border-color .16s, box-shadow .16s; }
 button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.game-start { position:relative; min-height:100dvh; display:grid; place-items:center; padding:24px; overflow:hidden; isolation:isolate; background:radial-gradient(circle at 50% 10%,#5e462022,transparent 42%),linear-gradient(145deg,#0b1112,#1b2420); }
+.game-start-background-party { position:absolute; inset:0; z-index:-1; pointer-events:none; }
+.hero-background { position:absolute; width:min(25vw,330px); height:44vh; object-fit:cover; opacity:.28; filter:grayscale(.3) brightness(.65); mask-image:linear-gradient(to bottom,transparent,#000 18%,#000 78%,transparent); }
+.hero-background-1 { left:2vw; top:5vh; }
+.hero-background-2 { left:10vw; bottom:3vh; }
+.hero-background-3 { right:10vw; top:5vh; }
+.hero-background-4 { right:2vw; bottom:3vh; }
+.game-start-card { width:min(430px,100%); padding:48px 40px; text-align:center; border:1px solid #dfbb8055; border-radius:18px; background:#101817e8; box-shadow:0 30px 90px #0009; }
+.game-start-kicker { color:var(--gold); font-size:11px; letter-spacing:4px; font-weight:700; }
+.game-start-card h1 { margin:20px 0 8px; color:#f4ead8; font-size:clamp(42px,9vw,68px); line-height:.9; letter-spacing:-3px; }
+.game-start-card h1 em { color:var(--gold); font-family:Georgia,serif; font-weight:400; }
+.game-start-card>p { margin:0 0 20px; color:var(--muted); font-size:11px; letter-spacing:2px; }
+.game-start-card label { display:block; color:var(--muted); font-size:11px; letter-spacing:1.5px; text-align:left; }
+.game-start-card input { display:block; width:100%; min-height:50px; margin-top:8px; padding:0 14px; color:#f4ead8; background:#0b1112; border:1px solid #ffffff2b; border-radius:8px; }
+.game-start-button { width:100%; justify-content:center; margin-top:22px; min-height:50px; }
+.game-start-reset { display:block; margin:14px auto 0; padding:0; color:var(--muted); background:none; border:0; font-size:10px; letter-spacing:1px; text-decoration:underline; }
+.game-start-reset:hover { color:var(--gold); }
+@media (max-width:700px) { .hero-background { width:42vw; opacity:.18; } .hero-background-2,.hero-background-3 { display:none; } .hero-background-1 { left:-8vw; } .hero-background-4 { right:-8vw; } }
+@media (max-width:500px) { .game-start-card { padding:40px 24px; } }
 .landing {
   background: radial-gradient(ellipse at 4% 40%, #28362f66, transparent 55%), #101617;
 }
@@ -25,6 +44,20 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .map-caption { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; margin-top: 14px; }
 .landing-perks { border-top: 1px solid var(--edge); padding-top: 20px; margin-top: 24px; gap: 22px; font-size: 11px; flex-wrap: wrap; }
 .welcome-card { background: linear-gradient(145deg, #232b2b, #191f21); border: 1px solid #dfbb8038; border-radius: 18px; padding: 36px 30px 0; box-shadow: 0 24px 70px #0005, inset 0 1px #ffffff09; }
+.hero-lobby { align-self:center; padding:26px 24px; border:1px solid #dfbb8045; border-radius:18px; background:linear-gradient(145deg,#232b2b,#191f21); box-shadow:0 24px 70px #0005; text-align:center; }
+.hero-lobby-kicker { color:var(--gold); font-size:11px; font-weight:700; letter-spacing:3px; }
+.hero-lobby h2 { margin:10px 0 6px; font-size:30px; }
+.hero-lobby>p { color:var(--muted); margin-bottom:20px; }
+.hero-host-name { display:block; margin:0 auto 18px; max-width:260px; text-align:left; color:var(--muted); font-size:12px; }
+.hero-host-name input { display:block; width:100%; margin-top:6px; }
+.hero-slots { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:22px; }
+.hero-slot { aspect-ratio:3/4; min-height:130px; display:grid; place-items:center; overflow:hidden; border:1px dashed #dfbb8070; border-radius:10px; background:#101718; cursor:pointer; }
+.hero-slot input { position:absolute; inline-size:1px; block-size:1px; opacity:0; }
+.hero-slot img { width:100%; height:100%; object-fit:cover; }
+.hero-slot span { display:grid; gap:8px; color:var(--gold); font-size:11px; letter-spacing:1px; }
+.hero-slot small { color:var(--muted); font-size:10px; letter-spacing:0; }
+.hero-slot:hover { border-color:var(--gold); background:#1c2725; }
+.hero-start { width:100%; justify-content:center; }
 .welcome-card::before { content: ''; position: absolute; top: 0; left: 30px; right: 30px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
 .card-decoration { top: 29px; right: 26px; }
 .card-kicker { margin-bottom: 18px; }

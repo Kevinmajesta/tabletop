@@ -25,13 +25,18 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
     dialog.current?.showModal();
     return () => { dialog.current?.close(); previous?.focus(); };
   }, [game?.tokenId]);
-  useEffect(() => { setResponse(''); setError(''); }, [game?.tokenId, game?.round, game?.phase]);
+  useEffect(() => { setResponse(''); setError(''); }, [game?.tokenId, game?.round, game?.phase, game?.turn]);
   function send(action: Record<string, unknown>) {
     if (!socket || !connected || busy) return;
     setBusy(true); setError('');
     socket.timeout(5000).emit('minigame:action', { tokenId: game?.tokenId, ...action }, (timeout: Error | null, result?: { error?: string }) => {
       setBusy(false); setError(timeout ? 'Koneksi terputus. Periksa status ronde sebelum mencoba lagi.' : result?.error || '');
     });
+  }
+  function remove() {
+    if (!game || !socket || !connected || busy || !confirm(`Hapus token ${gameNames[game.kind]}?`)) return;
+    socket.emit('token:remove', game.tokenId);
+    onClose();
   }
   const disabled = !connected || busy;
   const name = (id: string) => members.find(member => member.id === id)?.name || 'Pemain';
@@ -59,13 +64,13 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
         {dm && <button disabled={disabled || game.players.length < (gameCatalog[game.kind].mode === 'duel' ? 2 : 1)} onClick={() => send({ type: 'start' })}>Mulai ronde</button>}
       </div>}
       {game.kind === 'quickmath' && <>
-        <p>Soal acak dari server: penjumlahan, pengurangan, atau perkalian. Jawaban benar pertama yang diterima server mendapat 1 poin. Jawaban salah boleh dicoba lagi.</p>
-        {game.phase !== 'waiting' && <h3 className="quickmath-question" aria-live="polite">{game.question} = ?</h3>}
-        {game.phase === 'open' && game.players.includes(playerId) && <form onSubmit={e => { e.preventDefault(); if (/^\d+$/.test(response.trim())) send({ type: 'answer', round: game.round, answer: Number(response.trim()) }); }}>
+        <p>Sepuluh soal acak dari server. Jawaban benar pertama tiap soal mendapat 1 poin; jawaban salah boleh dicoba lagi.</p>
+        {game.phase !== 'waiting' && <><p>Soal {Math.min(game.turn + 1, 10)} dari 10</p><h3 className="quickmath-question" aria-live="polite">{game.question} = ?</h3></>}
+        {game.phase === 'open' && (dm || game.players.includes(playerId)) && <form onSubmit={e => { e.preventDefault(); if (/^\d+$/.test(response.trim())) send({ type: 'answer', round: game.round, question: game.turn, answer: Number(response.trim()) }); }}>
           <label>Jawaban<input type="text" inputMode="numeric" pattern="[0-9]+" required maxLength={4} value={response} disabled={disabled} onChange={e => setResponse(e.target.value)} /></label>
           <button disabled={disabled || !/^\d+$/.test(response.trim())}>Kirim jawaban</button>
         </form>}
-        {game.phase === 'finished' && <p role="status">{name(game.result)} paling cepat, +1 poin. {game.question} = {game.answer}.</p>}
+        {game.phase === 'finished' && <p role="status">Selesai. Jawaban terakhir: {game.question} = {game.answer}.</p>}
       </>}
       {game.kind === 'memory' && <>
         <p>{game.players.map(id => `${name(id)}: ${game.scores[id]} pasang`).join(' · ')}</p>
@@ -88,7 +93,10 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
         <div className="tictactoe-board">{game.board.map((cell, i) => <button key={i} aria-label={`Baris ${Math.floor(i / 3) + 1}, kolom ${i % 3 + 1}: ${cell || 'kosong'}`} disabled={disabled || game.phase !== 'open' || game.players[game.turn] !== playerId || !!cell} onClick={() => send({ type: 'cell', cell: i })}>{cell || '·'}</button>)}</div>
         {game.phase === 'finished' && <p role="status">{game.result === 'Seri.' ? 'Seri.' : `${name(game.result)} menang, +1 poin.`}</p>}
       </>}
-      {dm && game.phase !== 'waiting' && <button disabled={disabled} onClick={() => send({ type: 'reset' })}>{game.phase === 'finished' ? 'Siapkan ronde berikutnya' : 'Batalkan ronde'}</button>}
+      <div className="minigame-actions">
+        {dm && game.phase !== 'waiting' && <button disabled={disabled} onClick={() => send({ type: 'reset' })}>{game.phase === 'finished' ? 'Siapkan ronde berikutnya' : 'Batalkan ronde'}</button>}
+        {dm && <button className="remove-action" disabled={disabled} onClick={remove}>Hapus token</button>}
+      </div>
       {busy && <p role="status">Mengirim aksi…</p>}{error && <p role="alert">{error}</p>}
     </dialog>}
   </section>;

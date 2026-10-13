@@ -10,11 +10,25 @@ export const trayDepth = 12;
 export function dieShape(sides: number) {
   let geometry: THREE.BufferGeometry;
   if (sides === 10) {
-    const h = .105;
-    const tip = h * (1 + 2 / (1 - Math.cos(Math.PI / 5)));
-    const ring = Array.from({ length: 10 }, (_, i) => [Math.cos(i * Math.PI / 5), i % 2 ? h : -h, Math.sin(i * Math.PI / 5)]);
-    const vertices = [...ring, [0, tip, 0], [0, -tip, 0]];
-    const faces = Array.from({ length: 10 }, (_, i) => [i % 2 ? 11 : 10, i, (i + 1) % 10, (i + 2) % 10]);
+    const n = 5, height = .8;
+    const primal = [
+      ...Array.from({ length: n }, (_, i) => [Math.cos(i * Math.PI * 2 / n), height, Math.sin(i * Math.PI * 2 / n)]),
+      ...Array.from({ length: n }, (_, i) => [Math.cos((i + .5) * Math.PI * 2 / n), -height, Math.sin((i + .5) * Math.PI * 2 / n)]),
+    ];
+    const capTop = Array.from({ length: n }, (_, i) => i);
+    const capBottom = Array.from({ length: n }, (_, i) => n + i);
+    const triangles = Array.from({ length: n }, (_, i) => [
+      [i, n + i, (i + 1) % n],
+      [n + i, n + (i + 1) % n, (i + 1) % n],
+    ]).flat();
+    const sourceFaces = [capTop, capBottom, ...triangles];
+    const vertices = sourceFaces.map(face => {
+      const points = face.map(index => new THREE.Vector3(...primal[index]));
+      const normal = points[1].clone().sub(points[0]).cross(points[2].clone().sub(points[0])).normalize();
+      if (normal.dot(points[0]) < 0) normal.negate();
+      return normal.multiplyScalar(1 / normal.dot(points[0])).toArray();
+    });
+    const faces = primal.map((_, index) => sourceFaces.flatMap((face, faceIndex) => face.includes(index) ? [faceIndex] : []));
     return finishShape(vertices, faces);
   }
   switch (sides) {

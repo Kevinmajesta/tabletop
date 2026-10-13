@@ -52,7 +52,7 @@
 .board-active-compact button{display:grid;place-items:center;width:44px;background:transparent;border:0}
 .board-tab-scene>label:not(.board-checkbox),.board-tab-token>label:not(.board-checkbox){padding-bottom:10px;margin-bottom:12px;border-bottom:1px solid #53675b;font-size:12px;color:#d7c5a8}
 .board-tab-scene form{padding:12px;background:#202a24;border-radius:5px;margin:14px 0 20px}
-.board-tab-token>strong,.board-tab-combat>strong{display:block;font-size:17px;margin-bottom:16px}
+.token-picker{padding-bottom:10px;margin-bottom:12px;border-bottom:1px solid #53675b;font-size:12px;color:#d7c5a8}.token-stats>summary{cursor:pointer;display:flex;align-items:center;min-height:44px;font-size:17px;font-weight:600;margin-bottom:12px}.token-stats:not([open])>summary{margin-bottom:0}.board-tab-token>strong,.board-tab-combat>strong{display:block;font-size:17px;margin-bottom:16px}
 .board-tab-combat ol{list-style:none;padding:0;margin:0 0 16px;counter-reset:turn}
 .board-tab-combat li{counter-increment:turn;padding:12px;border-bottom:1px solid #53675b;line-height:1.5}
 .board-tab-combat li:before{content:counter(turn);margin-right:12px;color:#d7c5a8;font-size:11px}

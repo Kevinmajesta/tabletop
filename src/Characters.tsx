@@ -61,6 +61,7 @@ export default function Characters({
   const [rollMode, setRollMode] = useState<
     "normal" | "advantage" | "disadvantage"
   >("normal");
+  const [quickOpen, setQuickOpen] = useState(false);
   const [critical, setCritical] = useState(false);
   const [sheetTab, setSheetTab] = useState("combat");
   const [healthAmount, setHealthAmount] = useState(1);
@@ -89,6 +90,9 @@ export default function Characters({
       setOpen(true);
     }
   }, [requestedCharacter]);
+  useEffect(() => {
+    if (!character && characters[0]) setSelected(characters[0].id);
+  }, [character, characters]);
   useEffect(() => {
     if (open) dialog.current?.showModal();
     else {
@@ -197,6 +201,40 @@ export default function Characters({
         <BookOpen size={18} />
         Karakter
       </button>
+      {character && !build && (
+        <aside className="character-quick" aria-label="Roll karakter">
+          <button
+            className="character-quick-toggle"
+            aria-expanded={quickOpen}
+            onClick={() => setQuickOpen((value) => !value)}
+          >
+            {quickOpen ? "Tutup" : "Karakter"}
+          </button>
+          {quickOpen && (
+            <div className="character-quick-panel">
+              <strong>{character.sheet.name}</strong>
+              <span>
+                HP {character.hp}/{character.sheet.hp} · AC {character.sheet.ac}
+              </span>
+              <div className="character-quick-rolls">
+                {character.sheet.skills.map((skill) => (
+                  <button
+                    key={skill.id}
+                    disabled={!connected || busy}
+                    onClick={() => roll("skill", skill.id)}
+                  >
+                    {skill.name}
+                    <strong>
+                      {skill.bonus >= 0 ? "+" : ""}
+                      {skill.bonus}
+                    </strong>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </aside>
+      )}
       <dialog
         className="character-dialog"
         ref={dialog}

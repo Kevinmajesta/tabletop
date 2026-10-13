@@ -27,6 +27,21 @@ for (const sides of [4, 6, 8, 10, 12, 20, 100]) {
   });
 }
 
+test('d10 uses ten planar four-sided faces for d10 and d100', () => {
+  const shape = dieShape(10);
+  assert.deepEqual(shape.faces.map(face => face.indices.length), Array(10).fill(4));
+  assert.ok(shape.faces.every(face => new Set(face.indices).size === 4));
+  for (const face of shape.faces) {
+    const [a, b, c, d] = face.indices.map(index => shape.vertices[index]);
+    const normal = cross(subtract(b, a), subtract(c, a));
+    assert.ok(Math.abs(dot(normal, subtract(d, a))) < 1e-9);
+  }
+});
+
+function subtract(a, b) { return a.map((value, index) => value - b[index]); }
+function cross(a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; }
+function dot(a, b) { return a.reduce((sum, value, index) => sum + value * b[index], 0); }
+
 test('same starting random sequence gives same trajectory, not preselected face values', () => {
   assert.deepEqual(simulateRoll(20, 3, 5, random(8)), simulateRoll(20, 3, 5, random(8)));
   assert.notDeepEqual(simulateRoll(20, 3, 5, random(8)).frames, simulateRoll(20, 3, 5, random(9)).frames);

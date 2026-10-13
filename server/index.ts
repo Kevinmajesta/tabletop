@@ -56,6 +56,7 @@ type Room = {
   activeSceneId?: string;
   characters?: Character[];
   minigames?: Game[];
+  portraits?: string[];
 };
 type SafeRoom = Omit<Room, "dmKey" | "members"> & {
   members: { id: string; name: string; online: boolean; dm: boolean }[];
@@ -105,6 +106,17 @@ app.get("/api/character-catalog", (_req, res) =>
   res.json(catalogFor({ ruleset: "srd-2024" })),
 );
 app.use("/uploads", express.static(uploadDir, { maxAge: "1d" }));
+const tokenScreenDir = path.join(root, "token_screen");
+app.use("/token_screen", express.static(tokenScreenDir, { maxAge: "1d" }));
+app.get("/api/token-screen", async (_req, res) => {
+  try {
+    const portraits = (await readdir(tokenScreenDir)).filter(file => /\.(png|jpe?g|webp|gif)$/i.test(file)).sort().slice(0, 4);
+    if (portraits.length !== 4) throw new Error();
+    res.json({ portraits: portraits.map(file => `/token_screen/${encodeURIComponent(file)}`) });
+  } catch {
+    res.status(500).json({ error: "Folder token_screen harus berisi empat gambar." });
+  }
+});
 const code = () => randomBytes(4).toString("hex").toUpperCase();
 const clean = (value: unknown, max: number) =>
   typeof value === "string" ? value.trim().slice(0, max) : "";
@@ -709,6 +721,8 @@ io.on("connection", (socket) => {
         if (p.unit === "ft" || p.unit === "m") scene.grid.unit = p.unit;
         if (p.diagonal === "grid" || p.diagonal === "euclidean")
           scene.grid.diagonal = p.diagonal;
+        const mapScale = number(p.mapScale, 0.5, 4);
+        if (mapScale !== undefined) scene.mapScale = mapScale;
       } else if (p.type === "scene:create") {
         if (!dm || room.scenes!.length >= 20) {
           fail("Hanya DM bisa membuat scene, maksimal 20.");
@@ -757,8 +771,9 @@ io.on("connection", (socket) => {
           "maxHp",
           "initiative",
           "visionRange",
+          "lightRange",
         ] as const) {
-          if (key === "visionRange" && !dm) continue;
+          if ((key === "visionRange" || key === "lightRange") && !dm) continue;
           const value = number(
             p[key],
             key === "initiative" ? -100 : 0,
@@ -1042,6 +1057,16 @@ io.on("connection", (socket) => {
         return;
       }
       if (socket.data.roomId) socket.leave(socket.data.roomId);
+      const returningIds = Object.entries(room.members)
+        .filter(([id, member]) => id !== playerId && member.name.toLowerCase() === name.toLowerCase())
+        .map(([id]) => id);
+      if (returningIds.length) {
+        for (const character of room.characters || [])
+          if (returningIds.includes(character.ownerId)) character.ownerId = playerId;
+        for (const scene of room.scenes || [])
+          for (const token of scene.tokens)
+            if (returningIds.includes(token.ownerId)) token.ownerId = playerId;
+      }
       room.members[playerId] = { name, secret: playerSecret };
       socket.data.roomId = roomId;
       socket.data.playerId = playerId;
@@ -1082,8 +1107,7 @@ io.on("connection", (socket) => {
         if (!socket.data.isDM) { respond({ error: 'Hanya GM boleh deklarasikan permainan.' }); return; }
         const roomPeers = [...io.sockets.sockets.values()].filter(peer => peer.data.roomId === room.id);
         const gmIds = new Set(roomPeers.filter(peer => peer.data.isDM).map(peer => peer.data.playerId));
-        const peers = gameCatalog[game.kind].mode === 'duel' ? roomPeers : roomPeers.filter(peer => !gmIds.has(peer.data.playerId));
-        const eligible = [...new Set(peers.map(peer => peer.data.playerId as string))].filter(id => (gameCatalog[game.kind].mode === 'duel' && gmIds.has(id)) || (!token.hidden && visible(token, scene, id)));
+        const eligible = [...new Set(roomPeers.map(peer => peer.data.playerId as string))].filter(id => gmIds.has(id) || (!token.hidden && visible(token, scene, id)));
         if (gameCatalog[game.kind].mode === 'duel') {
           if (!Array.isArray(action.players) || action.players.length !== 2 || !action.players.every(id => typeof id === 'string' && eligible.includes(id))) { respond({ error: 'Pilih dua pemain online yang bisa melihat token.' }); return; }
           error = declareGame(game, action.players as string[]);
@@ -1132,7 +1156,27 @@ io.on("connection", (socket) => {
     )
       return;
     Object.assign(token, destination);
-    flushResize(room);
+    socket.to(room.id).emit("token:moved", { id: token.id, ...destination });
+    if (p.final !== false) {
+      save();
+      broadcast(room);
+    }
+  });
+
+  socket.on("token:duplicate", (id: unknown, reply?: (result: { error?: string; ok?: boolean; id?: string }) => void) => {
+    const room = rooms[socket.data.roomId];
+    const scene = room && sceneFor(room);
+    const token = scene?.tokens.find((item) => item.id === id);
+    if (!room || !scene || !token || token.minigame || (!socket.data.isDM && token.ownerId !== socket.data.playerId) || scene.tokens.length >= 100) {
+      reply?.({ error: "Token tidak bisa disalin." });
+      return;
+    }
+    const copy = { ...token, id: randomUUID(), x: Math.min(100, token.x + 2), y: Math.min(100, token.y + 2) };
+    scene.tokens.push(copy);
+    room.tokens = scene.tokens;
+    save();
+    broadcast(room);
+    reply?.({ ok: true, id: copy.id });
   });
 
   socket.on("token:resize", (payload: unknown) => {
@@ -1203,6 +1247,10 @@ io.on("connection", (socket) => {
       let rollMode: "normal" | "advantage" | "disadvantage" = "normal";
       if (room && expression && typeof expression === "object") {
         const request = expression as Record<string, unknown>;
+        if (typeof request.expression === "string") {
+          expression = request.expression;
+          rollMode = request.mode === "advantage" || request.mode === "disadvantage" ? request.mode : "normal";
+        } else {
         const character = room.characters?.find(
           (c) =>
             c.id === request.characterId &&
@@ -1294,6 +1342,7 @@ io.on("connection", (socket) => {
           : `${rollMode === "normal" ? 1 : 2}d20${bonus! >= 0 ? "+" : ""}${bonus}`;
         if (damage) rollMode = "normal";
         characterName = character.sheet.name;
+        }
       }
       if (!room || typeof expression !== "string" || expression.length > 64)
         return;
@@ -1413,9 +1462,8 @@ const storage = multer.diskStorage({
       `${randomUUID()}${({ "image/png": ".png", "image/jpeg": ".jpg", "image/webp": ".webp", "image/gif": ".gif" } as Record<string, string>)[file.mimetype] || ".bin"}`,
     ),
 });
-const upload = multer({
+const uploadOptions: multer.Options = {
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     cb(
       null,
@@ -1424,6 +1472,30 @@ const upload = multer({
       ),
     );
   },
+};
+const mapUpload = multer(uploadOptions);
+const tokenUpload = multer({ ...uploadOptions, limits: { fileSize: 10 * 1024 * 1024 } });
+app.post("/api/hero-lobby/reset", (_req, res) => {
+  delete rooms.AGEOFHEROES;
+  save();
+  res.json({ ok: true });
+});
+app.post("/api/hero-lobby", async (_req, res) => {
+  const id = "AGEOFHEROES";
+  if (rooms[id]) {
+    res.json({ id, title: rooms[id].title });
+    return;
+  }
+  try {
+    const portraits = (await readdir(tokenScreenDir)).filter(file => /\.(png|jpe?g|webp|gif)$/i.test(file)).sort().slice(0, 4);
+    if (portraits.length !== 4) throw new Error();
+    const dmKey = randomBytes(24).toString("hex");
+    rooms[id] = { id, title: "The Age of Heroes", dmKey, map: null, members: {}, tokens: [], messages: [], portraits: portraits.map(file => `/token_screen/${encodeURIComponent(file)}`) };
+    save();
+    res.json({ id, dmKey, title: rooms[id].title, portraits: rooms[id].portraits });
+  } catch {
+    res.status(500).json({ error: "Folder token_screen harus berisi empat gambar." });
+  }
 });
 
 let pendingUploadBytes = 0;
@@ -1466,13 +1538,14 @@ app.post(
       return;
     }
     activeUploads++;
-    pendingUploadBytes += 10 * 1024 * 1024;
+    const reservedBytes = Number(req.headers["content-length"]) || 0;
+    pendingUploadBytes += reservedBytes;
     let released = false;
     const release = () => {
       if (released) return;
       released = true;
       activeUploads--;
-      pendingUploadBytes -= 10 * 1024 * 1024;
+      pendingUploadBytes -= reservedBytes;
     };
     res.once("finish", release);
     res.once("close", release);
@@ -1486,7 +1559,7 @@ app.post(
       })
       .catch(next);
   },
-  upload.single("image"),
+  (req, res, next) => (req.params.kind === "map" ? mapUpload : tokenUpload).single("image")(req, res, next),
   (req, res) => {
     const room = rooms[req.params.id.toUpperCase()];
     const kind = req.params.kind;
@@ -1566,7 +1639,7 @@ app.use(
       .json({
         error:
           error instanceof multer.MulterError
-            ? "Gambar maksimal 10 MB."
+            ? "Gambar token maksimal 10 MB."
             : "Terjadi kesalahan server.",
       });
   },

@@ -18,7 +18,8 @@
 .map-viewport:active{cursor:grabbing}
 .map-canvas{position:absolute;top:50%;left:50%;transform-origin:center;background-size:100% 100%;background-repeat:no-repeat;box-shadow:0 0 0 1px #29212e,0 7px 22px #20162480;touch-action:none;cursor:grab}
 .map-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(#1c162064 1px,transparent 1px),linear-gradient(90deg,#1c162064 1px,transparent 1px);box-shadow:inset 0 0 0 1px #342c3880}
-.map-canvas .map-token{width:5%;height:auto;min-width:0;min-height:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;cursor:grab}
+.map-canvas .map-token{width:5%;height:auto;min-width:0;min-height:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;cursor:grab;transition:left 80ms linear,top 80ms linear}
+.map-canvas .map-token.dragging{transition:none}
 .map-canvas .map-token img{display:block;width:100%;height:auto;max-height:none;object-fit:contain;border-radius:0;pointer-events:none}
 .map-canvas .map-token.selected{outline:2px solid #f3d49a;outline-offset:3px;box-shadow:none}
 .token-size-control{position:absolute;left:12px;bottom:56px;z-index:6;max-width:calc(100% - 80px);padding:12px;background:#25202b;color:#f0e7f0;border:1px solid #b99459;border-radius:6px}
@@ -26,7 +27,7 @@
 .token-size-control>div{display:flex;align-items:center;gap:8px;font-size:12px}
 .token-size-control input{width:90px;min-height:44px;padding:8px;background:#171d1b;color:#f3e5cb;border:1px solid #b99459;border-radius:4px}
 .map-canvas .map-token:active{cursor:grabbing}
-.map-canvas .map-token span{top:calc(100% + 4px)}
+.map-canvas .map-token span{top:calc(100% + 3px);max-width:96px;padding:2px 5px;font-size:8px;line-height:1.15;overflow:hidden;text-overflow:ellipsis;transform-origin:top center;border-radius:999px;background:#111b1be6}
 .map-viewport .empty-board{pointer-events:auto;background:#2a2530ee;border:1px solid #8b7695;border-radius:5px;padding:28px;box-shadow:0 10px 35px #24182970}
 .map-viewport .empty-board h2{color:#f2edf3}
 .map-viewport .empty-board p{color:#c6bdc8}

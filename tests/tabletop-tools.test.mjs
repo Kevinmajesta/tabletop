@@ -23,10 +23,16 @@ test('measurement, fog, walls and lighting geometry', () => {
   scene.tokens[0].visionSource = true;
   scene.fog = true;
   assert.equal(visible({ x: 30, y: 50 }, scene, 'p'), false);
+  scene.tokens[0].lightRange = 13;
+  assert.ok(visible({ x: 30, y: 50 }, scene, 'p'), 'token light opens manual fog around the player');
+  scene.tokens[0].lightRange = 0;
   scene.marks.push({ id: 'fog', ownerId: 'dm', kind: 'reveal', a: { x: 0, y: 0 }, b: { x: 35, y: 100 }, text: '' });
   assert.ok(visible({ x: 30, y: 50 }, scene, 'p'));
   scene.daylight = false;
   assert.equal(visible({ x: 30, y: 50 }, scene, 'p'), false);
+  scene.tokens[0].lightRange = 60;
+  assert.ok(visible({ x: 30, y: 50 }, scene, 'p'), 'DM-assigned token light illuminates within its range');
+  scene.tokens[0].lightRange = 0;
   scene.marks.push({ id: 'light', ownerId: 'dm', kind: 'light', a: { x: 25, y: 50 }, b: { x: 35, y: 50 }, text: '' });
   assert.ok(visible({ x: 30, y: 50 }, scene, 'p'));
 });
@@ -39,31 +45,40 @@ test('two-player tools, scene isolation, DM permissions and hidden token payload
   try {
     for (let i = 0; i < 100; i++) { try { await fetch(base); break; } catch { await new Promise(r => setTimeout(r, 100)); } }
     const room = await (await fetch(`${base}/api/rooms`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })).json();
-    async function join(id, dm = false) {
+    async function join(id, dm = false, name = id) {
       const socket = io(base); sockets.push(socket);
       let state;
       socket.on('room:state', s => { state = s; });
       await new Promise((resolve, reject) => { socket.once('connect', resolve); socket.once('connect_error', reject); });
-      await new Promise(resolve => socket.emit('room:join', { roomId: room.id, name: id, playerId: id, playerSecret: `secret-${id}`, dmKey: dm ? room.dmKey : '' }, resolve));
+      await new Promise(resolve => socket.emit('room:join', { roomId: room.id, name, playerId: id, playerSecret: `secret-${id}`, dmKey: dm ? room.dmKey : '' }, resolve));
       await new Promise(r => setTimeout(r, 50));
       return { socket, get state() { return state; } };
     }
     const dm = await join('dm', true), player = await join('player');
     const firstId = dm.state.activeSceneId;
     const action = (who, payload) => new Promise(resolve => who.socket.emit('tabletop:action', { sceneId: who.state.activeSceneId, ...payload }, resolve));
-    assert.ok((await action(player, { type: 'grid', columns: 30 })).error);
-    assert.equal((await action(dm, { type: 'grid', columns: 30, distance: 10, unit: 'm' })).ok, true);
+    assert.ok((await action(player, { type: 'grid', columns: 30, mapScale: 2 })).error);
+    assert.equal((await action(dm, { type: 'grid', columns: 30, distance: 10, unit: 'm', mapScale: 2 })).ok, true);
+    await new Promise(r => setTimeout(r, 50));
+    assert.equal(player.state.scenes[0].mapScale, 2);
     const form = new FormData(); form.append('image', new Blob([new Uint8Array([137,80,78,71])], { type: 'image/png' }), 'token.png');
     await fetch(`${base}/api/rooms/${room.id}/upload/token`, { method: 'POST', headers: { 'x-player-id': 'player', 'x-player-secret': 'secret-player' }, body: form });
     await new Promise(r => setTimeout(r, 50));
     const hero = player.state.tokens[0].id;
+    const duplicated = await new Promise(resolve => player.socket.emit('token:duplicate', hero, resolve));
+    assert.equal(duplicated.ok, true);
+    await new Promise(r => setTimeout(r, 50));
+    assert.equal(player.state.tokens.length, 2);
+    assert.notEqual(duplicated.id, hero);
+    assert.equal(player.state.tokens.find(token => token.id === duplicated.id).ownerId, 'player');
+    assert.ok((await new Promise(resolve => dm.socket.emit('token:duplicate', 'missing', resolve))).error);
     assert.equal((await action(player, { type: 'token:update', id: hero, hp: 8, maxHp: 12, initiative: 17, conditions: ['Prone'] })).ok, true);
     await new Promise(r => setTimeout(r, 50));
     assert.equal(dm.state.tokens[0].hp, 8);
     assert.equal((await action(dm, { type: 'token:update', id: hero, hidden: true })).ok, true);
     await new Promise(r => setTimeout(r, 50));
-    assert.equal(player.state.tokens.length, 0);
-    assert.equal(player.state.scenes[0].tokens.length, 0);
+    assert.equal(player.state.tokens.length, 1);
+    assert.equal(player.state.scenes[0].tokens.length, 1);
     await action(dm, { type: 'token:update', id: hero, hidden: false });
     await action(dm, { type: 'combat:set', ids: [hero] });
     await new Promise(r => setTimeout(r, 50));
@@ -88,8 +103,9 @@ test('two-player tools, scene isolation, DM permissions and hidden token payload
     await new Promise(r => setTimeout(r, 50));
     assert.equal(player.state.tokens[0].hp, 8);
     await action(dm, { type: 'scene:settings', vision: true });
-    await action(player, { type: 'token:update', id: hero, visionSource: true, visionRange: 999 });
+    await action(player, { type: 'token:update', id: hero, visionSource: true, visionRange: 999, lightRange: 999 });
     await new Promise(r => setTimeout(r, 50));
+    assert.equal(dm.state.tokens[0].lightRange, undefined, 'player cannot grant token light');
     assert.equal(dm.state.tokens[0].visionSource, undefined, 'player cannot approve vision');
     assert.equal(dm.state.tokens[0].visionRange, undefined, 'player cannot increase vision');
     player.socket.emit('token:move', { id: hero, x: 80, y: 80 });
@@ -151,6 +167,8 @@ test('two-player tools, scene isolation, DM permissions and hidden token payload
     const undo=await new Promise(resolve=>dm.socket.emit('campaign:undo',resolve));assert.equal(undo.ok,true);
     const deniedExport=await new Promise(resolve=>other.socket.emit('campaign:export',resolve));assert.ok(deniedExport.error);
     const backup=await new Promise(resolve=>dm.socket.emit('campaign:export',resolve));assert.equal(backup.version,1);assert.equal(backup.campaign.dmKey,undefined);assert.equal(backup.campaign.members,undefined);
+    const returningPlayer = await join('returning-player', false, 'player');
+    assert.equal(returningPlayer.state.characters.length, 1, 'same name restores the existing character');
   } finally {
     sockets.forEach(s => s.disconnect()); server.kill();
     await new Promise(resolve => server.exitCode !== null ? resolve() : server.once('exit', resolve));

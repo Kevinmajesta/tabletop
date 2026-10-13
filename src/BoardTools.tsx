@@ -115,6 +115,7 @@ export default function BoardTools({
   const [tool, setTool] = useState<Tool>("select");
   const [open, setOpen] = useState(false);
   const [dmMenu, setDmMenu] = useState(false);
+  const [tokenId, setTokenId] = useState<string | null>(selected ?? null);
   useEffect(() => { const toggle = () => { if(!dm)return;setDmMenu(true); setTab('scene'); setOpen(true); }; window.addEventListener('tabletop:dm-menu',toggle); return () => window.removeEventListener('tabletop:dm-menu',toggle); }, [dm]);
   const [tab, setTab] = useState<"tools" | "scene" | "combat" | "token">(
     "tools",
@@ -134,7 +135,8 @@ export default function BoardTools({
   const drawing = useRef(false);
   const focus = useRef(onFocus);
   focus.current = onFocus;
-  const token = scene.tokens.find((t) => t.id === selected);
+  useEffect(() => { if (selected) setTokenId(selected); }, [selected]);
+  const token = scene.tokens.find((t) => t.id === tokenId);
   const editable = token && (dm || token.ownerId === playerId);
   const sceneRef = useRef(scene.id);
   sceneRef.current = scene.id;
@@ -634,6 +636,22 @@ export default function BoardTools({
                       />
                     </label>
                     <label>
+                      Ukuran peta · {Math.round((scene.mapScale ?? 1) * 100)}%
+                      <input
+                        type="range"
+                        min={50}
+                        max={400}
+                        step={10}
+                        value={(scene.mapScale ?? 1) * 100}
+                        onChange={(e) =>
+                          action({
+                            type: "grid",
+                            mapScale: e.target.valueAsNumber / 100,
+                          })
+                        }
+                      />
+                    </label>
+                    <label>
                       Jarak per kotak
                       <input
                         type="number"
@@ -714,12 +732,21 @@ export default function BoardTools({
             )}
             {tab === "token" && (
               <>
+                {dm && dmMenu && (
+                  <label className="token-picker">
+                    Token yang diatur
+                    <select value={tokenId || ""} onChange={(e) => setTokenId(e.target.value || null)}>
+                      <option value="">Pilih token…</option>
+                      {scene.tokens.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                    </select>
+                  </label>
+                )}
                 {editable && token ? (
-                  <>
-                    <strong>{token.name}</strong>
+                  <details className="token-stats">
+                    <summary>{token.name} — buka statistik</summary>
                     {(
-                      ["hp", "maxHp", "initiative", "visionRange"] as const
-                    ).filter(key => key !== 'visionRange' || dm && dmMenu).map((key) => (
+                      ["hp", "maxHp", "initiative", "visionRange", "lightRange"] as const
+                    ).filter(key => !["visionRange", "lightRange"].includes(key) || dm && dmMenu).map((key) => (
                       <label key={key}>
                         {
                           {
@@ -727,12 +754,13 @@ export default function BoardTools({
                             maxHp: "HP maksimum",
                             initiative: "Initiative",
                             visionRange: `Jarak pandang (${scene.grid.unit})`,
+                            lightRange: `Jarak cahaya (${scene.grid.unit})`,
                           }[key]
                         }
                         <input
                           type="number"
                           min={key === "initiative" ? -100 : 0}
-                          max={key === "visionRange" ? 1000 : 9999}
+                          max={["visionRange", "lightRange"].includes(key) ? 1000 : 9999}
                           value={token[key] ?? (key === "visionRange" ? 60 : 0)}
                           onChange={(e) =>
                             action({
@@ -779,7 +807,7 @@ export default function BoardTools({
                         Sembunyikan dari pemain
                       </label>
                     )}
-                  </>
+                  </details>
                 ) : (
                   <p>
                     Pilih token milikmu untuk mengatur HP dan kondisi. DM dapat

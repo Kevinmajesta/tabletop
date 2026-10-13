@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { newGame, gameAction, gameView, declareGame } from '../dist-server/minigames.js';
-const act = (game, id, type, data = {}, dm = false) => gameAction(game, id, dm, { type, ...data });
+const act = (game, id, type, data = {}, dm = false, randomInt) => gameAction(game, id, dm, { type, ...data }, randomInt);
 test('quick math generates each operation on server and hides answer even from GM', () => {
   for (const [operation, question, answer] of [[0, '3 + 8', 11], [1, '8 − 3', 5], [2, '3 × 8', 24]]) {
     const game = newGame('t', 'quickmath');
@@ -15,49 +15,48 @@ test('quick math generates each operation on server and hides answer even from G
     assert.equal(Object.hasOwn(gameView(game, 'gm', true), 'answer'), false);
   }
 });
-test('quick math rejects spectators, stale and malformed answers; first correct answer scores once', () => {
-  const game = newGame('t', 'quickmath'); declareGame(game, ['a', 'b']);
-  assert.ok(act(game, 'a', 'start'));
+test('quick math lets GM play without being declared and runs ten questions', () => {
+  const game = newGame('t', 'quickmath'); declareGame(game, ['a']);
   assert.equal(gameAction(game, 'gm', true, { type: 'start' }, () => 0), null);
   for (const answer of ['2', null, 2.5, NaN, Infinity]) assert.ok(act(game, 'a', 'answer', { round: 1, answer }));
-  assert.ok(act(game, 'gm', 'answer', { round: 1, answer: 2 }));
-  assert.ok(act(game, 'a', 'answer', { round: 0, answer: 2 }));
-  assert.ok(act(game, 'a', 'answer', { round: 1, answer: 3 }));
-  assert.equal(game.phase, 'open'); assert.equal(game.scores.a, 0);
-  assert.equal(act(game, 'a', 'answer', { round: 1, answer: 2 }), null);
-  assert.ok(act(game, 'b', 'answer', { round: 1, answer: 2 }));
-  assert.equal(game.result, 'a'); assert.equal(game.scores.a, 1); assert.equal(game.scores.b, 0);
-  assert.equal(gameView(game, 'b', false).answer, 2);
-  assert.ok(act(game, 'b', 'reset')); assert.equal(act(game, 'gm', 'reset', {}, true), null);
-  assert.equal(game.question, undefined); assert.equal(game.answer, undefined);
-  gameAction(game, 'gm', true, { type: 'start' }, () => 0);
-  assert.ok(act(game, 'a', 'answer', { round: 1, answer: 2 }));
-  assert.equal(act(game, 'b', 'answer', { round: 2, answer: 2 }), null);
-  assert.equal(game.scores.a, 1); assert.equal(game.scores.b, 1);
+  assert.ok(act(game, 'a', 'answer', { round: 0, question: 0, answer: 2 }));
+  assert.ok(act(game, 'a', 'answer', { round: 1, question: 0, answer: 3 }));
+  assert.ok(act(game, 'a', 'answer', { round: 1, question: 1, answer: 2 }));
+  for (let question = 1; question <= 10; question++) {
+    const player = question % 2 ? 'gm' : 'a';
+    assert.equal(act(game, player, 'answer', { round: 1, question: question - 1, answer: 2 }, player === 'gm', () => 0), null);
+    assert.equal(game.turn, question);
+    assert.equal(game.phase, question === 10 ? 'finished' : 'open');
+  }
+  assert.equal(game.scores.gm, 5); assert.equal(game.scores.a, 5);
+  assert.equal(gameView(game, 'a', false).answer, 2);
+  assert.ok(act(game, 'a', 'answer', { round: 10, answer: 2 }));
 });
-test('memory match pairs hidden cards, limits to two open, requires turn', () => {
+test('memory closes a wrong pair immediately and hides active cards from opponent', () => {
   const game = newGame('t', 'memory'); declareGame(game, ['a', 'b']);
   assert.equal(gameAction(game, 'gm', true, { type: 'start' }, max => max - 1), null);
   assert.equal(game.memoryBoard.length, 16);
   assert.equal(gameView(game, 'a', false).memoryBoard.filter(Boolean).length, 0);
   assert.equal(gameView(game, 'gm', true).memoryBoard.filter(Boolean).length, 0);
-  assert.ok(act(game, 'a', 'flip', { index: 0 }));
+
+  assert.equal(act(game, 'a', 'flip', { index: 0 }), null);
   assert.equal(game.turn, 0); assert.deepEqual(game.memoryOpen, [0]);
   assert.equal(gameView(game, 'a', false).memoryBoard[0], game.memoryBoard[0]);
   assert.equal(gameView(game, 'b', false).memoryBoard.filter(Boolean).length, 0);
   assert.equal(gameView(game, 'gm', true).memoryBoard.filter(Boolean).length, 0);
-  assert.equal(act(game, 'a', 'flip', { index: 0 }), null);
-  assert.equal(act(game, 'b', 'flip', { index: 1 }), null);
+
+  const wrong = game.memoryBoard.findIndex(card => card !== game.memoryBoard[0]);
+  assert.equal(act(game, 'a', 'flip', { index: wrong }), null);
+  assert.equal(game.turn, 1); assert.deepEqual(game.memoryOpen, []);
+  assert.equal(gameView(game, 'b', false).memoryBoard.filter(Boolean).length, 0);
+
+  assert.equal(act(game, 'a', 'flip', { index: 1 }), 'Aksi tidak tersedia pada ronde ini.');
+  assert.equal(act(game, 'b', 'flip', { index: 0 }), null);
   const pair = game.memoryBoard.indexOf(game.memoryBoard[0], 1);
-  assert.ok(act(game, 'a', 'flip', { index: pair }));
-  assert.equal(game.scores.a, 1); assert.deepEqual(game.memoryOpen, []);
-  assert.equal(game.board[0], 'a'); assert.equal(game.board[pair], 'a');
-  assert.equal(gameView(game, 'b', false).memoryBoard[0], game.memoryBoard[0]);
-  assert.ok(act(game, 'a', 'flip', { index: pair === 1 ? 2 : 1 }));
-  const wrong = game.memoryBoard.findIndex((c, i) => c !== game.memoryBoard[pair === 1 ? 2 : 1] && !game.board[i] && i !== (pair === 1 ? 2 : 1));
-  assert.ok(act(game, 'a', 'flip', { index: wrong }));
-  assert.equal(game.turn, 1); assert.deepEqual(game.memoryOpen, [wrong]);
-  assert.equal(gameView(game, 'b', false).memoryBoard[wrong], game.memoryBoard[wrong]);
+  assert.equal(act(game, 'b', 'flip', { index: pair }), null);
+  assert.equal(game.scores.b, 1); assert.deepEqual(game.memoryOpen, []);
+  assert.equal(game.board[0], 'b'); assert.equal(game.board[pair], 'b');
+  assert.equal(gameView(game, 'a', false).memoryBoard[0], game.memoryBoard[0]);
 });
 test('Connect Four validates turn and gravity, wins vertically and horizontally, resets', () => {
   for (const sequence of [[0,1,0,1,0,1,0], [0,6,1,6,2,6,3]]) {

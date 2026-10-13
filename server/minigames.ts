@@ -22,7 +22,7 @@ export function newGame(tokenId: string, kind: GameKind): Game {
 export function gameView(game: Game, playerId: string, dm: boolean): Game {
   const { answer, memoryBoard, memoryOpen, ...view } = game;
   const filteredMemoryBoard = memoryBoard?.map((card, i) =>
-    (memoryOpen && memoryOpen.includes(i)) || game.board[i] || (game.turn === game.players.indexOf(playerId) && memoryOpen?.length && memoryOpen.includes(i))
+    game.board[i] || (game.turn === game.players.indexOf(playerId) && memoryOpen?.includes(i))
       ? card
       : ''
   );
@@ -35,6 +35,14 @@ export function declareGame(game: Game, participants: string[]): string | null {
   for (const id of participants) if (!Object.hasOwn(game.scores, id)) Object.defineProperty(game.scores, id, { value: 0, writable: true, enumerable: true, configurable: true });
   game.declaration = (game.declaration || 0) + 1;
   return null;
+}
+function nextQuickMath(game: Game, randomInt: (max: number) => number) {
+  const operation = randomInt(3);
+  let a = 1 + randomInt(operation === 2 ? 12 : 50);
+  let b = 1 + randomInt(operation === 2 ? 12 : 50);
+  if (operation === 1 && b > a) [a, b] = [b, a];
+  game.question = `${a} ${['+', '−', '×'][operation]} ${b}`;
+  game.answer = operation === 0 ? a + b : operation === 1 ? a - b : a * b;
 }
 export function gameAction(game: Game, playerId: string, dm: boolean, action: Record<string, unknown>, randomInt?: (max: number) => number): string | null {
   const fail = 'Aksi tidak tersedia pada ronde ini.';
@@ -60,12 +68,8 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
     if (game.phase !== 'waiting' || game.players.length < (gameCatalog[game.kind].mode === 'duel' ? 2 : 1)) return 'Peserta belum cukup atau ronde belum direset.';
     if (game.kind === 'quickmath') {
       if (!randomInt) return 'Pembuat soal tidak tersedia.';
-      const operation = randomInt(3);
-      let a = 1 + randomInt(operation === 2 ? 12 : 50);
-      let b = 1 + randomInt(operation === 2 ? 12 : 50);
-      if (operation === 1 && b > a) [a, b] = [b, a];
-      game.question = `${a} ${['+', '−', '×'][operation]} ${b}`;
-      game.answer = operation === 0 ? a + b : operation === 1 ? a - b : a * b;
+      game.turn = 0;
+      nextQuickMath(game, randomInt);
     } else if (game.kind === 'memory') {
       if (!randomInt) return 'Pembuat acak tidak tersedia.';
       const emojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼'];
@@ -81,32 +85,32 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
     }
     game.round++; game.phase = 'open';
   } else if (action.type === 'answer') {
-    if (game.kind !== 'quickmath' || game.phase !== 'open' || !game.players.includes(playerId) || action.round !== game.round || typeof action.answer !== 'number' || !Number.isSafeInteger(action.answer)) return fail;
+    if (game.kind !== 'quickmath' || game.phase !== 'open' || (!dm && !game.players.includes(playerId)) || action.round !== game.round || action.question !== game.turn || typeof action.answer !== 'number' || !Number.isSafeInteger(action.answer)) return fail;
     if (action.answer !== game.answer) return 'Belum benar. Coba lagi.';
-    game.scores[playerId]++; game.result = playerId; game.phase = 'finished';
+    game.scores[playerId] = (game.scores[playerId] || 0) + 1;
+    game.result = playerId;
+    game.turn++;
+    if (game.turn === 10) game.phase = 'finished';
+    else if (randomInt) nextQuickMath(game, randomInt);
+    else return 'Pembuat soal tidak tersedia.';
   } else if (action.type === 'flip') {
     if (game.kind !== 'memory' || game.phase !== 'open' || game.players[game.turn] !== playerId || typeof action.index !== 'number' || action.index < 0 || action.index > 15 || game.board[action.index] || (game.memoryOpen && game.memoryOpen.includes(action.index))) return fail;
     game.memoryOpen = game.memoryOpen || [];
-    if (game.memoryOpen.length === 2) {
-      game.memoryOpen = [action.index];
-      game.turn = 1 - game.turn;
-    } else {
-      game.memoryOpen.push(action.index);
-      if (game.memoryOpen.length === 2 && game.memoryBoard) {
-        const [a, b] = game.memoryOpen;
-        if (game.memoryBoard[a] === game.memoryBoard[b]) {
-          game.board[a] = playerId; game.board[b] = playerId;
-          game.scores[playerId]++;
-          game.memoryPairs = (game.memoryPairs || 0) + 1;
-          if (game.memoryPairs === 8) {
-            if (game.scores[game.players[0]] > game.scores[game.players[1]]) game.result = game.players[0];
-            else if (game.scores[game.players[0]] < game.scores[game.players[1]]) game.result = game.players[1];
-            else game.result = 'Seri.';
-            game.phase = 'finished';
-          }
-          game.memoryOpen = [];
+    game.memoryOpen.push(action.index);
+    if (game.memoryOpen.length === 2 && game.memoryBoard) {
+      const [a, b] = game.memoryOpen;
+      if (game.memoryBoard[a] === game.memoryBoard[b]) {
+        game.board[a] = playerId; game.board[b] = playerId;
+        game.scores[playerId]++;
+        game.memoryPairs = (game.memoryPairs || 0) + 1;
+        if (game.memoryPairs === 8) {
+          if (game.scores[game.players[0]] > game.scores[game.players[1]]) game.result = game.players[0];
+          else if (game.scores[game.players[0]] < game.scores[game.players[1]]) game.result = game.players[1];
+          else game.result = 'Seri.';
+          game.phase = 'finished';
         }
-      }
+      } else game.turn = 1 - game.turn;
+      game.memoryOpen = [];
     }
   } else if (action.type === 'drop') {
     if (game.kind !== 'connectfour' || game.phase !== 'open' || game.players[game.turn] !== playerId || typeof action.column !== 'number' || !Number.isInteger(action.column) || action.column < 0 || action.column > 6) return fail;

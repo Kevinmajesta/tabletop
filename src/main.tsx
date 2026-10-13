@@ -32,6 +32,9 @@ import "./tabletop.css";
 import "./characters.css";
 import "./theme.css";
 const AnimatedDiceScene = lazy(() => import("./DiceScene"));
+const NaturalRollEffect = lazy(() => import("./NaturalRollEffect"));
+const BoardTools = lazy(() => import("./BoardTools"));
+const Minigames = lazy(() => import("./Minigames"));
 function DiceScene(props: { roll: DiceRoll; onComplete: () => void; zoom?: number }) {
   const instant = localStorage.getItem("meja-dice-animation") === "off";
   useEffect(() => {
@@ -45,14 +48,12 @@ function DiceScene(props: { roll: DiceRoll; onComplete: () => void; zoom?: numbe
     </Suspense>
   );
 }
-import NaturalRollEffect from "./NaturalRollEffect";
-import BoardTools from "./BoardTools";
-import Minigames from './Minigames';
 import type { Game } from '../server/minigames';
 import { gameCatalog } from '../server/minigames';
 import type { Character } from "../server/characters";
 import { distance, type BoardToken, type Scene } from "../server/tabletop";
 import type { DiceRoll } from "../server/dice-physics";
+import { randomId } from "./random-id";
 
 type Token = BoardToken;
 type Message = {
@@ -102,11 +103,9 @@ function App() {
   const [isDM, setIsDM] = useState(false);
   const [connected, setConnected] = useState(false);
   const [name, setName] = useState("");
-  const [title, setTitle] = useState("");
+  const [tokenScreen, setTokenScreen] = useState<string[]>([]);
   const [joinCode, setJoinCode] = useState(getRoomId);
-  const [mode, setMode] = useState<"home" | "join" | "create">(() =>
-    getRoomId() && !readIdentity(getRoomId()) ? "join" : "home",
-  );
+  const [mode] = useState<"create">("create");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [chat, setChat] = useState("");
@@ -129,6 +128,9 @@ function App() {
   useEffect(() => {
     if (diceOpen && window.innerWidth <= 900) setPanelOpen(false);
   }, [diceOpen]);
+  useEffect(() => {
+    void fetch('/api/token-screen').then(response => response.ok ? response.json() : null).then(data => setTokenScreen(data?.portraits || []));
+  }, []);
   const [charactersLoaded, setCharactersLoaded] = useState(false);
   const [requestedCharacter, setRequestedCharacter] = useState<{
     id: string;
@@ -144,6 +146,7 @@ function App() {
     () => localStorage.getItem("meja-dice-animation") !== "off",
   );
   const [modifier, setModifier] = useState(0);
+  const [rollMode, setRollMode] = useState<"normal" | "advantage" | "disadvantage">("normal");
   const [diceAnimation, setDiceAnimation] = useState<{
     id: string;
     name: string;
@@ -177,6 +180,8 @@ function App() {
   } | null>(null);
   const messagesEnd = useRef<HTMLDivElement>(null);
   const dragging = useRef<string | null>(null);
+  const copiedToken = useRef<string | null>(null);
+  const lastTokenMove = useRef(0);
   const tokenDragStart = useRef<{ x: number; y: number } | null>(null);
   const [movement, setMovement] = useState<{
     a: { x: number; y: number };
@@ -184,12 +189,33 @@ function App() {
   } | null>(null);
   const activeScene = room?.scenes?.find((s) => s.id === room.activeSceneId);
   const columns = activeScene?.grid.columns ?? 20;
+  const selectedToken = room?.tokens.find((token) => token.id === selected);
+  const canEditSelected = selectedToken && (isDM || selectedToken.ownerId === identity?.playerId);
   useEffect(() => {
     setSelected(null);
     setPan({ x: 0, y: 0 });
     setMovement(null);
     dragging.current = null;
+    copiedToken.current = null;
   }, [room?.activeSceneId]);
+  useEffect(() => {
+    const keyboard = (event: KeyboardEvent) => {
+      if (!(event.ctrlKey || event.metaKey) || (event.target as HTMLElement)?.closest("input,textarea,select,[contenteditable]")) return;
+      if (event.key.toLowerCase() === "c" && canEditSelected && !selectedToken?.minigame) {
+        event.preventDefault();
+        copiedToken.current = selectedToken!.id;
+      }
+      if (event.key.toLowerCase() === "v" && copiedToken.current && socketRef.current) {
+        event.preventDefault();
+        socketRef.current.timeout(5000).emit("token:duplicate", copiedToken.current, (timeout: Error | null, result?: { error?: string; id?: string }) => {
+          if (timeout || result?.error) setError(result?.error || "Token gagal ditempel.");
+          else if (result?.id) { copiedToken.current = result.id; setSelected(result.id); }
+        });
+      }
+    };
+    window.addEventListener("keydown", keyboard);
+    return () => window.removeEventListener("keydown", keyboard);
+  }, [canEditSelected, selectedToken]);
 
   useEffect(() => {
     if (!roomId || !identity) return;
@@ -243,6 +269,13 @@ function App() {
           current?.id === id ? { ...current, ...patch } : current,
         ),
     );
+    socket.on("token:moved", ({ id, x, y }: { id: string; x: number; y: number }) =>
+      setRoom((current) =>
+        current
+          ? { ...current, tokens: current.tokens.map((token) => token.id === id ? { ...token, x, y } : token) }
+          : current,
+      ),
+    );
     return () => {
       socket.disconnect();
       socketRef.current = null;
@@ -275,13 +308,14 @@ function App() {
 
   function throwDice(sides: number) {
     if (!socketRef.current || rolling || activeRoll.current) return;
+    setDiceOpen(false);
     setRolling(true);
     setRollError("");
     socketRef.current
       .timeout(15000)
       .emit(
         "dice:roll",
-        `1d${sides}${modifier ? (modifier > 0 ? "+" : "") + modifier : ""}`,
+        { expression: `${rollMode === "normal" || sides !== 20 ? 1 : 2}d${sides}${modifier ? (modifier > 0 ? "+" : "") + modifier : ""}`, mode: sides === 20 ? rollMode : "normal" },
         (error: Error | null, result?: { error?: string }) => {
           setRolling(false);
           if (error || result?.error)
@@ -373,34 +407,36 @@ function App() {
     setBusy(true);
     setError("");
     try {
-      let id = joinCode.trim().toUpperCase();
-      let dmKey: string | undefined;
-      if (mode === "create") {
-        const response = await fetch("/api/rooms", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title: title.trim() || "Petualangan Baru" }),
-        });
-        if (!response.ok) throw new Error("Gagal membuat ruang.");
-        const created = await response.json();
-        id = created.id;
-        dmKey = created.dmKey;
-      } else {
-        if (!id) throw new Error("Masukkan kode ruang dulu.");
-        const response = await fetch(`/api/rooms/${encodeURIComponent(id)}`);
-        if (!response.ok)
-          throw new Error("Ruang tidak ditemukan. Periksa kodenya lagi.");
-      }
+      const response = await fetch("/api/hero-lobby", { method: "POST" });
+      if (!response.ok) throw new Error((await response.json()).error || "Game sudah dimulai.");
+      const created = await response.json();
+      const id = created.id;
       const who = {
         name: name.trim().slice(0, 24),
-        playerId: crypto.randomUUID(),
-        playerSecret: crypto.randomUUID(),
-        dmKey,
+        playerId: randomId(),
+        playerSecret: randomId(),
+        ...(created.dmKey ? { dmKey: created.dmKey } : {}),
       };
       localStorage.setItem(identityKey(id), JSON.stringify(who));
       navigate(id, who);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Terjadi kesalahan.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function resetSession() {
+    if (prompt("Ketik RESET untuk menghapus campaign dan membuka klaim DM baru:") !== "RESET") return;
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch("/api/hero-lobby/reset", { method: "POST" });
+      if (!response.ok) throw new Error("Session gagal di-reset.");
+      localStorage.removeItem(identityKey("AGEOFHEROES"));
+      setError("Session di-reset. Orang berikutnya yang START GAME menjadi DM.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Session gagal di-reset.");
     } finally {
       setBusy(false);
     }
@@ -416,8 +452,8 @@ function App() {
       setError("Gunakan gambar PNG, JPG, WebP, atau GIF.");
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      setError("Gambar maksimal 10 MB.");
+    if (kind === "token" && file.size > 10 * 1024 * 1024) {
+      setError("Gambar token maksimal 10 MB.");
       return;
     }
     const tokenName =
@@ -485,6 +521,11 @@ function App() {
   function moveToken(event: React.PointerEvent) {
     if (!dragging.current || !mapRef.current) return;
     const { x, y } = tokenPosition(event);
+    const now = performance.now();
+    if (now - lastTokenMove.current >= 50) {
+      lastTokenMove.current = now;
+      socketRef.current?.emit("token:move", { id: dragging.current, x, y, final: false });
+    }
     const original = room?.tokens.find((t) => t.id === dragging.current);
     if (original)
       setMovement((current) => ({
@@ -524,13 +565,14 @@ function App() {
     socketRef.current?.emit("token:move", {
       id: dragging.current,
       ...tokenPosition(event),
+      final: true,
     });
     dragging.current = null;
     tokenDragStart.current = null;
   }
 
   function changeZoom(next: number, clientX?: number, clientY?: number) {
-    const clamped = Math.max(0.5, Math.min(4, Math.round(next * 100) / 100));
+    const clamped = Math.max(0.5, Math.min(8, Math.round(next * 100) / 100));
     const previous = zoomRef.current;
     if (clamped === previous) return;
     if (clientX !== undefined && clientY !== undefined && boardRef.current) {
@@ -573,188 +615,37 @@ function App() {
     if (panning.current?.pointerId === event.pointerId) panning.current = null;
   }
 
-  const selectedToken = room?.tokens.find((t) => t.id === selected);
-  const canEditSelected =
-    selectedToken && (isDM || selectedToken.ownerId === identity?.playerId);
   const mapRatio = mapSize.width / mapSize.height;
+  const mapScale = activeScene?.mapScale ?? 1;
   const canvasWidth = Math.min(
     (viewportSize.width || 1200) * 0.92,
     (viewportSize.height || 800) * 0.92 * mapRatio,
-  );
+  ) * mapScale;
   const canvasHeight = canvasWidth / mapRatio;
 
   if (!roomId || !identity)
     return (
-      <div className="landing">
-        <header className="landing-header">
-          <div className="brand-mark">
-            <Compass size={21} strokeWidth={2.4} />
-          </div>
-          <span className="brand-name">
-            meja<span>petualang.</span>
-          </span>
-          <span className="header-tag">VIRTUAL TABLETOP</span>
-        </header>
-        <main className="landing-main">
-          <div className="landing-copy">
-            <div className="eyebrow">
-              <span className="eyebrow-line" /> TEMPAT CERITA DIMULAI
-            </div>
-            <h1>
-              Petualangan
-              <br />
-              terbaik dimulai
-              <br />
-              <em>di satu meja.</em>
-            </h1>
-            <p>
-              Gelarkan peta, siapkan karakter, dan biarkan dadu menentukan
-              nasib. Satu ruang untuk seluruh party-mu, di mana pun kalian
-              berada.
-            </p>
-            <div className="adventure-map" aria-hidden="true">
-              <svg viewBox="0 0 520 150" fill="none">
-                <path d="M25 120 Q100 30 185 86 T350 62 T493 32" stroke="currentColor" strokeDasharray="4 8" />
-                <circle cx="25" cy="120" r="5" fill="currentColor" />
-                <circle cx="185" cy="86" r="8" />
-                <circle cx="350" cy="62" r="8" />
-                <path d="m458 49 24-40 24 40h-48Zm13-20 11 6 10-7M140 128l18-29 18 29m-8 0 24-39 24 39M291 38V17h11V8h12v9h11v21m-34-12h34" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
-                <text x="15" y="145">TITIK AWAL</text>
-                <text x="324" y="91">CERITA KALIAN</text>
-              </svg>
-              <span className="map-caption"><Compass size={14} /> Satu meja. Kemungkinan tak terbatas.</span>
-            </div>
-            <div className="landing-perks">
-              <span>
-                <span className="perk-icon">✦</span> Realtime bersama party
-              </span>
-              <span>
-                <span className="perk-icon">✦</span> Langsung dari browser
-              </span>
-            </div>
-          </div>
-          <div className="welcome-card">
-            <div className="card-decoration">✦ &nbsp; ✧ &nbsp; ✦</div>
-            <div className="card-kicker">MULAI BERMAIN</div>
-            <h2>
-              {mode === "create"
-                ? "Buat petualangan"
-                : mode === "join"
-                  ? "Gabung ke party"
-                  : "Ayo mulai bermain."}
-            </h2>
-            <p className="card-subtitle">
-              {mode === "create"
-                ? "Jadilah Dungeon Master dan undang party-mu."
-                : mode === "join"
-                  ? "Masukkan kode ruang dari Dungeon Master-mu."
-                  : "Pilih jalan ceritamu untuk mulai."}
-            </p>
-            {mode === "home" ? (
-              <div className="entry-options">
-                <button
-                  className="entry-button primary"
-                  onClick={() => {
-                    setMode("create");
-                    setError("");
-                  }}
-                >
-                  <span className="entry-icon">
-                    <Crown size={22} />
-                  </span>
-                  <span>
-                    <strong>Buat ruang baru</strong>
-                    <small>Jadi Dungeon Master</small>
-                  </span>
-                  <ArrowRight size={19} />
-                </button>
-                <button
-                  className="entry-button"
-                  onClick={() => {
-                    setMode("join");
-                    setError("");
-                  }}
-                >
-                  <span className="entry-icon">
-                    <Users size={22} />
-                  </span>
-                  <span>
-                    <strong>Gabung ruang</strong>
-                    <small>Masuk sebagai pemain</small>
-                  </span>
-                  <ArrowRight size={19} />
-                </button>
-              </div>
-            ) : (
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  void enter();
-                }}
-              >
-                <label>
-                  Nama panggilan
-                  <input
-                    maxLength={24}
-                    placeholder="Contoh: Gandalf"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
-                </label>
-                {mode === "create" ? (
-                  <label>
-                    Nama petualangan
-                    <input
-                      maxLength={60}
-                      placeholder="Contoh: The Lost Mines"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                    />
-                  </label>
-                ) : (
-                  <label>
-                    Kode ruang
-                    <input
-                      maxLength={20}
-                      placeholder="Contoh: A1B2C3D4"
-                      value={joinCode}
-                      onChange={(e) =>
-                        setJoinCode(e.target.value.toUpperCase())
-                      }
-                    />
-                  </label>
-                )}
-                <button className="submit-button" disabled={busy}>
-                  {busy
-                    ? "Sedang menyiapkan..."
-                    : mode === "create"
-                      ? "Buat ruang"
-                      : "Masuk ke ruang"}{" "}
-                  <ArrowRight size={18} />
-                </button>
-                <button
-                  type="button"
-                  className="back-button"
-                  onClick={() => {
-                    setMode("home");
-                    setError("");
-                  }}
-                >
-                  <ArrowLeft size={15} /> Kembali
-                </button>
-              </form>
-            )}
-            {error && <div className="form-error">{error}</div>}
-            <div className="card-footer">
-              <Shield size={14} /> Ruang privat, hanya untuk party-mu
-            </div>
-          </div>
-        </main>
-        <div className="landing-bottom">
-          <span>✧ EVERY GREAT STORY STARTS SOMEWHERE</span>
-          <span>BUILT FOR THE ADVENTUROUS</span>
+      <main className="game-start">
+        <div className="game-start-background-party" aria-hidden="true">
+          {tokenScreen.map((src, index) => <img key={src} src={src} alt="" className={`hero-background hero-background-${index + 1}`} />)}
         </div>
-      </div>
+        <section className="game-start-card">
+          <div className="game-start-kicker">THE AGE OF HEROES</div>
+          <h1>THE AGE<br /><em>OF HEROES</em></h1>
+          <p>ENTER THE ADVENTURE</p>
+          <label>
+            PLAYER NAME
+            <input maxLength={24} placeholder="Masukkan namamu" value={name} onChange={(e) => setName(e.target.value)} />
+          </label>
+          <button className="submit-button game-start-button" disabled={busy} onClick={() => void enter()}>
+            {busy ? "STARTING…" : "START GAME"} <ArrowRight size={18} />
+          </button>
+          <button className="game-start-reset" disabled={busy} onClick={() => void resetSession()}>
+            RESET SESSION / CLAIM DM AGAIN
+          </button>
+          {error && <div className="form-error">{error}</div>}
+        </section>
+      </main>
     );
 
   return (
@@ -830,7 +721,9 @@ function App() {
         </button>
       )}
       {activeScene && (
-        <Minigames games={room?.minigames || []} socket={socketRef.current} dm={isDM} playerId={identity.playerId} members={room?.members || []} connected={connected} openToken={openMinigame} onClose={() => setOpenMinigame(null)} onOpen={setOpenMinigame} />
+        <Suspense fallback={null}>
+          <Minigames games={room?.minigames || []} socket={socketRef.current} dm={isDM} playerId={identity.playerId} members={room?.members || []} connected={connected} openToken={openMinigame} onClose={() => setOpenMinigame(null)} onOpen={setOpenMinigame} />
+        </Suspense>
       )}
       </div>
       {diceAnimation && boardRef.current && createPortal(
@@ -860,12 +753,14 @@ function App() {
                 )
               }
             /></div>, mapRef.current || boardRef.current)}
-            <NaturalRollEffect
-              rollId={diceAnimation.id}
-              sides={diceAnimation.roll.sides}
-              values={diceAnimation.roll.values}
-              revealed={diceAnimation.revealed}
-            />
+            <Suspense fallback={null}>
+              <NaturalRollEffect
+                rollId={diceAnimation.id}
+                sides={diceAnimation.roll.sides}
+                values={diceAnimation.roll.values}
+                revealed={diceAnimation.revealed}
+              />
+            </Suspense>
             <div className="dice-outcome" role="status" aria-live="polite">
               {diceAnimation.revealed ? (
                 <>
@@ -1023,7 +918,7 @@ function App() {
                 {room.tokens.map((token) => (
                   <button
                     key={token.id}
-                    className={`map-token ${selected === token.id ? "selected" : ""}`}
+                    className={`map-token ${selected === token.id ? "selected" : ""} ${dragging.current === token.id ? "dragging" : ""}`}
                     style={{
                       left: `${token.x}%`,
                       top: `${token.y}%`,
@@ -1071,8 +966,8 @@ function App() {
                     }}
                     title={token.name}
                   >
-                    {token.minigame ? <div className="minigame-token-mark" aria-hidden="true">{gameCatalog[token.minigame].mark}</div> : <img src={token.image} alt={token.name} />}
-                    <span>
+                    {token.minigame ? <div className="minigame-token-mark" aria-hidden="true">{gameCatalog[token.minigame].mark}</div> : <img src={token.image} alt={token.name} loading="lazy" decoding="async" />}
+                    <span style={{ transform: `translateX(-50%) scale(${1 / zoom})` }}>
                       {token.name}
                       {token.maxHp
                         ? ` · HP ${token.hp ?? 0}/${token.maxHp}`
@@ -1134,28 +1029,30 @@ function App() {
             )}
           </div>
           {activeScene && (
-            <BoardTools
-              scene={activeScene}
-              scenes={room?.scenes || []}
-              socket={socketRef.current}
-              dm={isDM}
-              playerId={identity.playerId}
-              selected={selected}
-              connected={connected}
-              width={canvasWidth}
-              height={canvasHeight}
-              onFocus={(point) =>
-                setPan({
-                  x: ((50 - point.x) / 100) * canvasWidth * zoomRef.current,
-                  y: ((50 - point.y) / 100) * canvasHeight * zoomRef.current,
-                })
-              }
-            />
+            <Suspense fallback={null}>
+              <BoardTools
+                scene={activeScene}
+                scenes={room?.scenes || []}
+                socket={socketRef.current}
+                dm={isDM}
+                playerId={identity.playerId}
+                selected={selected}
+                connected={connected}
+                width={canvasWidth}
+                height={canvasHeight}
+                onFocus={(point) =>
+                  setPan({
+                    x: ((50 - point.x) / 100) * canvasWidth * zoomRef.current,
+                    y: ((50 - point.y) / 100) * canvasHeight * zoomRef.current,
+                  })
+                }
+              />
+            </Suspense>
           )}
           <div className="map-controls">
             <button
               title="Perbesar peta"
-              disabled={!room?.map || zoom >= 4}
+              disabled={!room?.map || zoom >= 8}
               onClick={() => changeZoom(zoom * 1.25)}
             >
               <Plus size={18} />
@@ -1166,7 +1063,7 @@ function App() {
               title="Zoom peta"
               type="range"
               min="50"
-              max="400"
+              max="800"
               step="1"
               value={Math.round(zoom * 100)}
               disabled={!room?.map}
@@ -1326,6 +1223,14 @@ function App() {
                     d{sides}
                   </button>
                 ))}
+                <label>
+                  Mode d20
+                  <select value={rollMode} onChange={(e) => setRollMode(e.target.value as typeof rollMode)}>
+                    <option value="normal">Normal</option>
+                    <option value="advantage">Advantage</option>
+                    <option value="disadvantage">Disadvantage</option>
+                  </select>
+                </label>
                 <label>
                   Modifier{" "}
                   <input
