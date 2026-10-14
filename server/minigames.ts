@@ -1,4 +1,4 @@
-export const gameKinds = ['rps', 'tictactoe', 'connectfour', 'quickmath', 'memory'] as const;
+export const gameKinds = ['rps', 'tictactoe', 'connectfour', 'quickmath', 'memory', 'bombdefuse'] as const;
 export type GameKind = typeof gameKinds[number];
 export const gameCatalog: Record<GameKind, { name: string; mark: string; mode: 'duel' | 'party' }> = {
   rps: { name: 'Gunting batu kertas', mark: 'GBK', mode: 'duel' },
@@ -6,7 +6,40 @@ export const gameCatalog: Record<GameKind, { name: string; mark: string; mode: '
   connectfour: { name: 'Connect Four', mark: '4', mode: 'duel' },
   quickmath: { name: 'Hitung Cepat', mark: '+×−', mode: 'party' },
   memory: { name: 'Memory', mark: 'M', mode: 'duel' },
+  bombdefuse: { name: 'Defuse the Bomb', mark: '!', mode: 'duel' },
 };
+const bombOrders = [['red', 'blue', 'yellow'], ['yellow', 'red', 'blue'], ['blue', 'yellow', 'red'], ['green', 'red', 'black'], ['black', 'yellow', 'green'], ['black', 'green', 'yellow']];
+const bombKeypads = [['☾', '★', '☂', '♜'], ['☂', '♜', '☾', '★'], ['★', '☂', '♜', '☾']];
+const wireSymbols = ['BURUNG', 'MAHKOTA', 'MATA', 'PEDANG'];
+const boardSize = (kind: GameKind) => kind === 'connectfour' ? 42 : kind === 'bombdefuse' ? 3 : 9;
+type BombModule = { id: 'wires' | 'button' | 'keypad' | 'dial'; label: string; options: string[]; clue: string; solution?: string[]; progress: string[] };
+function bombModules(randomInt: (max: number) => number): BombModule[] {
+  const wires = [...bombOrders[randomInt(bombOrders.length)]];
+  const symbol = wireSymbols[randomInt(wireSymbols.length)];
+  const indicator = randomInt(2) ? 'MENYALA' : 'GELAP';
+  const [top, middle, bottom] = wires;
+  const wireSolution = symbol === 'BURUNG' ? (bottom === 'yellow' ? [top, middle, bottom] : [middle, bottom, top])
+    : symbol === 'MAHKOTA' ? (indicator === 'MENYALA' ? [bottom, top, middle] : [middle, top, bottom])
+    : symbol === 'MATA' ? (top === 'red' ? [middle, bottom, top] : [bottom, middle, top])
+    : bottom === 'blue' ? [top, bottom, middle] : [middle, top, bottom];
+  const buttonLabel = ['TAHAN', 'BATAL', 'LEDAKKAN'][randomInt(3)];
+  const keypad = [...bombKeypads[randomInt(bombKeypads.length)]];
+  const keypadSolution = keypad[0] === '☾' ? ['☾', '★', '☂', '♜'] : keypad[0] === '☂' ? ['☂', '♜', '☾', '★'] : ['★', '☂', '♜', '☾'];
+  const buttonSolution = buttonLabel === 'TAHAN' ? (indicator === 'MENYALA' ? 'blue' : 'yellow') : buttonLabel === 'BATAL' ? (indicator === 'MENYALA' ? 'red' : 'yellow') : indicator === 'MENYALA' ? 'yellow' : 'blue';
+  const rune = ['RUBY', 'SAFIR', 'EMERALD', 'ONYX'][randomInt(4)];
+  const serial = String(100 + randomInt(900));
+  const serialOdd = Number(serial.at(-1)) % 2 === 1;
+  const dialSolution = rune === 'RUBY' ? (serialOdd ? ['2', '4', '1', '3'] : ['4', '1', '3', '2'])
+    : rune === 'SAFIR' ? (indicator === 'MENYALA' ? ['3', '1', '4', '2'] : ['1', '3', '2', '4'])
+    : rune === 'EMERALD' ? (serial.includes('0') ? ['4', '2', '3', '1'] : ['2', '1', '4', '3'])
+    : serialOdd ? ['1', '4', '2', '3'] : ['3', '2', '1', '4'];
+  return [
+    { id: 'wires', label: 'KABEL', options: wires, clue: `LAMBANG ${symbol} · INDIKATOR ${indicator}`, solution: wireSolution, progress: [] },
+    { id: 'button', label: 'TOMBOL', options: ['blue', 'red', 'yellow'], clue: `${buttonLabel} · ${indicator}`, solution: [buttonSolution], progress: [] },
+    { id: 'keypad', label: 'SIMBOL', options: keypad, clue: `SIMBOL PERTAMA ${keypad[0]}`, solution: keypadSolution, progress: [] },
+    { id: 'dial', label: 'PUTARAN RUNE', options: ['1', '2', '3', '4'], clue: `RUNE ${rune} · SEGEL ${serial}`, solution: dialSolution, progress: [] }
+  ];
+}
 export type Game = {
   tokenId: string; kind: GameKind; round: number; phase: 'waiting' | 'open' | 'finished';
   players: string[]; scores: Record<string, number>; choices: Record<string, string>;
@@ -15,18 +48,22 @@ export type Game = {
   declaration?: number;
   question?: string; answer?: number;
   memoryBoard?: string[]; memoryOpen?: number[]; memoryPairs?: number;
+  wires?: string[];
+  bombModules?: BombModule[];
 };
 export function newGame(tokenId: string, kind: GameKind): Game {
-  return { tokenId, kind, round: 0, phase: 'waiting', players: [], scores: {}, choices: {}, result: '', board: Array(kind === 'connectfour' ? 42 : 9).fill(''), turn: 0, memoryBoard: [], memoryOpen: [], memoryPairs: 0 };
+  return { tokenId, kind, round: 0, phase: 'waiting', players: [], scores: {}, choices: {}, result: '', board: Array(boardSize(kind)).fill(''), turn: 0, memoryBoard: [], memoryOpen: [], memoryPairs: 0 };
 }
 export function gameView(game: Game, playerId: string, dm: boolean): Game {
-  const { answer, memoryBoard, memoryOpen, ...view } = game;
+  const { answer, memoryBoard, memoryOpen, wires, bombModules, ...view } = game;
   const filteredMemoryBoard = memoryBoard?.map((card, i) =>
     game.board[i] || (game.turn === game.players.indexOf(playerId) && memoryOpen?.includes(i))
       ? card
       : ''
   );
-  return { ...view, ...(game.phase === 'finished' && answer !== undefined ? { answer } : {}), ...(game.kind === 'memory' ? { memoryBoard: filteredMemoryBoard, memoryOpen: game.turn === game.players.indexOf(playerId) ? memoryOpen : [] } : {}), choices: game.phase === 'finished' ? { ...game.choices } : Object.fromEntries(Object.entries(game.choices).map(([id, choice]) => [id, id === playerId ? choice : 'locked'])) };
+  const expert = dm || playerId === game.players[0];
+  const modules = bombModules?.map(module => expert ? module : { id: module.id, label: module.label, options: module.options, clue: module.clue, progress: module.progress });
+  return { ...view, ...(game.phase === 'finished' && answer !== undefined ? { answer } : {}), ...(game.kind === 'memory' ? { memoryBoard: filteredMemoryBoard, memoryOpen: game.turn === game.players.indexOf(playerId) ? memoryOpen : [] } : {}), ...(game.kind === 'bombdefuse' ? { bombModules: modules } : {}), choices: game.phase === 'finished' ? { ...game.choices } : Object.fromEntries(Object.entries(game.choices).map(([id, choice]) => [id, id === playerId ? choice : 'locked'])) } as Game;
 }
 export function declareGame(game: Game, participants: string[]): string | null {
   if (game.phase !== 'waiting') return 'Reset ronde sebelum deklarasi berikutnya.';
@@ -61,8 +98,8 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
     game.players = game.players.filter(id => id !== action.playerId);
   } else if (action.type === 'reset') {
     if (!dm) return 'Hanya GM boleh mengatur ronde.';
-    Object.assign(game, { phase: 'waiting', choices: {}, result: '', board: Array(game.kind === 'connectfour' ? 42 : 9).fill(''), turn: 0, memoryOpen: [], memoryPairs: 0 });
-    delete game.question; delete game.answer; delete game.memoryBoard;
+    Object.assign(game, { phase: 'waiting', choices: {}, result: '', board: Array(boardSize(game.kind)).fill(''), turn: 0, memoryOpen: [], memoryPairs: 0 });
+    delete game.question; delete game.answer; delete game.memoryBoard; delete game.wires; delete game.bombModules;
   } else if (action.type === 'start') {
     if (!dm) return 'Hanya GM boleh memulai ronde.';
     if (game.phase !== 'waiting' || game.players.length < (gameCatalog[game.kind].mode === 'duel' ? 2 : 1)) return 'Peserta belum cukup atau ronde belum direset.';
@@ -70,6 +107,11 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
       if (!randomInt) return 'Pembuat soal tidak tersedia.';
       game.turn = 0;
       nextQuickMath(game, randomInt);
+    } else if (game.kind === 'bombdefuse') {
+      if (!randomInt) return 'Pembuat acak tidak tersedia.';
+      game.bombModules = bombModules(randomInt);
+      game.wires = game.bombModules[0].solution!;
+      game.board = Array(3).fill('');
     } else if (game.kind === 'memory') {
       if (!randomInt) return 'Pembuat acak tidak tersedia.';
       const emojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼'];
@@ -93,6 +135,25 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
     if (game.turn === 10) game.phase = 'finished';
     else if (randomInt) nextQuickMath(game, randomInt);
     else return 'Pembuat soal tidak tersedia.';
+  } else if (action.type === 'bomb:input') {
+    if (game.kind !== 'bombdefuse' || game.phase !== 'open' || game.players[1] !== playerId || typeof action.module !== 'string' || typeof action.value !== 'string') return fail;
+    const module = game.bombModules?.find(item => item.id === action.module);
+    if (!module || module.progress.length >= module.solution!.length || !module.options.includes(action.value)) return fail;
+    if (module.solution![module.progress.length] !== action.value) {
+      game.result = 'exploded';
+      game.phase = 'finished';
+    } else {
+      module.progress.push(action.value);
+      if (module.id === 'wires') game.board = [...module.progress];
+      if (game.bombModules!.every(item => item.progress.length === item.solution!.length)) {
+        game.result = 'defused';
+        game.scores[playerId]++;
+        game.phase = 'finished';
+      }
+    }
+  } else if (action.type === 'cut') {
+    if (game.kind !== 'bombdefuse') return fail;
+    return gameAction(game, playerId, dm, { type: 'bomb:input', module: 'wires', value: action.wire }, randomInt);
   } else if (action.type === 'flip') {
     if (game.kind !== 'memory' || game.phase !== 'open' || game.players[game.turn] !== playerId || typeof action.index !== 'number' || action.index < 0 || action.index > 15 || game.board[action.index] || (game.memoryOpen && game.memoryOpen.includes(action.index))) return fail;
     game.memoryOpen = game.memoryOpen || [];

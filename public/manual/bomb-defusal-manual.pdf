@@ -1,0 +1,189 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R 7 0 R 9 0 R] /Count 4 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 4 0 R >>
+endobj
+4 0 obj
+<< /Length 996 >>
+stream
+BT
+/F1 22 Tf
+72 736 Td
+(MANUAL PENJINAK BOM) Tj
+/F2 11 Tf
+0 -25 Td
+(Khusus Expert. Jangan perlihatkan manual ini kepada Operator.) Tj
+0 -25 Td
+() Tj
+0 -25 Td
+(CARA BERKOMUNIKASI) Tj
+0 -25 Td
+(Operator menyebutkan posisi kabel dari atas ke bawah: A, B, C.) Tj
+0 -25 Td
+(Operator juga menyebutkan lambang, indikator, tulisan tombol, dan simbol awal.) Tj
+0 -25 Td
+(Berikan satu instruksi pada satu waktu. Satu input salah membuat bom meledak.) Tj
+0 -25 Td
+() Tj
+0 -25 Td
+(MODUL KABEL: BACA LAMBANG, LALU WARNA POSISI YANG DIMINTA.) Tj
+0 -25 Td
+(Lambang BURUNG: jika kabel C kuning, potong A lalu B lalu C.) Tj
+0 -25 Td
+(Lambang BURUNG: jika kabel C bukan kuning, potong B lalu C lalu A.) Tj
+0 -25 Td
+(Lambang MAHKOTA: jika indikator MENYALA, potong C lalu A lalu B.) Tj
+0 -25 Td
+(Lambang MAHKOTA: jika indikator GELAP, potong B lalu A lalu C.) Tj
+0 -25 Td
+(Lambang MATA: jika kabel A merah, potong B lalu C lalu A.) Tj
+0 -25 Td
+(Lambang MATA: jika kabel A bukan merah, potong C lalu B lalu A.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 6 0 R >>
+endobj
+6 0 obj
+<< /Length 921 >>
+stream
+BT
+/F1 22 Tf
+72 736 Td
+(MODUL KABEL: LANJUTAN) Tj
+/F2 11 Tf
+0 -25 Td
+(Lambang PEDANG: jika kabel C biru, potong A lalu C lalu B.) Tj
+0 -25 Td
+(Lambang PEDANG: jika kabel C bukan biru, potong B lalu A lalu C.) Tj
+0 -25 Td
+() Tj
+0 -25 Td
+(CONTOH PENGGUNAAN) Tj
+0 -25 Td
+(Operator berkata: lambang BURUNG; A merah, B biru, C kuning.) Tj
+0 -25 Td
+(Karena C kuning, instruksinya: potong kabel A, lalu B, lalu C.) Tj
+0 -25 Td
+(Operator berkata: lambang PEDANG; A hijau, B merah, C biru.) Tj
+0 -25 Td
+(Karena C biru, instruksinya: potong kabel A, lalu C, lalu B.) Tj
+0 -25 Td
+() Tj
+0 -25 Td
+(MODUL TOMBOL) Tj
+0 -25 Td
+(TAHAN + MENYALA: tekan BIRU. TAHAN + GELAP: tekan KUNING.) Tj
+0 -25 Td
+(BATAL + MENYALA: tekan MERAH. BATAL + GELAP: tekan KUNING.) Tj
+0 -25 Td
+(LEDAKKAN + MENYALA: tekan KUNING. LEDAKKAN + GELAP: tekan BIRU.) Tj
+0 -25 Td
+() Tj
+0 -25 Td
+(Selalu minta Operator mengulangi clue sebelum memberi instruksi.) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 8 0 R >>
+endobj
+8 0 obj
+<< /Length 831 >>
+stream
+BT
+/F1 22 Tf
+72 736 Td
+(MODUL SIMBOL) Tj
+/F2 11 Tf
+0 -25 Td
+(Operator menyebutkan simbol pertama pada deretan simbol.) Tj
+0 -25 Td
+(Jika simbol pertama bulan: bulan, bintang, payung, benteng.) Tj
+0 -25 Td
+(Jika simbol pertama payung: payung, benteng, bulan, bintang.) Tj
+0 -25 Td
+(Jika simbol pertama bintang: bintang, payung, benteng, bulan.) Tj
+0 -25 Td
+() Tj
+0 -25 Td
+(MODUL PUTARAN RUNE) Tj
+0 -25 Td
+(Operator menyebutkan warna RUNE, angka SEGEL, dan indikator jika diminta.) Tj
+0 -25 Td
+(RUBY: digit terakhir segel ganjil = 2, 4, 1, 3.) Tj
+0 -25 Td
+(RUBY: digit terakhir segel genap = 4, 1, 3, 2.) Tj
+0 -25 Td
+(SAFIR: indikator MENYALA = 3, 1, 4, 2.) Tj
+0 -25 Td
+(SAFIR: indikator GELAP = 1, 3, 2, 4.) Tj
+0 -25 Td
+(EMERALD: segel mengandung angka 0 = 4, 2, 3, 1.) Tj
+0 -25 Td
+(EMERALD: segel tanpa angka 0 = 2, 1, 4, 3.) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> /F2 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /Contents 10 0 R >>
+endobj
+10 0 obj
+<< /Length 742 >>
+stream
+BT
+/F1 22 Tf
+72 736 Td
+(MODUL PUTARAN RUNE: LANJUTAN) Tj
+/F2 11 Tf
+0 -25 Td
+(ONYX: digit terakhir segel ganjil = 1, 4, 2, 3.) Tj
+0 -25 Td
+(ONYX: digit terakhir segel genap = 3, 2, 1, 4.) Tj
+0 -25 Td
+() Tj
+0 -25 Td
+(CONTOH PUTARAN) Tj
+0 -25 Td
+(RUNE RUBY, segel 247: digit terakhir ganjil. Instruksi 2, 4, 1, 3.) Tj
+0 -25 Td
+(RUNE EMERALD, segel 502: ada angka 0. Instruksi 4, 2, 3, 1.) Tj
+0 -25 Td
+(RUNE SAFIR, indikator GELAP: instruksi 1, 3, 2, 4.) Tj
+0 -25 Td
+() Tj
+0 -25 Td
+(CHECKLIST AKHIR) Tj
+0 -25 Td
+(Pastikan kabel A/B/C, tombol, simbol, dan putaran rune selesai semua.) Tj
+0 -25 Td
+(Jangan menebak. Jika clue tidak jelas, minta Operator mengulanginya.) Tj
+0 -25 Td
+(Bom baru dijinakkan ketika empat modul menunjukkan selesai.) Tj
+ET
+endstream
+endobj
+xref
+0 11
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000133 00000 n 
+0000000372 00000 n 
+0000001419 00000 n 
+0000001658 00000 n 
+0000002630 00000 n 
+0000002869 00000 n 
+0000003751 00000 n 
+0000003991 00000 n 
+trailer
+<< /Size 11 /Root 1 0 R >>
+startxref
+4785
+%%EOF

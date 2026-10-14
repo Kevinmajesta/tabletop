@@ -106,6 +106,7 @@ app.get("/api/character-catalog", (_req, res) =>
   res.json(catalogFor({ ruleset: "srd-2024" })),
 );
 app.use("/uploads", express.static(uploadDir, { maxAge: "1d" }));
+app.use("/manual", express.static(path.join(root, "public", "manual"), { maxAge: "1d" }));
 const tokenScreenDir = path.join(root, "token_screen");
 app.use("/token_screen", express.static(tokenScreenDir, { maxAge: "1d" }));
 app.get("/api/token-screen", async (_req, res) => {

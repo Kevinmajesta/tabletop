@@ -58,6 +58,44 @@ test('memory closes a wrong pair immediately and hides active cards from opponen
   assert.equal(game.board[0], 'b'); assert.equal(game.board[pair], 'b');
   assert.equal(gameView(game, 'a', false).memoryBoard[0], game.memoryBoard[0]);
 });
+test('defuse bomb gives the expert rules while only the operator can input', () => {
+  const game = newGame('bombdefuse', 'bombdefuse');
+  assert.equal(declareGame(game, ['expert', 'operator']), null);
+  assert.equal(act(game, 'gm', 'start', {}, true, () => 0), null);
+  const expertView = gameView(game, 'expert', false);
+  const operatorView = gameView(game, 'operator', false);
+  const expertWires = expertView.bombModules?.find(module => module.id === 'wires');
+  const operatorWires = operatorView.bombModules?.find(module => module.id === 'wires');
+  assert.equal(expertWires?.clue, 'LAMBANG BURUNG · INDIKATOR GELAP');
+  assert.deepEqual(expertWires?.solution, ['red', 'blue', 'yellow']);
+  assert.equal(operatorWires?.solution, undefined);
+  assert.ok(act(game, 'expert', 'bomb:input', { module: 'wires', value: 'red' }));
+  assert.equal(act(game, 'operator', 'bomb:input', { module: 'wires', value: 'red' }), null);
+  assert.equal(act(game, 'operator', 'bomb:input', { module: 'wires', value: 'blue' }), null);
+  assert.equal(act(game, 'operator', 'bomb:input', { module: 'wires', value: 'yellow' }), null);
+  assert.equal(game.phase, 'open');
+});
+
+test('defuse bomb requires every expert-directed module', () => {
+  const game = newGame('bombmodules', 'bombdefuse');
+  declareGame(game, ['expert', 'operator']);
+  assert.equal(act(game, 'gm', 'start', {}, true, () => 0), null);
+  const expertView = gameView(game, 'expert', false);
+  const operatorView = gameView(game, 'operator', false);
+  assert.deepEqual(game.bombModules?.map(module => module.id), ['wires', 'button', 'keypad', 'dial']);
+  assert.deepEqual(expertView.bombModules?.find(module => module.id === 'dial')?.solution, ['4', '1', '3', '2']);
+  assert.equal(operatorView.bombModules?.find(module => module.id === 'dial')?.solution, undefined);
+  assert.ok(operatorView.bombModules?.every(module => !('solution' in module)));
+  assert.deepEqual(expertView.bombModules?.find(module => module.id === 'keypad')?.solution, ['☾', '★', '☂', '♜']);
+  assert.ok(act(game, 'expert', 'bomb:input', { module: 'button', value: 'yellow' }));
+  for (const value of ['red', 'blue', 'yellow']) assert.equal(act(game, 'operator', 'bomb:input', { module: 'wires', value }), null);
+  assert.equal(act(game, 'operator', 'bomb:input', { module: 'button', value: 'yellow' }), null);
+  for (const value of ['☾', '★', '☂', '♜']) assert.equal(act(game, 'operator', 'bomb:input', { module: 'keypad', value }), null);
+  assert.equal(game.phase, 'open');
+  for (const value of ['4', '1', '3', '2']) assert.equal(act(game, 'operator', 'bomb:input', { module: 'dial', value }), null);
+  assert.equal(game.result, 'defused');
+});
+
 test('Connect Four validates turn and gravity, wins vertically and horizontally, resets', () => {
   for (const sequence of [[0,1,0,1,0,1,0], [0,6,1,6,2,6,3]]) {
     const game = newGame('t', 'connectfour'); declareGame(game, ['a', 'gm']); act(game, 'gm', 'start', {}, true);

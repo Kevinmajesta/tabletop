@@ -29,6 +29,23 @@ test('all twelve classes save correctly at every level 1–5', () => {
   }
 });
 
+test('combat lists only prepared spell attacks with their damage dice', () => {
+  const sorcerer = complete('sorcerer', 1);
+  sorcerer.cantrips = ['fire-bolt', 'acid-splash'];
+  const cantripAttacks = deriveSheet(sorcerer).attacks;
+  assert.deepEqual(cantripAttacks.find(attack => attack.id === 'spell:fire-bolt'), {
+    id: 'spell:fire-bolt', name: 'Fire Bolt', bonus: deriveSheet(sorcerer).spellAttack, damage: '1d10',
+  });
+  assert.equal(cantripAttacks.some(attack => attack.id === 'spell:acid-splash'), false);
+
+  const wizard = complete('wizard', 3);
+  wizard.spells = ['ray-of-sickness', 'acid-arrow'];
+  wizard.prepared = ['ray-of-sickness'];
+  const wizardAttacks = deriveSheet(wizard).attacks;
+  assert.ok(wizardAttacks.some(attack => attack.id === 'spell:ray-of-sickness' && attack.damage === '2d8'));
+  assert.equal(wizardAttacks.some(attack => attack.id === 'spell:acid-arrow'), false);
+});
+
 test('PHB has four subclasses per class and Warlock/Druid spell bonuses', () => {
   assert.equal(revisedCatalog.subclasses.length,48);
   for(const klass of revisedCatalog.classes) assert.equal(revisedCatalog.subclasses.filter(s=>s.class.index===klass.index).length,4);

@@ -2209,16 +2209,29 @@ export function deriveSheet(build: BuildInput): Sheet {
     }
   }
   if (build.race === "tiefling") racialCantrips.push("thaumaturgy");
-  const spellAttackRows = [...new Set([...build.cantrips, ...spells])].flatMap((id) => {
+  const preparedSpells =
+    build.classId === "wizard"
+      ? [
+          ...new Set([
+            ...build.prepared,
+            ...(build.choices["origin.spell"] || []),
+            ...(build.choices["human.magic.spell"] || []),
+            ...(build.choices["level4.spell"] || []),
+            ...(build.choices["level4.rituals"] || []),
+            ...(build.levelFourFeat === "fey-touched" ? ["misty-step"] : build.levelFourFeat === "shadow-touched" ? ["invisibility"] : build.levelFourFeat === "telepathic" ? ["detect-thoughts"] : []),
+          ]),
+        ]
+      : [...new Set(spells)];
+  const spellAttackRows = [...new Set([...build.cantrips, ...preparedSpells])].flatMap((id) => {
     const spell = revisedCatalog.spells.find((entry) => entry.index === id) as Entry & {
-      attack_type?: string;
-      damage?: { damage_at_character_level?: Record<string, string> }[];
+      damage?: { damage_at_slot_level?: Record<string, string> };
     };
-    if (!spell || !limits.ability || !spell.attack_type || !spell.damage?.[0]?.damage_at_character_level) return [];
-    const diceByLevel = spell.damage[0].damage_at_character_level;
-    const dice = diceByLevel[String(level)] ||
-      diceByLevel[Object.keys(diceByLevel).sort((a, b) => Number(b) - Number(a)).find((key) => Number(key) <= level) || "1"];
-    return dice ? [{ id: `spell:${spell.index}`, name: spell.name, bonus: proficiency + modifiers[limits.ability], damage: dice }] : [];
+    const diceByLevel = spell?.damage?.damage_at_slot_level;
+    if (!spell || !limits.ability || !diceByLevel || !spell.desc?.some((text) => /make (?:a |an )?(?:melee|ranged )?spell attack/i.test(text))) return [];
+    const dice = diceByLevel[String(spell.level)] || diceByLevel["0"];
+    const upgrades = [...spell.desc.join(" ").matchAll(/levels? (\d+) \((\d+d\d+)\)/gi)];
+    const upgradedDice = upgrades.filter(([, at]) => Number(at) <= level).at(-1)?.[2];
+    return (upgradedDice || dice) ? [{ id: `spell:${spell.index}`, name: spell.name, bonus: proficiency + modifiers[limits.ability], damage: upgradedDice || dice! }] : [];
   });
   attacks.push(...spellAttackRows);
   return {

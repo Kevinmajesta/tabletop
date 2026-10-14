@@ -7,6 +7,7 @@ export default defineConfig({
     proxy: {
       '/api': 'http://127.0.0.1:3001',
       '/uploads': 'http://127.0.0.1:3001',
+      '/manual': 'http://127.0.0.1:3001',
       '/token_screen': 'http://127.0.0.1:3001',
       '/socket.io': { target: 'http://127.0.0.1:3001', ws: true },
     },

@@ -36,3 +36,26 @@
 .minigame-participants label { display: flex; align-items: center; gap: 10px; min-height: 44px; }
 .minigame-participants input[type=checkbox] { width: 22px; min-height: 22px; }
 .minigame-dialog { width: min(960px, calc(100vw - 32px)); height: min(760px, calc(100dvh - 32px)); }
+.bomb-game { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(260px, 1fr); gap: 28px; align-items: center; margin: 24px 0; }
+.bomb-sheet { min-height: 250px; padding: 24px; color: #2c2418; background: #e7d6ab; border: 1px solid #a68d59; box-shadow: 8px 10px 0 #08060455; font-family: Georgia, serif; transform: rotate(-1deg); }
+.bomb-sheet strong { display: block; padding-bottom: 10px; border-bottom: 1px solid #86714a; letter-spacing: 2px; }
+.bomb-sheet ol { text-transform: uppercase; font-weight: 700; line-height: 2; }
+.bomb-device { position: relative; min-height: 330px; padding: 34px 28px 24px; overflow: hidden; border: 2px solid #62686a; border-radius: 28px; background: linear-gradient(145deg, #647277, #222a2d 46%, #11181a); box-shadow: inset 8px 8px 14px #ffffff23, inset -10px -10px 18px #0009, 12px 18px 25px #000a; transform: perspective(700px) rotateY(-5deg) rotateX(3deg); }
+.bomb-device::before { content: ''; position: absolute; inset: 12px; border: 1px solid #b9c4c466; border-radius: 19px; pointer-events: none; }
+.bomb-display { position: relative; z-index: 1; width: 116px; margin: 0 auto 38px; padding: 12px; color: #ff6657; background: #070b0c; border: 5px solid #31393c; border-radius: 7px; box-shadow: inset 0 0 16px #f34b3a66, 0 3px 0 #000; font: 700 32px ui-monospace, monospace; text-align: center; text-shadow: 0 0 8px #ff563f; }
+.bomb-modules { position: relative; z-index: 1; display: grid; gap: 16px; }
+.bomb-module { padding: 10px; border: 1px solid #93a0a066; border-radius: 8px; background: #07101355; }
+.bomb-module > b { display: block; margin-bottom: 8px; color: #d8e5e0; font-size: 10px; letter-spacing: 2px; }
+.bomb-wires { display: grid; gap: 8px; }
+.bomb-wire { position: relative; width: 100%; min-height: 25px !important; padding: 0 !important; overflow: visible; background: transparent !important; border: 0 !important; box-shadow: none !important; }
+.bomb-options { display: flex; flex-wrap: wrap; gap: 7px; }
+.bomb-option { min-width: 52px; min-height: 36px !important; padding: 5px 9px !important; color: #e6eee7 !important; background: #29383a !important; border-color: #92a69c !important; font-weight: 700; }
+.bomb-option.cut { opacity: .4; text-decoration: line-through; }
+.bomb-wire::before { content: ''; position: absolute; top: 8px; right: 12px; left: 12px; height: 13px; border-radius: 20px; background: var(--wire); box-shadow: 0 4px 0 #0008, inset 0 3px 4px #ffffff5c; }
+.bomb-wire::after { content: ''; position: absolute; top: 3px; left: 6px; width: 14px; height: 23px; border-radius: 3px; background: #b7b7a2; box-shadow: calc(100% + 0px) 0 #b7b7a2; }
+.bomb-wire span { position: relative; z-index: 1; color: #fff; font-size: 10px; opacity: 0; }
+.bomb-wire:hover:not(:disabled)::before { filter: brightness(1.35); }
+.bomb-wire.cut::before { width: 38%; transform: translateX(22%); opacity: .45; }
+.bomb-wire.cut::after { opacity: .4; }
+.wire-red { --wire: #ca3b36; }.wire-blue { --wire: #316eaf; }.wire-yellow { --wire: #d6b93e; }.wire-green { --wire: #478a58; }.wire-black { --wire: #202225; }
+@media (max-width: 650px) { .bomb-game { grid-template-columns: 1fr; } .bomb-sheet { order: 2; } .bomb-device { min-height: 290px; } }

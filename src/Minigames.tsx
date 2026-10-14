@@ -78,6 +78,18 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
         {game.phase === 'finished' && <p role="status">{game.result === 'Seri.' ? 'Permainan Seri.' : `${name(game.result)} menang.`}</p>}
         {game.phase !== 'waiting' && <div className="memory-board">{game.memoryBoard?.map((card, i) => <button key={i} aria-label={`Kartu ${i + 1}`} disabled={disabled || game.phase !== 'open' || game.players[game.turn] !== playerId || !!game.board[i] || (game.memoryOpen && game.memoryOpen.includes(i))} onClick={() => send({ type: 'flip', index: i })} className={game.board[i] ? 'memory-matched' : game.memoryOpen?.includes(i) ? 'memory-open' : ''}>{card || '?'}</button>)}</div>}
       </>}
+      {game.kind === 'bombdefuse' && <>
+        <p>Player 1 adalah Expert dan membaca manual. Player 2 adalah Operator yang menekan perangkat. Selesaikan keempat modul tanpa salah input.</p>
+        {game.phase === 'open' && <div className="bomb-game">
+          {playerId === game.players[0] || dm ? <aside className="bomb-sheet"><strong>EXPERT MANUAL</strong><a href="/manual/bomb-defusal-manual.pdf" target="_blank" rel="noreferrer">Buka manual PDF</a>{game.bombModules?.map(module => <section key={module.id}><b>{module.label}</b><p>Clue perangkat: {module.clue}</p></section>)}<small>Baca aturan dari PDF, lalu arahkan Operator.</small></aside> : null}
+          <div className="bomb-device" aria-label="Bom dengan modul kabel, tombol, dan simbol">
+            <div className="bomb-display">{game.bombModules?.filter(module => module.progress.length === module.solution?.length).length || 0}/{game.bombModules?.length || 4}</div>
+            <div className="bomb-modules">{game.bombModules?.map(module => <section className="bomb-module" key={module.id}><b>{module.label}</b><small>{module.clue}</small><div className={module.id === 'wires' ? 'bomb-wires' : 'bomb-options'}>{module.options.map((value, index) => <button key={value} aria-label={module.id === 'wires' ? `Kabel ${'ABC'[index]}, warna ${value}` : value} className={`${module.id === 'wires' ? `bomb-wire wire-${value}` : 'bomb-option'} ${module.progress.includes(value) ? 'cut' : ''}`} disabled={disabled || playerId !== game.players[1] || module.progress.includes(value) || module.progress.length === module.solution?.length} onClick={() => send({ type: 'bomb:input', module: module.id, value })}><span>{module.id === 'wires' ? `${'ABC'[index]} · ${value}` : value}</span></button>)}</div></section>)}</div>
+          </div>
+        </div>}
+        {game.phase === 'open' && playerId === game.players[1] && <p role="status">Kamu Operator. Sebutkan clue pada perangkat dan ikuti instruksi Expert.</p>}
+        {game.phase === 'finished' && <p role="status">{game.result === 'defused' ? 'Bom berhasil dijinakkan! +1 poin untuk Operator.' : 'Boom! Ada input yang salah.'}</p>}
+      </>}
       {game.kind === 'rps' && game.phase === 'open' && <div className="minigame-actions">{game.players.includes(playerId) && !game.choices[playerId] ? Object.entries(choices).map(([choice, label]) => <button key={choice} disabled={disabled} onClick={() => send({ type: 'choose', choice })}>{label}</button>) : <p>Menunggu pilihan peserta lain.</p>}</div>}
       {game.kind === 'rps' && game.phase === 'finished' && <><p>{game.result === 'Seri.' ? game.result : `${name(game.result)} menang, +1 poin.`}</p><ul>{game.players.map(id => <li key={id}>{name(id)}: {choices[game.choices[id]]}</li>)}</ul></>}
       {game.kind === 'connectfour' && <>
