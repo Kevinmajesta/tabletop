@@ -7,6 +7,13 @@ import { persistence } from '../dist-server/persistence.js';
 import { resources } from '../dist-server/resources.js';
 import { emptyBuild, buildGroups, deriveSheet, validateBuild } from '../dist-server/characters.js';
 
+test('Agonizing Blast offers selected damaging Warlock cantrip', () => {
+  const build = { ...emptyBuild(), classId: 'warlock', level: 2, cantrips: ['eldritch-blast'], choices: { 'class.invocations': ['agonizing-blast'] } };
+  const group = buildGroups(build).find((entry) => entry.key === 'invocation.agonizing-blast');
+  assert.ok(group);
+  assert.deepEqual(group.options.map((option) => option.id), ['eldritch-blast']);
+});
+
 test('async persistence flush writes latest snapshot atomically',async()=>{
   const dir=await mkdtemp(path.join(os.tmpdir(),'meja-save-'));
   try {let state={revision:1}; const store=persistence(path.join(dir,'rooms.json'),()=>state);store.save();state={revision:2};store.save();await store.flush();assert.deepEqual(JSON.parse(await readFile(path.join(dir,'rooms.json'),'utf8')),{revision:2});}finally{await rm(dir,{recursive:true,force:true});}

@@ -43,6 +43,8 @@ type Props = {
   scenes: Scene[];
   socket: Socket | null;
   dm: boolean;
+  previewTokenId?: string | null;
+  onPreviewToken: (id: string | null) => void;
   playerId: string;
   selected?: string | null;
   connected: boolean;
@@ -105,6 +107,8 @@ export default function BoardTools({
   scenes,
   socket,
   dm,
+  previewTokenId,
+  onPreviewToken,
   playerId,
   selected,
   connected,
@@ -116,7 +120,14 @@ export default function BoardTools({
   const [open, setOpen] = useState(false);
   const [dmMenu, setDmMenu] = useState(false);
   const [tokenId, setTokenId] = useState<string | null>(selected ?? null);
+  const [selectedMarkId, setSelectedMarkId] = useState<string | null>(null);
   useEffect(() => { const toggle = () => { if(!dm)return;setDmMenu(true); setTab('scene'); setOpen(true); }; window.addEventListener('tabletop:dm-menu',toggle); return () => window.removeEventListener('tabletop:dm-menu',toggle); }, [dm]);
+  useEffect(() => setSelectedMarkId(null), [scene.id]);
+  function selectMark(event: React.PointerEvent<SVGElement>, id: string) {
+    if (tool !== "select") return;
+    event.stopPropagation();
+    setSelectedMarkId(id);
+  }
   const [tab, setTab] = useState<"tools" | "scene" | "combat" | "token">(
     "tools",
   );
@@ -209,9 +220,17 @@ export default function BoardTools({
       if (event.key === "Escape") {
         setDraft(null);
         setWaypoints([]);
+        setSelectedMarkId(null);
         setTool("select");
         setOpen(false);
         socket?.emit("tabletop:ruler", { sceneId: scene.id, points: [] });
+      }
+      if ((event.key === "Delete" || event.key === "Backspace") && selectedMarkId) {
+        const mark = scene.marks.find((item) => item.id === selectedMarkId);
+        if (mark && (dm || mark.ownerId === playerId)) {
+          action({ type: "mark:remove", id: selectedMarkId });
+          setSelectedMarkId(null);
+        }
       }
       if (event.key.toLowerCase() === "r") {
         setOpen(true);
@@ -226,7 +245,7 @@ export default function BoardTools({
     };
     window.addEventListener("keydown", keyboard);
     return () => window.removeEventListener("keydown", keyboard);
-  }, [draft, tool]);
+  }, [draft, tool, selectedMarkId, scene.marks, dm, playerId]);
   function action(payload: Record<string, unknown>) {
     if (!connected || !socket) {
       setError("Koneksi terputus. Tunggu tersambung kembali.");
@@ -279,10 +298,20 @@ export default function BoardTools({
       b = { x: (mark.b.x / 100) * width, y: (mark.b.y / 100) * height };
     const radius = Math.hypot(b.x - a.x, b.y - a.y);
     const properties = {
-      stroke: mark.kind === "wall" ? "#ffc1b4" : "#f3d49a",
-      strokeWidth: 2,
+      stroke:
+        selectedMarkId === key
+          ? "#ffffff"
+          : mark.kind === "wall"
+            ? "#ffc1b4"
+            : "#f3d49a",
+      strokeWidth: selectedMarkId === key ? 4 : 2,
       fill: "#d6ae7030",
       vectorEffect: "non-scaling-stroke" as const,
+      pointerEvents: tool === "select" ? "visiblePainted" as const : "none" as const,
+      onPointerDown:
+        key !== "draft" && tool === "select"
+          ? (event: React.PointerEvent<SVGElement>) => selectMark(event, key)
+          : undefined,
     };
     if (mark.kind === "text")
       return (
@@ -345,7 +374,7 @@ export default function BoardTools({
       0,
     );
   const fogCells: React.ReactNode[] = [];
-  if (!dm && (scene.fog || scene.vision)) {
+  if ((previewTokenId || !dm) && (scene.fog || scene.vision)) {
     const columns = 80,
       rows = Math.ceil((80 * height) / width);
     for (let x = 0; x < columns; x++)
@@ -355,6 +384,7 @@ export default function BoardTools({
             { x: ((x + 0.5) / columns) * 100, y: ((y + 0.5) / rows) * 100 },
             scene,
             playerId,
+            previewTokenId,
           )
         )
           fogCells.push(
@@ -584,6 +614,20 @@ export default function BoardTools({
               <>
                 {dm && dmMenu ? (
                   <>
+                    <label>
+                      Preview pandangan player
+                      <select
+                        value={previewTokenId || ""}
+                        onChange={(e) => onPreviewToken(e.target.value || null)}
+                      >
+                        <option value="">Map DM penuh</option>
+                        {scene.tokens.map((item) => (
+                          <option key={item.id} value={item.id}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                     <label>
                       Scene aktif
                       <select
@@ -921,6 +965,8 @@ export default function BoardTools({
         if (!draft) return;
         e.stopPropagation();
         const b = point(e);
+        if (e.currentTarget.hasPointerCapture(e.pointerId))
+          e.currentTarget.releasePointerCapture(e.pointerId);
         if (tool === "ruler") {
           setDraft({ ...draft, b });
           return;

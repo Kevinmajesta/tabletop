@@ -5,10 +5,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': 'http://localhost:3001',
-      '/uploads': 'http://localhost:3001',
-      '/token_screen': 'http://localhost:3001',
-      '/socket.io': { target: 'http://localhost:3001', ws: true },
+      '/api': 'http://127.0.0.1:3001',
+      '/uploads': 'http://127.0.0.1:3001',
+      '/token_screen': 'http://127.0.0.1:3001',
+      '/socket.io': { target: 'http://127.0.0.1:3001', ws: true },
     },
   },
 });

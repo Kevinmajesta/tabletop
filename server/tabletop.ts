@@ -17,9 +17,11 @@ export function blocked(a: Point, b: Point, marks: Mark[]) {
   const on = (p: Point, q: Point, r: Point) => Math.abs(cross(p, q, r)) < 1e-8 && r.x >= Math.min(p.x, q.x) - 1e-8 && r.x <= Math.max(p.x, q.x) + 1e-8 && r.y >= Math.min(p.y, q.y) - 1e-8 && r.y <= Math.max(p.y, q.y) + 1e-8;
   return marks.some(w => w.kind === 'wall' && ((cross(a, b, w.a) * cross(a, b, w.b) < 0 && cross(w.a, w.b, a) * cross(w.a, w.b, b) < 0) || on(a, b, w.a) || on(a, b, w.b) || on(w.a, w.b, a) || on(w.a, w.b, b)));
 }
-export function visible(point: Point, scene: Scene, playerId: string) {
+export function visible(point: Point, scene: Scene, playerId: string, previewTokenId?: string | null) {
   const grid = { ...scene.grid, diagonal: 'euclidean' as const };
-  const sources = scene.tokens.filter(t => t.ownerId === playerId && t.visionSource && !t.hidden);
+  const sources = scene.tokens.filter(t =>
+    !t.hidden && (previewTokenId ? t.id === previewTokenId : t.ownerId === playerId && t.visionSource),
+  );
   const tokenLight = (token: BoardToken) => !!token.lightRange && !token.hidden && distance(token, point, grid) <= token.lightRange && !blocked(token, point, scene.marks);
   const revealed = scene.marks.some(m => m.kind === 'reveal' && point.x >= Math.min(m.a.x, m.b.x) && point.x <= Math.max(m.a.x, m.b.x) && point.y >= Math.min(m.a.y, m.b.y) && point.y <= Math.max(m.a.y, m.b.y));
   if (scene.fog && !revealed && !sources.some(tokenLight)) return false;

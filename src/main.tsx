@@ -35,7 +35,7 @@ const AnimatedDiceScene = lazy(() => import("./DiceScene"));
 const NaturalRollEffect = lazy(() => import("./NaturalRollEffect"));
 const BoardTools = lazy(() => import("./BoardTools"));
 const Minigames = lazy(() => import("./Minigames"));
-function DiceScene(props: { roll: DiceRoll; onComplete: () => void; zoom?: number }) {
+function DiceScene(props: { roll: DiceRoll; onComplete: () => void; zoom?: number; color?: number }) {
   const instant = localStorage.getItem("meja-dice-animation") === "off";
   useEffect(() => {
     if (instant) props.onComplete();
@@ -147,25 +147,17 @@ function App() {
   );
   const [modifier, setModifier] = useState(0);
   const [rollMode, setRollMode] = useState<"normal" | "advantage" | "disadvantage">("normal");
-  const [diceAnimation, setDiceAnimation] = useState<{
+  type DiceAnimation = {
     id: string;
     name: string;
     text: string;
     roll: DiceRoll;
+    color: number;
     revealed: boolean;
-  } | null>(null);
+  };
+  const [diceAnimations, setDiceAnimations] = useState<DiceAnimation[]>([]);
   const [rolling, setRolling] = useState(false);
   const [rollError, setRollError] = useState("");
-  const rollQueue = useRef<
-    {
-      id: string;
-      name: string;
-      text: string;
-      roll: DiceRoll;
-      revealed: boolean;
-    }[]
-  >([]);
-  const activeRoll = useRef(false);
   const socketRef = useRef<Socket | null>(null);
   const mapInput = useRef<HTMLInputElement>(null);
   const tokenInput = useRef<HTMLInputElement>(null);
@@ -187,7 +179,9 @@ function App() {
     a: { x: number; y: number };
     b: { x: number; y: number };
   } | null>(null);
+  const [previewTokenId, setPreviewTokenId] = useState<string | null>(null);
   const activeScene = room?.scenes?.find((s) => s.id === room.activeSceneId);
+  const displayMap = activeScene?.map;
   const columns = activeScene?.grid.columns ?? 20;
   const selectedToken = room?.tokens.find((token) => token.id === selected);
   const canEditSelected = selectedToken && (isDM || selectedToken.ownerId === identity?.playerId);
@@ -246,14 +240,9 @@ function App() {
         name: string;
         text: string;
         roll: DiceRoll;
+        color: number;
       }) => {
-        const next = { ...animation, revealed: false };
-        if (activeRoll.current) {
-          if (rollQueue.current.length < 8) rollQueue.current.push(next);
-        } else {
-          activeRoll.current = true;
-          setDiceAnimation(next);
-        }
+        setDiceAnimations((current) => [...current, { ...animation, revealed: false }].slice(-8));
       },
     );
     socket.on("room:state", (next: Room) => {
@@ -272,42 +261,45 @@ function App() {
     socket.on("token:moved", ({ id, x, y }: { id: string; x: number; y: number }) =>
       setRoom((current) =>
         current
-          ? { ...current, tokens: current.tokens.map((token) => token.id === id ? { ...token, x, y } : token) }
+          ? {
+              ...current,
+              tokens: current.tokens.map((token) =>
+                token.id === id ? { ...token, x, y } : token,
+              ),
+              scenes: current.scenes?.map((scene) => ({
+                ...scene,
+                tokens: scene.tokens.map((token) =>
+                  token.id === id ? { ...token, x, y } : token,
+                ),
+              })),
+            }
           : current,
       ),
     );
     return () => {
       socket.disconnect();
       socketRef.current = null;
-      rollQueue.current = [];
-      activeRoll.current = false;
-      setDiceAnimation(null);
+      setDiceAnimations([]);
       setRolling(false);
       setConnected(false);
     };
   }, [roomId, identity]);
 
   useEffect(() => {
-    if (!diceAnimation?.revealed) return;
-    const dismiss = window.setTimeout(() => finishAnimation(), 4000);
-    const escape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") finishAnimation();
-    };
-    window.addEventListener("keydown", escape);
-    return () => {
-      window.clearTimeout(dismiss);
-      window.removeEventListener("keydown", escape);
-    };
-  }, [diceAnimation?.id, diceAnimation?.revealed]);
+    const active = diceAnimations.filter((animation) => animation.revealed);
+    if (!active.length) return;
+    const timer = window.setTimeout(() => {
+      setDiceAnimations((current) => current.filter((animation) => !animation.revealed));
+    }, 4000);
+    return () => window.clearTimeout(timer);
+  }, [diceAnimations]);
 
-  function finishAnimation() {
-    const next = rollQueue.current.shift() || null;
-    activeRoll.current = !!next;
-    setDiceAnimation(next);
+  function finishAnimation(id: string) {
+    setDiceAnimations((current) => current.filter((animation) => animation.id !== id));
   }
 
   function throwDice(sides: number) {
-    if (!socketRef.current || rolling || activeRoll.current) return;
+    if (!socketRef.current || rolling) return;
     setDiceOpen(false);
     setRolling(true);
     setRollError("");
@@ -331,7 +323,7 @@ function App() {
     messagesEnd.current?.scrollIntoView({ behavior: "smooth" });
   }, [room?.messages.length]);
   useEffect(() => {
-    if (!room?.map) return;
+    if (!displayMap) return;
     let active = true;
     const image = new Image();
     image.onload = () => {
@@ -351,11 +343,11 @@ function App() {
           });
       }
     };
-    image.src = room.map;
+    image.src = displayMap;
     return () => {
       active = false;
     };
-  }, [room?.map]);
+  }, [displayMap, isDM, activeScene?.id]);
   useEffect(() => {
     const board = boardRef.current;
     if (!board) return;
@@ -368,7 +360,7 @@ function App() {
   }, [roomId, identity]);
   useEffect(() => {
     const board = boardRef.current;
-    if (!board || !room?.map) return;
+    if (!board || !displayMap) return;
     const onWheel = (event: WheelEvent) => {
       event.preventDefault();
       changeZoom(
@@ -379,7 +371,7 @@ function App() {
     };
     board.addEventListener("wheel", onWheel, { passive: false });
     return () => board.removeEventListener("wheel", onWheel);
-  }, [room?.map]);
+  }, [displayMap]);
   useEffect(() => {
     const onPop = () => {
       const id = getRoomId();
@@ -539,6 +531,12 @@ function App() {
             tokens: current.tokens.map((t) =>
               t.id === dragging.current ? { ...t, x, y } : t,
             ),
+            scenes: current.scenes?.map((scene) => ({
+              ...scene,
+              tokens: scene.tokens.map((t) =>
+                t.id === dragging.current ? { ...t, x, y } : t,
+              ),
+            })),
           }
         : current,
     );
@@ -726,63 +724,27 @@ function App() {
         </Suspense>
       )}
       </div>
-      {diceAnimation && boardRef.current && createPortal(
+      {diceAnimations.length > 0 && boardRef.current && createPortal(
         <div className="dice-animation">
-          <div
-            className={`dice-animation-card ${diceAnimation.revealed ? "revealed" : ""}`}
-          >
-            <div className="dice-animation-heading">
-              <span>
-                {diceAnimation.name} melempar d{diceAnimation.roll.sides}
-              </span>
-              {diceAnimation.revealed && (
-                <button onClick={finishAnimation} aria-label="Tutup hasil dadu">
-                  <X size={20} />
-                </button>
-              )}
+          {diceAnimations.map((animation) => (
+            <div className={`dice-animation-card ${animation.revealed ? "revealed" : ""}`} key={animation.id}>
+              <div className="dice-animation-heading">
+                <span>{animation.name} melempar d{animation.roll.sides}</span>
+                {animation.revealed && <button onClick={() => finishAnimation(animation.id)} aria-label="Tutup hasil dadu"><X size={20} /></button>}
+              </div>
+              {createPortal(<div className="map-dice-layer"><DiceScene
+                zoom={zoom}
+                key={animation.id}
+                roll={animation.roll}
+                color={animation.color}
+                onComplete={() => setDiceAnimations((current) => current.map((item) => item.id === animation.id ? { ...item, revealed: true } : item))}
+              /></div>, mapRef.current || boardRef.current!)}
+              <Suspense fallback={null}>
+                <NaturalRollEffect rollId={animation.id} sides={animation.roll.sides} values={animation.roll.values} revealed={animation.revealed} />
+              </Suspense>
+              {animation.revealed && <div className="dice-outcome" role="status" aria-live="polite"><span>Hasil lemparan</span><strong>{animation.roll.total}</strong><p>{animation.text}</p></div>}
             </div>
-            {createPortal(<div className="map-dice-layer"><DiceScene
-              zoom={zoom}
-              key={diceAnimation.id}
-              roll={diceAnimation.roll}
-              onComplete={() =>
-                setDiceAnimation((current) =>
-                  current?.id === diceAnimation.id
-                    ? { ...current, revealed: true }
-                    : current,
-                )
-              }
-            /></div>, mapRef.current || boardRef.current)}
-            <Suspense fallback={null}>
-              <NaturalRollEffect
-                rollId={diceAnimation.id}
-                sides={diceAnimation.roll.sides}
-                values={diceAnimation.roll.values}
-                revealed={diceAnimation.revealed}
-              />
-            </Suspense>
-            <div className="dice-outcome" role="status" aria-live="polite">
-              {diceAnimation.revealed ? (
-                <>
-                  <span>Hasil lemparan</span>
-                  <strong>{diceAnimation.roll.total}</strong>
-                  <p>{diceAnimation.text}</p>
-                  <small>
-                    {diceAnimation.roll.sides === 4
-                      ? "d4 dibaca dari sisi bawah."
-                      : diceAnimation.roll.sides === 100
-                        ? "Dua d10: puluhan + satuan. 00 + 0 berarti 100."
-                        : "Angka dibaca dari sisi atas setelah dadu berhenti."}
-                  </small>
-                </>
-              ) : (
-                <>
-                  <strong className="dice-rolling-label">Dadu bergulir…</strong>
-                  <p>Menunggu dadu berhenti.</p>
-                </>
-              )}
-            </div>
-          </div>
+          ))}
         </div>, boardRef.current
       )}
       <div className={`workspace ${panelOpen ? "panel-visible" : ""}`}>
@@ -875,7 +837,7 @@ function App() {
             onPointerUp={stopPan}
             onPointerCancel={stopPan}
           >
-            {room?.map ? (
+            {displayMap ? (
               <div
                 className="map-canvas"
                 ref={mapRef}
@@ -883,7 +845,7 @@ function App() {
                   width: canvasWidth,
                   height: canvasHeight,
                   transform: `translate(calc(-50% + ${pan.x}px), calc(-50% + ${pan.y}px)) scale(${zoom})`,
-                  backgroundImage: `url("${room.map}")`,
+                  backgroundImage: `url("${displayMap}")`,
                 }}
                 onContextMenu={(e) => e.preventDefault()}
                 onPointerDown={(e) => {
@@ -915,7 +877,7 @@ function App() {
                     }}
                   />
                 )}
-                {room.tokens.map((token) => (
+                {room?.tokens.map((token) => (
                   <button
                     key={token.id}
                     className={`map-token ${selected === token.id ? "selected" : ""} ${dragging.current === token.id ? "dragging" : ""}`}
@@ -1035,6 +997,8 @@ function App() {
                 scenes={room?.scenes || []}
                 socket={socketRef.current}
                 dm={isDM}
+                previewTokenId={previewTokenId}
+                onPreviewToken={setPreviewTokenId}
                 playerId={identity.playerId}
                 selected={selected}
                 connected={connected}
@@ -1217,7 +1181,7 @@ function App() {
                 {[4, 6, 8, 10, 12, 20, 100].map((sides) => (
                   <button
                     key={sides}
-                    disabled={!connected || rolling || !!diceAnimation}
+                    disabled={!connected || rolling}
                     onClick={() => throwDice(sides)}
                   >
                     d{sides}

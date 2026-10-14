@@ -277,9 +277,7 @@ function flushResize(room: Room) {
 }
 const dicePool = new DicePool(2);
 let activeSimulations = 0;
-const roomRollTimes = new Map<string, number>();
 const pendingCallers = new Set<string>();
-const pendingRooms = new Set<string>();
 const jobs: { run: () => Promise<void> }[] = [];
 function drainJobs() {
   while (activeSimulations < 2 && jobs.length) {
@@ -1353,24 +1351,16 @@ io.on("connection", (socket) => {
       if (!match) return;
       const count = Number(match[1]);
       if (count < 1 || count > 20) return;
-      const caller = socket.handshake.address;
-      if (
-        pendingCallers.has(caller) ||
-        pendingRooms.has(room.id) ||
-        jobs.length >= 8 ||
-        !admitted(`roll:${caller}`, 20) ||
-        Date.now() - (roomRollTimes.get(room.id) || 0) < 1500
-      ) {
+      const caller = socket.id;
+      if (pendingCallers.has(caller) || jobs.length >= 8 || !admitted(`roll:${caller}`, 20)) {
         if (typeof reply === "function")
           reply({ error: "Tunggu sebentar sebelum lempar lagi." });
         return;
       }
-      roomRollTimes.set(room.id, Date.now());
       const sides = Number(match[2]);
       const modifier = Number(match[3] || 0);
       let simulation: DiceRoll;
       pendingCallers.add(caller);
-      pendingRooms.add(room.id);
       try {
         simulation = await scheduleRoll(sides, count, modifier);
       } catch (error) {
@@ -1380,7 +1370,6 @@ io.on("connection", (socket) => {
         return;
       } finally {
         pendingCallers.delete(caller);
-        pendingRooms.delete(room.id);
       }
       if (rollMode !== "normal")
         simulation.total =
@@ -1426,12 +1415,15 @@ io.on("connection", (socket) => {
       const id = randomUUID();
       const name =
         characterName || room.members[socket.data.playerId]?.name || "Pemain";
+      const colors = [0xe07a5f, 0x4d96ff, 0x6bcB77, 0xc77dff, 0xffc857, 0xf28482];
+      const color = colors[[...socket.data.playerId].reduce((sum, char) => sum + char.charCodeAt(0), 0) % colors.length];
       const text = `${rollMode === "normal" ? "" : rollMode + ": "}${count}d${sides}${modifier ? (modifier > 0 ? "+" : "") + modifier : ""} → [${roll.values.join(", ")}]${modifier ? ` ${modifier > 0 ? "+" : "−"} ${Math.abs(modifier)}` : ""} = ${roll.total}`;
       io.to(room.id).emit("dice:animation", {
         id,
         name,
         text,
         roll: simulation,
+        color,
       });
       room.messages.push({
         id,

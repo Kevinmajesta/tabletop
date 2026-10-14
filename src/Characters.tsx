@@ -123,6 +123,10 @@ export default function Characters({
         },
       );
   }
+  function sendToChat(title: string, description: string) {
+    if (!socket || !connected) return;
+    socket.emit("chat:send", `${title}\n${description}`.slice(0, 500));
+  }
   function roll(kind: string, key = "") {
     if (!character || !socket || busy) return;
     setBusy(true);
@@ -1300,12 +1304,43 @@ export default function Characters({
                       </button>
                     </div>
                   ))}
+                  {character.sheet.spellAbility && (
+                    <div className="character-attack spell-attack-row">
+                      <strong>
+                        Spell attack
+                        <small>
+                          {character.sheet.spellAbility.toUpperCase()} · DC {character.sheet.spellDC}
+                        </small>
+                      </strong>
+                      <button
+                        disabled={!connected || busy}
+                        onClick={() => roll("spell")}
+                      >
+                        Attack +{character.sheet.spellAttack}
+                      </button>
+                    </div>
+                  )}
                 </section>
                 <section
                   hidden={sheetTab !== "spells"}
                   className="sheet-section"
                 >
                   <h3>Spellbook & prepared spells</h3>
+                  <div className="spell-slot-tracker" aria-label="Pelacak spell slot">
+                    {Object.entries(character.sheet.slotsByLevel || {})
+                      .filter(([, max]) => max > 0)
+                      .map(([level, max]) => {
+                        const used = character.spellSlotsUsed?.[level] ?? (level === "1" ? character.slotsUsed : 0);
+                        return (
+                          <div className="spell-slot" key={level}>
+                            <span>Level {level}</span>
+                            <button type="button" disabled={!connected || busy || used <= 0} onClick={() => request({ type: "resources", id: character.id, revision: character.revision, spellSlotsUsed: { [level]: used - 1 } })}>−</button>
+                            <strong>{used}/{max}</strong>
+                            <button type="button" disabled={!connected || busy || used >= max} onClick={() => request({ type: "resources", id: character.id, revision: character.revision, spellSlotsUsed: { [level]: used + 1 } })}>+</button>
+                          </div>
+                        );
+                      })}
+                  </div>
                   <label>
                     Cari spell
                     <input
@@ -1470,47 +1505,43 @@ export default function Characters({
                       </button>
                     </p>
                   )}
-                  {[
-                    ...new Set([
-                      ...character.sheet.cantrips,
-                      ...character.sheet.spells,
-                    ]),
-                  ]
-                    .filter((id) => {
-                      const s = catalog.spells.find((s) => s.index === id);
-                      return (
-                        `${s?.name || id} ${s?.desc?.join(" ") || ""}`
-                          .toLowerCase()
-                          .includes(search.toLowerCase()) &&
-                        (spellFilter === "all" ||
-                          (spellFilter === "prepared" &&
-                            character.sheet.prepared.includes(id)) ||
-                          (spellFilter === "concentration" &&
-                            (s as typeof s & { concentration?: boolean })
-                              ?.concentration) ||
-                          (spellFilter === "ritual" &&
-                            (s as typeof s & { ritual?: boolean })?.ritual) ||
-                          String(s?.level) === spellFilter)
-                      );
-                    })
-                    .map((id) => {
-                      const spell = catalog.spells.find((s) => s.index === id);
-                      return (
-                        <details key={id}>
-                          <summary>
-                            {spell?.name || id}
-                            {character.sheet.prepared.includes(id)
-                              ? " · Prepared"
-                              : ""}
-                          </summary>
-                          <p>
-                            {spell?.casting_time} · {spell?.range} ·{" "}
-                            {spell?.duration}
-                          </p>
-                          <p>{spell?.desc?.join("\n")}</p>
-                        </details>
-                      );
-                    })}
+                  {([0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const).map((level) => {
+                    const ids = [...new Set(level === 0 ? character.sheet.cantrips : character.sheet.spells)]
+                      .filter((id) => {
+                        const spell = catalog.spells.find((s) => s.index === id);
+                        return spell?.level === level &&
+                          `${spell.name} ${spell.desc?.join(" ") || ""}`.toLowerCase().includes(search.toLowerCase()) &&
+                          (spellFilter === "all" ||
+                            (spellFilter === "prepared" && character.sheet.prepared.includes(id)) ||
+                            (spellFilter === "concentration" && (spell as typeof spell & { concentration?: boolean }).concentration) ||
+                            (spellFilter === "ritual" && (spell as typeof spell & { ritual?: boolean }).ritual) ||
+                            String(spell.level) === spellFilter);
+                      });
+                    if (!ids.length) return null;
+                    return (
+                      <fieldset key={level} className="spell-level-group">
+                        <legend>{level === 0 ? "Cantrip" : `Spell level ${level}`}</legend>
+                        {ids.map((id) => {
+                          const spell = catalog.spells.find((s) => s.index === id);
+                          if (!spell) return null;
+                          const description = `${spell.casting_time || ""} · ${spell.range || ""} · ${spell.duration || ""}\n${spell.desc?.join("\\n") || ""}`;
+                          return (
+                            <div className="spell-card" key={id}>
+                              <strong>{spell.name}</strong>
+                              {character.sheet.prepared.includes(id) && <small>Prepared</small>}
+                              <div className="spell-actions">
+                                <button type="button" title="Kirim deskripsi ke chat" aria-label={`Kirim deskripsi ${spell.name} ke chat`} onClick={() => sendToChat(`📖 ${spell.name}`, description)}>↗</button>
+                                <details className="spell-details">
+                                  <summary title="Lihat deskripsi" aria-label={`Lihat deskripsi ${spell.name}`}>⌄</summary>
+                                  <p>{description}</p>
+                                </details>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </fieldset>
+                    );
+                  })}
                 </section>
                 <section
                   hidden={sheetTab !== "equipment"}
@@ -1520,7 +1551,9 @@ export default function Characters({
                   <ul>
                     {character.sheet.equipment.map((e) => (
                       <li key={e.id}>
-                        {e.count} × {e.name}
+                        <button className="inventory-item" onClick={() => sendToChat(`🎒 ${e.name}`, `${e.count} × ${e.name}`)}>
+                          {e.count} × {e.name}
+                        </button>
                       </li>
                     ))}
                   </ul>

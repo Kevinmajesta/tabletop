@@ -2209,6 +2209,18 @@ export function deriveSheet(build: BuildInput): Sheet {
     }
   }
   if (build.race === "tiefling") racialCantrips.push("thaumaturgy");
+  const spellAttackRows = [...new Set([...build.cantrips, ...spells])].flatMap((id) => {
+    const spell = revisedCatalog.spells.find((entry) => entry.index === id) as Entry & {
+      attack_type?: string;
+      damage?: { damage_at_character_level?: Record<string, string> }[];
+    };
+    if (!spell || !limits.ability || !spell.attack_type || !spell.damage?.[0]?.damage_at_character_level) return [];
+    const diceByLevel = spell.damage[0].damage_at_character_level;
+    const dice = diceByLevel[String(level)] ||
+      diceByLevel[Object.keys(diceByLevel).sort((a, b) => Number(b) - Number(a)).find((key) => Number(key) <= level) || "1"];
+    return dice ? [{ id: `spell:${spell.index}`, name: spell.name, bonus: proficiency + modifiers[limits.ability], damage: dice }] : [];
+  });
+  attacks.push(...spellAttackRows);
   return {
     name: build.name,
     className: klass?.name || "",

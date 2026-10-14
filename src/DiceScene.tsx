@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { dieShape, frameRate, trayWidth, trayDepth, type DiceRoll } from '../server/dice-physics';
 
-function createDie(die: DiceRoll['dice'][number]) {
+function createDie(die: DiceRoll['dice'][number], color: number) {
   const shape = dieShape(die.sides);
   const group = new THREE.Group();
   const vertices: number[] = [];
@@ -14,7 +14,7 @@ function createDie(die: DiceRoll['dice'][number]) {
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
   geometry.computeVertexNormals();
-  const body = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color: die.percentile === 'tens' ? 0xb99459 : 0xf3e5cb, roughness: .32, metalness: .12, flatShading: true }));
+  const body = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ color, roughness: .32, metalness: .12, flatShading: true }));
   body.castShadow = true;
   body.receiveShadow = true;
   group.add(body);
@@ -60,7 +60,7 @@ function createDie(die: DiceRoll['dice'][number]) {
   return group;
 }
 
-export default function DiceScene({ roll, onComplete, zoom = 1 }: { roll: DiceRoll; onComplete: () => void; zoom?: number }) {
+export default function DiceScene({ roll, onComplete, zoom = 1, color = 0xf3e5cb }: { roll: DiceRoll; onComplete: () => void; zoom?: number; color?: number }) {
   const holder = useRef<HTMLDivElement>(null);
   const complete = useRef(onComplete);
   const [failed, setFailed] = useState(false);
@@ -79,7 +79,8 @@ export default function DiceScene({ roll, onComplete, zoom = 1 }: { roll: DiceRo
     const scene = new THREE.Scene();
     renderer.setClearColor(0x000000, 0);
     const camera = new THREE.PerspectiveCamera(40, 1, .1, 100);
-    camera.position.set(0, 22, 15);
+    camera.position.set(0, 22, 0.01);
+    camera.up.set(0, 0, -1);
     camera.lookAt(0, 0, 0);
     scene.add(new THREE.HemisphereLight(0xfff3da, 0x354539, 2.4));
     const light = new THREE.DirectionalLight(0xffe6bc, 3);
@@ -90,7 +91,7 @@ export default function DiceScene({ roll, onComplete, zoom = 1 }: { roll: DiceRo
     scene.add(light);
     const floor = new THREE.Mesh(new THREE.BoxGeometry(trayWidth, .3, trayDepth), new THREE.ShadowMaterial({ opacity: .25 }));
     floor.position.y = -.15; floor.receiveShadow = true; scene.add(floor);
-    const dice = roll.dice.map(die => { const group = createDie(die); scene.add(group); return group; });
+    const dice = roll.dice.map(die => { const group = createDie(die, color); scene.add(group); return group; });
     const resize = () => {
       const width = Math.max(1, element.clientWidth), height = Math.max(1, element.clientHeight);
       camera.aspect = width / height;
@@ -123,7 +124,8 @@ export default function DiceScene({ roll, onComplete, zoom = 1 }: { roll: DiceRo
       const verticalAngle = THREE.MathUtils.degToRad(camera.fov / 2);
       const horizontalAngle = Math.atan(Math.tan(verticalAngle) * camera.aspect);
       const distance = Math.max(9, radius / Math.sin(Math.min(verticalAngle, horizontalAngle)));
-      camera.position.copy(center).add(new THREE.Vector3(0, .84, .56).normalize().multiplyScalar(distance));
+      camera.position.set(center.x, center.y + distance, center.z + 0.01);
+      camera.up.set(0, 0, -1);
       camera.lookAt(center);
       renderer.render(scene, camera);
       if (index < roll.frames.length - 1) frame = requestAnimationFrame(draw);
