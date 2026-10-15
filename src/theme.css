@@ -25,7 +25,7 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .game-start-button { width:100%; justify-content:center; margin-top:22px; min-height:50px; }
 .game-start-reset { display:block; margin:14px auto 0; padding:0; color:var(--muted); background:none; border:0; font-size:10px; letter-spacing:1px; text-decoration:underline; }
 .game-start-reset:hover { color:var(--gold); }
-@media (max-width:700px) { .hero-background { width:42vw; opacity:.18; } .hero-background-2,.hero-background-3 { display:none; } .hero-background-1 { left:-8vw; } .hero-background-4 { right:-8vw; } }
+@media (max-width:700px) { .hero-background { width:42vw; opacity:.3; } .hero-background-2,.hero-background-3 { display:none; } .hero-background-1 { left:-8vw; } .hero-background-4 { right:-8vw; } }
 @media (max-width:500px) { .game-start-card { padding:40px 24px; } }
 .landing {
   background: radial-gradient(ellipse at 4% 40%, #28362f66, transparent 55%), #101617;
@@ -161,3 +161,154 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 @media (prefers-reduced-motion: reduce) {
   button, input { transition: none; }
 }
+
+/* Dark-fantasy palette: obsidian, burgundy, ivory, aged brass. */
+:root {
+  --surface: #171516;
+  --edge: #d8ccb51c;
+  --gold: #a9986f;
+  --muted: #aaa39a;
+}
+.game-start {
+  background:
+    radial-gradient(circle at 50% 15%, #75404c2b, transparent 38%),
+    radial-gradient(circle at 50% 100%, #4660522b, transparent 58%),
+    #151a18;
+}
+.game-start-card {
+  border-color: #a9986f55;
+  border-radius: 6px;
+  background: linear-gradient(155deg, #211a1def, #121112f5);
+  box-shadow: 0 30px 90px #000b, inset 0 1px #eee4d218;
+}
+.game-start-kicker { color: #a9986f; letter-spacing: 3px; }
+.game-start-card h1 {
+  color: #e8e0d2;
+  font-family: Georgia, serif;
+  font-weight: 700;
+  letter-spacing: -2px;
+  text-shadow: 0 3px 18px #000;
+}
+.game-start-card h1 em { color: #b9a77d; font-style: italic; }
+.game-start-card > p { color: #aaa197; letter-spacing: 3px; }
+.game-start-card label { color: #b9b0a4; }
+.game-start-card input {
+  color: #ece5d9;
+  background: #0d0c0d;
+  border-color: #d8ccb532;
+  border-radius: 4px;
+}
+.game-start-card input:focus { border-color: #a9986f; box-shadow: 0 0 0 3px #a9986f18; }
+.game-start-button, .submit-button {
+  background: #6f2635;
+  border-color: #8b3748;
+  color: #f0e8db;
+  border-radius: 4px;
+  box-shadow: 0 8px 24px #3b101a55;
+  font-weight: 700;
+  letter-spacing: .8px;
+}
+.game-start-button:hover, .submit-button:hover { background: #853044; }
+.game-start-reset:hover { color: #c0af86; }
+.hero-background { opacity: .38; filter: grayscale(.35) saturate(.8) brightness(.78); }
+button:focus-visible, input:focus-visible, select:focus-visible { outline-color: #a9986f; }
+
+/* Entry altar: less dashboard, more tabletop campaign. */
+.game-start { padding: 32px 20px; }
+.game-start-card {
+  width: min(520px, 100%);
+  padding: 42px clamp(28px, 7vw, 62px) 34px;
+  border: 0;
+  border-radius: 2px;
+  background:
+    linear-gradient(135deg, #d8ccb508 0 1px, transparent 1px 100%),
+    linear-gradient(315deg, #d8ccb508 0 1px, transparent 1px 100%),
+    linear-gradient(145deg, #211a1df2, #121112f7);
+  background-size: 22px 22px, 22px 22px, auto;
+  box-shadow: 0 32px 90px #000b, inset 0 0 0 1px #d8ccb532, inset 0 1px #eee4d214;
+  position: relative;
+}
+.game-start-card::before,
+.game-start-card::after {
+  content: '';
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-color: #a9986f;
+  border-style: solid;
+  pointer-events: none;
+}
+.game-start-card::before { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+.game-start-card::after { right: -1px; bottom: -1px; border-width: 0 2px 2px 0; }
+.game-start-kicker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  font-size: 10px;
+  letter-spacing: 3px;
+}
+.game-start-kicker::before,
+.game-start-kicker::after {
+  content: '';
+  width: 34px;
+  height: 1px;
+  background: #a9986f99;
+}
+.game-start-card h1 {
+  margin: 25px 0 13px;
+  font-size: clamp(40px, 8vw, 62px);
+  line-height: .98;
+  letter-spacing: -1px;
+}
+.game-start-card > p {
+  margin-bottom: 34px;
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: #9f978c;
+}
+.game-start-card label {
+  position: relative;
+  padding-top: 1px;
+  color: #b4ada3;
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+.game-start-card input {
+  min-height: 54px;
+  margin-top: 10px;
+  padding: 0 16px;
+  border: 0;
+  border-bottom: 1px solid #d8ccb548;
+  border-radius: 0;
+  background: #0d0c0de8;
+  text-align: center;
+  font-size: 15px;
+}
+.game-start-card input::placeholder { color: #73786f; }
+.game-start-card input:focus {
+  border-bottom-color: #a9986f;
+  box-shadow: 0 5px 16px #a9986f18;
+}
+.game-start-button {
+  min-height: 54px;
+  margin-top: 26px;
+  border-radius: 2px;
+  justify-content: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+.game-start-reset {
+  margin-top: 22px;
+  color: #737b72;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-decoration: none;
+}
+.game-start-reset:hover { color: #d39a69; }
+.form-error { margin-top: 18px; }
+@media (max-width: 500px) {
+  .game-start-card { padding-inline: 24px; }
+  .game-start-kicker::before, .game-start-kicker::after { width: 20px; }
+}
+

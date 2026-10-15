@@ -403,12 +403,16 @@ function App() {
       if (!response.ok) throw new Error((await response.json()).error || "Game sudah dimulai.");
       const created = await response.json();
       const id = created.id;
-      const who = {
-        name: name.trim().slice(0, 24),
-        playerId: randomId(),
-        playerSecret: randomId(),
-        ...(created.dmKey ? { dmKey: created.dmKey } : {}),
-      };
+      const enteredName = name.trim().slice(0, 24);
+      const saved = readIdentity(id);
+      const who = saved?.name.toLowerCase() === enteredName.toLowerCase()
+        ? saved
+        : {
+            name: enteredName,
+            playerId: randomId(),
+            playerSecret: randomId(),
+            ...(created.dmKey ? { dmKey: created.dmKey } : {}),
+          };
       localStorage.setItem(identityKey(id), JSON.stringify(who));
       navigate(id, who);
     } catch (e) {
@@ -628,7 +632,7 @@ function App() {
           {tokenScreen.map((src, index) => <img key={src} src={src} alt="" className={`hero-background hero-background-${index + 1}`} />)}
         </div>
         <section className="game-start-card">
-          <div className="game-start-kicker">THE AGE OF HEROES</div>
+          <div className="game-start-kicker">ONE SHOT</div>
           <h1>THE AGE<br /><em>OF HEROES</em></h1>
           <p>ENTER THE ADVENTURE</p>
           <label>
@@ -928,7 +932,7 @@ function App() {
                     }}
                     title={token.name}
                   >
-                    {token.minigame ? <div className="minigame-token-mark" aria-hidden="true">{gameCatalog[token.minigame].mark}</div> : <img src={token.image} alt={token.name} loading="lazy" decoding="async" />}
+                    {token.minigame ? <div className="minigame-token-mark" aria-hidden="true">{isDM ? gameCatalog[token.minigame].mark : '?'}</div> : <img src={token.image} alt={token.name} loading="lazy" decoding="async" />}
                     <span style={{ transform: `translateX(-50%) scale(${1 / zoom})` }}>
                       {token.name}
                       {token.maxHp

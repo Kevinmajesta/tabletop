@@ -247,6 +247,31 @@ export type Sheet = {
   toolsNotes: string;
 };
 export const modifier = (score: number) => Math.floor((score - 10) / 2);
+export function equipmentChatDescription(equipment: Entry, count: number) {
+  const detail = equipment as Entry & {
+    description?: string | string[];
+    weight?: number;
+  };
+  const description = Array.isArray(detail.description)
+    ? detail.description.filter(Boolean).join("\n")
+    : detail.description || "";
+  const stats = [
+    detail.damage
+      ? `Damage: ${detail.damage.damage_dice} ${detail.damage.damage_type.name}`
+      : detail.armor_class
+        ? `AC: ${detail.armor_class.base}${detail.armor_class.dex_bonus ? " + Dex" : ""}`
+        : "",
+    detail.properties?.length
+      ? `Properties: ${detail.properties.map((property) => property.name).join(", ")}`
+      : "",
+    detail.weight
+      ? `Weight: ${detail.weight} lb${count > 1 ? " each" : ""}`
+      : "",
+  ].filter(Boolean);
+  return [`${count} × ${equipment.name}`, description, stats.join(" · ")]
+    .filter(Boolean)
+    .join("\n");
+}
 export const standardArray = [15, 14, 13, 12, 10, 8];
 export const pointCost = (score: number) =>
   ({ 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 })[score] ?? 999;

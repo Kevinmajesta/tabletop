@@ -6,6 +6,10 @@
 .minigames p { font-size: 14px; }
 .minigame-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; }
 .minigame-actions label { flex: 1 1 180px; }
+.minigame-token-list { display: grid; gap: 7px; }
+.minigame-token-list > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
+.minigame-token-list button:first-child { overflow: hidden; text-align: left; text-overflow: ellipsis; white-space: nowrap; }
+.minigame-token-list .remove-action, .minigame-dialog .remove-action { color: #ffb7aa; background: #492922; border-color: #9d5548; }
 .minigames label { display: grid; gap: 6px; }
 .minigames button { min-height: 44px; padding: 10px 14px; color: #f3e5cb; background: #284438; border: 1px solid #ac9875; border-radius: 4px; }
 .minigames select, .minigames input, .minigames textarea { width: 100%; min-height: 44px; padding: 8px; color: #f3e5cb; background: #20170f; border: 1px solid #ac9875; border-radius: 4px; }
@@ -58,4 +62,33 @@
 .bomb-wire.cut::before { width: 38%; transform: translateX(22%); opacity: .45; }
 .bomb-wire.cut::after { opacity: .4; }
 .wire-red { --wire: #ca3b36; }.wire-blue { --wire: #316eaf; }.wire-yellow { --wire: #d6b93e; }.wire-green { --wire: #478a58; }.wire-black { --wire: #202225; }
-@media (max-width: 650px) { .bomb-game { grid-template-columns: 1fr; } .bomb-sheet { order: 2; } .bomb-device { min-height: 290px; } }
+.relic-cipher { display: grid; gap: 14px; margin: 20px 0; }
+.cipher-progress { display: flex; align-items: center; justify-content: center; gap: 10px; }
+.cipher-progress span { display: grid; place-items: center; width: 38px; height: 38px; color: #877b69; border: 1px solid #655846; border-radius: 50%; font-weight: 700; }
+.cipher-progress span.active { color: #20170f; background: #d8bc7d; border-color: #f0d99f; box-shadow: 0 0 22px #d8bc7d55; }
+.cipher-progress span.solved { color: #d9eadb; background: #31533f; border-color: #6e9b7c; }
+.cipher-layer { padding: 18px; border: 1px solid #766548; border-radius: 6px; background: linear-gradient(145deg, #2b2117, #17120e); box-shadow: inset 0 0 30px #0005; }
+.cipher-layer.solved { opacity: .68; }
+.cipher-layer header { align-items: center; }
+.cipher-layer header b { color: #92c79f; font-size: 10px; letter-spacing: 1.5px; }
+.cipher-layer pre { margin: 18px 0; padding: 18px 12px; overflow-x: auto; color: #f2d58d; background: #0e0b08; border: 1px solid #5d4c34; font: 700 clamp(17px,4vw,25px)/1.55 ui-monospace,monospace; letter-spacing: .16em; text-align: center; white-space: pre-wrap; }
+.cipher-layer dl { display: grid; gap: 9px; margin: 0; }
+.cipher-layer dl div { display: grid; grid-template-columns: 75px 1fr; gap: 10px; }
+.cipher-layer dt { color: #a99a82; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+.cipher-layer dd { margin: 0; font-size: 13px; line-height: 1.5; }
+.cipher-answer { padding: 16px; background: #17120e; border: 1px solid #766548; }
+.drawing-canvas { display: block; width: min(100%, 720px); margin: 16px auto; background: #fff; border: 5px solid #927b57; border-radius: 4px; box-shadow: 0 8px 22px #0008; touch-action: none; }
+.drawing-canvas polyline { fill: none; stroke: #17120e; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.crossword-game { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(260px, 1fr); gap: 22px; align-items: start; }
+.crossword-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; padding: 8px; background: #0d0b09; }
+.crossword-grid span { display: grid; place-items: center; aspect-ratio: 1; color: #20170f; background: #f0dfb9; border: 1px solid #8e7956; font-size: 22px; font-weight: 700; }
+.crossword-grid span.blocked { background: #0d0b09; border-color: transparent; }
+.crossword-game form { grid-template-columns: 1fr auto; margin-bottom: 8px; }
+.seating-clues { columns: 2; line-height: 1.6; }
+.seating-room { position: relative; width: min(100%, 620px); aspect-ratio: 1.35; margin: 18px auto; border: 2px solid #766548; background: #17120e; }
+.seating-table { position: absolute; inset: 27% 25%; display: grid; place-items: center; border: 5px solid #775333; border-radius: 50%; background: #3d2919; letter-spacing: 4px; }
+.window-a, .window-b { position: absolute; padding: 4px 12px; color: #bde9ff; border: 2px solid #75b5cf; }
+.window-a { top: -2px; left: 12%; }.window-b { right: 12%; bottom: -2px; }
+.seat { position: absolute; width: 25%; font-size: 11px; }.seat select { min-height: 34px; padding: 4px; }
+.seat-0 { top: 2%; left: 37.5%; }.seat-1 { top: 8%; right: 8%; }.seat-2 { top: 35%; right: 1%; }.seat-3 { right: 8%; bottom: 8%; }.seat-4 { right: 27%; bottom: 1%; }.seat-5 { bottom: 1%; left: 27%; }.seat-6 { bottom: 8%; left: 8%; }.seat-7 { top: 35%; left: 1%; }.seat-8 { top: 8%; left: 8%; }
+@media (max-width: 650px) { .bomb-game, .crossword-game { grid-template-columns: 1fr; } .bomb-sheet { order: 2; } .bomb-device { min-height: 290px; } .cipher-layer { padding: 13px; } .cipher-layer dl div { grid-template-columns: 1fr; gap: 3px; } .seating-clues { columns: 1; } .seat { width: 30%; }.seat-0 { left: 35%; } }

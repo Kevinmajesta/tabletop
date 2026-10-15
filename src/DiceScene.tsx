@@ -57,6 +57,7 @@ function createDie(die: DiceRoll['dice'][number], color: number) {
     number.position.copy(normal).multiplyScalar(.008);
     group.add(number);
   }
+  group.scale.setScalar(1.3);
   return group;
 }
 

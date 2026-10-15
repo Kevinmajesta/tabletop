@@ -55,8 +55,10 @@ test('DM and player share room, enforce map permissions, move tokens, chat and r
     };
     const dm = await connect('DM', 'dm', dmKey);
     const player = await connect('Player', 'player');
+    const namedDm = await connect('dm', 'named-dm');
     assert.equal(dm.result.isDM, true);
     assert.equal(player.result.isDM, false);
+    assert.equal(namedDm.result.isDM, true);
     const waitState = (socket, condition) => new Promise((resolve, reject) => {
       const timeout = setTimeout(() => { socket.off('room:state', listener); reject(new Error('State update timed out')); }, 2500);
       function listener(state) { if (condition(state)) { clearTimeout(timeout); socket.off('room:state', listener); resolve(state); } }
@@ -132,7 +134,9 @@ test('DM and player share room, enforce map permissions, move tokens, chat and r
     assert.ok((await gameAction(player.socket, { type: 'create', kind: 'rps' })).error);
     const createdGame = waitState(player.socket, state => state.minigames?.length === 1);
     assert.equal((await gameAction(dm.socket, { type: 'create', kind: 'rps' })).ok, true);
-    const gameToken = (await createdGame).minigames[0].tokenId;
+    const createdGameState = await createdGame;
+    const gameToken = createdGameState.minigames[0].tokenId;
+    assert.equal(createdGameState.tokens.find(token => token.id === gameToken).name, '???');
     assert.ok((await gameAction(player.socket, { type: { toString: null }, tokenId: gameToken })).error);
     assert.ok((await gameAction(player.socket, { type: 'join', tokenId: gameToken })).error);
     assert.ok((await gameAction(dm.socket, { type: 'start', tokenId: gameToken })).error);

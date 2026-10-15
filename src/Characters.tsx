@@ -14,6 +14,7 @@ import {
   revisedCatalog as catalog,
   deriveSheet,
   emptyBuild,
+  equipmentChatDescription,
   finalScores,
   levelFourFeats,
   modifier,
@@ -203,38 +204,125 @@ export default function Characters({
         }}
       >
         <BookOpen size={18} />
-        Karakter
+        Sheet penuh
       </button>
       {character && !build && (
-        <aside className="character-quick" aria-label="Roll karakter">
+        <aside className="character-quick" aria-label="Quick sheet karakter">
           <button
             className="character-quick-toggle"
             aria-expanded={quickOpen}
             onClick={() => setQuickOpen((value) => !value)}
           >
-            {quickOpen ? "Tutup" : "Karakter"}
+            {quickOpen ? "Tutup quick sheet" : "Quick sheet"}
           </button>
           {quickOpen && (
             <div className="character-quick-panel">
-              <strong>{character.sheet.name}</strong>
-              <span>
-                HP {character.hp}/{character.sheet.hp} · AC {character.sheet.ac}
-              </span>
-              <div className="character-quick-rolls">
-                {character.sheet.skills.map((skill) => (
+              <div className="quick-sheet-heading">
+                <div>
+                  <strong>{character.sheet.name}</strong>
+                  <span>Level {character.sheet.level} {character.sheet.className}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOpen(true);
+                    setError("");
+                  }}
+                >
+                  Buka penuh
+                </button>
+              </div>
+              <div className="quick-vitals">
+                <div><span>HP</span><strong>{character.hp}/{character.sheet.hp}</strong></div>
+                <div><span>Temp</span><strong>{character.tempHp}</strong></div>
+                <div><span>AC</span><strong>{character.sheet.ac}</strong></div>
+                <div><span>Speed</span><strong>{character.sheet.speed}</strong></div>
+              </div>
+              {!!character.conditions.length && (
+                <div className="quick-status-list" aria-label="Conditions aktif">
+                  {character.conditions.map((condition) => <span key={condition}>{condition}</span>)}
+                </div>
+              )}
+              {character.concentration && (
+                <p className="quick-concentration">
+                  Concentration: {catalog.spells.find((spell) => spell.index === character.concentration)?.name || character.concentration}
+                </p>
+              )}
+              <div className="quick-health">
+                <input
+                  aria-label="Jumlah damage atau heal"
+                  type="number"
+                  min={1}
+                  max={9999}
+                  value={healthAmount}
+                  onChange={(event) => setHealthAmount(event.target.valueAsNumber)}
+                />
+                {(["damage", "heal"] as const).map((kind) => (
                   <button
-                    key={skill.id}
-                    disabled={!connected || busy}
-                    onClick={() => roll("skill", skill.id)}
+                    key={kind}
+                    disabled={!connected || busy || !Number.isInteger(healthAmount) || healthAmount < 1 || healthAmount > 9999}
+                    onClick={() => request({ type: "health", kind, amount: healthAmount, id: character.id, revision: character.revision })}
                   >
-                    {skill.name}
-                    <strong>
-                      {skill.bonus >= 0 ? "+" : ""}
-                      {skill.bonus}
-                    </strong>
+                    {kind === "damage" ? "Damage" : "Heal"}
                   </button>
                 ))}
               </div>
+              <section className="quick-section">
+                <h3>Combat</h3>
+                <button disabled={!connected || busy} onClick={() => roll("initiative")}>
+                  Initiative <strong>{character.sheet.initiative >= 0 ? "+" : ""}{character.sheet.initiative}</strong>
+                </button>
+                {character.sheet.attacks.slice(0, 5).map((attack) => (
+                  <div className="quick-attack" key={attack.id}>
+                    <span>{attack.name}</span>
+                    <button disabled={!connected || busy} onClick={() => roll("attack", attack.id)}>Hit {attack.bonus >= 0 ? "+" : ""}{attack.bonus}</button>
+                    <button disabled={!connected || busy} onClick={() => roll("damage", attack.id)}>Dmg {attack.damage}</button>
+                  </div>
+                ))}
+              </section>
+              <section className="quick-section">
+                <h3>Saves</h3>
+                <div className="quick-button-grid">
+                  {character.sheet.saves.map((save) => (
+                    <button key={save.id} disabled={!connected || busy} onClick={() => roll("save", save.id)}>
+                      {save.id.toUpperCase()} <strong>{save.bonus >= 0 ? "+" : ""}{save.bonus}</strong>
+                    </button>
+                  ))}
+                </div>
+              </section>
+              {(Object.values(character.sheet.slotsByLevel || {}).some((count) => count > 0) || resources(character.build, character.sheet).some((resource) => resource.id !== "hit-dice")) && (
+                <section className="quick-section">
+                  <h3>Resources</h3>
+                  {Object.entries(character.sheet.slotsByLevel || {}).filter(([, max]) => max > 0).map(([level, max]) => {
+                    const used = character.spellSlotsUsed?.[level] || 0;
+                    return <div className="quick-resource" key={level}><span>Slot L{level}</span><strong>{max - used}/{max}</strong></div>;
+                  })}
+                  {resources(character.build, character.sheet).filter((resource) => resource.id !== "hit-dice").map((resource) => {
+                    const used = character.resourcesUsed?.[resource.id] || 0;
+                    return <div className="quick-resource" key={resource.id}><span>{resource.name}</span><strong>{resource.max - used}/{resource.max}</strong></div>;
+                  })}
+                </section>
+              )}
+              <details className="quick-section quick-checks">
+                <summary>Semua stat & skill</summary>
+                <h3>Ability checks</h3>
+                <div className="quick-button-grid">
+                  {abilities.map((ability) => (
+                    <button key={ability} disabled={!connected || busy} onClick={() => roll("ability", ability)}>
+                      {ability.toUpperCase()} <strong>{character.sheet.modifiers[ability] >= 0 ? "+" : ""}{character.sheet.modifiers[ability]}</strong>
+                    </button>
+                  ))}
+                </div>
+                <h3>Skills</h3>
+                <div className="character-quick-rolls">
+                  {character.sheet.skills.map((skill) => (
+                    <button key={skill.id} disabled={!connected || busy} onClick={() => roll("skill", skill.id)}>
+                      <span>{skill.name}{skill.expertise ? " ★" : skill.proficient ? " •" : ""}</span>
+                      <strong>{skill.bonus >= 0 ? "+" : ""}{skill.bonus}</strong>
+                    </button>
+                  ))}
+                </div>
+              </details>
             </div>
           )}
         </aside>
@@ -1549,13 +1637,28 @@ export default function Characters({
                 >
                   <h3>Equipment & bahasa</h3>
                   <ul>
-                    {character.sheet.equipment.map((e) => (
-                      <li key={e.id}>
-                        <button className="inventory-item" onClick={() => sendToChat(`🎒 ${e.name}`, `${e.count} × ${e.name}`)}>
-                          {e.count} × {e.name}
-                        </button>
-                      </li>
-                    ))}
+                    {character.sheet.equipment.map((e) => {
+                      const equipment = catalog.equipment.find(
+                        (item) => item.index === e.id,
+                      );
+                      const description = equipment
+                        ? equipmentChatDescription(equipment, e.count)
+                        : `${e.count} × ${e.name}`;
+                      return (
+                        <li className="shareable-row" key={e.id}>
+                          <span>{e.count} × {e.name}</span>
+                          <button
+                            type="button"
+                            title="Kirim penjelasan ke chat"
+                            aria-label={`Kirim penjelasan ${e.name} ke chat`}
+                            disabled={!connected}
+                            onClick={() => sendToChat(`🎒 ${e.name}`, description)}
+                          >
+                            ↗
+                          </button>
+                        </li>
+                      );
+                    })}
                   </ul>
                   <p>{character.sheet.equipmentNotes}</p>
                   <p>
@@ -1585,10 +1688,23 @@ export default function Characters({
                         .includes(search.toLowerCase()),
                     )
                     .map((f, i) => (
-                      <details key={i}>
-                        <summary>{f.name}</summary>
-                        <p>{f.desc.join("\n")}</p>
-                      </details>
+                      <div className="shareable-feature" key={i}>
+                        <details>
+                          <summary>{f.name}</summary>
+                          <p>{f.desc.join("\n")}</p>
+                        </details>
+                        <button
+                          type="button"
+                          title="Kirim penjelasan ke chat"
+                          aria-label={`Kirim penjelasan ${f.name} ke chat`}
+                          disabled={!connected}
+                          onClick={() =>
+                            sendToChat(`📜 ${f.name}`, f.desc.join("\n"))
+                          }
+                        >
+                          ↗
+                        </button>
+                      </div>
                     ))}
                   <p>{character.build.notes}</p>
                 </section>

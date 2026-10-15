@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently -k \"npm:dev:server\" \"npm:dev:client\"",
     "dev:server": "tsx watch server/index.ts",
-    "dev:client": "vite --host 0.0.0.0",
+    "dev:client": "vite",
     "build": "tsc -p tsconfig.server.json && tsc -p tsconfig.json && vite build",
     "start": "node dist-server/index.js",
     "test": "node --test tests/*.test.mjs"

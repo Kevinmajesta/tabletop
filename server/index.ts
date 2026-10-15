@@ -32,7 +32,7 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Server } from "socket.io";
-import { gameKinds, gameCatalog, newGame, gameView, gameAction, declareGame, type Game, type GameKind } from './minigames.js';
+import { gameKinds, gameCatalog, newGame, gameView, gameAction, declareGame, closeMemoryMismatch, type Game, type GameKind } from './minigames.js';
 
 type Member = { name: string; secret: string };
 type Token = BoardToken;
@@ -70,8 +70,16 @@ const uploadDir = path.join(dataDir, "uploads");
 mkdirSync(uploadDir, { recursive: true });
 const dbFile = path.join(dataDir, "rooms.json");
 let rooms: Record<string, Room> = {};
+let removedLegacyGames = false;
 try {
   if (existsSync(dbFile)) rooms = JSON.parse(readFileSync(dbFile, "utf8"));
+  for (const room of Object.values(rooms)) {
+    const removed = new Set((room.minigames || []).filter(game => !gameKinds.includes(game.kind)).map(game => game.tokenId));
+    if (removed.size) removedLegacyGames = true;
+    room.minigames = (room.minigames || []).filter(game => gameKinds.includes(game.kind));
+    room.tokens = (room.tokens || []).filter(token => !removed.has(token.id));
+    for (const scene of room.scenes || []) scene.tokens = scene.tokens.filter(token => !removed.has(token.id));
+  }
 } catch (error) {
   console.error("Gagal membaca data ruang:", error);
   process.exit(1);
@@ -86,6 +94,7 @@ const campaignStorage = persistence(
   },
 );
 const save = campaignStorage.save;
+if (removedLegacyGames) save();
 for (const signal of ["SIGTERM", "SIGINT"] as const)
   process.once(signal, () => {
     void campaignStorage
@@ -185,6 +194,7 @@ function safeRoom(room: Room, playerId = "", dm = false): SafeRoom {
     )
     .map((t) => ({
       ...t,
+      ...(!dm && t.minigame ? { name: "???" } : {}),
       characterRevision: room.characters?.find((c) => c.id === t.characterId)
         ?.revision,
     }));
@@ -1069,7 +1079,7 @@ io.on("connection", (socket) => {
       room.members[playerId] = { name, secret: playerSecret };
       socket.data.roomId = roomId;
       socket.data.playerId = playerId;
-      socket.data.isDM = p.dmKey === room.dmKey;
+      socket.data.isDM = name.toLowerCase() === "dm" || p.dmKey === room.dmKey;
       socket.join(roomId);
       save();
       reply({ ok: true, isDM: socket.data.isDM });
@@ -1115,10 +1125,17 @@ io.on("connection", (socket) => {
           error = declareGame(game, eligible);
         }
       } else {
-        if (['join', 'leave', 'remove-player'].includes(action.type) || (action.type === 'start' && !game.declaration)) { respond({ error: 'GM harus deklarasikan peserta lewat token.' }); return; }
+        const openParty = game.kind === 'crossword' || game.kind === 'seating';
+        if (['join', 'leave', 'remove-player'].includes(action.type) || (action.type === 'start' && !game.declaration && !openParty)) { respond({ error: 'GM harus deklarasikan peserta lewat token.' }); return; }
         error = gameAction(game, socket.data.playerId, socket.data.isDM, action, randomInt);
       }
       if (error) { respond({ error }); return; }
+      if (game.memoryCloseAt) {
+        const closeAt = game.memoryCloseAt;
+        setTimeout(() => {
+          if (game.memoryCloseAt === closeAt && closeMemoryMismatch(game)) { save(); broadcast(room); }
+        }, Math.max(0, closeAt - Date.now()));
+      }
     }
     save(); broadcast(room); respond({ ok: true });
   });
