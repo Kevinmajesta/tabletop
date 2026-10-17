@@ -1,4 +1,4 @@
-export const gameKinds = ['rps', 'tictactoe', 'connectfour', 'quickmath', 'memory', 'bombdefuse', 'reliccipher', 'crossword', 'seating', 'drawing'] as const;
+export const gameKinds = ['rps', 'tictactoe', 'connectfour', 'quickmath', 'memory', 'bombdefuse', 'reliccipher', 'chaincipher', 'crossword', 'seating', 'drawing'] as const;
 export type GameKind = typeof gameKinds[number];
 export const gameCatalog: Record<GameKind, { name: string; mark: string; mode: 'duel' | 'party' }> = {
   rps: { name: 'Gunting batu kertas', mark: 'GBK', mode: 'duel' },
@@ -8,6 +8,7 @@ export const gameCatalog: Record<GameKind, { name: string; mark: string; mode: '
   memory: { name: 'Memory', mark: 'M', mode: 'duel' },
   bombdefuse: { name: 'Defuse the Bomb', mark: '!', mode: 'duel' },
   reliccipher: { name: 'Sandi Relik', mark: '⌘', mode: 'party' },
+  chaincipher: { name: 'Sandi Rantai', mark: '···', mode: 'party' },
   crossword: { name: 'Teka-teki Silang Indonesia', mark: 'TTS', mode: 'party' },
   seating: { name: 'Misteri 9 Kursi', mark: '9', mode: 'party' },
   drawing: { name: 'Guess the Drawing', mark: '✎', mode: 'duel' },
@@ -28,6 +29,11 @@ const crosswordEntries: CrosswordEntry[] = [
 ];
 const seatingNames = ['ANI', 'BUDI', 'CITRA', 'DODI', 'EKA', 'FANI', 'GALIH', 'HANA', 'IWAN'];
 const drawingWords = [['KUCING', 'GAJAH', 'KELINCI'], ['NASI', 'SATE', 'BAKSO'], ['APEL', 'MANGGA', 'PISANG']];
+const chainCipherSet: CipherLayer[] = [
+  { title: 'I · Sandi Morse', cipher: '- .. .- ... . -- -.-. ... .--- . .- .. --.. -- ...- --', clue: 'Setiap kelompok titik/garis adalah satu huruf.', method: 'Morse internasional · pisahkan per spasi', answer: 'TIASEMCSJEAIZMVM' },
+  { title: 'II · Sandi A–Z', cipher: 'TIASEMCSJEAIZMVM', clue: 'A menjadi Z, B menjadi Y, dan seterusnya.', method: 'Alfabet terbalik · A↔Z', answer: 'GRZHVNXHQVZRANEN' },
+  { title: 'III · Sandi A–N', cipher: 'GRZHVNXHQVZRANEN', clue: 'Pasangkan A dengan N, B dengan O, dan seterusnya.', method: 'ROT13 · alfabet A–N', answer: 'TEMUI AKU DI MENARA' },
+];
 const cipherSets: CipherLayer[][] = [
   [
     { title: 'I · Pergeseran Penjaga', cipher: 'JHUEDQJ EDUDW PHQJHWDKXL NXQFL', clue: 'Patung ketiga menghadap fajar. Mundurkan tiap aksara sebanyak jumlah kepala naga.', method: 'Caesar · alfabet A–Z · spasi tidak berubah', answer: 'GERBANG BARAT MENGETAHUI KUNCI' },
@@ -42,6 +48,9 @@ const cipherSets: CipherLayer[][] = [
 ];
 function cipherLayers(randomInt: (max: number) => number) {
   return cipherSets[randomInt(cipherSets.length)].map(layer => ({ ...layer }));
+}
+function chainCipherLayers() {
+  return chainCipherSet.map(layer => ({ ...layer }));
 }
 function bombModules(randomInt: (max: number) => number): BombModule[] {
   const wires = [...bombOrders[randomInt(bombOrders.length)]];
@@ -111,8 +120,8 @@ export function gameView(game: Game, playerId: string, dm: boolean): Game {
       : bombModules?.map(({ solution: _solution, ...module }) => module);
   const visibleLayers = layers
     ?.slice(0, Math.min((game.cipherStage || 0) + 1, layers.length))
-    .map(({ answer: _answer, ...layer }) => layer);
-  return { ...view, ...(game.phase === 'finished' && answer !== undefined ? { answer } : {}), ...(game.kind === 'memory' ? { memoryBoard: filteredMemoryBoard, memoryOpen: canSeeMemoryOpen ? memoryOpen : [] } : {}), ...(game.kind === 'bombdefuse' ? { bombModules: modules } : {}), ...(game.kind === 'reliccipher' ? { cipherLayers: visibleLayers } : {}), ...(game.kind === 'crossword' ? { crosswordEntries: entries?.map(({ answer: _answer, ...entry }) => entry) } : {}), ...(game.kind === 'drawing' && (dm || playerId === game.players[0]) ? { drawingChoices, drawingWord } : {}), choices: game.phase === 'finished' ? { ...game.choices } : Object.fromEntries(Object.entries(game.choices).map(([id, choice]) => [id, id === playerId ? choice : 'locked'])) } as Game;
+    .map(({ answer: _answer, ...layer }) => game.kind === 'chaincipher' ? (({ method: _method, clue: _clue, ...cipher }) => cipher)(layer) : layer);
+  return { ...view, ...(game.phase === 'finished' && answer !== undefined ? { answer } : {}), ...(game.kind === 'memory' ? { memoryBoard: filteredMemoryBoard, memoryOpen: canSeeMemoryOpen ? memoryOpen : [] } : {}), ...(game.kind === 'bombdefuse' ? { bombModules: modules } : {}), ...(game.kind === 'reliccipher' || game.kind === 'chaincipher' ? { cipherLayers: visibleLayers } : {}), ...(game.kind === 'crossword' ? { crosswordEntries: entries?.map(({ answer: _answer, ...entry }) => entry) } : {}), ...(game.kind === 'drawing' && (dm || playerId === game.players[0]) ? { drawingChoices, drawingWord } : {}), choices: game.phase === 'finished' ? { ...game.choices } : Object.fromEntries(Object.entries(game.choices).map(([id, choice]) => [id, id === playerId ? choice : 'locked'])) } as Game;
 }
 export function declareGame(game: Game, participants: string[]): string | null {
   if (game.phase !== 'waiting') return 'Reset ronde sebelum deklarasi berikutnya.';
@@ -195,7 +204,9 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
       if (!randomInt) return 'Pembuat sandi tidak tersedia.';
       game.cipherLayers = cipherLayers(randomInt);
       game.cipherStage = 0;
-
+    } else if (game.kind === 'chaincipher') {
+      game.cipherLayers = chainCipherLayers();
+      game.cipherStage = 0;
     } else if (game.kind === 'bombdefuse') {
       if (!randomInt) return 'Pembuat acak tidak tersedia.';
       game.bombModules = bombModules(randomInt);
@@ -264,7 +275,7 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
       game.phase = 'finished';
     }
   } else if (action.type === 'cipher:answer') {
-    if (game.kind !== 'reliccipher' || game.phase !== 'open' || (!dm && !game.players.includes(playerId)) || typeof action.answer !== 'string' || action.answer.length > 120) return fail;
+    if ((game.kind !== 'reliccipher' && game.kind !== 'chaincipher') || game.phase !== 'open' || (!dm && !game.players.includes(playerId)) || typeof action.answer !== 'string' || action.answer.length > 120) return fail;
     const layer = game.cipherLayers?.[game.cipherStage || 0];
     if (!layer?.answer) return fail;
     const normalized = action.answer.toUpperCase().replace(/[^A-Z]/g, '');

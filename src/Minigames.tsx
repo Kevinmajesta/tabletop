@@ -108,14 +108,14 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
         {game.phase !== 'waiting' && <><ol className="seating-clues">{game.seatingClues?.map(clue => <li key={clue}>{clue}</li>)}</ol><div className="seating-room"><b className="window-a">Jendela A</b><b className="window-b">Jendela B</b><div className="seating-table">MEJA</div>{game.seatingSeats?.map((occupant, seat) => <label className={`seat seat-${seat}`} key={seat}><span>Kursi {seat + 1}</span><select aria-label={`Kursi ${seat + 1}`} value={occupant} disabled={disabled || game.phase !== 'open'} onChange={event => send({ type: 'seating:place', seat, name: event.target.value })}><option value="">Kosong</option>{game.seatingNames?.map(person => <option key={person} value={person} disabled={game.seatingSeats?.includes(person) && person !== occupant}>{person}</option>)}</select></label>)}</div></>}
         {game.phase === 'finished' && <p role="status">Susunan benar! Diselesaikan oleh {name(game.result)}.</p>}
       </>}
-      {game.kind === 'reliccipher' && <>
-        <p>Tiga lapis sandi saling mengunci. Hasil lapis sebelumnya menjadi kunci lapis berikutnya. Semua peserta boleh mengirim jawaban.</p>
+      {(game.kind === 'reliccipher' || game.kind === 'chaincipher') && <>
+        <p>{game.kind === 'chaincipher' ? 'Pecahkan berurutan: Morse menghasilkan sandi A–Z, lalu sandi A–N, baru kalimat akhir.' : 'Tiga lapis sandi saling mengunci. Hasil lapis sebelumnya menjadi kunci lapis berikutnya.'} Semua peserta boleh mengirim jawaban.</p>
         {game.phase !== 'waiting' && <div className="relic-cipher">
           <div className="cipher-progress" aria-label={`Lapis ${Math.min((game.cipherStage || 0) + 1, 3)} dari 3`}>{[0, 1, 2].map(index => <span key={index} className={index < (game.cipherStage || 0) ? 'solved' : index === (game.cipherStage || 0) && game.phase === 'open' ? 'active' : ''}>{index < (game.cipherStage || 0) ? '✓' : index + 1}</span>)}</div>
           {game.cipherLayers?.map((layer, index) => <article className={`cipher-layer ${index < (game.cipherStage || 0) ? 'solved' : ''}`} key={layer.title}>
             <header><h3>{layer.title}</h3>{index < (game.cipherStage || 0) && <b>TERPECAHKAN</b>}</header>
             <pre>{layer.cipher}</pre>
-            <dl><div><dt>Metode</dt><dd>{layer.method}</dd></div><div><dt>Petunjuk</dt><dd>{layer.clue}</dd></div></dl>
+            {game.kind !== 'chaincipher' && <dl><div><dt>Metode</dt><dd>{layer.method}</dd></div><div><dt>Petunjuk</dt><dd>{layer.clue}</dd></div></dl>}
           </article>)}
           {game.phase === 'open' && (dm || game.players.includes(playerId)) && <form className="cipher-answer" onSubmit={event => { event.preventDefault(); if (response.trim()) send({ type: 'cipher:answer', answer: response.trim() }); }}>
             <label>Jawaban lapis {(game.cipherStage || 0) + 1}<input autoComplete="off" maxLength={120} value={response} disabled={disabled} onChange={event => setResponse(event.target.value)} placeholder="Spasi dan tanda baca boleh diabaikan" /></label>

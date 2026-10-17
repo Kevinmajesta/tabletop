@@ -56,6 +56,15 @@ import type { DiceRoll } from "../server/dice-physics";
 import { randomId } from "./random-id";
 
 type Token = BoardToken;
+const conditionDescriptions: Record<string, string> = {
+  Prone: "Prone: hanya crawl; serangan melee dari dekat mendapat advantage.",
+  Poisoned: "Poisoned: disadvantage pada attack roll dan ability check.",
+  Stunned: "Stunned: tidak bisa bergerak atau bertindak; serangan terhadapmu advantage.",
+  Blinded: "Blinded: tidak bisa melihat; attack-mu disadvantage, serangan terhadapmu advantage.",
+  Restrained: "Restrained: speed 0; attack-mu disadvantage, serangan terhadapmu advantage.",
+  Unconscious: "Unconscious: incapacitated dan prone; serangan dari dekat critical jika mengenai.",
+  Defeated: "Defeated: keluar dari combat.",
+};
 type Message = {
   id: string;
   name: string;
@@ -176,11 +185,18 @@ function App() {
   const lastTokenMove = useRef(0);
   const tokenDragStart = useRef<{ x: number; y: number } | null>(null);
   const [movement, setMovement] = useState<{
+    id: string;
     a: { x: number; y: number };
     b: { x: number; y: number };
   } | null>(null);
   const [previewTokenId, setPreviewTokenId] = useState<string | null>(null);
+  const [combatOrderOpen, setCombatOrderOpen] = useState(true);
   const activeScene = room?.scenes?.find((s) => s.id === room.activeSceneId);
+  const combatants = activeScene?.combat.active
+    ? activeScene.combat.ids.map((id) => activeScene.tokens.find((token) => token.id === id)).filter((token): token is Token => !!token)
+    : [];
+  const combatTurn = activeScene?.combat.turn ?? -1;
+  const nextCombatant = combatants.length > 1 ? combatants[(combatTurn + 1) % combatants.length] : undefined;
   const displayMap = activeScene?.map;
   const columns = activeScene?.grid.columns ?? 20;
   const selectedToken = room?.tokens.find((token) => token.id === selected);
@@ -525,6 +541,7 @@ function App() {
     const original = room?.tokens.find((t) => t.id === dragging.current);
     if (original)
       setMovement((current) => ({
+        id: dragging.current!,
         a: current?.a || { x: original.x, y: original.y },
         b: { x, y },
       }));
@@ -590,13 +607,8 @@ function App() {
     setZoom(clamped);
   }
   function startPan(event: React.PointerEvent<HTMLDivElement>) {
-    if (event.button !== 0 && event.button !== 2) return;
-    if (
-      event.button === 0 &&
-      event.target !== event.currentTarget &&
-      mapTool !== "pan"
-    )
-      return;
+    if (event.button !== 0) return;
+    if (event.target !== event.currentTarget && mapTool !== "pan") return;
     panning.current = {
       pointerId: event.pointerId,
       x: event.clientX,
@@ -743,9 +755,9 @@ function App() {
                 color={animation.color}
                 onComplete={() => setDiceAnimations((current) => current.map((item) => item.id === animation.id ? { ...item, revealed: true } : item))}
               /></div>, mapRef.current || boardRef.current!)}
-              <Suspense fallback={null}>
-                <NaturalRollEffect rollId={animation.id} sides={animation.roll.sides} values={animation.roll.values} revealed={animation.revealed} />
-              </Suspense>
+              {animation.revealed && diceEffects && <Suspense fallback={null}>
+                <NaturalRollEffect rollId={animation.id} sides={animation.roll.sides} values={animation.roll.values} />
+              </Suspense>}
               {animation.revealed && <div className="dice-outcome" role="status" aria-live="polite"><span>Hasil lemparan</span><strong>{animation.roll.total}</strong><p>{animation.text}</p></div>}
             </div>
           ))}
@@ -835,7 +847,6 @@ function App() {
           <div
             className="map-viewport"
             ref={boardRef}
-            onContextMenu={(e) => e.preventDefault()}
             onPointerDown={startPan}
             onPointerMove={panMove}
             onPointerUp={stopPan}
@@ -851,13 +862,8 @@ function App() {
                   transform: `translate(calc(-50% + ${pan.x}px), calc(-50% + ${pan.y}px)) scale(${zoom})`,
                   backgroundImage: `url("${displayMap}")`,
                 }}
-                onContextMenu={(e) => e.preventDefault()}
                 onPointerDown={(e) => {
-                  if (
-                    e.target !== e.currentTarget ||
-                    (e.button !== 0 && e.button !== 2)
-                  )
-                    return;
+                  if (e.target !== e.currentTarget || e.button !== 0) return;
                   e.stopPropagation();
                   panning.current = {
                     pointerId: e.pointerId,
@@ -884,7 +890,7 @@ function App() {
                 {room?.tokens.map((token) => (
                   <button
                     key={token.id}
-                    className={`map-token ${selected === token.id ? "selected" : ""} ${dragging.current === token.id ? "dragging" : ""}`}
+                    className={`map-token ${selected === token.id ? "selected" : ""} ${dragging.current === token.id ? "dragging" : ""} ${activeScene?.combat.active && activeScene.combat.ids[activeScene.combat.turn] === token.id ? "combat-active" : ""}`}
                     style={{
                       left: `${token.x}%`,
                       top: `${token.y}%`,
@@ -933,6 +939,7 @@ function App() {
                     title={token.name}
                   >
                     {token.minigame ? <div className="minigame-token-mark" aria-hidden="true">{isDM ? gameCatalog[token.minigame].mark : '?'}</div> : <img src={token.image} alt={token.name} loading="lazy" decoding="async" />}
+                    {!!token.conditions?.length && <div className="token-conditions" aria-label={`Kondisi ${token.name}: ${token.conditions.join(', ')}`}>{token.conditions.map((condition) => <b key={condition} title={conditionDescriptions[condition] || condition}>{condition[0]}</b>) }</div>}
                     <span style={{ transform: `translateX(-50%) scale(${1 / zoom})` }}>
                       {token.name}
                       {token.maxHp
@@ -945,30 +952,17 @@ function App() {
                     </span>
                   </button>
                 ))}
-                {movement && activeScene && (
-                  <svg
-                    className="token-movement"
-                    viewBox={`0 0 ${canvasWidth} ${canvasHeight}`}
-                  >
-                    <line
-                      x1={(movement.a.x / 100) * canvasWidth}
-                      y1={(movement.a.y / 100) * canvasHeight}
-                      x2={(movement.b.x / 100) * canvasWidth}
-                      y2={(movement.b.y / 100) * canvasHeight}
-                    />
-                    <text
-                      x={(movement.b.x / 100) * canvasWidth}
-                      y={(movement.b.y / 100) * canvasHeight - 12}
-                    >
-                      {distance(
-                        movement.a,
-                        movement.b,
-                        activeScene.grid,
-                      ).toFixed(1)}{" "}
-                      {activeScene.grid.unit}
-                    </text>
-                  </svg>
-                )}
+                {movement && activeScene && (() => {
+                  const movedToken = activeScene.tokens.find((token) => token.id === movement.id);
+                  const moved = distance(movement.a, movement.b, activeScene.grid);
+                  const speedFt = movedToken?.characterId ? room?.characters?.find((character) => character.id === movedToken.characterId)?.sheet.speed : undefined;
+                  const speed = speedFt === undefined ? undefined : activeScene.grid.unit === "m" ? speedFt * 0.3048 : speedFt;
+                  const overSpeed = speed !== undefined && moved > speed;
+                  return <svg className="token-movement" viewBox={`0 0 ${canvasWidth} ${canvasHeight}`}>
+                    <line x1={(movement.a.x / 100) * canvasWidth} y1={(movement.a.y / 100) * canvasHeight} x2={(movement.b.x / 100) * canvasWidth} y2={(movement.b.y / 100) * canvasHeight} className={overSpeed ? "over-speed" : ""} />
+                    <text x={(movement.b.x / 100) * canvasWidth} y={(movement.b.y / 100) * canvasHeight - 12} className={overSpeed ? "over-speed" : ""}>{moved.toFixed(1)} {activeScene.grid.unit}{overSpeed ? ` / maks. ${speed?.toFixed(1)} ${activeScene.grid.unit}` : ""}</text>
+                  </svg>;
+                })()}
               </div>
             ) : (
               <div className="empty-board">
@@ -994,6 +988,10 @@ function App() {
               </div>
             )}
           </div>
+          {!!combatants.length && <section className={`combat-order ${combatOrderOpen ? '' : 'collapsed'}`} aria-label={`Urutan combat ronde ${activeScene?.combat.round}`}>
+            <button aria-expanded={combatOrderOpen} onClick={() => setCombatOrderOpen((open) => !open)}>RONDE {activeScene?.combat.round} <span>{combatOrderOpen ? '−' : '+'}</span></button>
+            {combatOrderOpen && <><ol>{combatants.map((token, index) => <li key={token.id} className={index === combatTurn ? 'current' : ''}>{index + 1}. {token.name}</li>)}</ol>{nextCombatant && <small>Berikutnya: {nextCombatant.name}</small>}</>}
+          </section>}
           {activeScene && (
             <Suspense fallback={null}>
               <BoardTools

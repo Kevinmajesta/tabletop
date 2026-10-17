@@ -1,18 +1,26 @@
-const twentyGifs = Object.values(import.meta.glob('./gif nat20/*.gif', { eager: true, query: '?url', import: 'default' })) as string[];
-const oneGifs = Object.values(import.meta.glob('./gif nat 1/*.gif', { eager: true, query: '?url', import: 'default' })) as string[];
+import { useEffect, useState } from 'react';
 
-function gifFor(gifs: string[], id: string) {
+const twentyGifs = Object.values(import.meta.glob('./gif nat20/*.gif', { query: '?url', import: 'default' })) as (() => Promise<string>)[];
+const oneGifs = Object.values(import.meta.glob('./gif nat 1/*.gif', { query: '?url', import: 'default' })) as (() => Promise<string>)[];
+
+function gifFor(gifs: (() => Promise<string>)[], id: string) {
   const hash = Array.from(id).reduce((value, char) => (Math.imul(value, 31) + char.charCodeAt(0)) >>> 0, 0);
   return gifs[hash % gifs.length];
 }
 
-export default function NaturalRollEffect({ sides, values, revealed, rollId }: { sides: number; values: number[]; revealed: boolean; rollId?: string }) {
-  if (!revealed || sides !== 20 || localStorage.getItem('meja-dice-animation') === 'off') return null;
+function RollGif({ gifs, id }: { gifs: (() => Promise<string>)[]; id: string }) {
+  const [src, setSrc] = useState('');
+  useEffect(() => { let live = true; void gifFor(gifs, id)().then((url) => { if (live) setSrc(url); }); return () => { live = false; }; }, [gifs, id]);
+  return src ? <img src={src} alt=""/> : null;
+}
+
+export default function NaturalRollEffect({ sides, values, rollId }: { sides: number; values: number[]; rollId?: string }) {
   const twenty = values.includes(20);
   const one = values.includes(1);
-  if (!twenty && !one) return null;
-  return <div key={rollId ?? values.join(',')} className="natural-roll-effects" role="status" aria-live="polite">
-    {twenty && <div className="natural-roll natural-twenty"><img src={gifFor(twentyGifs, rollId || values.join(','))} alt=""/><div className="natural-splash-title"><strong>Natural 20</strong><p>Angka tertinggi!</p></div></div>}
-    {one && <div className="natural-roll natural-one"><img src={gifFor(oneGifs, rollId || values.join(','))} alt=""/><div className="natural-splash-title"><strong>Natural 1</strong><p>Angka terendah!</p></div></div>}
+  if (sides !== 20 || (!twenty && !one)) return null;
+  const id = rollId || values.join(',');
+  return <div key={id} className="natural-roll-effects" role="status" aria-live="polite">
+    {twenty && <div className="natural-roll natural-twenty"><RollGif gifs={twentyGifs} id={id}/><div className="natural-splash-title"><strong>Natural 20</strong><p>Angka tertinggi!</p></div></div>}
+    {one && <div className="natural-roll natural-one"><RollGif gifs={oneGifs} id={id}/><div className="natural-splash-title"><strong>Natural 1</strong><p>Angka terendah!</p></div></div>}
   </div>;
 }

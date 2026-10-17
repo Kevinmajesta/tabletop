@@ -171,6 +171,21 @@ test('relic cipher advances through three server-validated layers without leakin
   assert.equal(game.scores.a, 1);
 });
 
+test('chain cipher unlocks Morse, A-Z, then A-N without leaking future layers', () => {
+  const game = newGame('chain', 'chaincipher');
+  declareGame(game, ['a']);
+  assert.equal(act(game, 'gm', 'start', {}, true), null);
+  const view = gameView(game, 'a', false);
+  assert.equal(view.cipherLayers?.[0]?.title, 'I · Sandi Morse');
+  assert.equal(view.cipherLayers?.length, 1);
+  assert.equal(Object.hasOwn(view.cipherLayers?.[0] || {}, 'answer'), false);
+  assert.equal(Object.hasOwn(view.cipherLayers?.[0] || {}, 'method'), false);
+  assert.equal(Object.hasOwn(view.cipherLayers?.[0] || {}, 'clue'), false);
+  for (const answer of game.cipherLayers.map(layer => layer.answer)) assert.equal(act(game, 'a', 'cipher:answer', { answer }), null);
+  assert.equal(game.phase, 'finished');
+  assert.equal(game.result, 'a');
+});
+
 test('Connect Four validates turn and gravity, wins vertically and horizontally, resets', () => {
   for (const sequence of [[0,1,0,1,0,1,0], [0,6,1,6,2,6,3]]) {
     const game = newGame('t', 'connectfour'); declareGame(game, ['a', 'gm']); act(game, 'gm', 'start', {}, true);

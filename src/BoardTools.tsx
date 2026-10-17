@@ -38,6 +38,7 @@ type Ping = Point & {
   name: string;
   focus: boolean;
 };
+type Pointer = Point & { playerId: string; name: string };
 type Props = {
   scene: Scene;
   scenes: Scene[];
@@ -133,7 +134,9 @@ export default function BoardTools({
   );
   const [draft, setDraft] = useState<{ a: Point; b: Point } | null>(null);
   const [pings, setPings] = useState<Ping[]>([]);
+  const [pointers, setPointers] = useState<Record<string, Pointer>>({});
   const [error, setError] = useState("");
+  const pointerThrottle = useRef(0);
   const [name, setName] = useState("");
   const [text, setText] = useState("");
   const [waypoints, setWaypoints] = useState<Point[]>([]);
@@ -153,62 +156,42 @@ export default function BoardTools({
   sceneRef.current = scene.id;
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => {
-    const ruler = (r: {
-      sceneId: string;
-      playerId: string;
-      points: Point[];
-      name: string;
-    }) => {
-      if (r.sceneId === sceneRef.current && r.playerId !== playerId)
-        setSharedRulers((current) => ({
-          ...current,
-          [r.playerId]: { points: r.points, name: r.name },
-        }));
+    const ruler = (r: { sceneId: string; playerId: string; points: Point[]; name: string }) => {
+      if (r.sceneId === sceneRef.current && r.playerId !== playerId) setSharedRulers((current) => ({ ...current, [r.playerId]: { points: r.points, name: r.name } }));
     };
     const ping = (p: Ping) => {
       if (p.sceneId !== sceneRef.current) return;
       setPings((current) => [...current.slice(-9), p]);
       if (p.focus) focus.current(p);
-      const timer = setTimeout(() => {
-        setPings((current) => current.filter((item) => item.id !== p.id));
-        timers.current = timers.current.filter((t) => t !== timer);
-      }, 2500);
+      const timer = setTimeout(() => setPings((current) => current.filter((item) => item.id !== p.id)), 2500);
       timers.current.push(timer);
     };
-    socket?.on("tabletop:ping", ping);
-    socket?.on("tabletop:ruler", ruler);
-    return () => {
-      socket?.off("tabletop:ping", ping);
-      socket?.off("tabletop:ruler", ruler);
-      timers.current.forEach(clearTimeout);
-      timers.current = [];
+    const pointer = (p: Pointer & { sceneId: string; active: boolean }) => {
+      if (p.sceneId !== sceneRef.current) return;
+      setPointers((current) => { if (!p.active) { const { [p.playerId]: _, ...rest } = current; return rest; } return { ...current, [p.playerId]: p }; });
     };
+    socket?.on("tabletop:pointer", pointer); socket?.on("tabletop:ping", ping); socket?.on("tabletop:ruler", ruler);
+    return () => { socket?.off("tabletop:pointer", pointer); socket?.off("tabletop:ping", ping); socket?.off("tabletop:ruler", ruler); timers.current.forEach(clearTimeout); timers.current = []; };
   }, [socket, playerId]);
   useEffect(() => {
-    setDraft(null);
-    setWaypoints([]);
-    setPings([]);
-    setSharedRulers({});
-    setTool("select");
-  }, [scene.id]);
+    let active = false;
+    const send = (event: PointerEvent, state: boolean) => {
+      const rect = svg.current?.getBoundingClientRect();
+      if (!connected || !socket || !rect || event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) return;
+      socket.emit("tabletop:pointer", { sceneId: scene.id, x: ((event.clientX - rect.left) / rect.width) * 100, y: ((event.clientY - rect.top) / rect.height) * 100, active: state });
+    };
+    const down = (event: PointerEvent) => { if (event.button === 2) { active = true; event.preventDefault(); send(event, true); } };
+    const move = (event: PointerEvent) => { if (active && performance.now() - pointerThrottle.current > 40) { pointerThrottle.current = performance.now(); send(event, true); } };
+    const up = (event: PointerEvent) => { if (active && event.button === 2) { send(event, false); active = false; } };
+    const menu = (event: MouseEvent) => { if (active) event.preventDefault(); };
+    window.addEventListener("pointerdown", down); window.addEventListener("pointermove", move); window.addEventListener("pointerup", up); window.addEventListener("contextmenu", menu);
+    return () => { window.removeEventListener("pointerdown", down); window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); window.removeEventListener("contextmenu", menu); };
+  }, [connected, scene.id, socket]);
+  useEffect(() => { setDraft(null); setWaypoints([]); setPings([]); setPointers({}); setSharedRulers({}); setTool("select"); }, [scene.id]);
   useEffect(() => {
-    if (
-      tool === "ruler" &&
-      draft &&
-      broadcastRuler &&
-      performance.now() - rulerThrottle.current > 200
-    ) {
-      socket?.emit("tabletop:ruler", {
-        sceneId: scene.id,
-        points: [draft.a, ...waypoints, draft.b],
-      });
-      rulerThrottle.current = performance.now();
-    }
+    if (tool === "ruler" && draft && broadcastRuler && performance.now() - rulerThrottle.current > 200) { socket?.emit("tabletop:ruler", { sceneId: scene.id, points: [draft.a, ...waypoints, draft.b] }); rulerThrottle.current = performance.now(); }
   }, [draft, waypoints, broadcastRuler, tool, scene.id, socket]);
-  useEffect(() => {
-    if (tool !== "ruler" || !broadcastRuler)
-      socket?.emit("tabletop:ruler", { sceneId: scene.id, points: [] });
-  }, [tool, broadcastRuler, scene.id, socket]);
+  useEffect(() => { if (tool !== "ruler" || !broadcastRuler) socket?.emit("tabletop:ruler", { sceneId: scene.id, points: [] }); }, [tool, broadcastRuler, scene.id, socket]);
   useEffect(() => {
     const keyboard = (event: KeyboardEvent) => {
       if (
@@ -868,22 +851,13 @@ export default function BoardTools({
                     : "Combat belum dimulai"}
                 </strong>
                 <ol>
-                  {scene.combat.ids.map((id) => {
-                    const t = scene.tokens.find((t) => t.id === id);
-                    return t ? (
-                      <li
-                        key={id}
-                        className={
-                          scene.combat.ids[scene.combat.turn] === id
-                            ? "current-turn"
-                            : ""
-                        }
-                      >
-                        {t.name} ({t.initiative ?? 0}){" "}
-                        {t.conditions?.includes("Defeated") ? "Defeated" : ""}
-                      </li>
-                    ) : null;
-                  })}
+                  {(scene.combat.active ? scene.combat.ids.map((id) => scene.tokens.find((t) => t.id === id)).filter((t): t is NonNullable<typeof t> => !!t) : scene.tokens).map((t) => (
+                    <li key={t.id} className={scene.combat.ids[scene.combat.turn] === t.id ? "current-turn" : ""}>
+                      {t.name}{" "}
+                      {dm && dmMenu ? <label className="combat-initiative">Initiative <input type="number" min={-100} max={9999} value={t.initiative ?? 0} onChange={(e) => action({ type: "token:update", id: t.id, initiative: e.target.valueAsNumber })} /></label> : `(${t.initiative ?? 0})`}{" "}
+                      {t.conditions?.includes("Defeated") ? "Defeated" : ""}
+                    </li>
+                  ))}
                 </ol>
                 {dm && dmMenu && (
                   <button
@@ -1048,6 +1022,12 @@ export default function BoardTools({
             </g>
           ),
       )}
+      {Object.values(pointers).map((pointer) => (
+        <g key={pointer.playerId} className="board-pointer" transform={`translate(${(pointer.x / 100) * width} ${(pointer.y / 100) * height})`}>
+          <circle r="7" />
+          <text x="11" y="4">{pointer.name}</text>
+        </g>
+      ))}
       {pings.map((p) => (
         <g key={p.id} className="board-ping">
           <circle

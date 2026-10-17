@@ -80,8 +80,17 @@ test('two-player tools, scene isolation, DM permissions and hidden token payload
     assert.equal(player.state.tokens.length, 1);
     assert.equal(player.state.scenes[0].tokens.length, 1);
     await action(dm, { type: 'token:update', id: hero, hidden: false });
+    const combatPing = new Promise(resolve => player.socket.once('tabletop:ping', resolve));
     await action(dm, { type: 'combat:set', ids: [hero] });
     await new Promise(r => setTimeout(r, 50));
+    assert.equal((await combatPing).name, 'Token');
+    assert.equal(player.state.scenes[0].combat.active, true);
+    assert.equal(player.state.scenes[0].combat.ids[player.state.scenes[0].combat.turn], hero);
+    await action(dm, { type: 'combat:set', ids: [hero, duplicated.id] });
+    await action(dm, { type: 'token:update', id: duplicated.id, initiative: 20 });
+    await new Promise(r => setTimeout(r, 50));
+    assert.deepEqual(player.state.scenes[0].combat.ids, [duplicated.id, hero]);
+    assert.equal(player.state.scenes[0].combat.ids[player.state.scenes[0].combat.turn], hero);
     assert.equal((await action(player, { type: 'combat:next' })).ok, true);
     assert.equal((await action(player, { type: 'mark:add', kind: 'wall', a: { x: 0, y: 0 }, b: { x: 10, y: 10 } })).error, 'Alat ini khusus DM.');
     await action(player, { type: 'mark:add', kind: 'cone', a: { x: 10, y: 10 }, b: { x: 30, y: 30 } });
@@ -89,6 +98,9 @@ test('two-player tools, scene isolation, DM permissions and hidden token payload
     assert.equal(dm.state.scenes[0].marks[0].kind, 'cone');
     const ping = new Promise(resolve => player.socket.once('tabletop:ping', resolve));
     dm.socket.emit('tabletop:ping', { sceneId: firstId, x: 30, y: 30, focus: true });
+    const pointer = new Promise(resolve => player.socket.once('tabletop:pointer', resolve));
+    dm.socket.emit('tabletop:pointer', { sceneId: firstId, x: 31, y: 30, active: true });
+    assert.equal((await pointer).name, 'dm');
     assert.equal((await ping).focus, true);
     const ruler = new Promise(resolve => player.socket.once('tabletop:ruler', resolve));
     dm.socket.emit('tabletop:ruler', { sceneId: firstId, points: [{ x: 10, y: 10 }, { x: 20, y: 20 }] });

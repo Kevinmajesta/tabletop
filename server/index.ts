@@ -790,6 +790,11 @@ io.on("connection", (socket) => {
           );
           if (value !== undefined) token[key] = value;
         }
+        if (p.initiative !== undefined && scene.combat.active) {
+          const currentId = scene.combat.ids[scene.combat.turn];
+          scene.combat.ids.sort((a, b) => (scene.tokens.find((t) => t.id === b)?.initiative ?? 0) - (scene.tokens.find((t) => t.id === a)?.initiative ?? 0));
+          scene.combat.turn = Math.max(0, scene.combat.ids.indexOf(currentId));
+        }
         if (typeof p.hidden === "boolean" && dm) token.hidden = p.hidden;
         if (typeof p.visionSource === "boolean" && dm)
           token.visionSource = p.visionSource;
@@ -943,6 +948,10 @@ io.on("connection", (socket) => {
         });
       save();
       broadcast(room);
+      if ((p.type === "combat:set" || p.type === "combat:next") && scene.combat.active) {
+        const token = scene.tokens.find((item) => item.id === scene.combat.ids[scene.combat.turn]);
+        if (token) for (const peer of io.sockets.sockets.values()) if (peer.data.roomId === room.id && (peer.data.isDM || visible(token, scene, peer.data.playerId))) peer.emit("tabletop:ping", { x: token.x, y: token.y, id: randomUUID(), sceneId: scene.id, name: token.name, focus: false });
+      }
       if (typeof reply === "function") reply({ ok: true });
     },
   );
@@ -983,6 +992,15 @@ io.on("connection", (socket) => {
           name: room.members[socket.data.playerId].name,
           focus: !!p.focus && !!socket.data.isDM,
         });
+  });
+  socket.on("tabletop:pointer", (payload: unknown) => {
+    const room = rooms[socket.data.roomId];
+    if (!room || !payload || typeof payload !== "object" || !admitted(`pointer:${socket.handshake.address}`, 60)) return;
+    const p = payload as Record<string, unknown>, scene = sceneFor(room);
+    if (p.sceneId !== scene.id || typeof p.active !== "boolean" || typeof p.x !== "number" || typeof p.y !== "number" || !Number.isFinite(p.x) || !Number.isFinite(p.y)) return;
+    const location = { x: Math.max(0, Math.min(100, p.x)), y: Math.max(0, Math.min(100, p.y)) };
+    if (!socket.data.isDM && !visible(location, scene, socket.data.playerId)) return;
+    for (const peer of io.sockets.sockets.values()) if (peer.data.roomId === room.id && (peer.data.isDM || visible(location, scene, peer.data.playerId))) peer.emit("tabletop:pointer", { ...location, active: p.active, sceneId: scene.id, playerId: socket.data.playerId, name: room.members[socket.data.playerId].name });
   });
   socket.on("tabletop:ruler", (payload: unknown) => {
     const room = rooms[socket.data.roomId];
@@ -1508,16 +1526,7 @@ app.post("/api/hero-lobby", async (_req, res) => {
   }
 });
 
-let pendingUploadBytes = 0;
 let activeUploads = 0;
-const uploadCapacity = 1024 * 1024 * 1024;
-async function uploadedBytes() {
-  const files = await readdir(uploadDir);
-  const sizes = await Promise.all(
-    files.map((file) => stat(path.join(uploadDir, file)).then((s) => s.size)),
-  );
-  return sizes.reduce((sum, size) => sum + size, 0);
-}
 app.post(
   "/api/rooms/:id/upload/:kind",
   (req, res, next) => {
@@ -1548,26 +1557,15 @@ app.post(
       return;
     }
     activeUploads++;
-    const reservedBytes = Number(req.headers["content-length"]) || 0;
-    pendingUploadBytes += reservedBytes;
     let released = false;
     const release = () => {
       if (released) return;
       released = true;
       activeUploads--;
-      pendingUploadBytes -= reservedBytes;
     };
     res.once("finish", release);
     res.once("close", release);
-    void uploadedBytes()
-      .then((bytes) => {
-        if (bytes + pendingUploadBytes > uploadCapacity) {
-          res.status(507).json({ error: "Penyimpanan gambar penuh." });
-          return;
-        }
-        next();
-      })
-      .catch(next);
+    next();
   },
   (req, res, next) => (req.params.kind === "map" ? mapUpload : tokenUpload).single("image")(req, res, next),
   (req, res) => {
