@@ -1,0 +1,55 @@
+<!doctype html><meta charset="utf-8"><title>Forest wagon chase — seamless 8s loop</title><style>html,body{margin:0;background:#18291b;height:100%;display:grid;place-items:center}canvas{width:min(100vw,177.777vh);height:auto}</style><canvas width="1920" height="1080"></canvas><script>
+const c=document.querySelector('canvas'), g=c.getContext('2d');
+const W=1920,H=1080,TAU=Math.PI*2;let seed=321;
+function rand(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}
+function r(a,b){return a+rand()*(b-a)}
+function ellipse(x,y,rx,ry,color){g.fillStyle=color;g.beginPath();g.ellipse(x,y,rx,ry,0,0,TAU);g.fill()}
+function line(x,y,x2,y2,col,w){g.strokeStyle=col;g.lineWidth=w;g.beginPath();g.moveTo(x,y);g.lineTo(x2,y2);g.stroke()}
+function rect(x,y,w,h,col){g.fillStyle=col;g.fillRect(x,y,w,h)}
+const tile=document.createElement('canvas');tile.width=W;tile.height=H;const b=tile.getContext('2d');
+b.fillStyle='#405434';b.fillRect(0,0,W,H);
+for(let i=0;i<52000;i++){let x=r(0,W),y=r(0,H);b.fillStyle=['#556039','#293e2a','#6c7341','#364a2d'][i%4];b.globalAlpha=r(.15,.5);b.fillRect(x,y,r(1,6),r(1,9))}b.globalAlpha=1;
+b.fillStyle='#97825b';b.beginPath();b.moveTo(676,0);b.bezierCurveTo(641,400,668,800,676,H);b.lineTo(1244,H);b.bezierCurveTo(1210,800,1250,400,1244,0);b.closePath();b.fill();
+for(let i=0;i<14000;i++){let x=r(655,1260),y=r(0,H);b.fillStyle=['#6c6043','#b49b6e','#83714e','#c3ad7d'][i%4];b.globalAlpha=r(.08,.4);b.fillRect(x,y,r(1,7),r(2,15))}b.globalAlpha=1;
+for(let x of [804,1116]){b.strokeStyle='#61543a55';b.lineWidth=13;b.beginPath();b.moveTo(x,0);b.bezierCurveTo(x-12,300,x+11,750,x,H);b.stroke();b.strokeStyle='#c4ad7b33';b.lineWidth=4;b.stroke()}
+const pebbles=Array.from({length:200},()=>({x:r(690,1220),y:r(0,H),s:r(1,6)}));
+const foliage=Array.from({length:72},(_,i)=>({x:i%2?r(1320,2050):r(-130,600),y:r(-200,1960),s:r(100,210),phase:r(0,TAU),shade:Math.floor(r(0,3))}));
+const leaves=Array.from({length:65},()=>({x:r(0,W),y:r(0,H),s:r(3,10),a:r(0,TAU)}));
+function tree(x,y,s,phase,t){
+ ellipse(x+25,y+42,s*1.1,s*.82,'#142a1e66');
+ for(let j=0;j<13;j++){const a=j*2.4+phase,rr=s*(.18+(j%4)*.19),xx=x+Math.cos(a)*rr,yy=y+Math.sin(a)*rr*.8;ellipse(xx,yy,s*.48,s*.36,['#203c23','#294d29','#365f2e','#426b34'][j%4])}
+ for(let j=0;j<42;j++){let a=j*2.399+phase,rr=s*Math.sqrt((j+.5)/42)*.85;let xx=x+Math.cos(a)*rr,yy=y+Math.sin(a)*rr*.76;g.save();g.translate(xx,yy);g.rotate(a+.1*Math.sin(t*TAU+phase));ellipse(0,0,s*.13,s*.055,['#597a39','#65843d','#78904b','#2d522c'][j%4]);g.restore()}
+}
+function wagon(t){g.save();g.translate(960,540); // Fixed footprint keeps player tokens aligned.
+ ellipse(15,19,192,235,'#25261966');
+ // Tow shafts extend forward (up).
+ for(let x of [-94,94]){line(x,-160,x*.65,-366,'#362b20',15);line(x-2,-160,x*.65-2,-366,'#aa8c55',5)}
+ // Four iron-bound wheels viewed straight down.
+ for(let x of [-177,153])for(let y of [-141,109]){rect(x-5,y-9,34,109,'#20241e');rect(x,y,24,91,'#514b38');line(x+3,y,x+3,y+91,'#a09c80',3);for(let j=0;j<5;j++){let yy=y+((j*21+t*8*252)%91);line(x+3,yy,x+21,yy,'#232b25',3)}}
+ rect(-162,-190,324,388,'#34271c');rect(-150,-182,300,370,'#68482d');
+ // Wood-grain floor, open and usable as a battlemap.
+ for(let i=0;i<10;i++){let x=-144+i*29;rect(x,-171,27,350,['#a07b48','#aa8650','#967241'][i%3]);for(let j=0;j<5;j++)line(x+5+j*4,-165,x+4+j*4,168,'#50371d22',1);for(let y of [-150,149])ellipse(x+13,y,2,2,'#423a28')}
+ for(let x of [-163,145]){rect(x,-200,18,399,'#4a3222');rect(x+3,-199,5,397,'#c29c62');for(let y=-191;y<200;y+=68){rect(x-4,y,25,12,'#292e28');ellipse(x+8,y+5,2,2,'#9b9c80')}}
+ rect(-164,182,328,20,'#523a26');rect(-157,183,314,5,'#c7a36c');
+ // Driver bench, rolled canvas, travel supplies at the edges.
+ rect(-163,-220,326,36,'#30271e');rect(-157,-217,314,23,'#ac8750');line(-156,-205,156,-205,'#d4b77b',2);
+ g.save();g.translate(-112,131);g.rotate(-.12);rect(-30,-32,60,64,'#82623c');for(let x of [-24,19])rect(x,-33,5,66,'#bd9a61');line(-28,-29,28,29,'#bb985d',7);g.restore();
+ ellipse(111,127,29,38,'#9f8657');ellipse(110,119,23,29,'#bba575');line(88,118,132,123,'#4f4c31',4);
+ for(let y of [-173,172])for(let x of [-139,139])ellipse(x,y,4,4,'#252b26');
+ // A tied cloth corner flutters, not the whole wagon.
+ g.fillStyle='#747c59';g.beginPath();g.moveTo(143,-171);g.lineTo(180+4*Math.sin(t*TAU*8),-120);g.lineTo(142,-91);g.closePath();g.fill();
+ g.restore()}
+function render(seconds){g.clearRect(0,0,W,H);const t=((seconds%8)+8)%8/8;g.drawImage(tile,0,(t*H*4)%H-H);g.drawImage(tile,0,(t*H*4)%H);
+ for(let p of pebbles){let y=(p.y+t*H*4)%H;ellipse(p.x,y,p.s,p.s*.6,'#6f684a88');line(p.x,y-16,p.x,y,'#d7c39722',2)}
+ for(let tr of foliage){let yy=((tr.y+t*2160*2)%2160)-450;tree(tr.x,yy,tr.s,tr.phase,t)}
+ // Sun-dappled shadows drift over the road.
+ g.save();g.globalAlpha=.13;for(let i=0;i<9;i++){let y=(i*180+t*H*2)%1620-270;ellipse(900+Math.sin(i)*170,y,230,35,'#1d3524')}g.restore();
+ // Dust stays behind the wagon, transparent enough for play.
+ for(let i=0;i<20;i++){let f=(t*4+i/20)%1;ellipse(960+Math.sin(i*3.1)*100*f,720+f*410,22+f*67,35+f*69,`rgba(208,185,126,${(1-f)*.07})`)}
+ wagon(t);
+ for(let p of leaves){let y=(p.y+t*H*6)%H,x=p.x+Math.sin(t*TAU*4+p.a)*14;g.save();g.translate(x,y);g.rotate(p.a+t*TAU*4);ellipse(0,0,p.s,p.s*.36,'#b3aa5b');g.restore();line(x,y-33,x-2,y-8,'#dfd4a522',2)}
+ const v=g.createRadialGradient(960,490,260,960,540,1130);v.addColorStop(0,'#00000000');v.addColorStop(1,'#0b251b88');g.fillStyle=v;g.fillRect(0,0,W,H);
+}
+window.render=render;window.ready=true;render(0);let start;function tick(ms){if(!window.recording){start??=ms;render((ms-start)/1000)}requestAnimationFrame(tick)}requestAnimationFrame(tick);
+window.capture=async function(){window.recording=true;let chunks=[],stream=c.captureStream(30);let recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9',videoBitsPerSecond:11000000});recorder.ondataavailable=e=>chunks.push(e.data);const done=new Promise(resolve=>recorder.onstop=resolve);recorder.start();let n=0;await new Promise(resolve=>{let timer=setInterval(()=>{render(n/30);n++;if(n===240){clearInterval(timer);resolve()}},1000/30)});recorder.stop();await done;stream.getTracks().forEach(t=>t.stop());let blob=new Blob(chunks,{type:'video/webm'});window.videoData=await new Promise(resolve=>{let reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.readAsDataURL(blob)});return {bytes:blob.size,frames:n}};
+</script>

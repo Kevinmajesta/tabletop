@@ -1,6 +1,6 @@
 export type Point = { x: number; y: number };
 export type Grid = { columns: number; distance: number; unit: 'ft' | 'm'; diagonal: 'grid' | 'euclidean'; width: number; height: number; offsetX: number; offsetY: number };
-export type Mark = { id: string; ownerId: string; kind: 'line' | 'circle' | 'cone' | 'rect' | 'text' | 'wall' | 'light' | 'reveal'; a: Point; b: Point; text: string };
+export type Mark = { id: string; ownerId: string; kind: 'line' | 'circle' | 'cone' | 'rect' | 'text' | 'wall' | 'door' | 'light' | 'reveal'; a: Point; b: Point; text: string; open?: boolean };
 export type Scene = { id: string; name: string; map: string | null; mapScale?: number; tokens: BoardToken[]; grid: Grid; marks: Mark[]; fog: boolean; vision: boolean; daylight: boolean; combat: { active: boolean; round: number; turn: number; ids: string[] } };
 export type BoardToken = Point & { id: string; name: string; image: string; ownerId: string; minigame?: import('./minigames.js').GameKind; size?: number; hp?: number; maxHp?: number; conditions?: string[]; initiative?: number; hidden?: boolean; visionRange?: number; visionSource?: boolean; lightRange?: number; characterId?: string; characterRevision?: number };
 export const conditions = ['Prone', 'Poisoned', 'Stunned', 'Blinded', 'Restrained', 'Unconscious', 'Defeated'];
@@ -15,7 +15,7 @@ export function distance(a: Point, b: Point, grid: Grid) {
 export function blocked(a: Point, b: Point, marks: Mark[]) {
   const cross = (p: Point, q: Point, r: Point) => (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
   const on = (p: Point, q: Point, r: Point) => Math.abs(cross(p, q, r)) < 1e-8 && r.x >= Math.min(p.x, q.x) - 1e-8 && r.x <= Math.max(p.x, q.x) + 1e-8 && r.y >= Math.min(p.y, q.y) - 1e-8 && r.y <= Math.max(p.y, q.y) + 1e-8;
-  return marks.some(w => w.kind === 'wall' && ((cross(a, b, w.a) * cross(a, b, w.b) < 0 && cross(w.a, w.b, a) * cross(w.a, w.b, b) < 0) || on(a, b, w.a) || on(a, b, w.b) || on(w.a, w.b, a) || on(w.a, w.b, b)));
+  return marks.some(w => (w.kind === 'wall' || (w.kind === 'door' && !w.open)) && ((cross(a, b, w.a) * cross(a, b, w.b) < 0 && cross(w.a, w.b, a) * cross(w.a, w.b, b) < 0) || on(a, b, w.a) || on(a, b, w.b) || on(w.a, w.b, a) || on(w.a, w.b, b)));
 }
 export function visible(point: Point, scene: Scene, playerId: string, previewTokenId?: string | null) {
   const grid = { ...scene.grid, diagonal: 'euclidean' as const };

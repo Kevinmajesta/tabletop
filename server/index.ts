@@ -54,6 +54,7 @@ type Room = {
   messages: Message[];
   scenes?: Scene[];
   activeSceneId?: string;
+  preparedSceneId?: string;
   characters?: Character[];
   minigames?: Game[];
   portraits?: string[];
@@ -174,7 +175,7 @@ app.get("/api/rooms/:id", (req, res) => {
   res.json({ id: room.id, title: room.title });
 });
 
-function sceneFor(room: Room) {
+function sceneFor(room: Room, dm = false) {
   if (!room.scenes?.length) {
     const scene = newScene("Peta pertama", randomUUID());
     scene.map = room.map;
@@ -182,10 +183,12 @@ function sceneFor(room: Room) {
     room.scenes = [scene];
     room.activeSceneId = scene.id;
   }
-  return room.scenes.find((s) => s.id === room.activeSceneId) || room.scenes[0];
+  room.preparedSceneId ||= room.activeSceneId;
+  const id = dm ? room.preparedSceneId : room.activeSceneId;
+  return room.scenes.find((s) => s.id === id) || room.scenes[0];
 }
 function safeRoom(room: Room, playerId = "", dm = false): SafeRoom {
-  const scene = sceneFor(room);
+  const scene = sceneFor(room, dm);
   const tokens = scene.tokens
     .filter(
       (t) =>
@@ -329,7 +332,7 @@ function physicalRoll(
 
 const undoStates = new Map<
   string,
-  { scenes?: Scene[]; characters?: Character[]; activeSceneId?:string; after: string }
+  { scenes?: Scene[]; characters?: Character[]; activeSceneId?:string; preparedSceneId?:string; after: string }
 >();
 const pendingExports=new Set<string>();
 io.on("connection", (socket) => {
@@ -360,7 +363,8 @@ io.on("connection", (socket) => {
     const currentRevisions=new Map((room.characters || []).map(c=>[c.id,c.revision]));
     room.characters = previous.characters?.map(c=>({...c,revision:Math.max(c.revision,currentRevisions.get(c.id) || 0)+1}));
     if(previous.activeSceneId)room.activeSceneId=previous.activeSceneId;
-    const active = sceneFor(room);
+    if(previous.preparedSceneId)room.preparedSceneId=previous.preparedSceneId;
+    const active = sceneFor(room, socket.data.isDM);
     room.map = active.map;
     room.tokens = active.tokens;
     undoStates.delete(room.id);
@@ -630,7 +634,7 @@ io.on("connection", (socket) => {
         }
         character!.revision++;
       } else if (p.type === "link") {
-        const token = sceneFor(room).tokens.find((t) => t.id === p.tokenId);
+        const token = sceneFor(room, socket.data.isDM).tokens.find((t) => t.id === p.tokenId);
         if (
           !token ||
           (!socket.data.isDM && token.ownerId !== socket.data.playerId) ||
@@ -641,7 +645,7 @@ io.on("connection", (socket) => {
         }
         token.characterId = character!.id;
       } else if (p.type === "unlink") {
-        const token = sceneFor(room).tokens.find((t) => t.id === p.tokenId);
+        const token = sceneFor(room, socket.data.isDM).tokens.find((t) => t.id === p.tokenId);
         if (
           !token ||
           token.characterId !== character!.id ||
@@ -690,14 +694,14 @@ io.on("connection", (socket) => {
         return;
       }
       const p = payload as Record<string, unknown>;
-      const scene = sceneFor(room);
+      const dm = socket.data.isDM;
+      const scene = sceneFor(room, dm);
       if (p.sceneId !== scene.id) {
         fail("Scene sudah berganti. Coba lagi.");
         return;
       }
-      const dm = socket.data.isDM;
       const beforeUndo = dm
-        ? structuredClone({ scenes: room.scenes, characters: room.characters,activeSceneId:room.activeSceneId })
+        ? structuredClone({ scenes: room.scenes, characters: room.characters, activeSceneId: room.activeSceneId, preparedSceneId: room.preparedSceneId })
         : undefined;
       const number = (value: unknown, min: number, max: number) =>
         typeof value === "number" && Number.isFinite(value)
@@ -742,13 +746,19 @@ io.on("connection", (socket) => {
           randomUUID(),
         );
         room.scenes!.push(created);
-        room.activeSceneId = created.id;
+        room.preparedSceneId = created.id;
       } else if (p.type === "scene:activate") {
         if (!dm || !room.scenes!.some((s) => s.id === p.id)) {
           fail("Scene tidak tersedia.");
           return;
         }
-        room.activeSceneId = p.id as string;
+        room.preparedSceneId = p.id as string;
+      } else if (p.type === "scene:publish") {
+        if (!dm) {
+          fail("Hanya DM bisa menerbitkan scene.");
+          return;
+        }
+        room.activeSceneId = scene.id;
       } else if (p.type === "scene:settings") {
         if (!dm) {
           fail("Hanya DM bisa mengatur visibilitas.");
@@ -839,6 +849,7 @@ io.on("connection", (socket) => {
             "rect",
             "text",
             "wall",
+            "door",
             "light",
             "reveal",
           ].includes(kind) ||
@@ -848,7 +859,7 @@ io.on("connection", (socket) => {
           fail("Bentuk tidak valid.");
           return;
         }
-        if (["wall", "light", "reveal"].includes(kind) && !dm) {
+        if (["wall", "door", "light", "reveal"].includes(kind) && !dm) {
           fail("Alat ini khusus DM.");
           return;
         }
@@ -863,7 +874,19 @@ io.on("connection", (socket) => {
           a,
           b,
           text: clean(p.text, 120),
+          open: kind === "door" ? false : undefined,
         });
+      } else if (p.type === "door:toggle") {
+        if (!dm) {
+          fail("Hanya DM bisa membuka pintu.");
+          return;
+        }
+        const door = scene.marks.find((mark) => mark.id === p.id && mark.kind === "door");
+        if (!door) {
+          fail("Pintu tidak tersedia.");
+          return;
+        }
+        door.open = !door.open;
       } else if (p.type === "mark:remove") {
         const mark = scene.marks.find((m) => m.id === p.id);
         if (!mark || (!dm && mark.ownerId !== socket.data.playerId)) {
@@ -935,7 +958,7 @@ io.on("connection", (socket) => {
         fail("Alat tidak dikenal.");
         return;
       }
-      const active = sceneFor(room);
+      const active = sceneFor(room, socket.data.isDM);
       room.map = active.map;
       room.tokens = active.tokens;
       if (beforeUndo)
@@ -965,7 +988,7 @@ io.on("connection", (socket) => {
     )
       return;
     const p = payload as Record<string, unknown>,
-      scene = sceneFor(room);
+      scene = sceneFor(room, socket.data.isDM);
     if (
       p.sceneId !== scene.id ||
       typeof p.x !== "number" ||
@@ -996,7 +1019,7 @@ io.on("connection", (socket) => {
   socket.on("tabletop:pointer", (payload: unknown) => {
     const room = rooms[socket.data.roomId];
     if (!room || !payload || typeof payload !== "object" || !admitted(`pointer:${socket.handshake.address}`, 60)) return;
-    const p = payload as Record<string, unknown>, scene = sceneFor(room);
+    const p = payload as Record<string, unknown>, scene = sceneFor(room, socket.data.isDM);
     if (p.sceneId !== scene.id || typeof p.active !== "boolean" || typeof p.x !== "number" || typeof p.y !== "number" || !Number.isFinite(p.x) || !Number.isFinite(p.y)) return;
     const location = { x: Math.max(0, Math.min(100, p.x)), y: Math.max(0, Math.min(100, p.y)) };
     if (!socket.data.isDM && !visible(location, scene, socket.data.playerId)) return;
@@ -1012,7 +1035,7 @@ io.on("connection", (socket) => {
     )
       return;
     const p = payload as Record<string, unknown>,
-      scene = sceneFor(room);
+      scene = sceneFor(room, socket.data.isDM);
     if (
       p.sceneId !== scene.id ||
       !Array.isArray(p.points) ||
@@ -1115,7 +1138,7 @@ io.on("connection", (socket) => {
     if (!admitted(`minigame:${socket.id}`, 120)) { respond({ error: 'Terlalu banyak aksi. Tunggu sebentar.' }); return; }
     const action = payload as Record<string, unknown>;
     if (typeof action.type !== 'string') { respond({ error: 'Aksi permainan tidak valid.' }); return; }
-    const scene = sceneFor(room);
+    const scene = sceneFor(room, socket.data.isDM);
     if (action.type === 'create') {
       if (!socket.data.isDM || !gameKinds.includes(action.kind as GameKind) || (room.minigames?.length || 0) >= 30) { respond({ error: 'Token tidak bisa ditambahkan.' }); return; }
       const id = randomUUID();
@@ -1161,7 +1184,7 @@ io.on("connection", (socket) => {
     const room = rooms[socket.data.roomId];
     if (!room || !payload || typeof payload !== "object") return;
     const p = payload as Record<string, unknown>;
-    const scene = sceneFor(room);
+    const scene = sceneFor(room, socket.data.isDM);
     const token = scene.tokens.find((t) => t.id === p.id);
     if (!token || (!socket.data.isDM && token.ownerId !== socket.data.playerId))
       return;
@@ -1199,7 +1222,7 @@ io.on("connection", (socket) => {
 
   socket.on("token:duplicate", (id: unknown, reply?: (result: { error?: string; ok?: boolean; id?: string }) => void) => {
     const room = rooms[socket.data.roomId];
-    const scene = room && sceneFor(room);
+    const scene = room && sceneFor(room, socket.data.isDM);
     const token = scene?.tokens.find((item) => item.id === id);
     if (!room || !scene || !token || token.minigame || (!socket.data.isDM && token.ownerId !== socket.data.playerId) || scene.tokens.length >= 100) {
       reply?.({ error: "Token tidak bisa disalin." });
@@ -1217,7 +1240,7 @@ io.on("connection", (socket) => {
     const room = rooms[socket.data.roomId];
     if (!room || !payload || typeof payload !== "object") return;
     const p = payload as Record<string, unknown>;
-    const token = sceneFor(room).tokens.find((t) => t.id === p.id);
+    const token = sceneFor(room, socket.data.isDM).tokens.find((t) => t.id === p.id);
     if (!token || (!socket.data.isDM && token.ownerId !== socket.data.playerId))
       return;
     if (typeof p.size !== "number" || !Number.isFinite(p.size)) return;
@@ -1235,7 +1258,7 @@ io.on("connection", (socket) => {
   socket.on("token:remove", (id: unknown) => {
     const room = rooms[socket.data.roomId];
     if (!room) return;
-    const scene = sceneFor(room);
+    const scene = sceneFor(room, socket.data.isDM);
     const token = scene.tokens.find((t) => t.id === id);
     if (!token || (!socket.data.isDM && token.ownerId !== socket.data.playerId))
       return;
@@ -1320,7 +1343,7 @@ io.on("connection", (socket) => {
           )?.bonus;
         if (request.kind === "initiative") bonus = character.sheet.initiative;
         if (request.kind === "initiative") {
-          const scene = sceneFor(room);
+          const scene = sceneFor(room, socket.data.isDM);
           if (
             !scene.tokens.some(
               (token) =>
@@ -1414,7 +1437,7 @@ io.on("connection", (socket) => {
             : Math.min(...simulation.values)) + modifier;
       if (!socket.connected || socket.data.roomId !== room.id) return;
       if (initiativeCharacter) {
-        const scene = sceneFor(room);
+        const scene = sceneFor(room, socket.data.isDM);
         const character = room.characters?.find(
           (c) => c.id === initiativeCharacter!.id,
         );
@@ -1592,7 +1615,7 @@ app.post(
       return;
     }
     const url = `/uploads/${req.file.filename}`;
-    const scene = sceneFor(room);
+    const scene = sceneFor(room, dm);
     if (kind === "token" && scene.tokens.length >= 100) {
       unlinkSync(req.file.path);
       res.status(429).json({ error: "Maksimal 100 token per scene." });

@@ -307,8 +307,52 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline-color:
 }
 .game-start-reset:hover { color: #d39a69; }
 .form-error { margin-top: 18px; }
-@media (max-width: 500px) {
-  .game-start-card { padding-inline: 24px; }
-  .game-start-kicker::before, .game-start-kicker::after { width: 20px; }
+
+/* Start-screen center: a balanced title and entry stack. */
+.game-start-card {
+  width: min(440px, 100%);
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  text-align: center;
 }
+.game-start-card::before, .game-start-card::after { display: none; }
+.game-start-heading {
+  position: relative;
+  padding: 8px 0 36px;
+  text-align: center;
+  background: transparent;
+  border: 0;
+}
+.game-start-heading::before { display: none; }
+.game-start-heading::after {
+  content: '';
+  display: block;
+  width: 72px;
+  height: 1px;
+  margin: 25px auto 0;
+  background: #b9a77d;
+}
+.game-start-heading .game-start-kicker { justify-content: center; gap: 12px; }
+.game-start-heading .game-start-kicker::before,
+.game-start-heading .game-start-kicker::after { display: block; width: 24px; }
+.game-start-heading h1 { margin: 20px 0 13px; font-size: clamp(46px, 8vw, 70px); line-height: .84; letter-spacing: -2.5px; }
+.game-start-heading > p { margin: 0; color: #aaa197; font-size: 10px; letter-spacing: 2.4px; }
+.game-start-entry {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: center;
+}
+.game-start-entry label { text-align: center; }
+.game-start-entry input { text-align: center; background: #0d0c0de8; }
+.game-start-entry .game-start-button { width: 100%; margin-top: 22px; background: #6f2635; }
+.game-start-entry .game-start-button:hover { background: #853044; }
+.game-start-entry .game-start-reset { margin: 17px auto 0; text-align: center; }
+.game-start-card > .form-error { width: 100%; margin: 18px 0 0; padding: 0; text-align: center; }
 

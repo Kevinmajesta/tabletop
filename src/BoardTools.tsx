@@ -11,6 +11,7 @@ import {
   Minus,
   Type,
   BrickWall,
+  DoorOpen,
   Lamp,
   Scan,
   SlidersHorizontal,
@@ -63,6 +64,7 @@ const labels: [Tool, string][] = [
   ["line", "Garis"],
   ["text", "Teks"],
   ["wall", "Dinding"],
+  ["door", "Pintu"],
   ["light", "Cahaya"],
   ["reveal", "Buka fog"],
 ];
@@ -76,6 +78,7 @@ const toolIcons = {
   line: Minus,
   text: Type,
   wall: BrickWall,
+  door: DoorOpen,
   light: Lamp,
   reveal: Scan,
 };
@@ -99,7 +102,7 @@ const toolGroups: { name: string; description: string; ids: Tool[] }[] = [
   {
     name: "Visibilitas DM",
     description: "Atur pandangan dan area terbuka.",
-    ids: ["wall", "light", "reveal"],
+    ids: ["wall", "door", "light", "reveal"],
   },
 ];
 
@@ -276,7 +279,7 @@ export default function BoardTools({
       y: snap(y, row, ((scene.grid.offsetY ?? 0) / 100) * row),
     };
   }
-  function shape(mark: Pick<Mark, "kind" | "a" | "b" | "text">, key: string) {
+  function shape(mark: Pick<Mark, "kind" | "a" | "b" | "text" | "open">, key: string) {
     const a = { x: (mark.a.x / 100) * width, y: (mark.a.y / 100) * height },
       b = { x: (mark.b.x / 100) * width, y: (mark.b.y / 100) * height };
     const radius = Math.hypot(b.x - a.x, b.y - a.y);
@@ -286,7 +289,9 @@ export default function BoardTools({
           ? "#ffffff"
           : mark.kind === "wall"
             ? "#ffc1b4"
-            : "#f3d49a",
+            : mark.kind === "door"
+              ? mark.open ? "#9fdca6" : "#f1b767"
+              : "#f3d49a",
       strokeWidth: selectedMarkId === key ? 4 : 2,
       fill: "#d6ae7030",
       vectorEffect: "non-scaling-stroke" as const,
@@ -575,6 +580,14 @@ export default function BoardTools({
                           <span>
                             {labels.find(([id]) => id === m.kind)?.[1]} {m.text}
                           </span>
+                          {dm && m.kind === "door" && (
+                            <button
+                              disabled={!connected}
+                              onClick={() => action({ type: "door:toggle", id: m.id })}
+                            >
+                              {m.open ? "Tutup" : "Buka"}
+                            </button>
+                          )}
                           <button
                             disabled={!connected}
                             onClick={() =>
@@ -626,6 +639,13 @@ export default function BoardTools({
                         ))}
                       </select>
                     </label>
+                    <button
+                      type="button"
+                      disabled={!connected}
+                      onClick={() => action({ type: "scene:publish" })}
+                    >
+                      Tampilkan ke pemain
+                    </button>
                     <form
                       onSubmit={(e) => {
                         e.preventDefault();

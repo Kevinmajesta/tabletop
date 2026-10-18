@@ -644,19 +644,23 @@ function App() {
           {tokenScreen.map((src, index) => <img key={src} src={src} alt="" className={`hero-background hero-background-${index + 1}`} />)}
         </div>
         <section className="game-start-card">
-          <div className="game-start-kicker">ONE SHOT</div>
-          <h1>THE AGE<br /><em>OF HEROES</em></h1>
-          <p>ENTER THE ADVENTURE</p>
-          <label>
-            PLAYER NAME
-            <input maxLength={24} placeholder="Masukkan namamu" value={name} onChange={(e) => setName(e.target.value)} />
-          </label>
-          <button className="submit-button game-start-button" disabled={busy} onClick={() => void enter()}>
-            {busy ? "STARTING…" : "START GAME"} <ArrowRight size={18} />
-          </button>
-          <button className="game-start-reset" disabled={busy} onClick={() => void resetSession()}>
-            RESET SESSION / CLAIM DM AGAIN
-          </button>
+          <div className="game-start-heading">
+            <div className="game-start-kicker">ONE SHOT</div>
+            <h1>THE AGE<br /><em>OF HEROES</em></h1>
+            <p>ENTER THE ADVENTURE</p>
+          </div>
+          <div className="game-start-entry">
+            <label>
+              PLAYER NAME
+              <input maxLength={24} placeholder="Masukkan namamu" value={name} onChange={(e) => setName(e.target.value)} />
+            </label>
+            <button className="submit-button game-start-button" disabled={busy} onClick={() => void enter()}>
+              {busy ? "STARTING…" : "START GAME"} <ArrowRight size={18} />
+            </button>
+            <button className="game-start-reset" disabled={busy} onClick={() => void resetSession()}>
+              RESET SESSION / CLAIM DM AGAIN
+            </button>
+          </div>
           {error && <div className="form-error">{error}</div>}
         </section>
       </main>
