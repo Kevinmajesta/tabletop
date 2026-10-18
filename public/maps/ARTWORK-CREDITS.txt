@@ -1,0 +1,7 @@
+Wagon chase v2 — private, noncommercial artwork study / animated adaptation.
+Forest background: Roadside Forest Tokens demo, Ross McConnell / 2-Minute Tabletop.
+https://2minutetabletop.com/product/roadside-forest-tokens/
+Wagon: Caravan Wagon - Roomy preview / Caravan Bastion Map Assets Pt.1, 2-Minute Tabletop.
+https://2minutetabletop.com/product/caravan-bastion-map-assets-1/
+Source preview images downloaded from the artist's public website. These are not purchased full-resolution asset packs. Preserve attribution. Forest pack explicitly lists CC BY-NC 4.0; confirm the wagon pack's license before redistribution or commercial use.
+Adaptations: wagon crop/background masking, scaling, reflected scrolling forest, dust motion, looping video/GIF encoding.

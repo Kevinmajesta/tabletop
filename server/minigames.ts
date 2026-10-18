@@ -1,18 +1,8 @@
-export const gameKinds = ['rps', 'tictactoe', 'connectfour', 'quickmath', 'memory', 'bombdefuse', 'reliccipher', 'chaincipher', 'crossword', 'seating', 'drawing'] as const;
-export type GameKind = typeof gameKinds[number];
-export const gameCatalog: Record<GameKind, { name: string; mark: string; mode: 'duel' | 'party' }> = {
-  rps: { name: 'Gunting batu kertas', mark: 'GBK', mode: 'duel' },
-  tictactoe: { name: 'Tic tac toe', mark: 'X/O', mode: 'duel' },
-  connectfour: { name: 'Connect Four', mark: '4', mode: 'duel' },
-  quickmath: { name: 'Hitung Cepat', mark: '+×−', mode: 'party' },
-  memory: { name: 'Memory', mark: 'M', mode: 'duel' },
-  bombdefuse: { name: 'Defuse the Bomb', mark: '!', mode: 'duel' },
-  reliccipher: { name: 'Sandi Relik', mark: '⌘', mode: 'party' },
-  chaincipher: { name: 'Sandi Rantai', mark: '···', mode: 'party' },
-  crossword: { name: 'Teka-teki Silang Indonesia', mark: 'TTS', mode: 'party' },
-  seating: { name: 'Misteri 9 Kursi', mark: '9', mode: 'party' },
-  drawing: { name: 'Guess the Drawing', mark: '✎', mode: 'duel' },
-};
+import { gameCatalog, type GameKind } from './game-catalog.js';
+export { gameCatalog, gameKinds } from './game-catalog.js';
+export type { GameKind } from './game-catalog.js';
+import { ttsPilihanEntries } from './tts-pilihan.js';
+import { coopAction, coopView, type CoopState } from './coop-rooms.js';
 const bombOrders = [['red', 'blue', 'yellow'], ['yellow', 'red', 'blue'], ['blue', 'yellow', 'red'], ['green', 'red', 'black'], ['black', 'yellow', 'green'], ['black', 'green', 'yellow']];
 const bombKeypads = [['☾', '★', '☂', '♜'], ['☂', '♜', '☾', '★'], ['★', '☂', '♜', '☾']];
 const wireSymbols = ['BURUNG', 'MAHKOTA', 'MATA', 'PEDANG'];
@@ -80,6 +70,7 @@ function bombModules(randomInt: (max: number) => number): BombModule[] {
   ];
 }
 export type Game = {
+  coop?: CoopState;
   tokenId: string; kind: GameKind; round: number; phase: 'waiting' | 'open' | 'finished';
   players: string[]; scores: Record<string, number>; choices: Record<string, string>;
   result: string;
@@ -90,7 +81,7 @@ export type Game = {
   wires?: string[];
   bombModules?: BombModule[];
   cipherLayers?: CipherLayer[]; cipherStage?: number;
-  crosswordEntries?: CrosswordEntry[]; crosswordSolved?: string[]; crosswordLetters?: string[];
+  crosswordColumns?: number; crosswordEntries?: CrosswordEntry[]; crosswordSolved?: string[]; crosswordLetters?: string[];
   seatingNames?: string[]; seatingSeats?: string[]; seatingClues?: string[]; seatingSolution?: string[];
   drawingRound?: number; drawingChoices?: string[]; drawingWord?: string; drawingStrokes?: number[][][];
 };
@@ -105,7 +96,8 @@ export function closeMemoryMismatch(game: Game, now = Date.now()) {
   return true;
 }
 export function gameView(game: Game, playerId: string, dm: boolean): Game {
-  const { answer, memoryBoard, memoryOpen, wires, bombModules, cipherLayers: layers, crosswordEntries: entries, seatingSolution, drawingChoices, drawingWord, ...view } = game;
+  const { coop, answer, memoryBoard, memoryOpen, wires, bombModules, cipherLayers: layers, crosswordEntries: entries, seatingSolution, drawingChoices, drawingWord, ...view } = game;
+  if (game.kind === 'cooprooms') return { ...view, coop: coopView(game, playerId, dm) };
   const memoryViewer = game.players.indexOf(playerId);
   const canSeeMemoryOpen = memoryViewer < 0 || memoryViewer === game.turn;
   const filteredMemoryBoard = memoryBoard?.map((card, i) =>
@@ -121,7 +113,7 @@ export function gameView(game: Game, playerId: string, dm: boolean): Game {
   const visibleLayers = layers
     ?.slice(0, Math.min((game.cipherStage || 0) + 1, layers.length))
     .map(({ answer: _answer, ...layer }) => game.kind === 'chaincipher' ? (({ method: _method, clue: _clue, ...cipher }) => cipher)(layer) : layer);
-  return { ...view, ...(game.phase === 'finished' && answer !== undefined ? { answer } : {}), ...(game.kind === 'memory' ? { memoryBoard: filteredMemoryBoard, memoryOpen: canSeeMemoryOpen ? memoryOpen : [] } : {}), ...(game.kind === 'bombdefuse' ? { bombModules: modules } : {}), ...(game.kind === 'reliccipher' || game.kind === 'chaincipher' ? { cipherLayers: visibleLayers } : {}), ...(game.kind === 'crossword' ? { crosswordEntries: entries?.map(({ answer: _answer, ...entry }) => entry) } : {}), ...(game.kind === 'drawing' && (dm || playerId === game.players[0]) ? { drawingChoices, drawingWord } : {}), choices: game.phase === 'finished' ? { ...game.choices } : Object.fromEntries(Object.entries(game.choices).map(([id, choice]) => [id, id === playerId ? choice : 'locked'])) } as Game;
+  return { ...view, ...(game.phase === 'finished' && answer !== undefined ? { answer } : {}), ...(game.kind === 'memory' ? { memoryBoard: filteredMemoryBoard, memoryOpen: canSeeMemoryOpen ? memoryOpen : [] } : {}), ...(game.kind === 'bombdefuse' ? { bombModules: modules } : {}), ...(game.kind === 'reliccipher' || game.kind === 'chaincipher' ? { cipherLayers: visibleLayers } : {}), ...((game.kind === 'crossword' || game.kind === 'ttspilihan') ? { crosswordEntries: entries?.map(({ answer: _answer, ...entry }) => entry) } : {}), ...(game.kind === 'drawing' && (dm || playerId === game.players[0]) ? { drawingChoices, drawingWord } : {}), choices: game.phase === 'finished' ? { ...game.choices } : Object.fromEntries(Object.entries(game.choices).map(([id, choice]) => [id, id === playerId ? choice : 'locked'])) } as Game;
 }
 export function declareGame(game: Game, participants: string[]): string | null {
   if (game.phase !== 'waiting') return 'Reset ronde sebelum deklarasi berikutnya.';
@@ -140,6 +132,7 @@ function nextQuickMath(game: Game, randomInt: (max: number) => number) {
   game.answer = operation === 0 ? a + b : operation === 1 ? a - b : a * b;
 }
 export function gameAction(game: Game, playerId: string, dm: boolean, action: Record<string, unknown>, randomInt?: (max: number) => number): string | null {
+  if (game.kind === 'cooprooms') return coopAction(game, playerId, dm, action);
   const fail = 'Aksi tidak tersedia pada ronde ini.';
   const partyActions = ['cipher:answer'];
   if (partyActions.includes(String(action.type)) && !dm && !game.players.includes(playerId)) {
@@ -164,17 +157,18 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
     delete game.question; delete game.answer; delete game.memoryBoard; delete game.memoryCloseAt; delete game.wires; delete game.bombModules; delete game.cipherLayers; delete game.cipherStage; delete game.crosswordEntries; delete game.crosswordSolved; delete game.crosswordLetters; delete game.seatingNames; delete game.seatingSeats; delete game.seatingClues; delete game.seatingSolution; delete game.drawingRound; delete game.drawingChoices; delete game.drawingWord; delete game.drawingStrokes;
   } else if (action.type === 'start') {
     if (!dm) return 'Hanya GM boleh memulai ronde.';
-    const openParty = game.kind === 'crossword' || game.kind === 'seating';
+    const openParty = (game.kind === 'crossword' || game.kind === 'ttspilihan') || game.kind === 'seating';
     if (game.phase !== 'waiting' || (!openParty && game.players.length < (gameCatalog[game.kind].mode === 'duel' ? 2 : 1))) return 'Peserta belum cukup atau ronde belum direset.';
     if (game.kind === 'drawing') {
       game.drawingRound = 0;
       game.drawingChoices = [...drawingWords[0]];
       game.drawingStrokes = [];
       delete game.drawingWord;
-    } else if (game.kind === 'crossword') {
-      game.crosswordEntries = crosswordEntries.map(entry => ({ ...entry, cells: [...entry.cells] }));
+    } else if ((game.kind === 'crossword' || game.kind === 'ttspilihan')) {
+      game.crosswordColumns = game.kind === 'ttspilihan' ? 15 : 5;
+      game.crosswordEntries = (game.kind === 'ttspilihan' ? ttsPilihanEntries : crosswordEntries).map(entry => ({ ...entry, cells: [...entry.cells] }));
       game.crosswordSolved = [];
-      game.crosswordLetters = Array(20).fill('');
+      game.crosswordLetters = Array(game.kind === 'ttspilihan' ? 225 : 20).fill('');
     } else if (game.kind === 'seating') {
       if (!randomInt) return 'Pembuat acak tidak tersedia.';
       const solution = [...seatingNames];
@@ -250,7 +244,7 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
       game.drawingChoices = [];
     } else game.drawingChoices = [...drawingWords[game.drawingRound]];
   } else if (action.type === 'crossword:answer') {
-    if (game.kind !== 'crossword' || game.phase !== 'open' || typeof action.id !== 'string' || typeof action.answer !== 'string' || action.answer.length > 30) return fail;
+    if ((game.kind !== 'crossword' && game.kind !== 'ttspilihan') || game.phase !== 'open' || typeof action.id !== 'string' || typeof action.answer !== 'string' || action.answer.length > 30) return fail;
     const entry = game.crosswordEntries?.find(item => item.id === action.id);
     if (!entry?.answer) return fail;
     const normalized = action.answer.toUpperCase().replace(/[^A-Z]/g, '');

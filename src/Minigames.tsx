@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Socket } from 'socket.io-client';
-import { gameCatalog, type Game } from '../server/minigames';
+import type { Game } from '../server/minigames';
+import { gameCatalog } from '../server/game-catalog';
 import './minigames.css';
+import Crossword from './Crossword';
+import CoopPuzzle from './CoopPuzzle';
 
 export const gameNames = Object.fromEntries(Object.entries(gameCatalog).map(([kind, entry]) => [kind, entry.name]));
 const choices: Record<string, string> = { rock: 'Batu', paper: 'Kertas', scissors: 'Gunting' };
@@ -47,17 +50,17 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
     if (game?.tokenId === target.tokenId) onClose();
   }
   const disabled = !connected || busy;
-  const openParty = game?.kind === 'crossword' || game?.kind === 'seating';
+  const openParty = (game?.kind === 'crossword' || game?.kind === 'ttspilihan') || game?.kind === 'seating';
   const name = (id: string) => members.find(member => member.id === id)?.name || 'Pemain';
   return <section className="minigames">{dm && <details>
     <summary>Token minigame · {games.length}</summary>
-    <p>Token siap pakai. Keluarkan ke peta, lalu klik token untuk deklarasikan permainan.</p><div className="minigame-actions">{Object.entries(gameCatalog).map(([kind, entry]) => <button key={kind} disabled={disabled} onClick={() => send({ type: 'create', kind })}>Keluarkan {entry.name} · {entry.mode === 'duel' ? '1v1' : 'Semua pemain'}</button>)}</div>
+    <p>Token siap pakai. Keluarkan ke peta, lalu klik token untuk deklarasikan permainan.</p><div className="minigame-actions">{Object.entries(gameCatalog).filter(([kind]) => kind !== 'crossword').map(([kind, entry]) => <button key={kind} disabled={disabled} onClick={() => send({ type: 'create', kind })}>Keluarkan {entry.name} · {entry.mode === 'duel' ? '1v1' : 'Semua pemain'}</button>)}</div>
     {!!games.length && <p>GM deklarasikan peserta. Layar peserta otomatis membuka permainan.</p>}
     <div className="minigame-token-list">{games.map(item => <div key={item.tokenId}><button onClick={() => onOpen(item.tokenId)}>{gameNames[item.kind]} · ronde {item.round}</button><button className="remove-action" aria-label={`Hapus ${gameNames[item.kind]} dari map`} title="Hapus token dari map" disabled={disabled} onClick={() => remove(item)}>Hapus</button></div>)}</div>
     {!!games.length && <p>Geser token dengan Shift sambil menyeret. Hapus menghilangkan token dan seluruh ronde game.</p>}
     {!game && error && <p role="alert">{error}</p>}
     </details>}
-    {game && <dialog ref={dialog} className="minigame-dialog" onCancel={onClose} aria-labelledby="minigame-title">
+    {game && <dialog ref={dialog} className={`minigame-dialog ${game.kind === 'cooprooms' ? 'coop-dialog' : ''}`} onCancel={onClose} aria-labelledby="minigame-title">
       <header><h2 id="minigame-title">{gameNames[game.kind]}</h2><button onClick={onClose} aria-label="Tutup permainan">Tutup</button></header>
       <p>Ronde {game.round} · {({ waiting: 'Menunggu peserta', open: 'Ronde dibuka', finished: 'Ronde selesai' })[game.phase]}</p>
       {!connected && <p role="status">Koneksi terputus. Menunggu sambungan kembali.</p>}
@@ -65,12 +68,13 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
       {!openParty && !game.players.length && <p>Menunggu GM deklarasikan peserta.</p>}
       {!openParty && !dm && !game.players.includes(playerId) && <p>Kamu penonton. Aksi permainan hanya untuk peserta yang dipilih GM.</p>}
       {game.phase === 'waiting' && <div className="minigame-actions">
-        {dm && !openParty && <fieldset className="minigame-participants"><legend>{gameCatalog[game.kind].mode === 'duel' ? 'Pilih dua peserta 1v1' : 'Seluruh pemain online menjadi peserta'}</legend>
+        {dm && !openParty && game.kind !== 'cooprooms' && <fieldset className="minigame-participants"><legend>{gameCatalog[game.kind].mode === 'duel' ? 'Pilih dua peserta 1v1' : 'Seluruh pemain online menjadi peserta'}</legend>
           {gameCatalog[game.kind].mode === 'duel' && members.filter(member => member.online).map(member => <label key={member.id}><input type="checkbox" checked={participants.includes(member.id)} disabled={disabled || (!participants.includes(member.id) && participants.length >= 2)} onChange={e => setParticipants(current => e.target.checked ? [...current, member.id] : current.filter(id => id !== member.id))} />{member.name}{member.dm ? ' (GM)' : ''}</label>)}
           <button disabled={disabled || (gameCatalog[game.kind].mode === 'duel' && participants.length !== 2)} onClick={() => send({ type: 'declare', players: participants })}>Deklarasikan {gameNames[game.kind]}</button>
         </fieldset>}
         {dm && <button disabled={disabled || (!openParty && game.players.length < (gameCatalog[game.kind].mode === 'duel' ? 2 : 1))} onClick={() => send({ type: 'start' })}>Mulai ronde</button>}
       </div>}
+      {game.kind === 'cooprooms' && <CoopPuzzle game={game} disabled={disabled} send={send} dm={dm} members={members} />}
       {game.kind === 'quickmath' && <>
         <p>Sepuluh soal acak dari server. Jawaban benar pertama tiap soal mendapat 1 poin; jawaban salah boleh dicoba lagi.</p>
         {game.phase !== 'waiting' && <><p>Soal {Math.min(game.turn + 1, 10)} dari 10</p><h3 className="quickmath-question" aria-live="polite">{game.question} = ?</h3></>}
@@ -92,17 +96,7 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
         </>}
         {game.phase === 'finished' && <p role="status">Tiga ronde selesai. {name(game.players[1])} mendapat {game.scores[game.players[1]]} poin.</p>}
       </>}
-      {game.kind === 'crossword' && <>
-        <p>Isi empat jawaban bahasa Indonesia. Semua pemain boleh membantu tanpa assignment.</p>
-        {game.phase !== 'waiting' && <div className="crossword-game">
-          <div className="crossword-grid" aria-label="Papan teka-teki silang">{Array.from({ length: 20 }, (_, cell) => {
-            const active = game.crosswordEntries?.some(entry => entry.cells.includes(cell));
-            return <span key={cell} className={active ? '' : 'blocked'}>{active ? game.crosswordLetters?.[cell] || '' : ''}</span>;
-          })}</div>
-          <div>{game.crosswordEntries?.map(entry => <form key={entry.id} onSubmit={event => { event.preventDefault(); const answer = new FormData(event.currentTarget).get('answer'); if (typeof answer === 'string' && answer.trim()) send({ type: 'crossword:answer', id: entry.id, answer }); }}><label>{entry.id} · {entry.clue}<input name="answer" disabled={disabled || game.phase !== 'open' || game.crosswordSolved?.includes(entry.id)} /></label><button disabled={disabled || game.phase !== 'open' || game.crosswordSolved?.includes(entry.id)}>{game.crosswordSolved?.includes(entry.id) ? 'Benar' : 'Jawab'}</button></form>)}</div>
-        </div>}
-        {game.phase === 'finished' && <p role="status">Teka-teki selesai oleh {name(game.result)}.</p>}
-      </>}
+      {(game.kind === 'crossword' || game.kind === 'ttspilihan') && game.phase !== 'waiting' && <Crossword key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}
       {game.kind === 'seating' && <>
         <p>Susun sembilan orang mengelilingi meja. Jendela A dan B menjadi patokan. Semua pemain boleh mengubah kursi.</p>
         {game.phase !== 'waiting' && <><ol className="seating-clues">{game.seatingClues?.map(clue => <li key={clue}>{clue}</li>)}</ol><div className="seating-room"><b className="window-a">Jendela A</b><b className="window-b">Jendela B</b><div className="seating-table">MEJA</div>{game.seatingSeats?.map((occupant, seat) => <label className={`seat seat-${seat}`} key={seat}><span>Kursi {seat + 1}</span><select aria-label={`Kursi ${seat + 1}`} value={occupant} disabled={disabled || game.phase !== 'open'} onChange={event => send({ type: 'seating:place', seat, name: event.target.value })}><option value="">Kosong</option>{game.seatingNames?.map(person => <option key={person} value={person} disabled={game.seatingSeats?.includes(person) && person !== occupant}>{person}</option>)}</select></label>)}</div></>}

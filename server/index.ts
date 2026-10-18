@@ -1140,7 +1140,7 @@ io.on("connection", (socket) => {
     if (typeof action.type !== 'string') { respond({ error: 'Aksi permainan tidak valid.' }); return; }
     const scene = sceneFor(room, socket.data.isDM);
     if (action.type === 'create') {
-      if (!socket.data.isDM || !gameKinds.includes(action.kind as GameKind) || (room.minigames?.length || 0) >= 30) { respond({ error: 'Token tidak bisa ditambahkan.' }); return; }
+      if (!socket.data.isDM || action.kind === 'crossword' || !gameKinds.includes(action.kind as GameKind) || (room.minigames?.length || 0) >= 30) { respond({ error: 'Token tidak bisa ditambahkan.' }); return; }
       const id = randomUUID();
       const kind = action.kind as GameKind;
       const positions = Array.from({ length: 64 }, (_, i) => ({ x: 15 + (i % 8) * 10, y: 15 + Math.floor(i / 8) * 10 }));
@@ -1153,6 +1153,10 @@ io.on("connection", (socket) => {
       const game = room.minigames?.find(game => game.tokenId === token?.id);
       if (!token || !game || !gameKinds.includes(game.kind) || (!socket.data.isDM && !(game.declaration && game.players.includes(socket.data.playerId)) && (token.hidden || !visible(token, scene, socket.data.playerId)))) { respond({ error: 'Token permainan tidak tersedia.' }); return; }
       let error: string | null;
+      if (game.kind === 'cooprooms' && action.type === 'declare') { respond({ error: 'Gunakan pembagian dua tim di dalam sesi.' }); return; }
+      if (game.kind === 'cooprooms' && action.type === 'coop:assign') {
+        if (!socket.data.isDM || !Array.isArray(action.teams) || !action.teams.every(team => Array.isArray(team) && team.every(id => typeof id === 'string' && room.members[id]))) { respond({ error: 'Pilih anggota ruangan yang valid.' }); return; }
+      }
       if (action.type === 'declare') {
         if (!socket.data.isDM) { respond({ error: 'Hanya GM boleh deklarasikan permainan.' }); return; }
         const roomPeers = [...io.sockets.sockets.values()].filter(peer => peer.data.roomId === room.id);
@@ -1166,7 +1170,7 @@ io.on("connection", (socket) => {
           error = declareGame(game, eligible);
         }
       } else {
-        const openParty = game.kind === 'crossword' || game.kind === 'seating';
+        const openParty = game.kind === 'crossword' || game.kind === 'ttspilihan' || game.kind === 'seating';
         if (['join', 'leave', 'remove-player'].includes(action.type) || (action.type === 'start' && !game.declaration && !openParty)) { respond({ error: 'GM harus deklarasikan peserta lewat token.' }); return; }
         error = gameAction(game, socket.data.playerId, socket.data.isDM, action, randomInt);
       }
@@ -1403,6 +1407,20 @@ io.on("connection", (socket) => {
       }
       if (!room || typeof expression !== "string" || expression.length > 64)
         return;
+      if (expression === 'coin') {
+        if (!admitted(`roll:${socket.id}`, 20)) {
+          if (typeof reply === 'function') reply({ error: 'Tunggu sebentar sebelum lempar lagi.' });
+          return;
+        }
+        const result = { id: randomUUID(), name: room.members[socket.data.playerId]?.name || 'Pemain', face: randomInt(2) === 0 ? 'Angka' : 'Gambar' };
+        io.to(room.id).emit('coin:animation', result);
+        room.messages.push({ id: result.id, name: result.name, text: `Koin flip → ${result.face}`, time: Date.now(), kind: 'roll' });
+        room.messages = room.messages.slice(-100);
+        save();
+        broadcast(room);
+        if (typeof reply === 'function') reply({ ok: true });
+        return;
+      }
       const match = expression
         .replace(/\s/g, "")
         .toLowerCase()

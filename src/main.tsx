@@ -31,6 +31,7 @@ import "./dice-animation.css";
 import "./tabletop.css";
 import "./characters.css";
 import "./theme.css";
+import CoinFlip, { type CoinResult } from './CoinFlip';
 const AnimatedDiceScene = lazy(() => import("./DiceScene"));
 const NaturalRollEffect = lazy(() => import("./NaturalRollEffect"));
 const BoardTools = lazy(() => import("./BoardTools"));
@@ -49,7 +50,7 @@ function DiceScene(props: { roll: DiceRoll; onComplete: () => void; zoom?: numbe
   );
 }
 import type { Game } from '../server/minigames';
-import { gameCatalog } from '../server/minigames';
+import { gameCatalog } from '../server/game-catalog';
 import type { Character } from "../server/characters";
 import { distance, type BoardToken, type Scene } from "../server/tabletop";
 import type { DiceRoll } from "../server/dice-physics";
@@ -165,6 +166,7 @@ function App() {
     revealed: boolean;
   };
   const [diceAnimations, setDiceAnimations] = useState<DiceAnimation[]>([]);
+  const [coinAnimations, setCoinAnimations] = useState<CoinResult[]>([]);
   const [rolling, setRolling] = useState(false);
   const [rollError, setRollError] = useState("");
   const socketRef = useRef<Socket | null>(null);
@@ -261,6 +263,7 @@ function App() {
         setDiceAnimations((current) => [...current, { ...animation, revealed: false }].slice(-8));
       },
     );
+    socket.on('coin:animation', (result: CoinResult) => setCoinAnimations(current => [...current, result].slice(-4)));
     socket.on("room:state", (next: Room) => {
       setRoom(next);
     });
@@ -296,6 +299,7 @@ function App() {
       socket.disconnect();
       socketRef.current = null;
       setDiceAnimations([]);
+      setCoinAnimations([]);
       setRolling(false);
       setConnected(false);
     };
@@ -314,7 +318,7 @@ function App() {
     setDiceAnimations((current) => current.filter((animation) => animation.id !== id));
   }
 
-  function throwDice(sides: number) {
+  function throwDice(sides: number | 'coin') {
     if (!socketRef.current || rolling) return;
     setDiceOpen(false);
     setRolling(true);
@@ -323,7 +327,7 @@ function App() {
       .timeout(15000)
       .emit(
         "dice:roll",
-        { expression: `${rollMode === "normal" || sides !== 20 ? 1 : 2}d${sides}${modifier ? (modifier > 0 ? "+" : "") + modifier : ""}`, mode: sides === 20 ? rollMode : "normal" },
+        { expression: sides === 'coin' ? 'coin' : `${rollMode === "normal" || sides !== 20 ? 1 : 2}d${sides}${modifier ? (modifier > 0 ? "+" : "") + modifier : ""}`, mode: sides === 20 ? rollMode : "normal" },
         (error: Error | null, result?: { error?: string }) => {
           setRolling(false);
           if (error || result?.error)
@@ -744,6 +748,9 @@ function App() {
         </Suspense>
       )}
       </div>
+      {coinAnimations.length > 0 && boardRef.current && createPortal(
+        <div className="coin-animation-layer">{coinAnimations.map(result => <CoinFlip key={result.id} result={result} onComplete={() => setCoinAnimations(current => current.filter(item => item.id !== result.id))} />)}</div>, boardRef.current
+      )}
       {diceAnimations.length > 0 && boardRef.current && createPortal(
         <div className="dice-animation">
           {diceAnimations.map((animation) => (
@@ -1193,6 +1200,7 @@ function App() {
                     d{sides}
                   </button>
                 ))}
+                <button disabled={!connected || rolling} onClick={() => throwDice('coin')}>Koin flip</button>
                 <label>
                   Mode d20
                   <select value={rollMode} onChange={(e) => setRollMode(e.target.value as typeof rollMode)}>

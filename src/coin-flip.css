@@ -1,0 +1,13 @@
+.coin-animation-layer { position: absolute; inset: 0; z-index: 30; pointer-events: none; display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; overflow: hidden; }
+.coin-flip { width: 150px; text-align: center; perspective: 700px; color: #fff1c3; }
+.coin-toss { animation: coin-toss 1.8s ease-out both; }
+.coin-body { position: relative; width: 110px; height: 110px; margin: auto; transform-style: preserve-3d; animation: coin-spin 1.8s cubic-bezier(.15,.65,.3,1) both; --coin-end: 1800deg; }
+.coin-back .coin-body { --coin-end: 1980deg; }
+.coin-face { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 50%; border: 7px ridge #d6ae50; background: radial-gradient(circle at 30% 25%, #ffe9a1, #bd8c2c 65%, #6d4c17); color: #644414; font: bold 44px Georgia, serif; text-shadow: 1px 1px #ffe9a1; backface-visibility: hidden; transform: translateZ(3px); box-shadow: 0 5px 12px #0006; }
+.coin-face span { font: bold 11px sans-serif; letter-spacing: 2px; margin-top: 4px; }
+.coin-reverse { transform: rotateY(180deg) translateZ(3px); }
+.coin-flip p { margin-top: 20px; padding: 8px; background: #14251fee; border-radius: 6px; animation: coin-reveal 1.8s step-end both; }
+@keyframes coin-spin { from { transform: rotateY(0deg) rotateZ(-15deg); } to { transform: rotateY(var(--coin-end)) rotateZ(0deg); } }
+@keyframes coin-toss { 0% { transform: translateY(90px) scale(.65); } 35% { transform: translateY(-100px) scale(1.1); } 75% { transform: translateY(0); } 88% { transform: translateY(-15px); } 100% { transform: translateY(0); } }
+@keyframes coin-reveal { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .coin-toss { animation: none; } .coin-body { animation: none; transform: rotateY(var(--coin-end)); } .coin-flip p { animation: none; } }

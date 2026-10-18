@@ -83,6 +83,55 @@
 .crossword-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; padding: 8px; background: #0d0b09; }
 .crossword-grid span { display: grid; place-items: center; aspect-ratio: 1; color: #20170f; background: #f0dfb9; border: 1px solid #8e7956; font-size: 22px; font-weight: 700; }
 .crossword-grid span.blocked { background: #0d0b09; border-color: transparent; }
+.minigame-dialog.coop-dialog { width: min(1180px, calc(100vw - 32px)); padding: 24px; background: #14251f; border-color: #466356; color: #e3ebe3; }
+.coop-dialog > header { align-items: center; padding-bottom: 16px; border-bottom: 1px solid #385044; }
+.coop-progress { display: flex; flex-wrap: wrap; gap: 24px; margin: 16px 0; color: #a8bfb0; font-size: 13px; }
+.coop-progress b { color: #ecdfb9; margin-left: 8px; }
+.coop-tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid #385044; padding-bottom: 12px; }
+.coop-tabs button[aria-pressed="true"] { background: #335b49; border-color: #b8bc91; }
+.coop-columns { display: grid; grid-template-columns: 245px minmax(0, 1fr); gap: 24px; align-items: start; }
+.coop-notes { padding: 16px; background: #1b3027; border: 1px solid #354c40; border-radius: 6px; }
+.coop-notes ol { padding-left: 18px; margin: 0; }
+.coop-notes li { font-size: 12px; line-height: 1.7; margin-bottom: 16px; overflow-wrap: anywhere; }
+.coop-notes p { color: #a8bfb0; }
+.coop-main { min-width: 0; }
+.coop-main:only-child { grid-column: 1 / -1; }
+.coop-main > section[hidden] { display: none; }
+.coop-main form { grid-template-columns: minmax(0, 1fr) auto; align-items: end; margin-top: 20px; }
+.coop-main .seating-room { width: 100%; max-width: 640px; margin: 24px auto; background: #102019; border-color: #4a6654; border-radius: 12px; }
+.coop-main .seat { width: 21%; }
+.coop-main .seat-0 { left: 39.5%; }
+.coop-main .seat-4 { right: 28%; }
+.coop-main .seat-5 { left: 28%; }
+.coop-main .seat select { min-height: 38px; font-size: 12px; }
+.coop-main .seating-table { background: #294434; border-color: #7f8961; color: #b8c6ac; font-size: 13px; }
+.coop-main .cipher-layer { margin: 0; padding: 20px; background: #1b3027; border-color: #385044; }
+.coop-main .tts-layout { grid-template-columns: minmax(220px, 1.2fr) minmax(180px, 1fr); gap: 18px; }
+.coop-main .tts-clues { max-height: 65dvh; overflow: auto; }
+.coop-setup fieldset { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px; border: 1px solid #385044; }
+.coop-setup fieldset > p { grid-column: 1 / -1; }
+@media (max-width: 850px) { .coop-columns { grid-template-columns: 1fr; } .coop-notes { max-height: 180px; overflow: auto; } .coop-main .tts-layout { grid-template-columns: 1fr; } .coop-main form { grid-template-columns: 1fr; } .coop-setup fieldset { grid-template-columns: 1fr; } }
+.coop-fragments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 20px 0; }
+.coop-fragments > div { display: grid; gap: 8px; padding: 18px 10px; text-align: center; background: #d5c49f; color: #352c20; border: 1px solid #9a8059; }
+.coop-fragments small { font-size: 12px; letter-spacing: 1px; }
+.coop-fragments strong { font: bold 30px Georgia, serif; }
+.tts-layout { display: grid; grid-template-columns: minmax(300px, 1.25fr) minmax(240px, 1fr); gap: 24px; align-items: start; }
+.tts-board-panel { position: sticky; top: 0; }
+.tts-current { min-height: 48px; padding: 12px; background: #183a32; border-radius: 6px; margin-bottom: 12px; }
+.tts-clues h3 { margin: 12px 0; }
+.tts-clues button { display: flex; gap: 12px; text-align: left; width: 100%; margin: 4px 0; padding: 10px; background: transparent; border: 1px solid #456255; }
+.tts-clues button.selected { background: #234e42; border-color: #92bfa1; }
+.tts-clues small { opacity: .7; }
+.tts-play .tts-pilihan-grid input { width: 100%; height: 100%; min-height: 0; padding: 5px 0 0; border: 0; border-radius: 0; background: transparent; color: #152b25; text-align: center; font-size: clamp(12px, 1.8vw, 24px); font-weight: 700; box-shadow: none; }
+.tts-play .tts-pilihan-grid input:focus { outline: 3px solid #dfad43; outline-offset: -3px; background: #fff1bc; }
+.tts-play .tts-pilihan-grid .word-active { background: #d6eae0; }
+.tts-play .tts-pilihan-grid .word-solved { background: #b4d4bb; }
+.tts-play .tts-pilihan-grid small { pointer-events: none; z-index: 1; }
+@media (max-width: 700px) { .tts-layout { grid-template-columns: 1fr; gap: 12px; } .tts-board-panel { position: static; } }
+.tts-pilihan-grid { gap: 1px; padding: 1px; background: #111; }
+.tts-pilihan-grid span { position: relative; min-width: 0; background: #fff; border: 0; font-size: clamp(10px, 1.5vw, 20px); }
+.tts-pilihan-grid span.blocked { background: #111; }
+.tts-pilihan-grid small { position: absolute; top: 1px; left: 2px; font-size: 8px; line-height: 1; }
 .crossword-game form { grid-template-columns: 1fr auto; margin-bottom: 8px; }
 .seating-clues { columns: 2; line-height: 1.6; }
 .seating-room { position: relative; width: min(100%, 620px); aspect-ratio: 1.35; margin: 18px auto; border: 2px solid #766548; background: #17120e; }

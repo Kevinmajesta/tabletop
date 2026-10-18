@@ -1,0 +1,29 @@
+<!doctype html><meta charset="utf-8"><title>Open town battle plaza</title><style>body{margin:0;background:#292e28;display:grid;place-items:center;min-height:100vh}canvas{max-width:100%;max-height:100vh}</style><canvas width="2100" height="1470"></canvas><script>
+const c=document.querySelector('canvas'),g=c.getContext('2d'),im=new Image();im.src='town-center-source.jpg';im.onload=()=>{g.scale(3,3);let seed=384;function rand(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}
+// Reuse a clear cobbled section instead of replacing the illustrated ground with flat color.
+g.fillStyle='#c7c4ae';g.fillRect(0,0,700,490);
+for(let row=0;row<100;row++){let y=row*5;for(let col=-1;col<85;col++){let x=col*9+(row%2)*4.5;let v=rand();g.fillStyle=['#dedbc4','#d2d0b9','#c4c3ad','#e1ddc7','#bcbcaa'][Math.floor(v*5)];g.beginPath();g.moveTo(x+.7,y+.7);g.lineTo(x+7.8,y+.3+rand());g.lineTo(x+8.1,y+4.3);g.lineTo(x+.4,y+4.1);g.closePath();g.fill();g.strokeStyle='#787e6855';g.lineWidth=.3;g.stroke()}}
+g.globalAlpha=.17;for(let i=0;i<16000;i++){g.fillStyle=i%2?'#707761':'#fff5d6';g.fillRect(rand()*700,rand()*490,.4+rand(),.3+rand())}g.globalAlpha=1;
+// Complete solid roof silhouettes replace the faded architectural fragments.
+function house(x,y,w,h,angle,red){g.save();g.translate(x,y);g.rotate(angle);
+g.fillStyle='#3e402e35';g.fillRect(-w/2+7,-h/2+9,w+7,h+7);
+g.fillStyle='#a69b7f';g.fillRect(-w/2,-h/2+4,w,h+9);g.strokeStyle='#4f4b3d';g.lineWidth=2;g.strokeRect(-w/2,-h/2+4,w,h+9);
+// Door and doorstep face the square.
+g.fillStyle='#746045';g.fillRect(-10,h/2,20,10);g.fillStyle='#c5b89a';g.fillRect(-14,h/2+10,28,5);
+g.beginPath();g.rect(-w/2-4,-h/2-3,w+8,h+6);g.save();g.clip();g.drawImage(im,red?73:33,red?360:23,red?105:100,red?65:60,-w/2-4,-h/2-3,w+8,h+6);g.fillStyle=red?'#854c3233':'#42546422';g.fillRect(-w/2-4,-h/2-3,w+8,h+6);g.restore();
+g.strokeStyle='#403e35';g.lineWidth=2;g.strokeRect(-w/2-4,-h/2-3,w+8,h+6);
+g.fillStyle='#18221d22';g.fillRect(-w/2-3,0,w+6,h/2+2);
+g.strokeStyle='#b9a88b';g.lineWidth=4;g.beginPath();g.moveTo(-w/2-5,0);g.lineTo(w/2+5,0);g.stroke();g.strokeStyle='#454638';g.lineWidth=1;g.stroke();
+g.fillStyle='#807e6c';g.fillRect(w*.25,-h*.28,12,15);g.fillStyle='#3e4239';g.fillRect(w*.25+2,-h*.28+2,8,6);g.restore()}
+house(112,62,140,80,-.05,false);house(589,62,122,88,.04,true);house(91,427,130,82,Math.PI+.06,true);
+// Short gutters establish street mouths without bisecting the battle area.
+g.strokeStyle='#777c6666';g.lineWidth=2;for(const [x,y,len] of [[38,119,145],[525,122,128],[23,368,147]]){g.beginPath();g.moveTo(x,y);g.lineTo(x+len,y);g.stroke()}
+// Weathered circular paving around the ritual point.
+g.save();g.translate(350,245);g.strokeStyle='#837e6955';g.lineWidth=1.4;for(let rad of [49,54]){g.beginPath();g.arc(0,0,rad,0,Math.PI*2);g.stroke()}for(let i=0;i<24;i++){let a=i*Math.PI/12;g.beginPath();g.moveTo(Math.cos(a)*49,Math.sin(a)*49);g.lineTo(Math.cos(a)*54,Math.sin(a)*54);g.stroke()}
+function polygon(r,n,color,rot=0){g.beginPath();for(let i=0;i<n;i++){let a=i*Math.PI*2/n+rot;g.lineTo(Math.cos(a)*r,Math.sin(a)*r)}g.closePath();g.fillStyle=color;g.fill();g.strokeStyle='#534f43';g.lineWidth=1;g.stroke()}
+g.fillStyle='#302e2838';g.beginPath();g.ellipse(4,5,22,19,0,0,Math.PI*2);g.fill();polygon(21,8,'#777a70',Math.PI/8);polygon(18,8,'#b8b8a3',Math.PI/8);polygon(15,8,'#636b62',Math.PI/8);g.translate(-1,-2);polygon(14,8,'#c7c6b0',Math.PI/8);for(let i=0;i<8;i++){let a=(i+.5)*Math.PI/4;g.strokeStyle='#777c6c';g.lineWidth=.5;g.beginPath();g.moveTo(Math.cos(a)*8,Math.sin(a)*8);g.lineTo(Math.cos(a)*13,Math.sin(a)*13);g.stroke()}polygon(6,6,'#6d7265',.2);polygon(4.5,6,'#242e29',.2);g.restore();
+// Sparse edge clutter offers cover without filling the arena.
+for(const [x,y] of [[190,90],[512,386],[116,318],[565,139]]){g.save();g.translate(x,y);g.fillStyle='#333a2840';g.fillRect(2,3,14,13);g.fillStyle='#977955';g.fillRect(0,0,13,12);g.strokeStyle='#514c3d';g.lineWidth=1;g.strokeRect(0,0,13,12);g.beginPath();g.moveTo(1,1);g.lineTo(12,11);g.moveTo(12,1);g.lineTo(1,11);g.stroke();g.restore()}
+// Gentle wear, cracks and small grass tufts break up the repeated paving.
+for(let i=0;i<180;i++){let x=rand()*700,y=rand()*490;if(x>220&&x<480&&y>140&&y<350)continue;g.strokeStyle=i%3?'#77795c35':'#68785560';g.lineWidth=.55;g.beginPath();g.moveTo(x,y);g.lineTo(x+rand()*5-2,y-2-rand()*4);g.stroke()}
+window.ready=true;};</script>

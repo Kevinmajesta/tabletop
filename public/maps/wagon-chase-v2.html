@@ -1,0 +1,27 @@
+<!doctype html><meta charset="utf-8"><title>Woodland wagon chase — artwork study</title><style>html,body{margin:0;background:#223c2e;height:100%;display:grid;place-items:center}canvas{width:min(100vw,177.777vh);height:auto}</style><canvas width="1920" height="1080"></canvas><script>
+const c=document.querySelector('canvas'),g=c.getContext('2d'),W=1920,H=1080;let locked=false;const imgs=['forest-reference.jpg','wagon-reference.jpg'].map(src=>{let i=new Image();i.src=src;return i});
+Promise.all(imgs.map(i=>new Promise(r=>i.onload=r))).then(()=>{
+const [forest,sheet]=imgs;
+const wagon=document.createElement('canvas');wagon.width=350;wagon.height=580;const w=wagon.getContext('2d');
+w.drawImage(sheet,325,210,350,580,0,0,350,580);
+const pixels=w.getImageData(0,0,350,580);for(let i=0;i<pixels.data.length;i+=4){const p=pixels.data;if(Math.min(p[i],p[i+1],p[i+2])>206)p[i+3]=0}w.putImageData(pixels,0,0);
+// Recess the open cargo floor below the rails; no canopy or roof.
+w.fillStyle='#49362c';w.fillRect(82,95,196,403);
+w.drawImage(sheet,413,315,178,370,94,110,172,375);
+const inset=w.createLinearGradient(94,110,126,110);inset.addColorStop(0,'#211b16aa');inset.addColorStop(1,'#211b1600');w.fillStyle=inset;w.fillRect(94,110,172,375);
+w.fillStyle='#30251d55';w.fillRect(94,110,172,13);w.fillRect(94,472,172,13);
+w.strokeStyle='#c0a17e';w.lineWidth=3;w.strokeRect(85,98,190,396);
+// Small corner crate establishes depth without filling the playable floor.
+w.fillStyle='#2b211b66';w.fillRect(108,420,49,48);w.fillStyle='#85623f';w.fillRect(103,414,45,45);w.strokeStyle='#352a23';w.lineWidth=3;w.strokeRect(103,414,45,45);w.strokeStyle='#c19a68';w.lineWidth=5;w.strokeRect(108,419,35,35);w.beginPath();w.moveTo(109,420);w.lineTo(142,452);w.stroke();
+// Use a reflected landscape pair, so terrain joins without a jump.
+const ground=document.createElement('canvas');ground.width=3200;ground.height=1080;let b=ground.getContext('2d');
+// Road in source sits at 30% height; center it in the wide chase composition.
+for(let j=0;j<2;j++){b.save();b.translate(j*1600+(j?1600:0),0);if(j)b.scale(-1,1);b.drawImage(forest,0,0,forest.width,forest.height,0,0,1600,1800);b.restore()}
+window.render=function(sec){let t=((sec%8)+8)%8/8;g.clearRect(0,0,W,H);let x=-t*3200;for(let k=0;k<2;k++)g.drawImage(ground,x+k*3200,0);
+// Wagon heading right; overhead bed remains fixed for player tokens.
+g.save();g.translate(960,540);g.rotate(Math.PI/2);g.fillStyle='#17281e40';g.beginPath();g.ellipse(14,16,148,235,0,0,Math.PI*2);g.fill();g.drawImage(wagon,-140,-232,280,464);g.restore();
+// Only fine dust/leaves move in the foreground.
+for(let i=0;i<36;i++){let x=(i*293-t*W*4)%W;if(x<0)x+=W;let y=(i*179)%H;g.strokeStyle='#d7c9a42a';g.lineWidth=2;g.beginPath();g.moveTo(x,y);g.lineTo(x+22,y-1);g.stroke()}
+};window.ready=true;render(0);let start;function frame(ms){start??=ms;if(!window.locked)render((ms-start)/1000);requestAnimationFrame(frame)}requestAnimationFrame(frame);
+});
+</script>

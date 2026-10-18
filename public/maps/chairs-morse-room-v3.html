@@ -1,0 +1,43 @@
+<!doctype html><meta charset="utf-8"><title>Nine chairs and Morse chamber</title><style>body{margin:0;background:#111916}canvas{width:100%;height:auto}</style><canvas width="2100" height="1470"></canvas><script>
+const c=document.querySelector('canvas'),g=c.getContext('2d'),sheet=new Image();sheet.src='castle-furniture-sheet.jpg';sheet.onload=()=>{g.scale(3,3);let seed=923;function r(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}function box(x,y,w,h,col){g.fillStyle=col;g.fillRect(x,y,w,h)}function line(x,y,a,b,col,width=1){g.strokeStyle=col;g.lineWidth=width;g.beginPath();g.moveTo(x,y);g.lineTo(a,b);g.stroke()}function oval(x,y,a,b,col){g.fillStyle=col;g.beginPath();g.ellipse(x,y,a,b,0,0,Math.PI*2);g.fill()}
+box(0,0,700,490,'#17211e');box(28,28,644,434,'#514f43');
+// Hand-jointed limestone flags: worn and irregular, not a square gameplay grid.
+for(let row=0;row<14;row++)for(let col=-1;col<21;col++){let x=34+col*33+(row%2)*16.5,y=34+row*31;g.save();g.beginPath();g.rect(34,34,632,422);g.clip();box(x+1,y+1,30+r()*1.5,28+r(),['#757465','#82806e','#6d7063','#898573'][Math.floor(r()*4)]);line(x+2,y+2,x+29,y+2,'#aaa38a66');line(x+30,y+3,x+30,y+29,'#323f3655');g.restore()}
+for(let i=0;i<11000;i++)box(35+r()*630,35+r()*420,.3+r()*1.4,.3+r(),'#25372b15');
+// Recessed room borders and massive masonry walls.
+for(let [x,y,w,h] of [[15,15,670,25],[15,450,670,25],[15,15,25,460],[660,15,25,460]]){box(x+5,y+7,w,h,'#0d171c66');box(x,y,w,h,'#434c44');g.strokeStyle='#202b28';g.lineWidth=2;g.strokeRect(x,y,w,h);if(w>h){for(let xx=x;xx<x+w;xx+=38){line(xx,y,xx,y+h,'#222d29',2);line(xx+2,y+2,Math.min(xx+35,x+w),y+2,'#8a897366')}}else for(let yy=y;yy<y+h;yy+=37)line(x,yy,x+w,yy,'#222d29',2)}
+// Southern entry, heavy double doors opened outward.
+box(315,448,70,30,'#7a7966');for(let x of [315,349,383])line(x,450,x,478,'#454d42');box(315,470,70,20,'#263b32');g.save();g.translate(315,457);g.rotate(.72);box(-5,0,7,53,'#57422c');line(-4,3,-4,49,'#ab8c52',2);g.restore();g.save();g.translate(385,457);g.rotate(-.72);box(-2,0,7,53,'#57422c');line(3,3,3,49,'#ab8c52',2);g.restore();
+// Nine-chair platform with generous circulation around it.
+box(71,114,261,264,'#313c3455');box(67,108,261,264,'#9a9479');box(74,115,247,250,'#5e6559');g.strokeStyle='#aaa184';g.lineWidth=1;g.strokeRect(80,121,235,238);
+function sprite(sx,sy,sw,sh){let a=document.createElement('canvas');a.width=sw;a.height=sh;let q=a.getContext('2d');q.drawImage(sheet,sx,sy,sw,sh,0,0,sw,sh);let d=q.getImageData(0,0,sw,sh),p=d.data,seen=new Uint8Array(sw*sh),queue=[];function add(x,y){if(x<0||x>=sw||y<0||y>=sh)return;let k=y*sw+x;if(seen[k])return;seen[k]=1;if(Math.min(p[k*4],p[k*4+1],p[k*4+2])<210)return;queue.push(k)}for(let x=0;x<sw;x++){add(x,0);add(x,sh-1)}for(let y=0;y<sh;y++){add(0,y);add(sw-1,y)}for(let i=0;i<queue.length;i++){let k=queue[i];p[k*4+3]=0;add(k%sw-1,Math.floor(k/sw));add(k%sw+1,Math.floor(k/sw));add(k%sw,Math.floor(k/sw)-1);add(k%sw,Math.floor(k/sw)+1)}q.putImageData(d,0,0);return a}
+const chair=sprite(639,26,38,40),table=sprite(273,497,48,29),shelf=sprite(68,420,47,34),book=sprite(329,188,40,29);
+// Same clockwise seat order and relative placement as minigames.css seat-0..8.
+const seats=[[.5,.08],[.795,.14],[.865,.41],[.795,.86],[.605,.93],[.395,.93],[.205,.86],[.135,.41],[.205,.14]];
+const roundTable=sprite(689,406,45,47);
+oval(199,245,75,67,'#14231b55');g.drawImage(roundTable,128,174,141,130);
+let count=0;for(const [u,v] of seats){const x=85+u*225,y=129+v*216;count++;g.save();g.translate(x,y);g.rotate(Math.atan2(237-y,198-x)+Math.PI/2);oval(3,5,18,16,'#18271d44');g.drawImage(chair,-19,-20,38,40);g.restore()}
+// Windows A and B mirror the minigame's top-left / bottom-right landmarks.
+for(const [x,y,label] of [[111,37,'A'],[279,452,'B']]){box(x-24,y-5,48,10,'#233d46');box(x-21,y-3,42,6,'#83afac');line(x,y-4,x,y+4,'#354638',2);g.fillStyle='#d3dfbf';g.font='bold 8px Georgia';g.textAlign='center';g.fillText(label,x,y===37?y+18:y-10)}
+g.drawImage(shelf,432,62,85,60);g.drawImage(shelf,554,62,85,60);
+// Morse alcove rug and desk, signal apparatus, no encoded answer.
+box(421,122,204,234,'#333c3155');box(418,118,204,234,'#534d3c');g.strokeStyle='#8a8161';g.lineWidth=2;g.strokeRect(423,123,194,224);for(let y=127;y<345;y+=8){line(425,y,429,y+3,'#afa17c');line(611,y,615,y+3,'#afa17c')}
+box(444,169,160,76,'#17281d66');box(439,162,160,76,'#392c22');box(440,158,158,70,'#936e43');for(let y=162;y<228;y+=13){line(442,y,596,y,'#503b2866');line(444,y+1,594,y+1,'#c8a26544')}for(let x of [443,590]){box(x,158,4,70,'#534333');oval(x+2,164,1.4,1.4,'#b7ad85')}
+g.drawImage(table,434,153,170,84);
+// Brass sending key with hinged lever.
+box(458,181,44,27,'#3d392a');box(461,184,38,21,'#aa8a4c');oval(470,196,4,4,'#45483a');line(471,195,492,185,'#d3bc79',5);oval(493,185,7,5,'#2c332d');line(498,199,523,210,'#352d23',2);line(523,210,552,194,'#352d23',2);
+// Lamp receiver on stone pedestal, warm glass lens.
+box(548,171,36,40,'#555a4b');oval(565,190,15,15,'#292f28');oval(565,187,11,11,'#ccb36b');oval(563,184,7,7,'#ffe6a0');line(554,171,578,171,'#b4a273',3);
+// Blank notebook, pencil, listening horn and seating.
+box(510,171,27,20,'#d0c4a0');line(523,172,523,189,'#7e785e');line(529,197,541,187,'#c6ab69',2);oval(520,268,20,18,'#1c2c2066');box(500,246,38,33,'#5a412a');box(501,274,36,8,'#a5814d');
+// Cable ties the two puzzle zones together without crossing the walking route.
+line(596,194,636,194,'#353628',2);line(636,194,636,77,'#353628',2);line(636,77,197,77,'#353628',2);line(197,77,197,108,'#353628',2);
+// Full-height partition with a southern doorway separates the puzzle rooms.
+for(let [y,h] of [[40,321],[421,29]]){box(366,y+6,27,h,'#101c1966');box(356,y,27,h,'#465048');g.strokeStyle='#1e2926';g.lineWidth=2;g.strokeRect(356,y,27,h);for(let yy=y;yy<y+h;yy+=25){line(357,yy,382,yy,'#202d26',2);line(359,yy+2,380,yy+2,'#99998288');line(369+(Math.floor(yy/25)%2)*5,yy,369+(Math.floor(yy/25)%2)*5,Math.min(yy+25,y+h),'#26362c')}}
+box(354,361,31,60,'#8d8b70');line(355,366,384,366,'#c0b594');line(355,416,384,416,'#4b5445');g.save();g.translate(358,362);g.rotate(-.75);box(-2,0,6,52,'#5c432b');line(0,2,0,49,'#ba9865',2);g.restore();
+g.drawImage(book,575,285,41,30);
+// Columns, iron sconces and local warm illumination.
+for(let [x,y] of [[53,53],[647,53],[53,430],[647,430]]){box(x-12+3,y-12+4,24,24,'#14241a66');box(x-12,y-12,24,24,'#565f52');box(x-9,y-9,18,18,'#9b9a80');g.strokeStyle='#374738';g.strokeRect(x-12,y-12,24,24)}
+for(let [x,y] of [[111,46],[571,46],[52,245],[647,309]]){let a=g.createRadialGradient(x,y,1,x,y,85);a.addColorStop(0,'#f5c57455');a.addColorStop(1,'#edbd6500');g.fillStyle=a;g.fillRect(x-85,y-85,170,170);box(x-4,y-5,8,16,'#35392c');oval(x,y-3,3,6,'#ffc875');oval(x,y-5,1.5,3,'#fff0bc')}
+const shade=g.createRadialGradient(350,245,150,350,245,450);shade.addColorStop(0,'#0b201900');shade.addColorStop(1,'#0b201966');g.fillStyle=shade;g.fillRect(0,0,700,490);console.assert(count===9,'Nine chairs required');window.ready=true;window.chairCount=count;
+};</script>
