@@ -1,0 +1,5483 @@
+{
+  "inventory": {
+    "races": [
+      "aasimar",
+      "dragonborn",
+      "dwarf",
+      "elf",
+      "gnome",
+      "goliath",
+      "halfling",
+      "human",
+      "orc",
+      "tiefling"
+    ],
+    "backgrounds": [
+      "srd-2024:acolyte",
+      "srd-2024:artisan",
+      "srd-2024:charlatan",
+      "srd-2024:criminal",
+      "srd-2024:entertainer",
+      "srd-2024:farmer",
+      "srd-2024:guard",
+      "srd-2024:guide",
+      "srd-2024:hermit",
+      "srd-2024:merchant",
+      "srd-2024:noble",
+      "srd-2024:sailor",
+      "srd-2024:sage",
+      "srd-2024:scribe",
+      "srd-2024:soldier",
+      "srd-2024:wayfarer"
+    ],
+    "levelFourFeats": [
+      "grappler",
+      "actor",
+      "athlete",
+      "charger",
+      "crossbow-expert",
+      "crusher",
+      "defensive-duelist",
+      "dual-wielder",
+      "durable",
+      "elemental-adept",
+      "fey-touched",
+      "great-weapon-master",
+      "heavily-armored",
+      "heavy-armor-master",
+      "inspiring-leader",
+      "keen-mind",
+      "lightly-armored",
+      "mage-slayer",
+      "martial-weapon-training",
+      "medium-armor-master",
+      "moderately-armored",
+      "mounted-combatant",
+      "observant",
+      "piercer",
+      "poisoner",
+      "polearm-master",
+      "resilient",
+      "ritual-caster",
+      "sentinel",
+      "shadow-touched",
+      "sharpshooter",
+      "shield-master",
+      "skill-expert",
+      "skulker",
+      "slasher",
+      "speedy",
+      "spell-sniper",
+      "telekinetic",
+      "telepathic",
+      "war-caster",
+      "weapon-master"
+    ]
+  },
+  "species": [
+    {
+      "race": "aasimar",
+      "sub": "",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "light",
+          "ability": "cha",
+          "dc": 9,
+          "attack": 1,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "aasimar",
+      "sub": "",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "light",
+          "ability": "cha",
+          "dc": 9,
+          "attack": 1,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "aasimar",
+      "sub": "",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "light",
+          "ability": "cha",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-black",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-black",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-black",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-blue",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-blue",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-blue",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-brass",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-brass",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-brass",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-bronze",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-bronze",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-bronze",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-copper",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-copper",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-copper",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-gold",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-gold",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-gold",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-green",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-green",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-green",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-red",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-red",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-red",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-silver",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-silver",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-silver",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-white",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-white",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "dragonborn",
+      "sub": "draconic-ancestor-white",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "dwarf",
+      "sub": "",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 12
+    },
+    {
+      "race": "dwarf",
+      "sub": "",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 28
+    },
+    {
+      "race": "dwarf",
+      "sub": "",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 44
+    },
+    {
+      "race": "elf",
+      "sub": "elven-lineage-drow",
+      "level": 1,
+      "spellGroups": [
+        {
+          "key": "trait.keen-senses",
+          "name": "Keen Senses",
+          "count": 1,
+          "options": [
+            {
+              "id": "insight",
+              "name": "Insight"
+            },
+            {
+              "id": "perception",
+              "name": "Perception"
+            },
+            {
+              "id": "survival",
+              "name": "Survival"
+            }
+          ],
+          "kind": "tool"
+        }
+      ],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies",
+        "insight"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "dancing-lights"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "dancing-lights",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "elf",
+      "sub": "elven-lineage-drow",
+      "level": 3,
+      "spellGroups": [
+        {
+          "key": "trait.keen-senses",
+          "name": "Keen Senses",
+          "count": 1,
+          "options": [
+            {
+              "id": "insight",
+              "name": "Insight"
+            },
+            {
+              "id": "perception",
+              "name": "Perception"
+            },
+            {
+              "id": "survival",
+              "name": "Survival"
+            }
+          ],
+          "kind": "tool"
+        }
+      ],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies",
+        "insight"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "dancing-lights"
+      ],
+      "spells": [
+        "faerie-fire",
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "dancing-lights",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        },
+        {
+          "id": "faerie-fire",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        }
+      ],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "elf",
+      "sub": "elven-lineage-drow",
+      "level": 5,
+      "spellGroups": [
+        {
+          "key": "trait.keen-senses",
+          "name": "Keen Senses",
+          "count": 1,
+          "options": [
+            {
+              "id": "insight",
+              "name": "Insight"
+            },
+            {
+              "id": "perception",
+              "name": "Perception"
+            },
+            {
+              "id": "survival",
+              "name": "Survival"
+            }
+          ],
+          "kind": "tool"
+        }
+      ],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies",
+        "insight"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "dancing-lights"
+      ],
+      "spells": [
+        "darkness",
+        "faerie-fire",
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "dancing-lights",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "At will"
+        },
+        {
+          "id": "darkness",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        },
+        {
+          "id": "faerie-fire",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        }
+      ],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "elf",
+      "sub": "elven-lineage-high-elf",
+      "level": 1,
+      "spellGroups": [
+        {
+          "key": "trait.keen-senses",
+          "name": "Keen Senses",
+          "count": 1,
+          "options": [
+            {
+              "id": "insight",
+              "name": "Insight"
+            },
+            {
+              "id": "perception",
+              "name": "Perception"
+            },
+            {
+              "id": "survival",
+              "name": "Survival"
+            }
+          ],
+          "kind": "tool"
+        }
+      ],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies",
+        "insight"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "prestidigitation"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "prestidigitation",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "elf",
+      "sub": "elven-lineage-high-elf",
+      "level": 3,
+      "spellGroups": [
+        {
+          "key": "trait.keen-senses",
+          "name": "Keen Senses",
+          "count": 1,
+          "options": [
+            {
+              "id": "insight",
+              "name": "Insight"
+            },
+            {
+              "id": "perception",
+              "name": "Perception"
+            },
+            {
+              "id": "survival",
+              "name": "Survival"
+            }
+          ],
+          "kind": "tool"
+        }
+      ],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies",
+        "insight"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "prestidigitation"
+      ],
+      "spells": [
+        "detect-magic",
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "prestidigitation",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        },
+        {
+          "id": "detect-magic",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        }
+      ],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "elf",
+      "sub": "elven-lineage-high-elf",
+      "level": 5,
+      "spellGroups": [
+        {
+          "key": "trait.keen-senses",
+          "name": "Keen Senses",
+          "count": 1,
+          "options": [
+            {
+              "id": "insight",
+              "name": "Insight"
+            },
+            {
+              "id": "perception",
+              "name": "Perception"
+            },
+            {
+              "id": "survival",
+              "name": "Survival"
+            }
+          ],
+          "kind": "tool"
+        }
+      ],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies",
+        "insight"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "prestidigitation"
+      ],
+      "spells": [
+        "detect-magic",
+        "misty-step",
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "prestidigitation",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "At will"
+        },
+        {
+          "id": "detect-magic",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        },
+        {
+          "id": "misty-step",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        }
+      ],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "elf",
+      "sub": "elven-lineage-wood-elf",
+      "level": 1,
+      "spellGroups": [
+        {
+          "key": "trait.keen-senses",
+          "name": "Keen Senses",
+          "count": 1,
+          "options": [
+            {
+              "id": "insight",
+              "name": "Insight"
+            },
+            {
+              "id": "perception",
+              "name": "Perception"
+            },
+            {
+              "id": "survival",
+              "name": "Survival"
+            }
+          ],
+          "kind": "tool"
+        }
+      ],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies",
+        "insight"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "druidcraft"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "druidcraft",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        }
+      ],
+      "speed": 35,
+      "hp": 11
+    },
+    {
+      "race": "elf",
+      "sub": "elven-lineage-wood-elf",
+      "level": 3,
+      "spellGroups": [
+        {
+          "key": "trait.keen-senses",
+          "name": "Keen Senses",
+          "count": 1,
+          "options": [
+            {
+              "id": "insight",
+              "name": "Insight"
+            },
+            {
+              "id": "perception",
+              "name": "Perception"
+            },
+            {
+              "id": "survival",
+              "name": "Survival"
+            }
+          ],
+          "kind": "tool"
+        }
+      ],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies",
+        "insight"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "druidcraft"
+      ],
+      "spells": [
+        "longstrider",
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "longstrider",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        },
+        {
+          "id": "druidcraft",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        }
+      ],
+      "speed": 35,
+      "hp": 25
+    },
+    {
+      "race": "elf",
+      "sub": "elven-lineage-wood-elf",
+      "level": 5,
+      "spellGroups": [
+        {
+          "key": "trait.keen-senses",
+          "name": "Keen Senses",
+          "count": 1,
+          "options": [
+            {
+              "id": "insight",
+              "name": "Insight"
+            },
+            {
+              "id": "perception",
+              "name": "Perception"
+            },
+            {
+              "id": "survival",
+              "name": "Survival"
+            }
+          ],
+          "kind": "tool"
+        }
+      ],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies",
+        "insight"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "druidcraft"
+      ],
+      "spells": [
+        "longstrider",
+        "pass-without-trace",
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "longstrider",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        },
+        {
+          "id": "pass-without-trace",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        },
+        {
+          "id": "druidcraft",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "At will"
+        }
+      ],
+      "speed": 35,
+      "hp": 39
+    },
+    {
+      "race": "gnome",
+      "sub": "gnomish-lineage-forest-gnome",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "minor-illusion"
+      ],
+      "spells": [
+        "speak-with-animals",
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "speak-with-animals",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "PB/long rest; atau slot yang sesuai"
+        },
+        {
+          "id": "minor-illusion",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "gnome",
+      "sub": "gnomish-lineage-forest-gnome",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "minor-illusion"
+      ],
+      "spells": [
+        "speak-with-animals",
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "speak-with-animals",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "PB/long rest; atau slot yang sesuai"
+        },
+        {
+          "id": "minor-illusion",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "gnome",
+      "sub": "gnomish-lineage-forest-gnome",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "minor-illusion"
+      ],
+      "spells": [
+        "speak-with-animals",
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "speak-with-animals",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "PB/long rest; atau slot yang sesuai"
+        },
+        {
+          "id": "minor-illusion",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "gnome",
+      "sub": "gnomish-lineage-rock-gnome",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "prestidigitation",
+        "mending"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "prestidigitation",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        },
+        {
+          "id": "mending",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "gnome",
+      "sub": "gnomish-lineage-rock-gnome",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "prestidigitation",
+        "mending"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "prestidigitation",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        },
+        {
+          "id": "mending",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "gnome",
+      "sub": "gnomish-lineage-rock-gnome",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "prestidigitation",
+        "mending"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "prestidigitation",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "At will"
+        },
+        {
+          "id": "mending",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-clouds-jaunt",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 11
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-clouds-jaunt",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 25
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-clouds-jaunt",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 39
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-fires-burn",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 11
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-fires-burn",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 25
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-fires-burn",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 39
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-frosts-chill",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 11
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-frosts-chill",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 25
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-frosts-chill",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 39
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-hills-tumble",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 11
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-hills-tumble",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 25
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-hills-tumble",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 39
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-stones-endurance",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 11
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-stones-endurance",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 25
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-stones-endurance",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 39
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-storms-thunder",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 11
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-storms-thunder",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 25
+    },
+    {
+      "race": "goliath",
+      "sub": "giant-ancestry-storms-thunder",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 35,
+      "hp": 39
+    },
+    {
+      "race": "halfling",
+      "sub": "",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "halfling",
+      "sub": "",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "halfling",
+      "sub": "",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "human",
+      "sub": "",
+      "level": 1,
+      "spellGroups": [
+        {
+          "key": "trait.skillful",
+          "name": "Skillful",
+          "count": 1,
+          "options": [
+            {
+              "id": "acrobatics",
+              "name": "Acrobatics"
+            },
+            {
+              "id": "animal-handling",
+              "name": "Animal Handling"
+            },
+            {
+              "id": "arcana",
+              "name": "Arcana"
+            },
+            {
+              "id": "athletics",
+              "name": "Athletics"
+            },
+            {
+              "id": "deception",
+              "name": "Deception"
+            },
+            {
+              "id": "history",
+              "name": "History"
+            },
+            {
+              "id": "insight",
+              "name": "Insight"
+            },
+            {
+              "id": "intimidation",
+              "name": "Intimidation"
+            },
+            {
+              "id": "investigation",
+              "name": "Investigation"
+            },
+            {
+              "id": "medicine",
+              "name": "Medicine"
+            },
+            {
+              "id": "nature",
+              "name": "Nature"
+            },
+            {
+              "id": "perception",
+              "name": "Perception"
+            },
+            {
+              "id": "performance",
+              "name": "Performance"
+            },
+            {
+              "id": "persuasion",
+              "name": "Persuasion"
+            },
+            {
+              "id": "religion",
+              "name": "Religion"
+            },
+            {
+              "id": "sleight-of-hand",
+              "name": "Sleight of Hand"
+            },
+            {
+              "id": "stealth",
+              "name": "Stealth"
+            },
+            {
+              "id": "survival",
+              "name": "Survival"
+            }
+          ],
+          "kind": "tool"
+        }
+      ],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies",
+        "acrobatics"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "human",
+      "sub": "",
+      "level": 3,
+      "spellGroups": [
+        {
+          "key": "trait.skillful",
+          "name": "Skillful",
+          "count": 1,
+          "options": [
+            {
+              "id": "acrobatics",
+              "name": "Acrobatics"
+            },
+            {
+              "id": "animal-handling",
+              "name": "Animal Handling"
+            },
+            {
+              "id": "arcana",
+              "name": "Arcana"
+            },
+            {
+              "id": "athletics",
+              "name": "Athletics"
+            },
+            {
+              "id": "deception",
+              "name": "Deception"
+            },
+            {
+              "id": "history",
+              "name": "History"
+            },
+            {
+              "id": "insight",
+              "name": "Insight"
+            },
+            {
+              "id": "intimidation",
+              "name": "Intimidation"
+            },
+            {
+              "id": "investigation",
+              "name": "Investigation"
+            },
+            {
+              "id": "medicine",
+              "name": "Medicine"
+            },
+            {
+              "id": "nature",
+              "name": "Nature"
+            },
+            {
+              "id": "perception",
+              "name": "Perception"
+            },
+            {
+              "id": "performance",
+              "name": "Performance"
+            },
+            {
+              "id": "persuasion",
+              "name": "Persuasion"
+            },
+            {
+              "id": "religion",
+              "name": "Religion"
+            },
+            {
+              "id": "sleight-of-hand",
+              "name": "Sleight of Hand"
+            },
+            {
+              "id": "stealth",
+              "name": "Stealth"
+            },
+            {
+              "id": "survival",
+              "name": "Survival"
+            }
+          ],
+          "kind": "tool"
+        }
+      ],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies",
+        "acrobatics"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "human",
+      "sub": "",
+      "level": 5,
+      "spellGroups": [
+        {
+          "key": "trait.skillful",
+          "name": "Skillful",
+          "count": 1,
+          "options": [
+            {
+              "id": "acrobatics",
+              "name": "Acrobatics"
+            },
+            {
+              "id": "animal-handling",
+              "name": "Animal Handling"
+            },
+            {
+              "id": "arcana",
+              "name": "Arcana"
+            },
+            {
+              "id": "athletics",
+              "name": "Athletics"
+            },
+            {
+              "id": "deception",
+              "name": "Deception"
+            },
+            {
+              "id": "history",
+              "name": "History"
+            },
+            {
+              "id": "insight",
+              "name": "Insight"
+            },
+            {
+              "id": "intimidation",
+              "name": "Intimidation"
+            },
+            {
+              "id": "investigation",
+              "name": "Investigation"
+            },
+            {
+              "id": "medicine",
+              "name": "Medicine"
+            },
+            {
+              "id": "nature",
+              "name": "Nature"
+            },
+            {
+              "id": "perception",
+              "name": "Perception"
+            },
+            {
+              "id": "performance",
+              "name": "Performance"
+            },
+            {
+              "id": "persuasion",
+              "name": "Persuasion"
+            },
+            {
+              "id": "religion",
+              "name": "Religion"
+            },
+            {
+              "id": "sleight-of-hand",
+              "name": "Sleight of Hand"
+            },
+            {
+              "id": "stealth",
+              "name": "Stealth"
+            },
+            {
+              "id": "survival",
+              "name": "Survival"
+            }
+          ],
+          "kind": "tool"
+        }
+      ],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies",
+        "acrobatics"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "orc",
+      "sub": "",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "orc",
+      "sub": "",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "orc",
+      "sub": "",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "tiefling",
+      "sub": "fiendish-legacy-abyssal",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "poison-spray",
+        "thaumaturgy"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "poison-spray",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        },
+        {
+          "id": "thaumaturgy",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "tiefling",
+      "sub": "fiendish-legacy-abyssal",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "poison-spray",
+        "thaumaturgy"
+      ],
+      "spells": [
+        "ray-of-sickness",
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "poison-spray",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        },
+        {
+          "id": "ray-of-sickness",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        },
+        {
+          "id": "thaumaturgy",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "tiefling",
+      "sub": "fiendish-legacy-abyssal",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "poison-spray",
+        "thaumaturgy"
+      ],
+      "spells": [
+        "hold-person",
+        "ray-of-sickness",
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "hold-person",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        },
+        {
+          "id": "poison-spray",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "At will"
+        },
+        {
+          "id": "ray-of-sickness",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        },
+        {
+          "id": "thaumaturgy",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "tiefling",
+      "sub": "fiendish-legacy-chthonic",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "chill-touch",
+        "thaumaturgy"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "chill-touch",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        },
+        {
+          "id": "thaumaturgy",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "tiefling",
+      "sub": "fiendish-legacy-chthonic",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "chill-touch",
+        "thaumaturgy"
+      ],
+      "spells": [
+        "false-life",
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "chill-touch",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        },
+        {
+          "id": "false-life",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        },
+        {
+          "id": "thaumaturgy",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "tiefling",
+      "sub": "fiendish-legacy-chthonic",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "chill-touch",
+        "thaumaturgy"
+      ],
+      "spells": [
+        "false-life",
+        "ray-of-enfeeblement",
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "chill-touch",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "At will"
+        },
+        {
+          "id": "false-life",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        },
+        {
+          "id": "ray-of-enfeeblement",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        },
+        {
+          "id": "thaumaturgy",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 39
+    },
+    {
+      "race": "tiefling",
+      "sub": "fiendish-legacy-infernal",
+      "level": 1,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "fire-bolt",
+        "thaumaturgy"
+      ],
+      "spells": [
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "fire-bolt",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        },
+        {
+          "id": "thaumaturgy",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 11
+    },
+    {
+      "race": "tiefling",
+      "sub": "fiendish-legacy-infernal",
+      "level": 3,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "fire-bolt",
+        "thaumaturgy"
+      ],
+      "spells": [
+        "hellish-rebuke",
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "fire-bolt",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        },
+        {
+          "id": "hellish-rebuke",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        },
+        {
+          "id": "thaumaturgy",
+          "ability": "wis",
+          "dc": 10,
+          "attack": 2,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 25
+    },
+    {
+      "race": "tiefling",
+      "sub": "fiendish-legacy-infernal",
+      "level": 5,
+      "spellGroups": [],
+      "skills": [
+        "acrobatics",
+        "animal-handling",
+        "insight",
+        "religion"
+      ],
+      "proficiencies": [
+        "all-armor",
+        "shields",
+        "simple-weapons",
+        "martial-weapons",
+        "saving-throw-str",
+        "saving-throw-con",
+        "calligraphers-supplies"
+      ],
+      "cantrips": [
+        "guidance",
+        "light",
+        "fire-bolt",
+        "thaumaturgy"
+      ],
+      "spells": [
+        "darkness",
+        "hellish-rebuke",
+        "bane"
+      ],
+      "innateSpells": [
+        {
+          "id": "darkness",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        },
+        {
+          "id": "fire-bolt",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "At will"
+        },
+        {
+          "id": "hellish-rebuke",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "1/long rest per spell; atau slot yang sesuai"
+        },
+        {
+          "id": "thaumaturgy",
+          "ability": "wis",
+          "dc": 11,
+          "attack": 3,
+          "uses": "At will"
+        }
+      ],
+      "speed": 30,
+      "hp": 39
+    }
+  ],
+  "feats": [
+    {
+      "feat": "grappler",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Grappler: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "actor",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Actor: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "cha",
+              "name": "CHA"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Actor: ability +1: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Actor: ability prasyarat minimal 13."
+      ]
+    },
+    {
+      "feat": "athlete",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Athlete: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "charger",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Charger: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "crossbow-expert",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Crossbow Expert: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Crossbow Expert memerlukan proficiency Martial weapons."
+      ]
+    },
+    {
+      "feat": "crusher",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Crusher: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "con",
+              "name": "CON"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Crusher: ability +1: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "defensive-duelist",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Defensive Duelist: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "dual-wielder",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Dual Wielder: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Dual Wielder memerlukan proficiency Martial weapons."
+      ]
+    },
+    {
+      "feat": "durable",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Durable: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "con",
+              "name": "CON"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Durable: ability +1: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "elemental-adept",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Elemental Adept: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "int",
+              "name": "INT"
+            },
+            {
+              "id": "wis",
+              "name": "WIS"
+            },
+            {
+              "id": "cha",
+              "name": "CHA"
+            }
+          ],
+          "kind": "ability"
+        },
+        {
+          "key": "level4.element",
+          "name": "Elemental Adept: damage type",
+          "count": 1,
+          "options": [
+            {
+              "id": "acid",
+              "name": "acid"
+            },
+            {
+              "id": "cold",
+              "name": "cold"
+            },
+            {
+              "id": "fire",
+              "name": "fire"
+            },
+            {
+              "id": "lightning",
+              "name": "lightning"
+            },
+            {
+              "id": "thunder",
+              "name": "thunder"
+            }
+          ],
+          "kind": "feature"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Elemental Adept: ability +1: pilih 1 opsi yang valid.",
+        "Elemental Adept: damage type: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Elemental Adept memerlukan Spellcasting atau Pact Magic."
+      ]
+    },
+    {
+      "feat": "fey-touched",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Fey-Touched: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "int",
+              "name": "INT"
+            },
+            {
+              "id": "wis",
+              "name": "WIS"
+            },
+            {
+              "id": "cha",
+              "name": "CHA"
+            }
+          ],
+          "kind": "ability"
+        },
+        {
+          "key": "level4.spell",
+          "name": "Fey-Touched: spell level 1",
+          "count": 1,
+          "options": [
+            {
+              "id": "animal-friendship",
+              "name": "Animal Friendship"
+            },
+            {
+              "id": "bane",
+              "name": "Bane"
+            },
+            {
+              "id": "bless",
+              "name": "Bless"
+            },
+            {
+              "id": "charm-person",
+              "name": "Charm Person"
+            },
+            {
+              "id": "command",
+              "name": "Command"
+            },
+            {
+              "id": "comprehend-languages",
+              "name": "Comprehend Languages"
+            },
+            {
+              "id": "detect-evil-and-good",
+              "name": "Detect Evil and Good"
+            },
+            {
+              "id": "detect-magic",
+              "name": "Detect Magic"
+            },
+            {
+              "id": "detect-poison-and-disease",
+              "name": "Detect Poison and Disease"
+            },
+            {
+              "id": "dissonant-whispers",
+              "name": "Dissonant Whispers"
+            },
+            {
+              "id": "heroism",
+              "name": "Heroism"
+            },
+            {
+              "id": "hex",
+              "name": "Hex"
+            },
+            {
+              "id": "hideous-laughter",
+              "name": "Hideous Laughter"
+            },
+            {
+              "id": "hunters-mark",
+              "name": "Hunter's Mark"
+            },
+            {
+              "id": "identify",
+              "name": "Identify"
+            },
+            {
+              "id": "sleep",
+              "name": "Sleep"
+            },
+            {
+              "id": "speak-with-animals",
+              "name": "Speak with Animals"
+            }
+          ],
+          "kind": "spell"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Fey-Touched: ability +1: pilih 1 opsi yang valid.",
+        "Fey-Touched: spell level 1: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "great-weapon-master",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Great Weapon Master: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Great Weapon Master: ability +1: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Great Weapon Master memerlukan proficiency Martial weapons."
+      ]
+    },
+    {
+      "feat": "heavily-armored",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Heavily Armored: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "con",
+              "name": "CON"
+            },
+            {
+              "id": "str",
+              "name": "STR"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Heavily Armored: ability +1: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Heavily Armored memerlukan Medium armor training."
+      ]
+    },
+    {
+      "feat": "heavy-armor-master",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Heavy Armor Master: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "con",
+              "name": "CON"
+            },
+            {
+              "id": "str",
+              "name": "STR"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Heavy Armor Master: ability +1: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Heavy Armor Master memerlukan Heavy armor training."
+      ]
+    },
+    {
+      "feat": "inspiring-leader",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Inspiring Leader: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "wis",
+              "name": "WIS"
+            },
+            {
+              "id": "cha",
+              "name": "CHA"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Inspiring Leader: ability +1: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Inspiring Leader: ability prasyarat minimal 13."
+      ]
+    },
+    {
+      "feat": "keen-mind",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Keen Mind: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "int",
+              "name": "INT"
+            }
+          ],
+          "kind": "ability"
+        },
+        {
+          "key": "level4.knowledge",
+          "name": "Keen Mind: skill",
+          "count": 1,
+          "options": [
+            {
+              "id": "arcana",
+              "name": "Arcana"
+            },
+            {
+              "id": "history",
+              "name": "History"
+            },
+            {
+              "id": "investigation",
+              "name": "Investigation"
+            },
+            {
+              "id": "nature",
+              "name": "Nature"
+            },
+            {
+              "id": "religion",
+              "name": "Religion"
+            }
+          ],
+          "kind": "feature"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Keen Mind: ability +1: pilih 1 opsi yang valid.",
+        "Keen Mind: skill: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Keen Mind: ability prasyarat minimal 13."
+      ]
+    },
+    {
+      "feat": "lightly-armored",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Lightly Armored: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "mage-slayer",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Mage Slayer: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "martial-weapon-training",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Martial Weapon Training: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "medium-armor-master",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Medium Armor Master: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Medium Armor Master memerlukan Medium armor training."
+      ]
+    },
+    {
+      "feat": "moderately-armored",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Moderately Armored: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "mounted-combatant",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Mounted Combatant: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            },
+            {
+              "id": "wis",
+              "name": "WIS"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "observant",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Observant: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "int",
+              "name": "INT"
+            },
+            {
+              "id": "wis",
+              "name": "WIS"
+            }
+          ],
+          "kind": "ability"
+        },
+        {
+          "key": "level4.knowledge",
+          "name": "Observant: skill",
+          "count": 1,
+          "options": [
+            {
+              "id": "insight",
+              "name": "Insight"
+            },
+            {
+              "id": "investigation",
+              "name": "Investigation"
+            },
+            {
+              "id": "perception",
+              "name": "Perception"
+            }
+          ],
+          "kind": "feature"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Observant: ability +1: pilih 1 opsi yang valid.",
+        "Observant: skill: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Observant: ability prasyarat minimal 13."
+      ]
+    },
+    {
+      "feat": "piercer",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Piercer: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "poisoner",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Poisoner: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "dex",
+              "name": "DEX"
+            },
+            {
+              "id": "int",
+              "name": "INT"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "polearm-master",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Polearm Master: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Polearm Master memerlukan proficiency Martial weapons."
+      ]
+    },
+    {
+      "feat": "resilient",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Resilient: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            },
+            {
+              "id": "con",
+              "name": "CON"
+            },
+            {
+              "id": "int",
+              "name": "INT"
+            },
+            {
+              "id": "wis",
+              "name": "WIS"
+            },
+            {
+              "id": "cha",
+              "name": "CHA"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Resilient: pilih saving throw yang belum proficient."
+      ]
+    },
+    {
+      "feat": "ritual-caster",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Ritual Caster: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "int",
+              "name": "INT"
+            },
+            {
+              "id": "wis",
+              "name": "WIS"
+            },
+            {
+              "id": "cha",
+              "name": "CHA"
+            }
+          ],
+          "kind": "ability"
+        },
+        {
+          "key": "level4.rituals",
+          "name": "Ritual Caster: ritual level 1",
+          "count": 2,
+          "options": [
+            {
+              "id": "alarm",
+              "name": "Alarm"
+            },
+            {
+              "id": "comprehend-languages",
+              "name": "Comprehend Languages"
+            },
+            {
+              "id": "detect-magic",
+              "name": "Detect Magic"
+            },
+            {
+              "id": "detect-poison-and-disease",
+              "name": "Detect Poison and Disease"
+            },
+            {
+              "id": "find-familiar",
+              "name": "Find Familiar"
+            },
+            {
+              "id": "floating-disk",
+              "name": "Floating Disk"
+            },
+            {
+              "id": "identify",
+              "name": "Identify"
+            },
+            {
+              "id": "illusory-script",
+              "name": "Illusory Script"
+            },
+            {
+              "id": "purify-food-and-drink",
+              "name": "Purify Food and Drink"
+            },
+            {
+              "id": "speak-with-animals",
+              "name": "Speak with Animals"
+            },
+            {
+              "id": "unseen-servant",
+              "name": "Unseen Servant"
+            }
+          ],
+          "kind": "spell"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Ritual Caster: ability +1: pilih 1 opsi yang valid.",
+        "Ritual Caster: ritual level 1: pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Ritual Caster: ability prasyarat minimal 13."
+      ]
+    },
+    {
+      "feat": "sentinel",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Sentinel: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Sentinel memerlukan proficiency Martial weapons."
+      ]
+    },
+    {
+      "feat": "shadow-touched",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Shadow-Touched: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "int",
+              "name": "INT"
+            },
+            {
+              "id": "wis",
+              "name": "WIS"
+            },
+            {
+              "id": "cha",
+              "name": "CHA"
+            }
+          ],
+          "kind": "ability"
+        },
+        {
+          "key": "level4.spell",
+          "name": "Shadow-Touched: spell level 1",
+          "count": 1,
+          "options": [
+            {
+              "id": "color-spray",
+              "name": "Color Spray"
+            },
+            {
+              "id": "disguise-self",
+              "name": "Disguise Self"
+            },
+            {
+              "id": "false-life",
+              "name": "False Life"
+            },
+            {
+              "id": "illusory-script",
+              "name": "Illusory Script"
+            },
+            {
+              "id": "inflict-wounds",
+              "name": "Inflict Wounds"
+            },
+            {
+              "id": "ray-of-sickness",
+              "name": "Ray of Sickness"
+            },
+            {
+              "id": "silent-image",
+              "name": "Silent Image"
+            }
+          ],
+          "kind": "spell"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Shadow-Touched: ability +1: pilih 1 opsi yang valid.",
+        "Shadow-Touched: spell level 1: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "sharpshooter",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Sharpshooter: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Sharpshooter memerlukan proficiency Martial weapons."
+      ]
+    },
+    {
+      "feat": "shield-master",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Shield Master: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Shield Master: ability +1: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Shield Master memerlukan Shield training."
+      ]
+    },
+    {
+      "feat": "skill-expert",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Skill Expert: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            },
+            {
+              "id": "con",
+              "name": "CON"
+            },
+            {
+              "id": "int",
+              "name": "INT"
+            },
+            {
+              "id": "wis",
+              "name": "WIS"
+            },
+            {
+              "id": "cha",
+              "name": "CHA"
+            }
+          ],
+          "kind": "ability"
+        },
+        {
+          "key": "level4.skill",
+          "name": "Skill Expert: proficiency",
+          "count": 1,
+          "options": [
+            {
+              "id": "acrobatics",
+              "name": "Acrobatics"
+            },
+            {
+              "id": "animal-handling",
+              "name": "Animal Handling"
+            },
+            {
+              "id": "arcana",
+              "name": "Arcana"
+            },
+            {
+              "id": "athletics",
+              "name": "Athletics"
+            },
+            {
+              "id": "deception",
+              "name": "Deception"
+            },
+            {
+              "id": "history",
+              "name": "History"
+            },
+            {
+              "id": "insight",
+              "name": "Insight"
+            },
+            {
+              "id": "intimidation",
+              "name": "Intimidation"
+            },
+            {
+              "id": "investigation",
+              "name": "Investigation"
+            },
+            {
+              "id": "medicine",
+              "name": "Medicine"
+            },
+            {
+              "id": "nature",
+              "name": "Nature"
+            },
+            {
+              "id": "perception",
+              "name": "Perception"
+            },
+            {
+              "id": "performance",
+              "name": "Performance"
+            },
+            {
+              "id": "persuasion",
+              "name": "Persuasion"
+            },
+            {
+              "id": "religion",
+              "name": "Religion"
+            },
+            {
+              "id": "sleight-of-hand",
+              "name": "Sleight of Hand"
+            },
+            {
+              "id": "stealth",
+              "name": "Stealth"
+            },
+            {
+              "id": "survival",
+              "name": "Survival"
+            }
+          ],
+          "kind": "skill"
+        },
+        {
+          "key": "level4.expertise",
+          "name": "Skill Expert: expertise",
+          "count": 1,
+          "options": [],
+          "kind": "feature"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Skill Expert: proficiency: pilih 1 opsi yang valid.",
+        "Skill Expert: expertise: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "skulker",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Skulker: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "slasher",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Slasher: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "speedy",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Speedy: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "dex",
+              "name": "DEX"
+            },
+            {
+              "id": "con",
+              "name": "CON"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "spell-sniper",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Spell Sniper: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "int",
+              "name": "INT"
+            },
+            {
+              "id": "wis",
+              "name": "WIS"
+            },
+            {
+              "id": "cha",
+              "name": "CHA"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Spell Sniper: ability +1: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "Spell Sniper memerlukan Spellcasting atau Pact Magic."
+      ]
+    },
+    {
+      "feat": "telekinetic",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Telekinetic: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "int",
+              "name": "INT"
+            },
+            {
+              "id": "wis",
+              "name": "WIS"
+            },
+            {
+              "id": "cha",
+              "name": "CHA"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Telekinetic: ability +1: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "telepathic",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Telepathic: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "int",
+              "name": "INT"
+            },
+            {
+              "id": "wis",
+              "name": "WIS"
+            },
+            {
+              "id": "cha",
+              "name": "CHA"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Telepathic: ability +1: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    },
+    {
+      "feat": "war-caster",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "War Caster: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "int",
+              "name": "INT"
+            },
+            {
+              "id": "wis",
+              "name": "WIS"
+            },
+            {
+              "id": "cha",
+              "name": "CHA"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "War Caster: ability +1: pilih 1 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid.",
+        "War Caster memerlukan Spellcasting atau Pact Magic."
+      ]
+    },
+    {
+      "feat": "weapon-master",
+      "groups": [
+        {
+          "key": "level4.ability",
+          "name": "Weapon Master: ability +1",
+          "count": 1,
+          "options": [
+            {
+              "id": "str",
+              "name": "STR"
+            },
+            {
+              "id": "dex",
+              "name": "DEX"
+            }
+          ],
+          "kind": "ability"
+        }
+      ],
+      "errors": [
+        "Isi nama karakter.",
+        "Pilih subclass sesuai class pada level 3.",
+        "Background: skill 1: pilih 1 opsi yang valid.",
+        "Background: skill 2: pilih 1 opsi yang valid.",
+        "Choose 4: Acrobatics, Athletics, Deception, Insight, Intimidation, Investigation, Perception, Performance, Persuasion, Sleight of Hand, or Stealth: pilih 4 opsi yang valid.",
+        "Expertise (pilih dua skill, atau skill + thieves tools): pilih 2 opsi yang valid.",
+        "Bonus background: pilih 1 opsi yang valid.",
+        "Equipment background: paket A atau 50 GP: pilih 1 opsi yang valid.",
+        "Dua bahasa tambahan: pilih 2 opsi yang valid.",
+        "(a) Leather Armor, 2 Daggers, Shortsword, Shortbow, 20 Arrows, Quiver, Thieves’ Tools, Burglar’s Pack, and 8 GP; (b) 100 GP: pilih 1 opsi yang valid."
+      ]
+    }
+  ]
+}

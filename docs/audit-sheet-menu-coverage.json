@@ -1,0 +1,270 @@
+{
+  "classes": [
+    {
+      "class": "barbarian",
+      "subclasses": [
+        "Pilih subclass",
+        "Path of the Berserker",
+        "Path of the Wild Heart",
+        "Path of the World Tree",
+        "Path of the Zealot"
+      ],
+      "scope": "identity menu only"
+    },
+    {
+      "class": "bard",
+      "subclasses": [
+        "Pilih subclass",
+        "College of Lore",
+        "College of Dance",
+        "College of Glamour",
+        "College of Valor"
+      ],
+      "scope": "identity menu only"
+    },
+    {
+      "class": "cleric",
+      "subclasses": [
+        "Pilih subclass",
+        "Life Domain",
+        "Light Domain",
+        "Trickery Domain",
+        "War Domain"
+      ],
+      "scope": "identity menu only"
+    },
+    {
+      "class": "druid",
+      "subclasses": [
+        "Pilih subclass",
+        "Circle of the Land",
+        "Circle of the Moon",
+        "Circle of the Sea",
+        "Circle of the Stars"
+      ],
+      "scope": "identity menu only"
+    },
+    {
+      "class": "fighter",
+      "subclasses": [
+        "Pilih subclass",
+        "Champion",
+        "Battle Master",
+        "Eldritch Knight",
+        "Psi Warrior"
+      ],
+      "scope": "identity menu only"
+    },
+    {
+      "class": "monk",
+      "subclasses": [
+        "Pilih subclass",
+        "Warrior of the Open Hand",
+        "Warrior of Mercy",
+        "Warrior of Shadow",
+        "Warrior of the Elements"
+      ],
+      "scope": "identity menu only"
+    },
+    {
+      "class": "paladin",
+      "subclasses": [
+        "Pilih subclass",
+        "Oath of Devotion",
+        "Oath of the Ancients",
+        "Oath of Glory",
+        "Oath of Vengeance"
+      ],
+      "scope": "identity menu only"
+    },
+    {
+      "class": "ranger",
+      "subclasses": [
+        "Pilih subclass",
+        "Hunter",
+        "Beast Master",
+        "Fey Wanderer",
+        "Gloom Stalker"
+      ],
+      "scope": "identity menu only"
+    },
+    {
+      "class": "rogue",
+      "subclasses": [
+        "Pilih subclass",
+        "Thief",
+        "Arcane Trickster",
+        "Assassin",
+        "Soulknife"
+      ],
+      "scope": "identity menu only"
+    },
+    {
+      "class": "sorcerer",
+      "subclasses": [
+        "Pilih subclass",
+        "Draconic Sorcery",
+        "Aberrant Sorcery",
+        "Clockwork Sorcery",
+        "Wild Magic Sorcery"
+      ],
+      "scope": "identity menu only"
+    },
+    {
+      "class": "warlock",
+      "subclasses": [
+        "Pilih subclass",
+        "Fiend Patron",
+        "Archfey Patron",
+        "Celestial Patron",
+        "Great Old One Patron"
+      ],
+      "scope": "identity menu only"
+    },
+    {
+      "class": "wizard",
+      "subclasses": [
+        "Pilih subclass",
+        "Evoker",
+        "Abjurer",
+        "Diviner",
+        "Illusionist"
+      ],
+      "scope": "identity menu only"
+    }
+  ],
+  "species": [
+    {
+      "species": "motm:aarakocra",
+      "text": "\nAarakocra\nMotM 2022\n\nAarakocra adalah humanoid burung yang dekat dengan angin dan langit; perjalanan mereka tidak selalu dibatasi tanah.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nTerbang\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:aasimar",
+      "text": "\nAasimar\nMotM 2022\n\nAasimar membawa percikan kekuatan celestial. Cahaya itu dapat menjadi panggilan, misteri, atau beban dalam perjalanan mereka.\n\nUkuran\nMedium / Small\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:bugbear",
+      "text": "\nBugbear\nMotM 2022\n\nBugbear bertubuh besar dan berbulu, tetapi tidak selalu gaduh; sosok yang dapat mengejutkan lewat gerak senyapnya.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:centaur",
+      "text": "\nCentaur\nMotM 2022\n\nCentaur memadukan tubuh humanoid dan kuda, dengan ikatan pada alam serta kebebasan menjelajahi ruang terbuka.\n\nUkuran\nMedium\nTipe\nFey\nJalan\n40 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:changeling",
+      "text": "\nChangeling\nMotM 2022\n\nChangeling dapat mengganti wajah dan wujudnya. Bagi mereka, penampilan hanyalah satu bagian dari identitas.\n\nUkuran\nMedium / Small\nTipe\nFey\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:deep-gnome",
+      "text": "\nDeep Gnome\nMotM 2022\n\nDeep Gnome berasal dari kedalaman bumi; kehidupan di bawah tanah membentuk hubungan mereka dengan batu dan penyamaran.\n\nUkuran\nSmall\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:duergar",
+      "text": "\nDuergar\nMotM 2022\n\nDuergar adalah kerabat dwarf dari kedalaman dunia, dengan warisan psionik yang memengaruhi tubuh dan kehadirannya.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:eladrin",
+      "text": "\nEladrin\nMotM 2022\n\nEladrin terhubung dengan Feywild. Nuansa musim mewarnai penampilan dan ekspresi sihir fey mereka.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:fairy",
+      "text": "\nFairy\nMotM 2022\n\nFairy adalah penghuni fey bersayap dengan rupa yang beragam; keajaiban alam menyertai langkah kecil mereka.\n\nUkuran\nSmall\nTipe\nFey\nJalan\n30 ft\nTerbang\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:firbolg",
+      "text": "\nFirbolg\nMotM 2022\n\nFirbolg memiliki kedekatan dengan hutan dan makhluk hidupnya; sosok besar yang dapat memilih untuk tidak terlihat.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:genasi-air",
+      "text": "\nAir Genasi\nMotM 2022\n\nAir Genasi membawa pengaruh unsur udara, seolah angin menjadi bagian dari napas dan gerak mereka.\n\nUkuran\nMedium / Small\nTipe\nHumanoid\nJalan\n35 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:genasi-earth",
+      "text": "\nEarth Genasi\nMotM 2022\n\nEarth Genasi memiliki jejak unsur bumi; batu dan tanah menjadi bagian dari rupa serta warisan magis mereka.\n\nUkuran\nMedium / Small\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:genasi-fire",
+      "text": "\nFire Genasi\nMotM 2022\n\nFire Genasi memperlihatkan pengaruh unsur api, dari penampilan yang membara hingga sihir yang menyertainya.\n\nUkuran\nMedium / Small\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:genasi-water",
+      "text": "\nWater Genasi\nMotM 2022\n\nWater Genasi membawa warisan unsur air; sungai, hujan, dan samudra terasa dekat dengan kehidupan mereka.\n\nUkuran\nMedium / Small\nTipe\nHumanoid\nJalan\n30 ft\nRenang\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:githyanki",
+      "text": "\nGithyanki\nMotM 2022\n\nGithyanki memiliki warisan psionik dan hubungan dengan Astral Plane; pengembara yang melintasi batas dunia.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:githzerai",
+      "text": "\nGithzerai\nMotM 2022\n\nGithzerai mengembangkan disiplin batin di tengah kekacauan Limbo, menyalurkan warisan psionik melalui pikiran.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:goblin",
+      "text": "\nGoblin\nMotM 2022\n\nGoblin bertubuh kecil dengan akar fey, mampu menemukan celah dan jalan keluar di tempat yang tidak diduga.\n\nUkuran\nSmall\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:goliath",
+      "text": "\nGoliath\nMotM 2022\n\nGoliath versi MotM berakar pada kehidupan pegunungan; kekuatan fisik dan ketahanan menjadi ciri warisannya.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:harengon",
+      "text": "\nHarengon\nMotM 2022\n\nHarengon adalah humanoid kelinci dengan asal fey; indra waspada dan gerakan melompat menandai petualangannya.\n\nUkuran\nMedium / Small\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:hobgoblin",
+      "text": "\nHobgoblin\nMotM 2022\n\nHobgoblin memiliki akar fey dan ikatan kuat dengan kerja sama; bantuan tim menjadi bagian dari warisan mereka.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:kenku",
+      "text": "\nKenku\nMotM 2022\n\nKenku adalah humanoid burung dengan bakat meniru suara dan membuat salinan; pengamat yang mengolah apa yang dipelajarinya.\n\nUkuran\nMedium / Small\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:kobold",
+      "text": "\nKobold\nMotM 2022\n\nKobold adalah humanoid kecil berciri naga. Warisan drakonik mereka dapat tampil melalui keberanian, keahlian, atau sihir.\n\nUkuran\nSmall\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:lizardfolk",
+      "text": "\nLizardfolk\nMotM 2022\n\nLizardfolk adalah humanoid reptil yang akrab dengan perairan; tubuh bersisik menjadi bekal alami dalam penjelajahan.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nRenang\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:minotaur",
+      "text": "\nMinotaur\nMotM 2022\n\nMinotaur memiliki kepala dan tanduk banteng; sosok kokoh yang membawa cerita sendiri di luar gambaran labirin.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:orc",
+      "text": "\nOrc\nMotM 2022\n\nOrc versi MotM menggabungkan tubuh kuat dengan ketangguhan untuk bertahan; warisan yang tidak menentukan watak pemiliknya.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:satyr",
+      "text": "\nSatyr\nMotM 2022\n\nSatyr adalah makhluk fey berkaki kambing, dekat dengan musik, perjalanan, dan pengalaman baru di dunia fana.\n\nUkuran\nMedium\nTipe\nFey\nJalan\n35 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:sea-elf",
+      "text": "\nSea Elf\nMotM 2022\n\nSea Elf memiliki hubungan mendalam dengan kehidupan laut; rumah dan petualangannya dapat terbentang di bawah ombak.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nRenang\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:shadar-kai",
+      "text": "\nShadar-kai\nMotM 2022\n\nShadar-kai adalah elf yang terhubung dengan Shadowfell, membawa jejak dunia bayangan ke tempat yang mereka kunjungi.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:shifter",
+      "text": "\nShifter\nMotM 2022\n\nShifter memiliki jejak kebuasan dalam garis keturunannya, yang tampak lebih jelas saat mereka melakukan shifting.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:tabaxi",
+      "text": "\nTabaxi\nMotM 2022\n\nTabaxi adalah humanoid kucing; rasa ingin tahu dan kelincahan dapat membawa mereka ke banyak kisah baru.\n\nUkuran\nMedium / Small\nTipe\nHumanoid\nJalan\n30 ft\nPanjat\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:tortle",
+      "text": "\nTortle\nMotM 2022\n\nTortle membawa cangkang sebagai bagian dari tubuhnya; penjelajah yang selalu memiliki tempat berlindung sendiri.\n\nUkuran\nMedium / Small\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:triton",
+      "text": "\nTriton\nMotM 2022\n\nTriton berasal dari lingkungan bawah laut, dengan warisan yang menghubungkan mereka pada air dan penghuni samudra.\n\nUkuran\nMedium\nTipe\nHumanoid\nJalan\n30 ft\nRenang\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    },
+    {
+      "species": "motm:yuan-ti",
+      "text": "\nYuan-ti\nMotM 2022\n\nYuan-ti memperlihatkan jejak ular dalam rupa dan sihirnya; setiap individu memilih jalannya sendiri di dunia.\n\nUkuran\nMedium / Small\nTipe\nHumanoid\nJalan\n30 ft\nTrait & kemampuan 1 trait · lihat detail\n"
+    }
+  ]
+}

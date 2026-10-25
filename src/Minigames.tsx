@@ -5,6 +5,7 @@ import { gameCatalog } from '../server/game-catalog';
 import './minigames.css';
 import Crossword from './Crossword';
 import CoopPuzzle from './CoopPuzzle';
+import WallClock from './WallClock';
 
 export const gameNames = Object.fromEntries(Object.entries(gameCatalog).map(([kind, entry]) => [kind, entry.name]));
 const choices: Record<string, string> = { rock: 'Batu', paper: 'Kertas', scissors: 'Gunting' };
@@ -50,7 +51,7 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
     if (game?.tokenId === target.tokenId) onClose();
   }
   const disabled = !connected || busy;
-  const openParty = (game?.kind === 'crossword' || game?.kind === 'ttspilihan') || game?.kind === 'seating';
+  const openParty = (game?.kind === 'crossword' || game?.kind === 'ttspilihan') || game?.kind === 'seating' || game?.kind === 'wallclock';
   const name = (id: string) => members.find(member => member.id === id)?.name || 'Pemain';
   return <section className="minigames">{dm && <details>
     <summary>Token minigame · {games.length}</summary>
@@ -74,6 +75,7 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
         </fieldset>}
         {dm && <button disabled={disabled || (!openParty && game.players.length < (gameCatalog[game.kind].mode === 'duel' ? 2 : 1))} onClick={() => send({ type: 'start' })}>Mulai ronde</button>}
       </div>}
+      {game.kind === 'wallclock' && <WallClock key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}
       {game.kind === 'cooprooms' && <CoopPuzzle game={game} disabled={disabled} send={send} dm={dm} members={members} />}
       {game.kind === 'quickmath' && <>
         <p>Sepuluh soal acak dari server. Jawaban benar pertama tiap soal mendapat 1 poin; jawaban salah boleh dicoba lagi.</p>

@@ -20,7 +20,7 @@ import {
   type BoardToken,
   type Mark,
 } from "./tabletop.js";
-import { catalogFor, validateBuild, type Character } from "./characters.js";
+import { catalogFor, validateBuild, startingCurrency, coinDenominations, type Currency, type Character } from "./characters.js";
 import {
   existsSync,
   mkdirSync,
@@ -75,6 +75,7 @@ let removedLegacyGames = false;
 try {
   if (existsSync(dbFile)) rooms = JSON.parse(readFileSync(dbFile, "utf8"));
   for (const room of Object.values(rooms)) {
+    for (const character of room.characters || []) character.currency ??= startingCurrency();
     const removed = new Set((room.minigames || []).filter(game => !gameKinds.includes(game.kind)).map(game => game.tokenId));
     if (removed.size) removedLegacyGames = true;
     room.minigames = (room.minigames || []).filter(game => gameKinds.includes(game.kind));
@@ -468,6 +469,7 @@ io.on("connection", (socket) => {
             ruleset: result.build.ruleset || "srd-2014",
             build: result.build,
             sheet: result.sheet,
+            currency: startingCurrency(result.sheet),
             hp: result.sheet.hp,
             tempHp: 0,
             slotsUsed: 0,
@@ -500,7 +502,8 @@ io.on("connection", (socket) => {
       } else if (
         p.type === "health" ||
         p.type === "concentration" ||
-        p.type === "prepared"
+        p.type === "prepared" ||
+        p.type === "currency"
       ) {
         if (p.revision !== character!.revision) {
           respond({
@@ -513,6 +516,15 @@ io.on("connection", (socket) => {
             if (p.kind !== "damage" && p.kind !== "heal")
               throw new Error("Pilih damage atau heal.");
             adjustHealth(character!, p.kind, p.amount as number);
+          }
+          if (p.type === "currency") {
+            const submitted = p.currency as Record<string, unknown> | null;
+            if (!submitted || typeof submitted !== "object" || Array.isArray(submitted) ||
+                Object.keys(submitted).length !== coinDenominations.length ||
+                coinDenominations.some(coin => !Object.hasOwn(submitted, coin) ||
+                  typeof submitted[coin] !== "number" || !Number.isSafeInteger(submitted[coin]) || (submitted[coin] as number) < 0))
+              throw new Error("Saldo koin harus bilangan bulat aman minimal 0 untuk CP, SP, EP, GP, dan PP.");
+            character!.currency = Object.fromEntries(coinDenominations.map(coin => [coin, submitted[coin]])) as Currency;
           }
           if (p.type === "prepared") updatePrepared(character!, p.spells);
           if (p.type === "concentration") {
@@ -772,6 +784,10 @@ io.on("connection", (socket) => {
           fail("Token bukan milikmu.");
           return;
         }
+        if (p.dead !== undefined && (!dm || typeof p.dead !== 'boolean')) {
+          fail('Hanya DM boleh mengubah status Dead dengan nilai boolean.');
+          return;
+        }
         const linkedCharacter = room.characters?.find(
           (c) => c.id === token.characterId,
         );
@@ -805,6 +821,7 @@ io.on("connection", (socket) => {
           scene.combat.ids.sort((a, b) => (scene.tokens.find((t) => t.id === b)?.initiative ?? 0) - (scene.tokens.find((t) => t.id === a)?.initiative ?? 0));
           scene.combat.turn = Math.max(0, scene.combat.ids.indexOf(currentId));
         }
+        if (typeof p.dead === 'boolean' && dm) token.dead = p.dead;
         if (typeof p.hidden === "boolean" && dm) token.hidden = p.hidden;
         if (typeof p.visionSource === "boolean" && dm)
           token.visionSource = p.visionSource;
@@ -1170,7 +1187,7 @@ io.on("connection", (socket) => {
           error = declareGame(game, eligible);
         }
       } else {
-        const openParty = game.kind === 'crossword' || game.kind === 'ttspilihan' || game.kind === 'seating';
+        const openParty = game.kind === 'crossword' || game.kind === 'ttspilihan' || game.kind === 'seating' || game.kind === 'wallclock';
         if (['join', 'leave', 'remove-player'].includes(action.type) || (action.type === 'start' && !game.declaration && !openParty)) { respond({ error: 'GM harus deklarasikan peserta lewat token.' }); return; }
         error = gameAction(game, socket.data.playerId, socket.data.isDM, action, randomInt);
       }

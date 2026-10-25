@@ -1,0 +1,4476 @@
+Skip to Content
+
+New: Can You Escape PROJECT_LAMORDIA?
+
+Visit Shadowfell in the October Drop
+
+Claim Your Free World of Warcraft Adventure
+
+DISMISS
+PLAY D&D
+My Characters
+CREATE A CHARACTER
+My Campaigns
+BETA
+Maps VTT
+NEW
+D&D Beyond Drops
+MORE TOOLS
+D&D Beyond Mobile App
+D&D Event Finder
+Avrae Discord Bot
+Browse Homebrew
+Encounters
+My Dice
+RULES
+BROWSE
+Classes
+Backgrounds
+Species
+Feats
+Spells
+Equipment
+Magic Items
+Monsters
+RESOURCES
+Get Started
+How to Play D&D
+D&D Beyond Basic Rules
+Rules Glossary
+D&D Character Sheets
+System Reference Document (SRD)
+Unearthed Arcana
+FEATURED
+ARTICLE
+Updating Your Campaign to the 5.5e D&D Rules
+ARTICLE
+Running Lairs: How to Make the Most of a Monster's Place of Power
+LIBRARY
+FREE BOOKS
+View all
+
+Sign in to view your
+library & saved
+favorites.
+
+Sign in
+COMMUNITY
+SUPPORT
+Help Portal
+Articles
+Support Forum
+Changelog
+Roadmap
+Creator FAQ
+CONNECT
+Community Update
+Find a Group
+D&D Encounters
+Legends of Greyhawk
+Forums
+FOLLOW US
+FEATURED ARTICLE
+Introducing Journals on D&D Beyond
+MARKETPLACE
+Sign in
+CREATE ACCOUNT
+ SOURCES
+ DUNGEONS & DRAGONS
+ D&D BEYOND BASIC RULES
+ CHARACTER ORIGINS
+Character Origins
+Origin Components
+Background Descriptions
+Species Descriptions
+CHARACTER CLASSES
+TABLE OF CONTENTS
+FEATS
+Character Origins
+
+This chapter describes the two components of an adventurer’s origin: background and species. Together, these elements suggest your character’s early experience and family origin before taking up the adventuring life and learning the capabilities of a class (described in “Character Classes”).
+
+Origin Components
+
+Each part of your character’s origin reflects facets of your character, their life, and the circumstances that started them on the path to adventure.
+
+If you choose a background or a species from an older book, see the sidebar “Backgrounds and Species from Older Books” in “Creating a Character” for how to use them with the options here.
+
+Character Backgrounds
+
+Your character’s background is a collection of characteristics that represent the place and occupation that were most formative before your character embarked on a life of adventure.
+
+Each background includes a brief narrative of what your character’s past might have been like. Alter the details of this narrative however you like.
+
+Parts of a Background
+
+A background includes the following parts.
+
+Ability Scores. A background lists three of your character’s ability scores. Increase one by 2 and another one by 1, or increase all three by 1. None of these increases can raise a score above 20.
+
+Feat. A background gives your character a specified Origin feat (described in “Feats”).
+
+Skill Proficiencies. A background gives your character proficiency in two specified skills.
+
+Tool Proficiency. Each background gives a character proficiency with one tool—either a specific tool or one chosen from the Artisan’s Tools category. Tools are detailed in “Equipment”.
+
+Equipment. Each background offers a choice between a package of equipment and 50 GP.
+
+Character Species
+
+When you choose your character’s species, you determine whether your character is a human or a member of a fantastical species, such as dragonborn or gnome.
+
+The peoples of the D&D multiverse hail from different worlds and include many kinds of sapient life forms. A player character’s species is the set of game traits that an adventurer gains from being one of those life forms.
+
+Some species can trace their origin to a single world, plane of existence, or god, while other species first appeared in multiple realms at once. Whatever a species’ genesis, its members have spread across the multiverse and contribute to many different cultures.
+
+Members of most species live for about 80 years, with exceptions noted in the text about the species in this chapter. Regardless of life span, members of all species reach physical maturity at about the same age. Your character can be any age that isn’t beyond their species’ normal life span.
+
+Parts of a Species
+
+A species includes the following parts.
+
+Creature Type. A character’s species determines the character’s creature type, which is described in the rules glossary. Every species in this chapter is Humanoid; playable non-Humanoid species appear in other D&D books.
+
+Size. Your character’s species determines the character’s size. Individuals within a species cover a wide range of heights, and some species include such diversity of size that you can choose whether your character is Small or Medium.
+
+Speed. Your character’s species determines the character’s Speed.
+
+Special Traits. Each species gives a character special traits—unique characteristics based on the species’ physiology or magical nature. When you choose a species, your character gets all the special traits listed for it. Some traits involve making a choice from a handful of options.
+
+Background Descriptions
+
+Four backgrounds are presented in this section in alphabetical order:
+
+Acolyte
+
+Criminal
+
+Sage
+
+Soldier
+
+Acolyte
+
+Ability Scores: Intelligence, Wisdom, Charisma
+
+Feat: Magic Initiate (Cleric) (see “Feats”)
+
+Skill Proficiencies: Insight and Religion
+
+Tool Proficiency: Calligrapher’s Supplies
+
+Equipment: Choose A or B: (A) Calligrapher’s Supplies, Book (prayers), Holy Symbol, Parchment (10 sheets), Robe, 8 GP; or (B) 50 GP
+
+You devoted yourself to service in a temple, either nestled in a town or secluded in a sacred grove. There you performed rites in honor of a god or pantheon. You served under a priest and studied religion. Thanks to your priest’s instruction and your own devotion, you also learned how to channel a modicum of divine power in service to your place of worship and the people who prayed there.
+
+Criminal
+
+Ability Scores: Dexterity, Constitution, Intelligence
+
+Feat: Alert (see “Feats”)
+
+Skill Proficiencies: Sleight of Hand and Stealth
+
+Tool Proficiency: Thieves’ Tools
+
+Equipment: Choose A or B: (A) 2 Daggers, Thieves’ Tools, Crowbar, 2 Pouches, Traveler’s Clothes, 16 GP; or (B) 50 GP
+
+You eked out a living in dark alleyways, cutting purses or burgling shops. Perhaps you were part of a small gang of like-minded wrongdoers who looked out for each other. Or maybe you were a lone wolf, fending for yourself against the local thieves’ guild and more fearsome lawbreakers.
+
+Sage
+
+Ability Scores: Constitution, Intelligence, Wisdom
+
+Feat: Magic Initiate (Wizard) (see “Feats”)
+
+Skill Proficiencies: Arcana and History
+
+Tool Proficiency: Calligrapher’s Supplies
+
+Equipment: Choose A or B: (A) Quarterstaff, Calligrapher’s Supplies, Book (history), Parchment (8 sheets), Robe, 8 GP; or (B) 50 GP
+
+You spent your formative years traveling between manors and monasteries, performing various odd jobs and services in exchange for access to their libraries. You whiled away many a long evening studying books and scrolls, learning the lore of the multiverse—even the rudiments of magic—and your mind yearns for more.
+
+Soldier
+
+Ability Scores: Strength, Dexterity, Constitution
+
+Feat: Savage Attacker (see “Feats”)
+
+Skill Proficiencies: Athletics and Intimidation
+
+Tool Proficiency: Choose one kind of Gaming Set (see “Equipment”)
+
+Equipment: Choose A or B: (A) Spear, Shortbow, 20 Arrows, Gaming Set (same as above), Healer’s Kit, Quiver, Traveler’s Clothes, 14 GP; or (B) 50 GP
+
+You began training for war as soon as you reached adulthood and carry precious few memories of life before you took up arms. Battle is in your blood. Sometimes you catch yourself reflexively performing the basic fighting exercises you learned first. Eventually, you put that training to use on the battlefield, protecting the realm by waging war.
+
+Species Descriptions
+
+Nine species are presented in this section in alphabetical order: Dragonborn, Dwarf, Elf, Gnome, Goliath, Halfling, Human, Orc, and Tiefling.
+
+Dragonborn
+
+The ancestors of dragonborn hatched from the eggs of chromatic and metallic dragons. One story holds that these eggs were blessed by the dragon gods Bahamut and Tiamat, who wanted to populate the multiverse with people created in their image. Another story claims that dragons created the first dragonborn without the gods’ blessings. Whatever their origin, dragonborn have made homes for themselves on the Material Plane.
+
+Dragonborn look like wingless, bipedal dragons—scaly, bright-eyed, and thick-boned with horns on their heads—and their coloration and other features are reminiscent of their draconic ancestors.
+
+Dragonborn Traits
+
+Creature Type: Humanoid
+
+Size: Medium (about 5–7 feet tall)
+
+Speed: 30 feet
+
+As a Dragonborn, you have these special traits.
+
+Draconic Ancestry. Your lineage stems from a dragon progenitor. Choose the kind of dragon from the Draconic Ancestors table. Your choice affects your Breath Weapon and Damage Resistance traits as well as your appearance.
+
+Draconic Ancestors
+Dragon	Damage Type
+Black	Acid
+Blue	Lightning
+Brass	Fire
+Bronze	Lightning
+Copper	Acid
+Gold	Fire
+Green	Poison
+Red	Fire
+Silver	Cold
+White	Cold
+
+Breath Weapon. When you take the Attack action on your turn, you can replace one of your attacks with an exhalation of magical energy in either a 15-foot Cone or a 30-foot Line that is 5 feet wide (choose the shape each time). Each creature in that area must make a Dexterity saving throw (DC 8 plus your Constitution modifier and Proficiency Bonus). On a failed save, a creature takes 1d10 damage of the type determined by your Draconic Ancestry trait. On a successful save, a creature takes half as much damage. This damage increases by 1d10 when you reach character levels 5 (2d10), 11 (3d10), and 17 (4d10). You can use this Breath Weapon a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.
+
+Damage Resistance. You have Resistance to the damage type determined by your Draconic Ancestry trait.
+
+Darkvision. You have Darkvision with a range of 60 feet.
+
+Draconic Flight. When you reach character level 5, you can channel draconic magic to give yourself temporary flight. As a Bonus Action, you sprout spectral wings on your back that last for 10 minutes or until you retract the wings (no action required) or have the Incapacitated condition. During that time, you have a Fly Speed equal to your Speed. Your wings appear to be made of the same energy as your Breath Weapon. Once you use this trait, you can’t use it again until you finish a Long Rest.
+
+Dwarf
+
+Dwarves were raised from the earth in the elder days by a deity of the forge. Called by various names on different worlds—Moradin, Reorx, and others—that god gave dwarves an affinity for stone and metal and for living underground. The god also made them resilient like the mountains, with a life span of about 350 years.
+
+Squat and often bearded, the original dwarves carved cities and strongholds into mountainsides and under the earth. Their oldest legends tell of conflicts with the monsters of mountaintops and the Underdark, whether those monsters were towering giants or subterranean horrors. Inspired by those tales, dwarves of any culture often sing of valorous deeds—especially of the little overcoming the mighty.
+
+On some worlds in the multiverse, the first settlements of dwarves were built in hills or mountains, and the families who trace their ancestry to those settlements call themselves hill dwarves or mountain dwarves, respectively. The Greyhawk and Dragonlance settings have such communities.
+
+Dwarf Traits
+
+Creature Type: Humanoid
+
+Size: Medium (about 4–5 feet tall)
+
+Speed: 30 feet
+
+As a Dwarf, you have these special traits.
+
+Darkvision. You have Darkvision with a range of 120 feet.
+
+Dwarven Resilience. You have Resistance to Poison damage. You also have Advantage on saving throws you make to avoid or end the Poisoned condition.
+
+Dwarven Toughness. Your Hit Point maximum increases by 1, and it increases by 1 again whenever you gain a level.
+
+Stonecunning. As a Bonus Action, you gain Tremorsense with a range of 60 feet for 10 minutes. You must be on a stone surface or touching a stone surface to use this Tremorsense. The stone can be natural or worked. You can use this Bonus Action a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest.
+
+Elf
+
+Created by the god Corellon, the first elves could change their forms at will. They lost this ability when Corellon cursed them for plotting with the deity Lolth, who tried and failed to usurp Corellon’s dominion. When Lolth was cast into the Abyss, most elves renounced her and earned Corellon’s forgiveness, but that which Corellon had taken from them was lost forever.
+
+No longer able to shape-shift at will, the elves retreated to the Feywild, where their sorrow was deepened by that plane’s influence. Over time, curiosity led many of them to explore other planes of existence, including worlds in the Material Plane.
+
+Elves have pointed ears and lack facial and body hair. They live for around 750 years, and they don’t sleep but instead enter a trance when they need to rest. In that state, they remain aware of their surroundings while immersing themselves in memories and meditations.
+
+An environment subtly transforms elves after they inhabit it for a millennium or more, and it grants them certain kinds of magic. Drow, high elves, and wood elves are examples of elves who have been transformed thus.
+
+Drow
+
+Drow typically dwell in the Underdark and have been shaped by it. Some drow individuals and societies avoid the Underdark altogether yet carry its magic. In the Eberron setting, for example, drow dwell in rainforests and cyclopean ruins on the continent of Xen’drik.
+
+High Elves
+
+High elves have been infused with the magic of crossings between the Feywild and the Material Plane. On some worlds, high elves refer to themselves by other names. For example, they call themselves sun or moon elves in the Forgotten Realms setting, Silvanesti and Qualinesti in the Dragonlance setting, and Aereni in the Eberron setting.
+
+Wood Elves
+
+Wood elves carry the magic of primeval forests within themselves. They are known by many other names, including wild elves, green elves, and forest elves. Grugach are reclusive wood elves of the Greyhawk setting, while the Kagonesti and the Tairnadal are wood elves of the Dragonlance and Eberron settings, respectively.
+
+Elf Traits
+
+Creature Type: Humanoid
+
+Size: Medium (about 5–6 feet tall)
+
+Speed: 30 feet
+
+As an Elf, you have these special traits.
+
+Darkvision. You have Darkvision with a range of 60 feet.
+
+Elven Lineage. You are part of a lineage that grants you supernatural abilities. Choose a lineage from the Elven Lineages table. You gain the level 1 benefit of that lineage.
+
+When you reach character levels 3 and 5, you learn a higher-level spell, as shown on the table. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait (choose the ability when you select the lineage).
+
+Fey Ancestry. You have Advantage on saving throws you make to avoid or end the Charmed condition.
+
+Keen Senses. You have proficiency in the Insight, Perception, or Survival skill.
+
+Trance. You don’t need to sleep, and magic can’t put you to sleep. You can finish a Long Rest in 4 hours if you spend those hours in a trancelike meditation, during which you retain consciousness.
+
+Elven Lineages
+Lineage	Level 1	Level 3	Level 5
+Drow	The range of your Darkvision increases to 120 feet. You also know the Dancing Lights cantrip.	Faerie Fire	Darkness
+High Elf	You know the Prestidigitation cantrip. Whenever you finish a Long Rest, you can replace that cantrip with a different cantrip from the Wizard spell list.	Detect Magic	Misty Step
+Wood Elf	Your Speed increases to 35 feet. You also know the Druidcraft cantrip.	Longstrider	Pass without Trace
+Gnome
+
+Gnomes are magical folk created by gods of invention, illusions, and life underground. The earliest gnomes were seldom seen by other folk due to the gnomes’ secretive nature and their propensity for living in forests and burrows. What they lacked in size, they made up for in cleverness. They confounded predators with traps and labyrinthine tunnels. They also learned magic from gods like Garl Glittergold, Baervan Wildwanderer, and Baravar Cloakshadow, who visited them in disguise. That magic eventually created the lineages of forest gnomes and rock gnomes.
+
+Gnomes are petite folk with big eyes and pointed ears, who live around 425 years. Many gnomes like the feeling of a roof over their head, even if that “roof” is nothing more than a hat.
+
+Gnome Traits
+
+Creature Type: Humanoid
+
+Size: Small (about 3–4 feet tall)
+
+Speed: 30 feet
+
+As a Gnome, you have these special traits.
+
+Darkvision. You have Darkvision with a range of 60 feet.
+
+Gnomish Cunning. You have Advantage on Intelligence, Wisdom, and Charisma saving throws.
+
+Gnomish Lineage. You are part of a lineage that grants you supernatural abilities. Choose one of the following options; whichever one you choose, Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait (choose the ability when you select the lineage):
+
+Forest Gnome. You know the Minor Illusion cantrip. You also always have the Speak with Animals spell prepared. You can cast it without a spell slot a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest. You can also use any spell slots you have to cast the spell.
+
+Rock Gnome. You know the Mending and Prestidigitation cantrips. In addition, you can spend 10 minutes casting Prestidigitation to create a Tiny clockwork device (AC 5, 1 HP), such as a toy, fire starter, or music box. When you create the device, you determine its function by choosing one effect from Prestidigitation; the device produces that effect whenever you or another creature takes a Bonus Action to activate it with a touch. If the chosen effect has options within it, you choose one of those options for the device when you create it. For example, if you choose the spell’s ignite-extinguish effect, you determine whether the device ignites or extinguishes fire; the device doesn’t do both. You can have three such devices in existence at a time, and each falls apart 8 hours after its creation or when you dismantle it with a touch as a Utilize action.
+
+Goliath
+
+Towering over most folk, goliaths are distant descendants of giants. Each goliath bears the favors of the first giants—favors that manifest in various supernatural boons, including the ability to quickly grow and temporarily approach the height of goliaths’ gigantic kin.
+
+Goliaths have physical characteristics that are reminiscent of the giants in their family lines. For example, some goliaths look like stone giants, while others resemble fire giants. Whatever giants they count as kin, goliaths have forged their own path in the multiverse—unencumbered by the internecine conflicts that have ravaged giantkind for ages—and seek heights above those reached by their ancestors.
+
+Goliath Traits
+
+Creature Type: Humanoid
+
+Size: Medium (about 7–8 feet tall)
+
+Speed: 35 feet
+
+As a Goliath, you have these special traits.
+
+Giant Ancestry. You are descended from Giants. Choose one of the following benefits—a supernatural boon from your ancestry; you can use the chosen benefit a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Long Rest:
+
+Cloud’s Jaunt (Cloud Giant). As a Bonus Action, you magically teleport up to 30 feet to an unoccupied space you can see.
+
+Fire’s Burn (Fire Giant). When you hit a target with an attack roll and deal damage to it, you can also deal 1d10 Fire damage to that target.
+
+Frost’s Chill (Frost Giant). When you hit a target with an attack roll and deal damage to it, you can also deal 1d6 Cold damage to that target and reduce its Speed by 10 feet until the start of your next turn.
+
+Hill’s Tumble (Hill Giant). When you hit a Large or smaller creature with an attack roll and deal damage to it, you can give that target the Prone condition.
+
+Stone’s Endurance (Stone Giant). When you take damage, you can take a Reaction to roll 1d12. Add your Constitution modifier to the number rolled and reduce the damage by that total.
+
+Storm’s Thunder (Storm Giant). When you take damage from a creature within 60 feet of you, you can take a Reaction to deal 1d8 Thunder damage to that creature.
+
+Large Form. Starting at character level 5, you can change your size to Large as a Bonus Action if you’re in a big enough space. This transformation lasts for 10 minutes or until you end it (no action required). For that duration, you have Advantage on Strength checks, and your Speed increases by 10 feet. Once you use this trait, you can’t use it again until you finish a Long Rest.
+
+Powerful Build. You have Advantage on any ability check you make to end the Grappled condition. You also count as one size larger when determining your carrying capacity.
+
+Halfling
+
+Cherished and guided by gods who value life, home, and hearth, halflings gravitate toward bucolic havens where family and community help shape their lives. That said, many halflings possess a brave and adventurous spirit that leads them on journeys of discovery, affording them the chance to explore a bigger world and make new friends along the way. Their size—similar to that of a human child—helps them pass through crowds unnoticed and slip through tight spaces.
+
+Anyone who has spent time around halflings, particularly halfling adventurers, has likely witnessed the storied “luck of the halflings” in action. When a halfling is in mortal danger, an unseen force seems to intervene on the halfling’s behalf. Many halflings believe in the power of luck, and they attribute their unusual gift to one or more of their benevolent gods, including Yondalla, Brandobaris, and Charmalaine. The same gift might contribute to their robust life spans (about 150 years).
+
+Halfling communities come in all varieties. For every sequestered shire tucked away in an unspoiled part of the world, there’s a crime syndicate like the Boromar Clan in the Eberron setting or a territorial mob of halflings like those in the Dark Sun setting.
+
+Halflings who prefer to live underground are sometimes called strongheart halflings or stouts. Nomadic halflings, as well as those who live among humans and other tall folk, are sometimes called lightfoot halflings or tallfellows.
+
+Halfling Traits
+
+Creature Type: Humanoid
+
+Size: Small (about 2–3 feet tall)
+
+Speed: 30 feet
+
+As a Halfling, you have these special traits.
+
+Brave. You have Advantage on saving throws you make to avoid or end the Frightened condition.
+
+Halfling Nimbleness. You can move through the space of any creature that is a size larger than you, but you can’t stop in the same space.
+
+Luck. When you roll a 1 on the d20 of a D20 Test, you can reroll the die, and you must use the new roll.
+
+Naturally Stealthy. You can take the Hide action even when you are obscured only by a creature that is at least one size larger than you.
+
+Human
+
+Found throughout the multiverse, humans are as varied as they are numerous, and they endeavor to achieve as much as they can in the years they are given. Their ambition and resourcefulness are commended, respected, and feared on many worlds.
+
+Humans are as diverse in appearance as the people of Earth, and they have many gods. Scholars dispute the origin of humanity, but one of the earliest known human gatherings is said to have occurred in Sigil, the torus-shaped city at the center of the multiverse and the place where the Common language was born. From there, humans could have spread to every part of the multiverse, bringing the City of Doors’ cosmopolitanism with them.
+
+Human Traits
+
+Creature Type: Humanoid
+
+Size: Medium (about 4–7 feet tall) or Small (about 2–4 feet tall), chosen when you select this species
+
+Speed: 30 feet
+
+As a Human, you have these special traits.
+
+Resourceful. You gain Heroic Inspiration whenever you finish a Long Rest.
+
+Skillful. You gain proficiency in one skill of your choice.
+
+Versatile. You gain an Origin feat of your choice (see “Feats”). Skilled is recommended.
+
+Orc
+
+Orcs trace their creation to Gruumsh, a powerful god who roamed the wide open spaces of the Material Plane. Gruumsh equipped his children with gifts to help them wander great plains, vast caverns, and churning seas and to face the monsters that lurk there. Even when they turn their devotion to other gods, orcs retain Gruumsh’s gifts: endurance, determination, and the ability to see in darkness.
+
+Orcs are, on average, tall and broad. They have gray skin, ears that are sharply pointed, and prominent lower canines that resemble small tusks. Orc youths on some worlds are told about their ancestors’ great travels and travails. Inspired by those tales, many of those orcs wonder when Gruumsh will call on them to match the heroic deeds of old and if they will prove worthy of his favor. Other orcs are happy to leave old tales in the past and find their own way.
+
+Orc Traits
+
+Creature Type: Humanoid
+
+Size: Medium (about 6–7 feet tall)
+
+Speed: 30 feet
+
+As an Orc, you have these special traits.
+
+Adrenaline Rush. You can take the Dash action as a Bonus Action. When you do so, you gain a number of Temporary Hit Points equal to your Proficiency Bonus. You can use this trait a number of times equal to your Proficiency Bonus, and you regain all expended uses when you finish a Short or Long Rest.
+
+Darkvision. You have Darkvision with a range of 120 feet.
+
+Relentless Endurance. When you are reduced to 0 Hit Points but not killed outright, you can drop to 1 Hit Point instead. Once you use this trait, you can’t do so again until you finish a Long Rest.
+
+Tiefling
+
+Tieflings are either born in the Lower Planes or have fiendish ancestors who originated there. A tiefling (pronounced TEE-fling) is linked by blood to a devil, a demon, or some other Fiend. This connection to the Lower Planes is the tiefling’s fiendish legacy, which comes with the promise of power yet has no effect on the tiefling’s moral outlook.
+
+A tiefling chooses whether to embrace or lament their fiendish legacy. The three legacies are described below.
+
+Abyssal
+
+The entropy of the Abyss, the chaos of Pandemonium, and the despair of Carceri call to tieflings who have the abyssal legacy. Horns, fur, tusks, and peculiar scents are common physical features of such tieflings, most of whom have the blood of demons coursing through their veins.
+
+Chthonic
+
+Tieflings who have the chthonic legacy feel not only the tug of Carceri but also the greed of Gehenna and the gloom of Hades. Some of these tieflings look cadaverous. Others possess the unearthly beauty of a succubus, or they have physical features in common with a night hag, a yugoloth, or some other Neutral Evil fiendish ancestor.
+
+Infernal
+
+The infernal legacy connects tieflings not only to Gehenna but also the Nine Hells and the raging battlefields of Acheron. Horns, spines, tails, golden eyes, and a faint odor of sulfur or smoke are common physical features of such tieflings, most of whom trace their ancestry to devils.
+
+Tiefling Traits
+
+Creature Type: Humanoid
+
+Size: Medium (about 4–7 feet tall) or Small (about 3–4 feet tall), chosen when you select this species
+
+Speed: 30 feet
+
+As a Tiefling, you have the following special traits.
+
+Darkvision. You have Darkvision with a range of 60 feet.
+
+Fiendish Legacy. You are the recipient of a legacy that grants you supernatural abilities. Choose a legacy from the Fiendish Legacies table. You gain the level 1 benefit of the chosen legacy.
+
+When you reach character levels 3 and 5, you learn a higher-level spell, as shown on the table. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have of the appropriate level. Intelligence, Wisdom, or Charisma is your spellcasting ability for the spells you cast with this trait (choose the ability when you select the legacy).
+
+Otherworldly Presence. You know the Thaumaturgy cantrip. When you cast it with this trait, the spell uses the same spellcasting ability you use for your Fiendish Legacy trait.
+
+Fiendish Legacies
+Legacy	Level 1	Level 3	Level 5
+Abyssal	You have Resistance to Poison damage. You also know the Poison Spray cantrip.	Ray of Sickness	Hold Person
+Chthonic	You have Resistance to Necrotic damage. You also know the Chill Touch cantrip.	False Life	Ray of Enfeeblement
+Infernal	You have Resistance to Fire damage. You also know the Fire Bolt cantrip.	Hellish Rebuke	Darkness
+
+Our Terms of Service and Privacy Notice have recently been updated to provide greater clarity as to how disputes are handled and transparency regarding the collection and use of personal data. Please review them here: Terms of Service, Privacy Notice. By continuing to use the services, you agree to the new Terms.
+SUPPORT
+Help Portal
+Support Forum
+System Status
+Do Not Sell or Share My Personal Information
+Your Privacy Choices
+Cookie Notice
+System Reference Document (SRD)
+ABOUT
+Contact Us
+Careers
+Wizards of the Coast
+Credits
+FIND US ON SOCIAL MEDIA
+DOWNLOAD THE D&D BEYOND APP
+© 2017-2026 WIZARDS OF THE COAST LLC | ALL RIGHTS RESERVED
+Dungeons & Dragons, D&D Beyond, D&D, Wizards of the Coast, the dragon ampersand, and all other Wizards of the Coast product names, campaign settings, their respective logos, and The World's Greatest Roleplaying Game are © and trademark Wizards of the Coast in the U.S.A. and other countries. © 2026 Wizards.
+PRIVACY POLICY
+TERMS OF SERVICE
+
+Skip to Content
+
+New: Can You Escape PROJECT_LAMORDIA?
+
+Visit Shadowfell in the October Drop
+
+Claim Your Free World of Warcraft Adventure
+
+DISMISS
+PLAY D&D
+My Characters
+CREATE A CHARACTER
+My Campaigns
+BETA
+Maps VTT
+NEW
+D&D Beyond Drops
+MORE TOOLS
+D&D Beyond Mobile App
+D&D Event Finder
+Avrae Discord Bot
+Browse Homebrew
+Encounters
+My Dice
+RULES
+BROWSE
+Classes
+Backgrounds
+Species
+Feats
+Spells
+Equipment
+Magic Items
+Monsters
+RESOURCES
+Get Started
+How to Play D&D
+D&D Beyond Basic Rules
+Rules Glossary
+D&D Character Sheets
+System Reference Document (SRD)
+Unearthed Arcana
+FEATURED
+ARTICLE
+Updating Your Campaign to the 5.5e D&D Rules
+ARTICLE
+Running Lairs: How to Make the Most of a Monster's Place of Power
+LIBRARY
+FREE BOOKS
+View all
+
+Sign in to view your
+library & saved
+favorites.
+
+Sign in
+COMMUNITY
+SUPPORT
+Help Portal
+Articles
+Support Forum
+Changelog
+Roadmap
+Creator FAQ
+CONNECT
+Community Update
+Find a Group
+D&D Encounters
+Legends of Greyhawk
+Forums
+FOLLOW US
+FEATURED ARTICLE
+Introducing Journals on D&D Beyond
+MARKETPLACE
+Sign in
+CREATE ACCOUNT
+ SOURCES
+ DUNGEONS & DRAGONS
+ D&D BEYOND BASIC RULES
+ FEATS
+Feats
+Feat Descriptions
+Origin Feats
+General Feats
+Fighting Style Feats
+Epic Boon Feats
+CHARACTER ORIGINS
+TABLE OF CONTENTS
+EQUIPMENT
+Feats
+
+This chapter offers a collection of feats, which are special features not tied to a character class. A feat represents a talent or an area of expertise that gives a character special capabilities. It embodies training, experience, and abilities beyond what a class provides.
+
+The sections below explain the parts of a feat and list a variety of feat options separated into categories.
+
+Your background gives you a feat, and at certain levels, your class gives you the Ability Score Improvement feat or the choice of another feat for which you qualify.
+
+By whatever means you acquire a feat, you can take it only once unless its description says otherwise.
+
+Feat Descriptions
+
+This chapter’s feats are organized by category—Origin, General, Fighting Style, or Epic Boon—and alphabetized in each category. All the feats are listed alphabetically in the Feat List table. If a feat can be taken more than once, an asterisk appears after its name in that table.
+
+Parts of a Feat
+
+The description of a feat contains the following parts, which are presented after the feat’s name.
+
+Category. A feat is a member of a category, which is noted in the feat. If you’re instructed to choose a feat from a specific category, such as the Origin category, that category must appear under the feat’s name. If you’re instructed to choose a feat and no category is specified, you can choose from any category.
+
+Prerequisite. To take a feat, you must meet any prerequisite in its description unless a feature allows you to take the feat without the prerequisite. If a prerequisite includes a class, you must have at least 1 level in that class to take the feat.
+
+Benefit. The benefits of a feat are detailed after any prerequisites are listed. If you have a feat, you gain its benefits.
+
+Repeatable. A feat can be taken only once unless its description states otherwise in a “Repeatable” subsection.
+
+Feat List
+Feat	Category
+Ability Score Improvement*	General
+Alert	Origin
+Archery	Fighting Style
+Boon of Combat Prowess	Epic Boon
+Boon of Dimensional Travel	Epic Boon
+Boon of Fate	Epic Boon
+Boon of Irresistable Offense	Epic Boon
+Boon of the Night Spirit	Epic Boon
+Boon of Spell Recall	Epic Boon
+Boon of Truesight	Epic Boon
+Defense	Fighting Style
+Grappler	General
+Great Weapon Fighting	Fighting Style
+Magic Initiate*	Origin
+Savage Attacker	Origin
+Skilled*	Origin
+Two-Weapon Fighting	Fighting Style
+*This feat can be taken more than once.
+Origin Feats
+
+These feats are in the Origin category.
+
+Alert
+
+Origin Feat
+
+You gain the following benefits.
+
+Initiative Proficiency. When you roll Initiative, you can add your Proficiency Bonus to the roll.
+
+Initiative Swap. Immediately after you roll Initiative, you can swap your Initiative with the Initiative of one willing ally in the same combat. You can’t make this swap if you or the ally has the Incapacitated condition.
+
+Magic Initiate
+
+Origin Feat
+
+You gain the following benefits.
+
+Two Cantrips. You learn two cantrips of your choice from the Cleric, Druid, or Wizard spell list. Intelligence, Wisdom, or Charisma is your spellcasting ability for this feat’s spells (choose when you select this feat).
+
+Level 1 Spell. Choose a level 1 spell from the same list you selected for this feat’s cantrips. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have.
+
+Spell Change. Whenever you gain a new level, you can replace one of the spells you chose for this feat with a different spell of the same level from the chosen spell list.
+
+Repeatable. You can take this feat more than once, but you must choose a different spell list each time.
+
+Savage Attacker
+
+Origin Feat
+
+You’ve trained to deal particularly damaging strikes. Once per turn when you hit a target with a weapon, you can roll the weapon’s damage dice twice and use either roll against the target.
+
+Skilled
+
+Origin Feat
+
+You gain proficiency in any combination of three skills or tools of your choice.
+
+Repeatable. You can take this feat more than once.
+
+General Feats
+
+These feats are in the General category.
+
+Ability Score Improvement
+
+General Feat (Prerequisite: Level 4+)
+
+Increase one ability score of your choice by 2, or increase two ability scores of your choice by 1. This feat can’t increase an ability score above 20.
+
+Repeatable. You can take this feat more than once.
+
+Grappler
+
+General Feat (Prerequisite: Level 4+, Strength or Dexterity 13+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase your Strength or Dexterity score by 1, to a maximum of 20.
+
+Punch and Grab. When you hit a creature with an Unarmed Strike as part of the Attack action on your turn, you can use both the Damage and the Grapple option. You can use this benefit only once per turn.
+
+Attack Advantage. You have Advantage on attack rolls against a creature Grappled by you.
+
+Fast Wrestler. You don't have to spend extra movement to move a creature Grappled by you if the creature is your size or smaller.
+
+Fighting Style Feats
+
+These feats are in the Fighting Style category.
+
+Archery
+
+Fighting Style Feat (Prerequisite: Fighting Style Feature)
+
+You gain a +2 bonus to attack rolls you make with Ranged weapons.
+
+Defense
+
+Fighting Style Feat (Prerequisite: Fighting Style Feature)
+
+While you’re wearing Light, Medium, or Heavy armor, you gain a +1 bonus to Armor Class.
+
+Great Weapon Fighting
+
+Fighting Style Feat (Prerequisite: Fighting Style Feature)
+
+When you roll damage for an attack you make with a Melee weapon that you are holding with two hands, you can treat any 1 or 2 on a damage die as a 3. The weapon must have the Two-Handed or Versatile property to gain this benefit.
+
+Two-Weapon Fighting
+
+Fighting Style Feat (Prerequisite: Fighting Style Feature)
+
+When you make an extra attack as a result of using a weapon that has the Light property, you can add your ability modifier to the damage of that attack if you aren’t already adding it to the damage.
+
+Epic Boon Feats
+
+These feats are in the Epic Boon category.
+
+Boon of Combat Prowess
+
+Epic Boon Feat (Prerequisite: Level 19+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase one ability score of your choice by 1, to a maximum of 30.
+
+Peerless Aim. When you miss with an attack roll, you can hit instead. Once you use this benefit, you can’t use it again until the start of your next turn.
+
+Boon of Dimensional Travel
+
+Epic Boon Feat (Prerequisite: Level 19+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase one ability score of your choice by 1, to a maximum of 30.
+
+Blink Steps. Immediately after you take the Attack action or the Magic action, you can teleport up to 30 feet to an unoccupied space you can see.
+
+Boon of Fate
+
+Epic Boon Feat (Prerequisite: Level 19+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase one ability score of your choice by 1, to a maximum of 30.
+
+Improve Fate. When you or another creature within 60 feet of you succeeds on or fails a D20 Test, you can roll 2d4 and apply the total rolled as a bonus or penalty to the d20 roll. Once you use this benefit, you can’t use it again until you roll Initiative or finish a Short or Long Rest.
+
+Boon of Irresistible Offense
+
+Epic Boon Feat (Prerequisite: Level 19+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase your Strength or Dexterity score by 1, to a maximum of 30.
+
+Overcome Defenses. The Bludgeoning, Piercing, and Slashing damage you deal always ignores Resistance.
+
+Overwhelming Strike. When you roll a 20 on the d20 for an attack roll, you can deal extra damage to the target equal to the ability score increased by this feat. The extra damage’s type is the same as the attack’s type.
+
+Boon of the Night Spirit
+
+Epic Boon Feat (Prerequisite: Level 19+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase one ability score of your choice by 1, to a maximum of 30.
+
+Merge with Shadows. While within Dim Light or Darkness, you can give yourself the Invisible condition as a Bonus Action. The condition ends on you immediately after you take an action, a Bonus Action, or a Reaction.
+
+Shadowy Form. While within Dim Light or Darkness, you have Resistance to all damage except Psychic and Radiant.
+
+Boon of Spell Recall
+
+Epic Boon Feat (Prerequisite: Level 19+, Spellcasting Feature)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase your Intelligence, Wisdom, or Charisma score by 1, to a maximum of 30.
+
+Free Casting. Whenever you cast a spell with a level 1–4 spell slot, roll 1d4. If the number you roll is the same as the slot’s level, the slot isn’t expended.
+
+Boon of Truesight
+
+Epic Boon Feat (Prerequisite: Level 19+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase one ability score of your choice by 1, to a maximum of 30.
+
+Truesight. You have Truesight with a range of 60 feet.
+
+Our Terms of Service and Privacy Notice have recently been updated to provide greater clarity as to how disputes are handled and transparency regarding the collection and use of personal data. Please review them here: Terms of Service, Privacy Notice. By continuing to use the services, you agree to the new Terms.
+SUPPORT
+Help Portal
+Support Forum
+System Status
+Do Not Sell or Share My Personal Information
+Your Privacy Choices
+Cookie Notice
+System Reference Document (SRD)
+ABOUT
+Contact Us
+Careers
+Wizards of the Coast
+Credits
+FIND US ON SOCIAL MEDIA
+DOWNLOAD THE D&D BEYOND APP
+© 2017-2026 WIZARDS OF THE COAST LLC | ALL RIGHTS RESERVED
+Dungeons & Dragons, D&D Beyond, D&D, Wizards of the Coast, the dragon ampersand, and all other Wizards of the Coast product names, campaign settings, their respective logos, and The World's Greatest Roleplaying Game are © and trademark Wizards of the Coast in the U.S.A. and other countries. © 2026 Wizards.
+PRIVACY POLICY
+TERMS OF SERVICE
+
+# Actor | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Actor?expansion=32231
+
+Actor | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+Player's Handbook (2024)
+
+General Feat (Prerequisite: Level 4+, Charisma 13+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase your Charisma score by 1, to a maximum of 20.
+
+Impersonation. While you’re disguised as a real or fictional person, you have Advantage on Charisma (Deception or Performance) checks to convince others that you are that person.
+
+Mimicry. You can mimic the sounds of other creatures, including speech. A creature that hears the mimicry must succeed on a Wisdom (Insight) check to determine the effect is faked (DC 8 plus your Charisma modifier and Proficiency Bonus).
+
+# Athlete | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Athlete?expansion=32231
+
+Athlete | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+Player's Handbook (2024)
+
+General Feat (Prerequisite: Level 4+, Strength or Dexterity 13+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase your Strength or Dexterity score by 1, to a maximum of 20.
+
+Climb Speed. You gain a Climb Speed equal to your Speed.
+
+Hop Up. When you have the Prone condition, you can right yourself with only 5 feet of movement.
+
+Jumping. You can make a running Long or High Jump after moving only 5 feet.
+
+# Charger | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Charger?expansion=32231
+
+Charger | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+Player's Handbook (2024)
+
+General Feat (Prerequisite: Level 4+, Strength or Dexterity 13+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase your Strength or Dexterity score by 1, to a maximum of 20.
+
+Improved Dash. When you take the Dash action, your Speed increases by 10 feet for that action.
+
+Charge Attack. If you move at least 10 feet in a straight line toward a target immediately before hitting it with a melee attack roll as part of the Attack action, choose one of the following effects: gain a 1d8 bonus to the attack’s damage roll, or push the target up to 10 feet away if it is no more than one size larger than you. You can use this benefit only once on each of your turns.
+
+# Crossbow Expert
+## Feats
+Related Content
+
+...
+
+View More Related Content
+×
+×
+
+Roll20 Logo
+Play Now Arrow
+Join a Game Arrow
+Characters Arrow
+Shop Arrow
+Tools Arrow
+Compendium Arrow
+Community Arrow
+Subscribe
+Search
+Sign In Arrow
+Roll20 Logo Hamburger Menu
+[library](https://roll20.net/compendium/dnd5e)
+search
+search
+Table of Contents
+cancel
+Player's Handbook (2024)
+
+...
+
+# Crusher
+## Feats
+Related Content
+
+...
+
+View More Related Content
+×
+×
+
+# Defensive Duelist
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+, Dexterity 13+)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Dexterity score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Parry.*** If you’re holding a [Finesse](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231#Finesse) weapon and another creature hits you with a melee attack, you can take a [Reaction](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Reaction) to add your [Proficiency Bonus](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231#Proficiency%20Bonus) to your [Armor Class](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Armor%20Class), potentially causing the attack to miss you. You gain this bonus to your [AC](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Armor%20Class) against melee attacks until the start of your next turn.
+
+# Dual Wielder
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+, Strength or Dexterity 13+)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Strength](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) or [Dexterity score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Enhanced Dual Wielding.*** When you take the [Attack action](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Attack%20%5BAction%5D) on your turn and attack with a weapon that has the [Light](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231#Light) property, you can make one extra attack as a [Bonus Action](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Bonus%20Action) later on the same turn with a different weapon, which must be a Melee weapon that lacks the [Two-Handed](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231#Two-Handed) property. You don’t add your [ability modifier](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231#Ability%20Modifiers) to the extra attack’s damage unless that modifier is negative.
+
+***Quick Draw.*** You can draw or stow two weapons that lack the [Two-Handed](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231#Two-Handed) property when you would normally be able to draw or stow only one.
+
+![Roll20 Logo](/images/roll20-logo-light.svg)
+Play Now![Arrow](/images/arrow-light.svg)
+
+Join a Game![Arrow](/images/arrow-light.svg)
+
+Characters![Arrow](/images/arrow-light.svg)
+
+Shop![Arrow](/images/arrow-light.svg)
+
+Tools![Arrow](/images/arrow-light.svg)
+
+Compendium![Arrow](/images/arrow-light.svg)
+
+Community![Arrow](/images/arrow-light.svg)
+
+# Durable
+
+## Feats
+
+[plusCreate Character](https://app.roll20.net/characters/create/dnd2024byroll20)
+
+*General Feat (Prerequisite: Level 4+)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Constitution score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Defy Death.*** You have [Advantage](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Advantage) on [Death Saving Throws](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Death%20Saving%20Throw).
+
+***Speedy Recovery.*** As a [Bonus Action](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Bonus%20Action), you can expend one of your [Hit Point Dice](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Hit%20Point%20Dice), roll the die, and regain a number of [Hit Points](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Hit%20Points) equal to the roll.
+
+# Elemental Adept
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+, Spellcasting or Pact Magic Feature)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Intelligence](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), [Wisdom](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), or [Charisma score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Energy Mastery.*** Choose one of the following [damage types](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Damage%20Types): Acid, Cold, Fire, Lightning, or Thunder. [Spells](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Spell) you cast ignore [Resistance](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Resistance) to damage of the chosen type. In addition, when you [roll damage](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Damage%20Roll) for a [spell](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Spell) you cast that deals damage of that type, you can treat any 1 on a damage die as a 2.
+
+***Repeatable.*** You can take this feat more than once, but you must choose a different [damage type](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Damage%20Types) each time for Energy Mastery.
+
+# Fey-Touched
+
+## Feats
+
+![](https://files.d20.io/images/406407127/Kp5mrP7A1OWenKDmYW6EWw/original.png?1724433482)
+
+*General Feat (Prerequisite: Level 4+)*
+
+Your exposure to the Feywild’s magic grants you the following benefits.
+
+***Ability Score Increase.*** Increase your [Intelligence](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), [Wisdom](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), or [Charisma score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Fey Magic.*** Choose one level 1 [spell](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Spell) from the Divination or Enchantment school of magic. You always have that spell and the *[Misty Step](https://roll20.net/compendium/dnd5e/Spells:Misty%20Step?expansion=32231)* spell prepared. You can cast each of these spells without expending a [spell slot](https://roll20.net/compendium/dnd5e/Rules:Casting%20Spells?expansion=32231#Spell%20Slots). Once you cast either spell in this way, you can’t cast that spell in this way again until you finish a [Long Rest](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Long%20Rest). You can also cast these spells using spell slots you have of the appropriate level. The spells’ spellcasting ability is the [ability](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) increased by this feat.
+
+# Great Weapon Master
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+, Strength 13+)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Strength score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Heavy Weapon Mastery.*** When you hit a creature with a weapon that has the [Heavy](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231#Heavy) property as part of the [Attack action](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Attack%20Roll) on your turn, you can cause the weapon to deal extra damage to the target. The extra damage equals your [Proficiency Bonus](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231#Proficiency%20Bonus).
+
+***Hew.*** Immediately after you score a Critical Hit with a Melee weapon or reduce a creature to 0 Hit Points with one, you can make one attack with the same weapon as a Bonus Action.
+
+# Heavily Armored | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Heavily%20Armored?expansion=32231
+
+Heavily Armored | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+## Feats
+
+Player's Handbook (2024)
+
+General Feat (Prerequisite: Level 4+, Medium Armor Training)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase your Constitution or Strength score by 1, to a maximum of 20.
+
+Armor Training. You gain training with Heavy armor.
+
+# Heavy Armor Master | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Heavy%20Armor%20Master?expansion=32231
+
+Heavy Armor Master | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+Player's Handbook (2024)
+
+General Feat (Prerequisite: Level 4+, Heavy Armor Training)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase your Constitution or Strength score by 1, to a maximum of 20.
+
+Damage Reduction. When you’re hit by an attack while you’re wearing Heavy armor, any Bludgeoning, Piercing, and Slashing damage dealt to you by that attack is reduced by an amount equal to your Proficiency Bonus.
+
+# Inspiring Leader | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Inspiring%20Leader?expansion=32231
+
+Inspiring Leader | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+Player's Handbook (2024)
+
+General Feat (Prerequisite: Level 4+, Wisdom or Charisma 13+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase your Wisdom or Charisma score by 1, to a maximum of 20.
+
+Bolstering Performance. When you finish a Short or Long Rest, you can give an inspiring performance: a speech, song, or dance. When you do so, choose up to six allies (which can include yourself) within 30 feet of yourself who witness the performance. The chosen creatures each gain Temporary Hit Points equal to your character level plus the modifier of the ability you increased with this feat.
+
++ [Origin Components](https://roll20.net/compendium/dnd5e/Rules:Origin%20Components?expansion=32231)
++ [Background Descriptions](https://roll20.net/compendium/dnd5e/Rules:Background%20Descriptions?expansion=32231)
++ [Species Descriptions](https://roll20.net/compendium/dnd5e/Rules:Species%20Descriptions?expansion=32231)
+6. Feats chevronDown
++ [Feats](https://roll20.net/compendium/dnd5e/Rules:Feats?expansion=32231)
+
+...
+
+# Lightly Armored
+## Feats
+[plus Create Character](https://app.roll20.net/characters/create/dnd2024byroll20)
+Source
+Player's Handbook (2024)
+_General Feat (Prerequisite: Level 4+)_
+You gain the following benefits.
+_**Ability Score Increase.**_ Increase your [Strength](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) or [Dexterity score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+_**Armor Training.**_ You gain training with [Light armor](https://roll20.net/compendium/dnd5e/Rules:Armor?expansion=32231%20Armor%20(1%20Minute%20to%20Don%20or%20Doff)) and [Shields](https://roll20.net/compendium/dnd5e/Rules:Armor?expansion=32231%20(Utilize%20Action%20to%20Don%20or%20Doff)) .
+
+...
+
+[D&D Dungeon Master's Guide (2024) Games RPG Rulebooks Core Games Wizards of the Coast $29.99](https://marketplace.roll20.net/browse/bundle/31885/dandd-dungeon-masters-guide-2024) [D&D Monster Manual (2024) Games RPG Rulebooks Bestiaries Wizards of the Coast $29.99](https://marketplace.roll20.net/browse/bundle/31886/dandd-monster-manual-2024) [D&D Mordenkainen Presents: Monsters of the Multiverse Games RPG Rulebooks Rules Expansions Wizards of the Coast
+
+# Keen Mind
+## Feats
+[plus Create Character](https://app.roll20.net/characters/create/dnd2024byroll20)
+Source
+Player's Handbook (2024)
+_General Feat (Prerequisite: Level 4+, Intelligence 13+)_
+You gain the following benefits.
+_**Ability Score Increase.**_ Increase your [Intelligence score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+_**Lore Knowledge.**_ Choose one of the following skills: [Arcana](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231%20List) , [History](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231%20List) , [Investigation](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231%20List) , [Nature](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231%20List) , or
+[Religion](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231%20List) .
+
+...
+
+_**Quick Study.**_ You can take the [Study action](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231%20%5BAction%5D) as a [Bonus Action](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231%20Action) .
+Related Content
+[D&D Dungeon Master's Guide (2024) Games RPG Rulebooks Core Games Wizards of the Coast $29.99](https://marketplace.roll20.net/browse/bundle/31885/dandd-dungeon-masters-guide-2024) [D&D Monster Manual (2024) Games RPG Rulebooks Bestiaries Wizards of the Coast $29.99](https://marketplace.roll20.net/browse/bundle/31886/dandd-monster-manual-2024) [D&D Mordenkainen Presents: Monsters of the Multiverse Games RPG Rulebooks Rules Expansions Wizards of the Coast
+
+# Mage Slayer
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Strength](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) or [Dexterity score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Concentration Breaker.*** When you damage a creature that is concentrating, it has [Disadvantage](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Disadvantage) on the saving throw it makes to maintain [Concentration](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Concentration).
+
+***Guarded Mind.*** If you fail an [Intelligence](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Saving%20Throw), a [Wisdom](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Saving%20Throw), or a [Charisma saving throw](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Saving%20Throw), you can cause yourself to succeed instead. Once you use this benefit, you can’t use it again until you finish a [Short](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Short%20Rest) or [Long Rest](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Long%20Rest).
+
+# Martial Weapon Training
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Strength](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) or [Dexterity score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Weapon Proficiency.*** You gain proficiency with [Martial weapons](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231#Martial%20Melee%20Weapons).
+
+# Medium Armor Master
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+, Medium Armor Training)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Strength](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) or [Dexterity score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Dexterous Wearer.*** While you’re wearing [Medium armor](https://roll20.net/compendium/dnd5e/Rules:Armor?expansion=32231#Medium%20Armor%20(5%20Minutes%20to%20Don%20and%201%20Minute%20to%20Doff)), you can add 3, rather than 2, to your [AC](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Armor%20Class) if you have a [Dexterity score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) of 16 or higher.
+
+# Moderately Armored
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+, Light Armor Training)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Strength](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) or [Dexterity score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Armor Training.*** You gain training with [Medium armor](https://roll20.net/compendium/dnd5e/Rules:Armor?expansion=32231#Medium%20Armor%20(5%20Minutes%20to%20Don%20and%201%20Minute%20to%20Doff)).
+
+# Mounted Combatant
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Strength](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), [Dexterity](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), or [Wisdom score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Mounted Strike.*** While mounted, you have [Advantage](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Advantage) on [attack rolls](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Attack%20Roll) against any unmounted creature within 5 feet of your mount that is at least one size smaller than the mount.
+
+***Leap Aside.*** If your mount is subjected to an effect that allows it to make a [Dexterity saving throw](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Saving%20Throw) to take only half damage, it instead takes no damage if it succeeds on the [saving throw](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Saving%20Throw) and only half damage if it fails. For your mount to gain this benefit, you must be riding it, and neither of you can have the [Incapacitated](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Incapacitated%20%5BCondition%5D) condition.
+
+***Veer.*** While mounted, you can force an attack that hits your mount to hit you instead if you don’t have the [Incapacitated](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Incapacitated%20%5BCondition%5D) condition.
+
+# Observant | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Observant?expansion=32231
+
+Observant | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+Player's Handbook (2024)
+
+General Feat (Prerequisite: Level 4+, Intelligence or Wisdom 13+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase your Intelligence or Wisdom score by 1, to a maximum of 20.
+
+Keen Observer. Choose one of the following skills: Insight, Investigation, or Perception. If you lack proficiency with the chosen skill, you gain proficiency in it, and if you already have proficiency in it, you gain Expertise in it.
+
+# Piercer | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Piercer?expansion=32231
+
+Piercer | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+Player's Handbook (2024)
+
+General Feat (Prerequisite: Level 4+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase your Strength or Dexterity by 1, to a maximum of 20.
+
+Puncture. Once per turn, when you hit a creature with an attack that deals Piercing damage, you can reroll one of the attack’s damage dice, and you must use the new roll.
+
+Enhanced Critical. When you score a Critical Hit that deals Piercing damage to a creature, you can roll one additional damage die when determining the extra Piercing damage the target takes.
+
++ [Glossary Conventions](https://roll20.net/compendium/dnd5e/Rules:Glossary%20Conventions?expansion=32231)
++ [Rules Definitions](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231)
+8. Credits chevronDown
++ [Credits](https://roll20.net/compendium/dnd5e/Rules:Credits?expansion=32231)
+
+# Poisoner
+## Feats
+[plus Create Character](https://app.roll20.net/characters/create/dnd2024byroll20)
+Source
+Player's Handbook (2024)
+_General Feat (Prerequisite: Level 4+)_
+You gain the following benefits.
+_**Ability Score Increase.**_ Increase your [Dexterity](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) or [Intelligence score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+_**Potent Poison.**_ When you make a [damage roll](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231%20Roll) that deals Poison damage, it ignores [Resistance](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231) to Poison damage.
+_**Brew Poison.**_ You gain proficiency with the [Poisoner’s Kit](https://roll20.net/compendium/dnd5e/Items:Poisoner's%20Kit?expansion=32231) . With 1 hour of work using such a kit and expending 50 GP worth of materials, you can create a number of poison doses equal to your [Proficiency Bonus](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231) .
+As a [Bonus Action](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231%20Action) , you can apply a poison dose to a [weapon](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231) or piece of ammunition. Once applied, the poison retains its potency for 1 minute or until you deal damage with the poisoned item, whichever is shorter.
+When a creature takes damage from the poisoned item, that creature must succeed on a [Constitution saving throw](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231%20Throw) ( [DC](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231%20Class) 8 plus the [modifier](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231%20Modifiers) of the ability increased by this feat and your [Proficiency
+Bonus](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231) ) or take 2d8 Poison damage and have the [Poisoned](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231%20%5BCondition%5D) condition until the end of your next turn.
+
++ [Glossary Conventions](https://roll20.net/compendium/dnd5e/Rules:Glossary%20Conventions?expansion=32231)
++ [Rules Definitions](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231)
+8. Credits chevronDown
++ [Credits](https://roll20.net/compendium/dnd5e/Rules:Credits?expansion=32231)
+
+# Polearm Master
+## Feats
+[plus Create Character](https://app.roll20.net/characters/create/dnd2024byroll20)
+Source
+Player's Handbook (2024)
+_General Feat (Prerequisite: Level 4+, Strength or Dexterity 13+)_
+You gain the following benefits.
+_**Ability Score Increase.**_ Increase your [Dexterity](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) or [Strength score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+_**Pole Strike.**_ Immediately after you take the [Attack action](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231%20%5BAction%5D) and attack with a [Quarterstaff](https://roll20.net/compendium/dnd5e/Items:Quarterstaff?expansion=32231) , a [Spear](https://roll20.net/compendium/dnd5e/Items:Spear?expansion=32231) , or a weapon that has the [Heavy](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231) and
+[Reach](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231) properties, you can use a [Bonus Action](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231%20Action) to make a melee attack with the opposite end of the weapon. The weapon deals Bludgeoning damage, and the weapon’s damage die for this attack is a d4.
+_**Reactive Strike.**_ While you’re holding a [Quarterstaff](https://roll20.net/compendium/dnd5e/Items:Quarterstaff?expansion=32231) , a [Spear](https://roll20.net/compendium/dnd5e/Items:Spear?expansion=32231) , or a weapon that has the [Heavy](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231) and [Reach](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231) properties, you can take a
+[Reaction](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231) to make one melee attack against a creature that enters the reach you have with that weapon.
+
+# Resilient
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Choose one [ability](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) in which you lack [saving throw](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Saving%20Throw) proficiency. Increase the chosen [ability score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Saving Throw Proficiency.*** You gain saving throw [proficiency](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231) with the chosen ability.
+
+# Ritual Caster
+
+## Feats
+
+![](https://files.d20.io/images/406408921/yDSQBvfMutyMiH9ZoYlUAg/original.png?1724434052)
+
+*General Feat (Prerequisite: Level 4+; Intelligence, Wisdom, or Charisma 13+)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Intelligence](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), [Wisdom](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), or [Charisma score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Ritual Spells.*** Choose a number of level 1 [spells](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Spell) equal to your [Proficiency Bonus](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231#Proficiency%20Bonus) that have the [Ritual](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Ritual) tag. You always have those spells prepared, and you can cast them with any spell slots you have. The spells’ spellcasting ability is the ability increased by this feat. Whenever your [Proficiency Bonus](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231#Proficiency%20Bonus) increases thereafter, you can add an additional level 1 spell with the [Ritual](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Ritual) tag to the spells always prepared with this feature.
+
+***Quick Ritual.*** With this benefit, you can cast a [Ritual](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Ritual) spell that you have prepared using its regular casting time rather than the extended time for a Ritual. Doing so doesn’t require a spell slot. Once you cast the spell in this way, you can’t use this benefit again until you finish a [Long Rest](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Long%20Rest).
+
+# Sentinel
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+, Strength or Dexterity 13+)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Strength](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) or [Dexterity score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Guardian.*** Immediately after a creature within 5 feet of you takes the [Disengage action](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Disengage%20%5BAction%5D) or hits a target other than you with an attack, you can make an [Opportunity Attack](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Opportunity%20Attacks) against that creature.
+
+***Halt.*** When you hit a creature with an [Opportunity Attack](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Opportunity%20Attacks), the creature’s [Speed](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Spell) becomes 0 for the rest of the current turn.
+
+# Shadow-Touched
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+)*
+
+Your exposure to the Shadowfell’s magic grants you the following benefits.
+
+***Ability Score Increase.*** Increase your [Intelligence](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), [Wisdom](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), or [Charisma](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) score by 1, to a maximum of 20.
+
+***Shadow Magic.*** Choose one level 1 [spell](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Spell) from the Illusion or Necromancy school of magic. You always have that spell and the *[Invisibility](https://roll20.net/compendium/dnd5e/Spells:Invisibility?expansion=32231)* spell prepared. You can cast each of these spells without expending a [spell slot](https://roll20.net/compendium/dnd5e/Rules:Casting%20Spells?expansion=32231#Spell%20Slots). Once you cast either spell in this way, you can’t cast that spell in this way again until you finish a [Long Rest](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Long%20Rest). You can also cast these spells using spell slots you have of the appropriate level. The spells’ spellcasting ability is the [ability](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) increased by this feat.
+
+# Sharpshooter | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Sharpshooter?expansion=32231
+
+Sharpshooter | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+Player's Handbook (2024)
+
+General Feat (Prerequisite: Level 4+, Dexterity 13+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase your Dexterity score by 1, to a maximum of 20.
+
+Bypass Cover. Your ranged attacks with weapons ignore Half Cover and Three-Quarters Cover.
+
+Firing in Melee. Being within 5 feet of an enemy doesn’t impose Disadvantage on your attack rolls with Ranged weapons.
+
+Long Shots. Attacking at long range doesn’t impose Disadvantage on your attack rolls with Ranged weapons.
+
+# Shield Master | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Shield%20Master?expansion=32231
+
+Shield Master | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+Player's Handbook (2024)
+
+General Feat (Prerequisite: Level 4+, Shield Training)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase your Strength score by 1, to a maximum of 20.
+
+Shield Bash. If you attack a creature within 5 feet of you as part of the Attack action and hit with a Melee weapon, you can immediately bash the target with your Shield if it’s equipped, forcing the target to make a Strength saving throw (DC 8 plus your Strength modifier and Proficiency Bonus). On a failed save, you either push the target 5 feet from you or cause it to have the Prone condition (your choice). You can use this benefit only once on each of your turns.
+
+Interpose Shield. If you’re subjected to an effect that allows you to make a Dexterity saving throw to take only half damage, you can take a Reaction to take no damage if you succeed on the saving throw and are holding a Shield.
+
+# Skill Expert | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Skill%20Expert?expansion=32231
+
+Skill Expert | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+## Feats
+
+Player's Handbook (2024)
+
+General Feat (Prerequisite: Level 4+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase one ability score of your choice by 1, to a maximum of 20.
+
+Skill Proficiency. You gain proficiency in one skill of your choice.
+
+Expertise. Choose one skill in which you have proficiency but lack Expertise. You gain Expertise with that skill.
+
+# Skulker | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Skulker?expansion=32231
+
+Skulker | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+Player's Handbook (2024)
+
+General Feat (Prerequisite: Level 4+, Dexterity 13+)
+
+You gain the following benefits.
+
+Ability Score Increase. Increase your Dexterity score by 1, to a maximum of 20.
+
+Blindsight. You have Blindsight with a range of 10 feet.
+
+Fog of War. You exploit the distractions of battle, gaining Advantage on any Dexterity (Stealth) check you make as part of the Hide action during combat.
+
+Sniper. If you make an attack roll while hidden and the roll misses, making the attack roll doesn’t reveal your location.
+
+Roll20 Logo
+Play Now Arrow
+Join a Game Arrow
+Characters Arrow
+Shop Arrow
+Tools Arrow
+Compendium Arrow
+Community Arrow
+Subscribe
+Search
+Sign In Arrow
+Roll20 Logo Hamburger Menu
+[library](https://roll20.net/compendium/dnd5e)
+search
+search
+Table of Contents
+cancel
+Player's Handbook (2024)
+
+...
+
++ [Origin Components](https://roll20.net/compendium/dnd5e/Rules:Origin%20Components?expansion=32231)
++ [Background Descriptions](https://roll20.net/compendium/dnd5e/Rules:Background%20Descriptions?expansion=32231)
++ [Species Descriptions](https://roll20.net/compendium/dnd5e/Rules:Species%20Descriptions?expansion=32231)
+6. Feats chevronDown
++ [Feats](https://roll20.net/compendium/dnd5e/Rules:Feats?expansion=32231)
++ [Feat Descriptions](https://roll20.net/compendium/dnd5e/Rules:Feat%20Descriptions?expansion=32231)
+7. Equipment chevronDown
++ [Equipment](https://roll20.net/compendium/dnd5e/Rules:Equipment?expansion=32231)
++ [Coins](https://roll20.net/compendium/dnd5e/Rules:Coins?expansion=32231)
++ [Weapons](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231)
++ [Armor](https://roll20.net/compendium/dnd5e/Rules:Armor?expansion=32231)
+
+...
+
++ [Crafting Equipment](https://roll20.net/compendium/dnd5e/Rules:Crafting%20Equipment?expansion=32231)
+8. Spells chevronDown
++ [Spells](https://roll20.net/compendium/dnd5e/Rules:Spells?expansion=32231)
++ [Gaining Spells](https://roll20.net/compendium/dnd5e/Rules:Gaining%20Spells?expansion=32231)
++ [Casting Spells](https://roll20.net/compendium/dnd5e/Rules:Casting%20Spells?expansion=32231)
++ [Spell Descriptions](https://roll20.net/compendium/dnd5e/Rules:Spell%20Descriptions?expansion=32231)
+9.
+
+...
+
+# Speedy
+## Feats
+[plus Create Character](https://app.roll20.net/characters/create/dnd2024byroll20)
+Source
+Player's Handbook (2024)
+_General Feat (Prerequisite: Level 4+, Dexterity or Constitution 13+)_
+You gain the following benefits.
+_**Ability Score Increase.**_ Increase your [Dexterity](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) or [Constitution](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) score by 1, to a maximum of 20.
+_**Speed Increase.**_ Your [Speed](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231) increases by 10 feet.
+_**Dash over Difficult Terrain.**_ When you take the [Dash action](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231%20%5BAction%5D) on your turn, [Difficult Terrain](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231%20Terrain) doesn’t cost you extra movement for the rest of that turn.
+_**Agile Movement.**_ [Opportunity Attacks](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231%20Attacks) have [Disadvantage](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231) against you.
+Related Content
+
+...
+
+View More Related Content
+×
+×
+
+Roll20 Logo
+Play Now Arrow
+Join a Game Arrow
+Characters Arrow
+Shop Arrow
+Tools Arrow
+Compendium Arrow
+Community Arrow
+Subscribe
+Search
+Sign In Arrow
+Roll20 Logo Hamburger Menu
+[library](https://roll20.net/compendium/dnd5e)
+search
+search
+Table of Contents
+cancel
+Player's Handbook (2024)
+
+...
+
++ [Origin Components](https://roll20.net/compendium/dnd5e/Rules:Origin%20Components?expansion=32231)
++ [Background Descriptions](https://roll20.net/compendium/dnd5e/Rules:Background%20Descriptions?expansion=32231)
++ [Species Descriptions](https://roll20.net/compendium/dnd5e/Rules:Species%20Descriptions?expansion=32231)
+6. Feats chevronDown
++ [Feats](https://roll20.net/compendium/dnd5e/Rules:Feats?expansion=32231)
++ [Feat Descriptions](https://roll20.net/compendium/dnd5e/Rules:Feat%20Descriptions?expansion=32231)
+7. Equipment chevronDown
++ [Equipment](https://roll20.net/compendium/dnd5e/Rules:Equipment?expansion=32231)
++ [Coins](https://roll20.net/compendium/dnd5e/Rules:Coins?expansion=32231)
++ [Weapons](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231)
++ [Armor](https://roll20.net/compendium/dnd5e/Rules:Armor?expansion=32231)
+
+...
+
++ [Crafting Equipment](https://roll20.net/compendium/dnd5e/Rules:Crafting%20Equipment?expansion=32231)
+8. Spells chevronDown
++ [Spells](https://roll20.net/compendium/dnd5e/Rules:Spells?expansion=32231)
++ [Gaining Spells](https://roll20.net/compendium/dnd5e/Rules:Gaining%20Spells?expansion=32231)
++ [Casting Spells](https://roll20.net/compendium/dnd5e/Rules:Casting%20Spells?expansion=32231)
++ [Spell Descriptions](https://roll20.net/compendium/dnd5e/Rules:Spell%20Descriptions?expansion=32231)
+9.
+
+...
+
+# Slasher
+## Feats
+[plus Create Character](https://app.roll20.net/characters/create/dnd2024byroll20)
+Source
+Player's Handbook (2024)
+_General Feat (Prerequisite: Level 4+)_
+You gain the following benefits.
+_**Ability Score Increase.**_ Increase your [Strength](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) or [Dexterity score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+_**Hamstring.**_ Once per turn when you hit a creature with an attack that deals Slashing damage, you can reduce the [Speed](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231) of that creature by 10 feet until the start of your next turn.
+_**Enhanced Critical.**_ When you score a [Critical Hit](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231%20Hit) that deals Slashing damage to a creature, it has [Disadvantage](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231) on [attack rolls](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231%20Roll) until the start of your next turn.
+Related Content
+
+...
+
+View More Related Content
+×
+×
+
+![Roll20 Logo](/images/roll20-logo-light.svg)
+Play Now![Arrow](/images/arrow-light.svg)
+
+Join a Game![Arrow](/images/arrow-light.svg)
+
+Characters![Arrow](/images/arrow-light.svg)
+
+Shop![Arrow](/images/arrow-light.svg)
+
+Tools![Arrow](/images/arrow-light.svg)
+
+Compendium![Arrow](/images/arrow-light.svg)
+
+Community![Arrow](/images/arrow-light.svg)
+
+# Spell Sniper
+
+## Feats
+
+[plusCreate Character](https://app.roll20.net/characters/create/dnd2024byroll20)
+
+*General Feat (Prerequisite: Level 4+, Spellcasting or Pact Magic Feature)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Intelligence](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), [Wisdom](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), or [Charisma score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Bypass Cover.*** Your [attack rolls](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Attack%20Roll) for [spells](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Spell) ignore [Half Cover](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Cover) and [Three-Quarters Cover](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Cover).
+
+***Casting in Melee.*** Being within 5 feet of an enemy doesn’t impose [Disadvantage](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Disadvantage) on your [attack rolls](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Attack%20Roll) with [spells](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Spell).
+
+***Increased Range.*** When you cast a [spell](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Spell) that has a range of at least 10 feet and requires you to make an [attack roll](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Attack%20Roll), you can increase the spell’s range by 60 feet.
+
+# Telekinetic
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Intelligence](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), [Wisdom](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), or [Charisma score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Minor Telekinesis.*** You learn the *[Mage Hand](https://roll20.net/compendium/dnd5e/Spells:Mage%20Hand?expansion=32231)* spell. You can cast it without [Verbal or Somatic components](https://roll20.net/compendium/dnd5e/Rules:Casting%20Spells?expansion=32231#Components), you can make the spectral hand [Invisible](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Invisible%20%5BCondition%5D), and its range and the distance it can be away from you both increase by 30 feet when you cast it. The [spell](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Spell)’s spellcasting ability is the [ability](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) increased by this feat.
+
+***Telekinetic Shove.*** As a [Bonus Action](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Bonus%20Action), you can telekinetically shove one creature you can see within 30 feet of yourself. When you do so, the target must succeed on a [Strength saving throw](https://roll20.net/compendium/dnd5e/Rules:D20%20Tests?expansion=32231#Saving%20Throws) ([DC](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Difficulty%20Class) 8 plus the [ability modifier](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231#Ability%20Modifiers) of the [score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) increased by this feat and your [Proficiency Bonus](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231#Proficiency%20Bonus)) or be moved 5 feet toward or away from you.
+
+# Telepathic
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Intelligence](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), [Wisdom](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), or [Charisma score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Telepathic Utterance.*** You can speak [telepathically](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Telepathy) to any creature you can see within 60 feet of yourself. Your telepathic utterances are in a language you know, and the creature understands you only if it knows that language. Your communication doesn’t give the creature the ability to respond to you telepathically.
+
+***Detect Thoughts.*** You always have the *[Detect Thoughts](https://roll20.net/compendium/dnd5e/Spells:Detect%20Thoughts?expansion=32231)* spell prepared. You can cast it without a [spell slot](https://roll20.net/compendium/dnd5e/Rules:Casting%20Spells?expansion=32231#Spell%20Slots) or [spell components](https://roll20.net/compendium/dnd5e/Rules:Casting%20Spells?expansion=32231#Components), and you must finish a [Long Rest](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Long%20Rest) before you can cast it in this way again. You can also cast it using spell slots you have of the appropriate level. Your spellcasting ability for the [spell](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Spell) is the [ability](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) increased by this feat.
+
+![Roll20 Logo](/images/roll20-logo-light.svg)
+Play Now![Arrow](/images/arrow-light.svg)
+
+Join a Game![Arrow](/images/arrow-light.svg)
+
+Characters![Arrow](/images/arrow-light.svg)
+
+Shop![Arrow](/images/arrow-light.svg)
+
+Tools![Arrow](/images/arrow-light.svg)
+
+Compendium![Arrow](/images/arrow-light.svg)
+
+Community![Arrow](/images/arrow-light.svg)
+
+# War Caster
+
+## Feats
+
+[ plus Create Character ](https://app.roll20.net/characters/create/dnd2024byroll20)
+
+*General Feat (Prerequisite: Level 4+, Spellcasting or Pact Magic Feature)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Intelligence](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), [Wisdom](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231), or [Charisma score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Concentration.*** You have [Advantage](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Advantage) on [Constitution saving throws](https://roll20.net/compendium/dnd5e/Rules:D20%20Tests?expansion=32231#Saving%20Throws) that you make to maintain [Concentration](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Concentration).
+
+***Reactive Spell.*** When a creature provokes an [Opportunity Attack](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Opportunity%20Attacks) from you by leaving your reach, you can take a [Reaction](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Reaction) to cast a [spell](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Spell) at the creature rather than making an Opportunity Attack. The spell must have a casting time of [one action](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Magic%20%5BAction%5D) and must target only that creature.
+
+***Somatic Components.*** You can perform the [Somatic components](https://roll20.net/compendium/dnd5e/Rules:Casting%20Spells?expansion=32231#Somatic%20(S)) of [spells](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Spell) even when you have [weapons](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231) or a [Shield](https://roll20.net/compendium/dnd5e/Items:Shield?expansion=32231) in one or both hands.
+
+# Weapon Master
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Strength](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) or [Dexterity score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Mastery Property.*** Your training with weapons allows you to use the [mastery property](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231#Mastery%20Properties) of one kind of Simple or Martial [weapon](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Weapon) of your choice, provided you have [proficiency](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231) with it. Whenever you finish a [Long Rest](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Long%20Rest), you can change the kind of weapon to another eligible kind.
+
+![](https://files.d20.io/images/406409829/qMtghp9LPRYi4NKFZvOL8w/original.png?1724434411)
+
+# Acolyte | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Backgrounds:Acolyte?expansion=32231
+
+Acolyte | D&D 2024 | Roll20 Compendium
+
+Play Now
+
+Join a Game
+
+Characters
+
+Shop
+
+Tools
+
+Compendium
+
+Community
+
+Subscribe
+
+Sign In
+
+Unlock to Continue Reading
+
+Purchase this content to gain full access. By purchasing this content, you will unlock items for the virtual tabletop as well.
+
+D&D Player’s Handbook (2024)Games RPG Rulebooks Core GamesWizards of the Coast$29.99
+
+Already have an account? Sign In plus Sign Up to Unlock Content
+
+search
+
+search
+
+# Acolyte
+
+## Backgrounds
+
+Source
+
+Free Basic Rules (2024) Free Basic Rules (2014)
+
+Ability Scores
+
+Intelligence, Wisdom, Charisma
+
+Feat
+
+Magic Initiate (Cleric)
+
+Skill Proficiencies
+
+Insight and Religion
+
+Tool Proficiency
+
+Calligrapher’s Supplies
+
+Equipment
+
+Choose A or B: (A) Calligrapher’s Supplies, Book (prayers), Holy Symbol, Parchment (10 sheets), Robe, 8 GP; or (B) 50 GP
+
+You devoted yourself to service in a temple, either nestled in a town or secluded in a sacred grove. There you performed rites in honor of a god or pantheon. You served under a priest and studied religion. Thanks to your priest’s instruction and your own devotion, you also learned how to channel a modicum of divine power in service to your place of worship and the people who prayed there.
+
+Related Content
+
+D&D Dungeon Master's Guide (2024)Games RPG Rulebooks Core GamesWizards of the Coast$29.99
+
+D&D Monster Manual (2024) Games RPG Rulebooks BestiariesWizards of the Coast$29.99
+
+D&D Mordenkainen Presents: Monsters of the MultiverseGames RPG Rulebooks Rules ExpansionsWizards of the Coast$29.99
+
+D&D Curse of StrahdGames Adventures Long CampaignsWizards of the Coast$24.99
+
+D&D Ravenloft BundleGames RPG Rulebooks Rules ExpansionsWizards of the Coast$46.73
+
+D&D Tasha's Cauldron of EverythingGames RPG Rulebooks Rules ExpansionsWizards of the Coast$29.99
+
+D&D Xanathar's Guide to EverythingGames RPG Rulebooks Rules ExpansionsWizards of the Coast$29.99
+
+D&D Phandelver and Below: The Shattered ObeliskGames Adventures Short CampaignsWizards of the Coast$29.99
+
+View More Related Content
+
+×
+
+### Cookie Preferences
+
+---
+
+We use Cookies to help personalize and improve Roll20. For more information on our use of non-essential Cookies, visit our Privacy Policy here.
+
+# Artisan | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Backgrounds:Artisan?expansion=32231
+
+Artisan | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+## Backgrounds
+
+Player's Handbook (2024)
+
+Ability Scores Strength, Dexterity, Intelligence
+
+Feat Crafter
+
+Skill Proficiencies Investigation and Persuasion
+
+Tool Proficiency Choose one kind of Artisan’s Tools
+
+Equipment
+
+ Choose A or B: (A) Artisan’s Tools (same as above), 2 Pouches, Traveler’s Clothes, 32 GP; or (B) 50 GP
+
+You began mopping floors and scrubbing counters in an artisan’s workshop for a few coppers per day as soon as you were strong enough to carry a bucket. When you were old enough to apprentice, you learned to create basic crafts of your own, as well as how to sweet-talk the occasional demanding customer. Your trade has also given you a keen eye for detail.
+
+# Charlatan | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Backgrounds:Charlatan?expansion=32231
+
+Charlatan | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+## Backgrounds
+
+Player's Handbook (2024)
+
+Ability Scores Dexterity, Constitution, Charisma
+
+Feat Skilled
+
+Skill Proficiencies Deception and Sleight of Hand
+
+Tool Proficiency Forgery Kit
+
+Equipment
+
+ Choose A or B: (A) Forgery Kit, Costume, Fine Clothes, 15 GP; or (B) 50 GP
+
+Once you were old enough to order an ale, you soon had a favorite stool in every tavern within ten miles of where you were born. As you traveled the circuit from public house to watering hole, you learned to prey on unfortunates who were in the market for a comforting lie or two—perhaps a sham potion or forged ancestry records.
+
+# Criminal | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Backgrounds:Criminal?expansion=32231
+
+Criminal | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+## Backgrounds
+
+Player's Handbook (2024)
+
+Ability Scores Dexterity, Constitution, Intelligence
+
+Skill Proficiencies Sleight of Hand and Stealth
+
+Tool Proficiency Thieves’ Tools
+
+Equipment
+
+ Choose A or B: (A) 2 Daggers, Thieves’ Tools, Crowbar, 2 Pouches, Traveler’s Clothes, 16 GP; or (B) 50 GP
+
+You eked out a living in dark alleyways, cutting purses or burgling shops. Perhaps you were part of a small gang of like-minded wrongdoers who looked out for each other. Or maybe you were a lone wolf, fending for yourself against the local thieves’ guild and more fearsome lawbreakers.
+
+# Entertainer | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Backgrounds:Entertainer?expansion=32231
+
+Entertainer | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+## Backgrounds
+
+Player's Handbook (2024)
+
+Ability Scores Strength, Dexterity, Charisma
+
+Feat Musician
+
+Skill Proficiencies Acrobatics and Performance
+
+Tool Proficiency Choose one kind of Musical Instrument
+
+Equipment
+
+ Choose A or B: (A) Musical Instrument (same as above), 2 Costumes, Mirror, Perfume, Traveler’s Clothes, 11 GP; or (B) 50 GP
+
+You spent much of your youth following roving fairs and carnivals, performing odd jobs for musicians and acrobats in exchange for lessons. You may have learned how to walk a tightrope, how to play a lute in a distinct style, or how to recite poetry with impeccable diction. To this day, you thrive on applause and long for the stage.
+
+# Hermit
+## Backgrounds
+Related Content
+
+...
+
+View More Related Content
+×
+×
+
+# Farmer
+## Backgrounds
+You grew up close to the land. Years tending animals and cultivating the earth rewarded you with patience and good health. You have a keen appreciation for nature’s bounty alongside a healthy respect for nature’s wrath.
+Related Content
+
+...
+
+View More Related Content
+×
+×
+
+# Guard
+## Backgrounds
+Related Content
+
+...
+
+View More Related Content
+×
+×
+
+# Merchant
+## Backgrounds
+Related Content
+
+...
+
+View More Related Content
+×
+×
+
+# Guide
+## Backgrounds
+Related Content
+
+...
+
+View More Related Content
+×
+×
+
+# Noble
+
+## Backgrounds
+
+![](https://files.d20.io/images/406392272/4oqzEGVJwSTMuIfYLVcc0g/original.png?1724425697)
+
+Ability Scores
+
+Strength, Intelligence, Charisma
+
+Feat
+
+Skilled
+
+Skill Proficiencies
+
+History and Persuasion
+
+Tool Proficiency
+
+*Choose one kind of* Gaming Set
+
+Equipment
+
+*Choose A or B:* (A) Gaming Set (same as above), Fine Clothes, Perfume, 29 GP; or (B) 50 GP
+
+You were raised in a castle, surrounded by wealth, power, and privilege. Your family of minor aristocrats ensured that you received a first-class education, some of which you appreciated and some of which you resented. Your time in the castle, especially the many hours you spent observing your family at court, also taught you a great deal about leadership.
+
+# Sailor
+
+## Backgrounds
+
+![](https://files.d20.io/images/406392333/G87fqpxz6z6oK1hb0odrSA/original.png?1724425724)
+
+Ability Scores
+
+Strength, Dexterity, Wisdom
+
+Feat
+
+Tavern Brawler
+
+Skill Proficiencies
+
+Acrobatics and Perception
+
+Tool Proficiency
+
+Navigator’s Tools
+
+Equipment
+
+*Choose A or B:* (A) Dagger, Navigator’s Tools, Rope, Traveler’s Clothes, 20 GP; or (B) 50 GP
+
+You lived as a seafarer, wind at your back and decks swaying beneath your feet. You’ve perched on barstools in more ports of call than you can remember, faced mighty storms, and swapped stories with folk who live beneath the waves.
+
+# Sage
+
+## Backgrounds
+
+![](https://files.d20.io/images/406392299/5yxaVNoZ9XMqKJpKKBcpbQ/original.png?1724425711)
+
+Ability Scores
+
+Constitution, Intelligence, Wisdom
+
+Feat
+
+Magic Initiate (Wizard)
+
+Skill Proficiencies
+
+Arcana and History
+
+Tool Proficiency
+
+Calligrapher’s Supplies
+
+Equipment
+
+*Choose A or B:* (A) Quarterstaff, Calligrapher’s Supplies, Book (history), Parchment (8 sheets), Robe, 8 GP; or (B) 50 GP
+
+You spent your formative years traveling between manors and monasteries, performing various odd jobs and services in exchange for access to their libraries. You whiled away many a long evening studying books and scrolls, learning the lore of the multiverse—even the rudiments of magic—and your mind yearns for more.
+
+# Scribe
+
+## Backgrounds
+
+![](https://files.d20.io/images/406392353/FxwuyAUILegTmOqf1W5AqQ/original.png?1724425735)
+
+Ability Scores
+
+Dexterity, Intelligence, Wisdom
+
+Feat
+
+Skilled
+
+Skill Proficiencies
+
+Investigation and Perception
+
+Tool Proficiency
+
+Calligrapher’s Supplies
+
+Equipment
+
+*Choose A or B:* (A) Calligrapher’s Supplies, Fine Clothes, Lamp, Oil (3 flasks), Parchment (12 sheets), 23 GP; or (B) 50 GP
+
+You spent formative years in a scriptorium, a monastery dedicated to the preservation of knowledge, or a government agency, where you learned to write with a clear hand and produce finely written texts. Perhaps you scribed government documents or copied tomes of literature. You might have some skill as a writer of poetry, narrative, or scholarly research. Above all, you have a careful attention to detail, helping you avoid introducing mistakes to the documents you copy and create.
+
+# Soldier
+
+## Backgrounds
+
+![](https://files.d20.io/images/406392379/xby4gcpzKIIK5W9iE_CDlQ/original.png?1724425747)
+
+Ability Scores
+
+Strength, Dexterity, Constitution
+
+Feat
+
+Savage Attacker
+
+Skill Proficiencies
+
+Athletics and Intimidation
+
+Tool Proficiency
+
+*Choose one kind of* Gaming Set
+
+Equipment
+
+*Choose A or B:* (A) Spear, Shortbow, 20 Arrows, Gaming Set (same as above), Healer’s Kit, Quiver, Traveler’s Clothes, 14 GP; or (B) 50 GP
+
+You began training for war as soon as you reached adulthood and carry precious few memories of life before you took up arms. Battle is in your blood. Sometimes you catch yourself reflexively performing the basic fighting exercises you learned first. Eventually, you put that training to use on the battlefield, protecting the realm by waging war.
+
+# Wayfarer
+
+## Backgrounds
+
+![](https://files.d20.io/images/406392388/-XVVjGp1DzhskVN998VWtA/original.png?1724425751)
+
+Ability Scores
+
+Dexterity, Wisdom, Charisma
+
+Feat
+
+Lucky
+
+Skill Proficiencies
+
+Insight and Stealth
+
+Tool Proficiency
+
+Thieves’ Tools
+
+Equipment
+
+*Choose A or B:* (A) 2 Daggers, Thieves’ Tools, Gaming Set (any), Bedroll, 2 Pouches, Traveler’s Clothes, 16 GP; or (B) 50 GP
+
+You grew up on the streets surrounded by similarly ill-fated castoffs, a few of them friends and a few of them rivals. You slept where you could and did odd jobs for food. At times, when the hunger became unbearable, you resorted to theft. Still, you never lost your pride and never abandoned hope. Fate is not yet finished with you.
+
+# Alert
+
+## Feats
+
+*Origin Feat*
+
+You gain the following benefits.
+
+***Initiative Proficiency.*** When you roll [Initiative](https://roll20.net/compendium/dnd5e/Rules:Combat?expansion=32231#Initiative), you can add your [Proficiency Bonus](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231) to the roll.
+
+***Initiative Swap.*** Immediately after you roll [Initiative](https://roll20.net/compendium/dnd5e/Rules:Combat?expansion=32231#Initiative), you can swap your [Initiative](https://roll20.net/compendium/dnd5e/Rules:Combat?expansion=32231#Initiative) with the [Initiative](https://roll20.net/compendium/dnd5e/Rules:Combat?expansion=32231#Initiative) of one willing ally in the same combat. You can’t make this swap if you or the ally has the [Incapacitated](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Incapacitated%20%5BCondition%5D) condition.
+
+*Origin Feat*
+
+You gain the following benefits.
+
+***Tool Proficiency.*** You gain [proficiency](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231) with three different [Artisan’s Tools](https://roll20.net/compendium/dnd5e/Rules:Tools?expansion=32231#Artisan%E2%80%99s%20Tools) of your choice from the Fast Crafting table.
+
+***Discount.***Whenever you buy a nonmagical item, you receive a 20 percent discount on it.
+
+***Fast Crafting.*** When you finish a [Long Rest](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Long%20Rest), you can craft one piece of gear from the Fast Crafting table, provided you have the [Artisan’s Tools](https://roll20.net/compendium/dnd5e/Rules:Tools?expansion=32231#Artisan%E2%80%99s%20Tools) associated with that item and have [proficiency](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231) with those tools. The item lasts until you finish another [Long Rest](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Long%20Rest), at which point the item falls apart.
+
+##### Fast Crafting
+
+Fast Crafting
+| Artisan's Tools | Crafted Gear |
+|---|---|
+| [Carpenter’s Tools](https://roll20.net/compendium/dnd5e/Items:Carpenter's%20Tools?expansion=32231) | [Ladder](https://roll20.net/compendium/dnd5e/Items:Ladder?expansion=32231), [Torch](https://roll20.net/compendium/dnd5e/Items:Torch?expansion=32231) |
+| [Leatherworker’s Tools](https://roll20.net/compendium/dnd5e/Items:Leatherworker's%20Tools?expansion=32231) | [Map Case](https://roll20.net/compendium/dnd5e/Items:Map%20Case?expansion=32231), [Scroll Case](https://roll20.net/compendium/dnd5e/Items:Scroll%20Case?expansion=32231), [Pouch](https://roll20.net/compendium/dnd5e/Items:Pouch?expansion=32231) |
+| [Mason’s Tools](https://roll20.net/compendium/dnd5e/Items:Mason's%20Tools?expansion=32231) | [Block and Tackle](https://roll20.net/compendium/dnd5e/Items:Block%20and%20Tackle?expansion=32231) |
+| [Potter’s Tools](https://roll20.net/compendium/dnd5e/Items:Potter's%20Tools?expansion=32231) | [Jug](https://roll20.net/compendium/dnd5e/Items:Jug?expansion=32231), [Lamp](https://roll20.net/compendium/dnd5e/Items:Lamp?expansion=32231) |
+| [Smith’s Tools](https://roll20.net/compendium/dnd5e/Items:Smith's%20Tools?expansion=32231) | [Ball Bearings](https://roll20.net/compendium/dnd5e/Items:Ball%20Bearings?expansion=32231), [Bucket](https://roll20.net/compendium/dnd5e/Items:Bucket?expansion=32231), [Caltrops](https://roll20.net/compendium/dnd5e/Items:Caltrops?expansion=32231), [Grappling Hook](https://roll20.net/compendium/dnd5e/Items:Grappling%20Hook?expansion=32231), [Iron Pot](https://roll20.net/compendium/dnd5e/Items:Iron%20Pot?expansion=32231) |
+| [Tinker’s Tools](https://roll20.net/compendium/dnd5e/Items:Tinker's%20Tools?expansion=32231) | [Bell](https://roll20.net/compendium/dnd5e/Items:Bell?expansion=32231), [Shovel](https://roll20.net/compendium/dnd5e/Items:Shovel?expansion=32231), [Tinder Box](https://roll20.net/compendium/dnd5e/Items:Tinderbox?expansion=32231) |
+| [Weaver’s Tools](https://roll20.net/compendium/dnd5e/Items:Weaver's%20Tools?expansion=32231) | [Basket](https://roll20.net/compendium/dnd5e/Items:Basket?expansion=32231), [Rope](https://roll20.net/compendium/dnd5e/Items:Rope?expansion=32231), [Net](https://roll20.net/compendium/dnd5e/Items:Net?expansion=32231), [Tent](https://roll20.net/compendium/dnd5e/Items:Tent?expansion=32231) |
+| [Woodcarver’s Tools](https://roll20.net/compendium/dnd5e/Items:Woodcarver's%20Tools?expansion=32231) | [Club](https://roll20.net/compendium/dnd5e/Items:Club?expansion=32231), [Greatclub](https://roll20.net/compendium/dnd5e/Items:Greatclub?expansion=32231), [Quarterstaff](https://roll20.net/compendium/dnd5e/Items:Quarterstaff?expansion=32231) |
+
+# Healer
+
+## Feats
+
+*Origin Feat*
+
+You gain the following benefits.
+
+***Battle Medic.*** If you have a [Healer’s Kit](https://roll20.net/compendium/dnd5e/Items:Healer's%20Kit?expansion=32231), you can expend one use of it and tend to a creature within 5 feet of yourself as a [Utilize](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Utilize%20%5BAction%5D) action. That creature can expend one of its [Hit Point Dice](https://roll20.net/compendium/dnd5e/Rules:Step%205%20-%20Fill%20In%20Details?expansion=32231), and you then roll that die. The creature regains a number of [Hit Points](https://roll20.net/compendium/dnd5e/Rules:Damage%20and%20Healing?expansion=32231#Hit%20Points) equal to the roll plus your [Proficiency Bonus](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231).
+
+***Healing Rerolls.*** Whenever you roll a die to determine the number of [Hit Points](https://roll20.net/compendium/dnd5e/Rules:Damage%20and%20Healing?expansion=32231#Hit%20Points) you restore with a [spell](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Spell) or with this feat’s Battle Medic benefit, you can reroll the die if it rolls a 1, and you must use the new roll.
+
+![](https://files.d20.io/images/406405106/lYRZd3U044RE4BpDaonqVA/original.png?1724432504)
+
+# Lucky
+
+## Feats
+
+*Origin Feat*
+
+You gain the following benefits.
+
+***Luck Points.*** You have a number of Luck Points equal to your [Proficiency Bonus](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231) and can spend the points on the benefits below. You regain your expended Luck Points when you finish a [Long Rest](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Long%20Rest).
+
+***Advantage.*** When you roll a d20 for a [D20 Test](https://roll20.net/compendium/dnd5e/Rules:D20%20Tests?expansion=32231), you can spend 1 Luck Point to give yourself [Advantage](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Advantage) on the roll.
+
+***Disadvantage.*** When a creature rolls a d20 for an attack roll against you, you can spend 1 Luck Point to impose [Disadvantage](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Disadvantage) on that roll.
+
+# Magic Initiate | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Magic%20Initiate?expansion=32231
+
+Magic Initiate | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+Player's Handbook (2024)
+
+Origin Feat
+
+You gain the following benefits.
+
+Two Cantrips. You learn two cantrips of your choice from the Cleric, Druid, or Wizard spell list. Intelligence, Wisdom, or Charisma is your spellcasting ability for this feat’s spells (choose when you select this feat).
+
+Level 1 Spell. Choose a level 1 spell from the same list you selected for this feat’s cantrips. You always have that spell prepared. You can cast it once without a spell slot, and you regain the ability to cast it in that way when you finish a Long Rest. You can also cast the spell using any spell slots you have.
+
+Spell Change. Whenever you gain a new level, you can replace one of the spells you chose for this feat with a different spell of the same level from the chosen spell list.
+
+Repeatable. You can take this feat more than once, but you must choose a different spell list each time.
+
+# Musician | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Musician?expansion=32231
+
+Musician | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+Player's Handbook (2024)
+
+Origin Feat
+
+You gain the following benefits.
+
+Instrument Training. You gain proficiency with three Musical Instruments of your choice.
+
+Encouraging Song. As you finish a Short or Long Rest, you can play a song on a Musical Instrument with which you have proficiency and give Heroic Inspiration to allies who hear the song. The number of allies you can affect in this way equals your Proficiency Bonus.
+
+# Savage Attacker | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Savage%20Attacker?expansion=32231
+
+Savage Attacker | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+# Savage Attacker
+
+Player's Handbook (2024)
+
+Origin Feat
+
+You’ve trained to deal particularly damaging strikes. Once per turn when you hit a target with a weapon, you can roll the weapon’s damage dice twice and use either roll against the target.
+
+# Skilled | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Skilled?expansion=32231
+
+Skilled | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+## Feats
+
+Player's Handbook (2024)
+
+Origin Feat
+
+You gain proficiency in any combination of three skills or tools of your choice.
+
+Repeatable. You can take this feat more than once.
+
+# Tavern Brawler | D&D 2024 | Roll20 Compendium
+URL: https://roll20.net/compendium/dnd5e/Feats:Tavern%20Brawler?expansion=32231
+
+Tavern Brawler | D&D 2024 | Roll20 Compendium
+
+Table of Contents
+
+Player's Handbook (2024)
+
+1. Welcome to Adventure chevronDown
+
+- Welcome to Adventure 
+- What You Need 
+- Using This Book 
+- Worlds of Adventure 
+2. Playing the Game chevronDown
+
+- Playing the Game 
+- Player or DM 
+- Rhythm of Play 
+- An Ongoing Game 
+- Dice 
+- The Six Abilities 
+- D20 Tests 
+- Proficiency 
+- Actions 
+- Social Interaction 
+- Social Interaction Example 
+- Exploration 
+- Exploration Example 
+- Combat 
+- Damage and Healing 
+- Conditions 
+- Combat and Damage Example 
+3. Creating a Character chevronDown
+
+- Creating a Character 
+- Get Ready 
+- Create Your Character 
+- Step 1 - Choose a Class 
+- Step 2 - Determine Origin 
+- Step 3 - Determine Ability Scores 
+- Step 4 - Choose an Alignment 
+- Step 5 - Fill In Details 
+- Level Advancement 
+- Starting at Higher Levels 
+- Multiclassing 
+- Trinkets 
+4. Character Classes chevronDown
+
+- Character Classes 
+- Barbarian 
+- Bard 
+- Cleric 
+- Druid 
+- Fighter 
+- Monk 
+- Paladin 
+- Ranger 
+- Rogue 
+- Sorcerer 
+- Warlock 
+- Wizard 
+5. Character Origins chevronDown
+
+- Character Origins 
+- Origin Components 
+- Background Descriptions 
+- Species Descriptions 
+6. Feats chevronDown
+
+- Feats 
+- Feat Descriptions 
+7. Equipment chevronDown
+
+- Equipment 
+- Coins 
+- Weapons 
+- Armor 
+- Tools 
+- Adventuring Gear 
+- Mounts and Vehicles 
+- Services 
+- Magic Items 
+- Crafting Equipment 
+8. Spells chevronDown
+
+- Spells 
+- Gaining Spells 
+- Casting Spells 
+- Spell Descriptions 
+9. The Multiverse chevronDown
+
+- The Multiverse 
+10. Creature Stat Blocks chevronDown
+
+- Creature Stat Blocks 
+11. Rules Glossary chevronDown
+
+- Glossary Conventions 
+- Rules Definitions 
+12. Credits chevronDown
+
+- Credits 
+
+Player's Handbook (2024)
+
+Origin Feat
+
+You gain the following benefits.
+
+Enhanced Unarmed Strike. When you hit with your Unarmed Strike and deal damage, you can deal Bludgeoning damage equal to 1d4 plus your Strength modifier instead of the normal damage of an Unarmed Strike.
+
+Damage Rerolls. Whenever you roll a damage die for your Unarmed Strike, you can reroll the die if it rolls a 1, and you must use the new roll.
+
+Improvised Weaponry. You have proficiency with improvised weapons.
+
+Push. When you hit a creature with an Unarmed Strike as part of the Attack action on your turn, you can deal damage to the target and also push it 5 feet away from you. You can use this benefit only once per turn.
+
+Roll20 Logo
+Play Now Arrow
+Join a Game Arrow
+Characters Arrow
+Shop Arrow
+Tools Arrow
+Compendium Arrow
+Community Arrow
+Subscribe
+Search
+Sign In Arrow
+Roll20 Logo Hamburger Menu
+[library](https://roll20.net/compendium/dnd5e)
+search
+search
+Table of Contents
+cancel
+
+...
+
+# Grappler
+## Feats
+Related Content
+
+...
+
+View More Related Content
+×
+×
+
+# Tough
+## Feats
+Related Content
+
+...
+
+View More Related Content
+×
+×
+
+# Aasimar
+## Races
+Aasimar (pronounced AH-sih-mar) are mortals who carry a spark of the Upper Planes within their souls. Whether
+descended from an angelic being or infused with celestial power, they can fan that spark to bring light, healing,
+and heavenly fury.
+Aasimar can arise among any population of mortals. They resemble their parents, but they live for up to 160 years and
+have features that hint at their celestial heritage, such as metallic freckles, luminous eyes, a halo, or the skin
+color of an angel (silver, opalescent green, or coppery red). These features start subtle and become obvious when
+the aasimar learns to reveal their full celestial nature.
+
+...
+
+### Aasimar Traits
+Related Content
+
+...
+
+View More Related Content
+×
+×
+
+# Hermit
+
+## Backgrounds
+
+![](https://files.d20.io/images/406391760/Rg3UNflIK4zuXaMxyaTncg/original.png?1724425424)
+
+Ability Scores
+
+Constitution, Wisdom, Charisma
+
+Feat
+
+Healer
+
+Skill Proficiencies
+
+Medicine and Religion
+
+Tool Proficiency
+
+Herbalism Kit
+
+Equipment
+
+*Choose A or B:* (A) Quarterstaff, Herbalism Kit, Bedroll, Book (philosophy), Lamp, Oil (3 flasks), Traveler’s Clothes, 16 GP; or (B) 50 GP
+
+You spent your early years secluded in a hut or monastery located well beyond the outskirts of the nearest settlement. In those days, your only companions were the creatures of the forest and those who would occasionally visit to bring news of the outside world and supplies. The solitude allowed you to spend many hours pondering the mysteries of creation.
+
+# Guard
+
+## Backgrounds
+
+![](https://files.d20.io/images/406391659/DlKXsE8wh4mWogHVDgn3RQ/original.png?1724425373)
+
+Ability Scores
+
+Strength, Intelligence, Wisdom
+
+Feat
+
+Alert
+
+Skill Proficiencies
+
+Athletics and Perception
+
+Tool Proficiency
+
+*Choose one kind of* Gaming Set
+
+Equipment
+
+*Choose A or B:* (A) Spear, Light Crossbow, 20 Bolts, Gaming Set (same as above), Hooded Lantern, Manacles, Quiver, Traveler’s Clothes, 12 GP; or (B) 50 GP
+
+Your feet ache when you remember the countless hours you spent at your post in the tower. You were trained to keep one eye looking outside the wall, watching for marauders sweeping from the nearby forest, and your other eye looking inside the wall, searching for cutpurses and troublemakers.
+
+# Merchant
+
+## Backgrounds
+
+![](https://files.d20.io/images/406391784/FpP_Lkspjgw7Qt_HnYk_Yg/original.png?1724425432)
+
+Ability Scores
+
+Constitution, Intelligence, Charisma
+
+Feat
+
+Lucky
+
+Skill Proficiencies
+
+Animal Handling and Persuasion
+
+Tool Proficiency
+
+Navigator’s Tools
+
+Equipment
+
+*Choose A or B:* (A) Navigator’s Tools, 2 Pouches, Traveler’s Clothes, 22 GP; or (B) 50 GP
+
+You were apprenticed to a trader, caravan master, or shopkeeper, learning the fundamentals of commerce. You traveled broadly, and you earned a living by buying and selling the raw materials artisans need to practice their craft or finished works from such crafters. You might have transported goods from one place to another (by ship, wagon, or caravan) or bought them from traveling traders and sold them in your own shop.
+
+# Guide
+
+## Backgrounds
+
+![](https://files.d20.io/images/406391727/T6tveVp3nwSQIyvXIlR6qQ/original.png?1724425411)
+
+Ability Scores
+
+Dexterity, Constitution, Wisdom
+
+Feat
+
+Magic Initiate (Druid)
+
+Skill Proficiencies
+
+Stealth and Survival
+
+Tool Proficiency
+
+Cartographer’s Tools
+
+Equipment
+
+*Choose A or B:* (A) Shortbow, 20 Arrows, Cartographer’s Tools, Bedroll, Quiver, Tent, Traveler’s Clothes, 3 GP; or (B) 50 GP
+
+You came of age outdoors, far from settled lands. Your home was anywhere you chose to spread your bedroll. There are wonders in the wilderness—strange monsters, pristine forests and streams, overgrown ruins of great halls once trod by giants—and you learned to fend for yourself as you explored them. From time to time, you guided friendly nature priests who instructed you in the fundamentals of channeling the magic of the wild.
+
+# Crossbow Expert
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+, Dexterity 13+)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Dexterity score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Ignore Loading.*** You ignore the [Loading](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231#Loading) property of the [Hand Crossbow](https://roll20.net/compendium/dnd5e/Items:Hand%20Crossbow?expansion=32231), [Heavy Crossbow](https://roll20.net/compendium/dnd5e/Items:Heavy%20Crossbow?expansion=32231), and [Light Crossbow](https://roll20.net/compendium/dnd5e/Items:Light%20Crossbow?expansion=32231) (all called crossbows elsewhere in this feat). If you’re holding one of them, you can load a piece of ammunition into it even if you lack a free hand.
+
+***Firing in Melee.*** Being within 5 feet of an enemy doesn’t impose [Disadvantage](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Disadvantage) on your attack rolls with crossbows.
+
+***Dual Wielding.*** When you make the extra attack of the [Light](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231#Light) property, you can add your [ability modifier](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231#Ability%20Modifiers) to the damage of the extra attack if that attack is with a crossbow that has the [Light](https://roll20.net/compendium/dnd5e/Rules:Weapons?expansion=32231#Light) property and you aren’t already adding that modifier to the damage.
+
+# Crusher
+
+## Feats
+
+*General Feat (Prerequisite: Level 4+)*
+
+You gain the following benefits.
+
+***Ability Score Increase.*** Increase your [Strength](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) or [Constitution score](https://roll20.net/compendium/dnd5e/Rules:The%20Six%20Abilities?expansion=32231) by 1, to a maximum of 20.
+
+***Push.*** Once per turn, when you hit a creature with an attack that deals Bludgeoning damage, you can move it 5 feet to an unoccupied space if the target is no more than one [size](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Size) larger than you.
+
+***Enhanced Critical.*** When you score a [Critical Hit](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Critical%20Hit) that deals Bludgeoning damage to a creature, [attack rolls](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Attack%20Roll) against that creature have [Advantage](https://roll20.net/compendium/dnd5e/Rules:Rules%20Definitions?expansion=32231#Advantage) until the start of your next turn.

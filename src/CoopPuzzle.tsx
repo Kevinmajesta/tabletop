@@ -75,17 +75,17 @@ export default function CoopPuzzle({ game, disabled, send, dm, members }: Props)
       </div>
       {coop.reward && <p role="status">{coop.reward}</p>}
       <form onSubmit={event => { event.preventDefault(); if (!locked && !coop.finalDone && finalAnswer.trim()) send({ type: 'coop:final', answer: finalAnswer.trim() }); }}>
-        <label>Jawaban akhir<input value={finalAnswer} onChange={event => setFinalAnswer(event.target.value)} disabled={locked || coop.finalDone} autoComplete="off" /></label>
-        <button disabled={locked || coop.finalDone || !finalAnswer.trim()}>Kirim jawaban akhir</button>
+        <label>Kode pintu akhir<input value={finalAnswer} onChange={event => setFinalAnswer(event.target.value)} disabled={locked || coop.finalDone} autoComplete="off" /></label>
+        <button disabled={locked || coop.finalDone || !finalAnswer.trim()}>Kirim kode pintu</button>
       </form>
     </section>}
     {cipher && <section hidden={panel !== 'cipher'} className="cipher-layer">
       <h3>Ruang sandi · tahap {coop.cipherStage + 1}</h3>
       {coop.cipher ? <>
         <p style={{ whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{coop.cipher}</p>
-        {!!coop.fragments?.length && <div className="coop-fragments" aria-label="Sembilan keping pesan">{coop.fragments.map(fragment => <div key={fragment.name}><small>{fragment.name}</small><strong>{fragment.text}</strong></div>)}</div>}
+        {!!coop.fragments?.length && <div className="coop-fragments" aria-label="Sembilan pasangan angka">{coop.fragments.map(fragment => <div key={fragment.name}><small>{fragment.name}</small><strong>{fragment.text}</strong></div>)}</div>}
         <form onSubmit={event => { event.preventDefault(); if (!locked && cipherAnswer.trim()) send({ type: 'coop:cipher', answer: cipherAnswer.trim() }); }}>
-          <label>Jawaban sandi<input value={cipherAnswer} onChange={event => setCipherAnswer(event.target.value)} disabled={locked || coop.cipherStage >= 3} autoComplete="off" /></label>
+          <label>{coop.cipherStage >= 2 ? 'Kode pintu 18 digit' : 'Jawaban sandi'}<input value={cipherAnswer} onChange={event => setCipherAnswer(event.target.value)} disabled={locked || coop.cipherStage >= 3} autoComplete="off" /></label>
           <button disabled={locked || coop.cipherStage >= 3 || !cipherAnswer.trim()}>Kirim jawaban sandi</button>
         </form>
       </> : <p role="status">Menunggu sandi berikutnya atau petunjuk dari tim kursi.</p>}

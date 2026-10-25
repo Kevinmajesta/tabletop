@@ -5,8 +5,8 @@ const names = ['ANI', 'BUDI', 'CITRA', 'DODI', 'EKA', 'FANI', 'GALIH', 'HANA', '
 const extracts = ['7M', '5T', '9T', '15M', '12T'];
 const first = seatRules.filter(rule => rule.room === 'morse').map(seatClue).join(' DAN ');
 const second = seatRules.filter(rule => rule.room === 'vigenere').map(seatClue).join(' DAN ');
-const final = 'CAHAYA FAJAR';
-const fragments = ['CA', 'H', 'A', 'Y', 'A', 'F', 'A', 'J', 'AR'];
+const fragments = ['83', '26', '59', '14', '72', '38', '95', '47', '61'];
+const final = fragments.join('');
 const fragmentOrder = [5, 2, 8, 0, 6, 3, 1, 7, 4];
 const normalize = (s: string) => s.toUpperCase().replace(/[^A-Z]/g, '');
 const morse: Record<string, string> = { A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.', F: '..-.', G: '--.', H: '....', I: '..', J: '.---', K: '-.-', L: '.-..', M: '--', N: '-.', O: '---', P: '.--.', Q: '--.-', R: '.-.', S: '...', T: '-', U: '..-', V: '...-', W: '.--', X: '-..-', Y: '-.--', Z: '--..' };
@@ -20,10 +20,10 @@ export function coopView(game: Game, playerId: string, dm: boolean): CoopState |
     view.seats = [...c.seats];
     view.crossword = c.crossword && gameView(c.crossword, playerId, dm);
     view.clues = ['Kursi 1 berada di atas meja. Nomor bertambah searah jarum jam dan berputar kembali dari 9 ke 1. Jarak dihitung dalam langkah kursi, bukan jumlah orang di antaranya. Gabungkan petunjuk lokal dengan pesan tim sandi.', ...seatRules.filter(rule => rule.room === 'chairs').map(seatClue)];
-    if (c.seatDone) view.reward = 'Bacakan NAMA LENGKAP penghuni kursi 1 sampai 9 secara berurutan kepada tim sandi. Urutan ini menyusun sembilan keping pesan terakhir.';
+    if (c.seatDone) view.reward = 'Bacakan NAMA LENGKAP penghuni kursi 1 sampai 9 secara berurutan kepada tim sandi. Urutan ini menyusun sembilan pasangan angka menjadi kode pintu 18 digit.';
   }
   if (room === 'cipher' || dm) {
-    view.cipher = c.cipherStage === 0 ? 'Morse internasional. Garis miring memisahkan kata:\n' + first.split(' ').map(w => [...w].map(l => morse[l]).join(' ')).join(' / ') : c.cipherStage === 1 ? 'Vigenere A–Z (A=0). Kunci: huruf awal lima jawaban bertanda dari tim TTS.\n' + encrypt(second, 'KAPKG') : c.cipherStage === 2 ? 'Transposisi Kursi. Mintalah urutan nama penghuni kursi 1 sampai 9 kepada tim kursi. Baca keping bernama sesuai urutan itu, gabungkan hurufnya, lalu pisahkan menjadi dua kata.' : 'Sandi selesai. Bacakan kata sandi akhir kepada tim kursi.';
+    view.cipher = c.cipherStage === 0 ? 'Morse internasional. Garis miring memisahkan kata:\n' + first.split(' ').map(w => [...w].map(l => morse[l]).join(' ')).join(' / ') : c.cipherStage === 1 ? 'Vigenere A–Z (A=0). Kunci: huruf awal lima jawaban bertanda dari tim TTS.\n' + encrypt(second, 'KAPKG') : c.cipherStage === 2 ? 'Transposisi Kursi. Mintalah urutan nama penghuni kursi 1 sampai 9 kepada tim kursi. Baca keping bernama sesuai urutan itu, gabungkan pasangan angkanya menjadi kode pintu 18 digit. Jangan urutkan berdasarkan nama atau besar angka.' : 'Sandi selesai. Bacakan kode pintu 18 digit kepada tim kursi.';
     if (c.cipherStage === 2) view.fragments = fragmentOrder.map(i => ({ name: seatSolution[i], text: fragments[i] }));
     view.clues = [...(dm ? view.clues || [] : []), ...(c.cipherStage > 0 ? [first] : [])];
     if (c.cipherStage > 1) view.clues.push(second);
@@ -61,7 +61,7 @@ export function coopAction(game: Game, playerId: string, dm: boolean, action: Re
     if (!cipher || typeof action.answer !== 'string' || action.answer.length > 300 || c.cipherStage >= 3) return fail;
     if (c.cipherStage === 1 && !extracts.every(id => c.crossword?.crosswordSolved?.includes(id))) return 'Tunggu kunci lima jawaban bertanda dari tim TTS.';
     if (c.cipherStage === 2 && !c.seatDone) return 'Tunggu kunci susunan kursi dari tim kursi.';
-    if (normalize(action.answer) !== normalize([first, second, final][c.cipherStage])) return 'Jawaban belum tepat.';
+    if ((c.cipherStage === 2 ? action.answer.replace(/\s/g, '') : normalize(action.answer)) !== [normalize(first), normalize(second), final][c.cipherStage]) return 'Jawaban belum tepat.';
     c.cipherStage++; c.stage++;
     if (c.cipherStage >= 2) c.seatDone = seatSolution.every((name, i) => c.seats[i] === name);
     return null;
@@ -75,7 +75,7 @@ export function coopAction(game: Game, playerId: string, dm: boolean, action: Re
   }
   if (action.type === 'coop:final') {
     if (!chairs || typeof action.answer !== 'string' || action.answer.length > 50 || c.cipherStage !== 3 || !c.seatDone || c.crossword?.phase !== 'finished') return 'Selesaikan TTS, kursi, dan sandi sebelum membuka pintu.';
-    if (normalize(action.answer) !== normalize(final)) return 'Kata sandi belum tepat.';
+    if (action.answer.replace(/\s/g, '') !== final) return 'Kode pintu belum tepat.';
     c.finalDone = true; game.phase = 'finished'; game.result = playerId; return null;
   }
   return fail;

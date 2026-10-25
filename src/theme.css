@@ -148,9 +148,11 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px s
 .session-toolbar .minigames summary { cursor: pointer; min-height: 20px; }
 .session-toolbar .minigames:has(details[open]) { flex-basis: 100%; }
 .session-toolbar .token-sheet-launch { white-space: normal; overflow-wrap: anywhere; }
+.session-toolbar .character-quick { position: static; }
+.session-toolbar .character-quick-panel { position: fixed; top: auto; bottom: 16px; left: 12px; max-height: min(55dvh, 480px, calc(60dvh - 84px)); }
 .app-shell .workspace { flex: 1; height: auto; min-height: 0; position: relative; }
 .app-shell .board-tools-panel { position: absolute; top: 12px; left: 12px; }
-.app-shell .board-tools-body { max-height: min(55dvh, 480px); }
+.app-shell .board-tools-body { max-height: min(55dvh, 480px, calc(60dvh - 84px)); }
 .app-shell .canvas-info { top: 66px; }
 @media (max-width: 600px) {
   .session-toolbar { padding: 6px; gap: 6px; }

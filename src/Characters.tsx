@@ -1,4 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import SpeciesCard from "./SpeciesCard";
+import ActionEconomy from "./ActionEconomy";
+import CurrencyWallet from "./CurrencyWallet";
+import { choiceLabel } from "./character-labels";
+import "./species-guide.css";
+import { speciesSource, speciesForSource, selectSpecies } from "../server/catalog/motm";
 import type { Socket } from "socket.io-client";
 import {
   BookOpen,
@@ -63,9 +69,18 @@ export default function Characters({
     "normal" | "advantage" | "disadvantage"
   >("normal");
   const [quickOpen, setQuickOpen] = useState(false);
+  useEffect(() => {
+    const close = () => setQuickOpen(false);
+    window.addEventListener("tabletop:tools-open", close);
+    return () => window.removeEventListener("tabletop:tools-open", close);
+  }, []);
+  useEffect(() => {
+    if (quickOpen) window.dispatchEvent(new Event("tabletop:quick-open"));
+  }, [quickOpen]);
   const [critical, setCritical] = useState(false);
   const [sheetTab, setSheetTab] = useState("combat");
   const [healthAmount, setHealthAmount] = useState(1);
+  const [speciesBook, setSpeciesBook] = useState("phb-2024");
   const [search, setSearch] = useState("");
   const [spellFilter, setSpellFilter] = useState("all");
   const [preparedDraft, setPreparedDraft] = useState<string[] | null>(null);
@@ -78,8 +93,18 @@ export default function Characters({
     [editing, setEditing] = useState<{ id: string; revision: number } | null>(
       null,
     );
+  const [validationOpen, setValidationOpen] = useState(false);
+  const [validationTarget, setValidationTarget] = useState<string | null>(null);
   const dialog = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    if (!validationTarget) return;
+    const target = document.getElementById(validationTarget);
+    target?.focus();
+    target?.scrollIntoView({ block: "center", behavior: "smooth" });
+    setValidationTarget(null);
+  }, [step, validationTarget]);
   const trigger = useRef<HTMLButtonElement>(null);
+  useEffect(() => { if (build) setSpeciesBook(speciesSource(build.race)); }, [build?.race]);
   const character = characters.find((c) => c.id === selected);
   useEffect(() => {
     if (
@@ -167,7 +192,7 @@ export default function Characters({
   function groupUI(group: ChoiceGroup) {
     return (
       <fieldset key={group.key}>
-        <legend>
+        <legend id={`character-choice-${group.key}`} tabIndex={-1}>
           {group.name}{" "}
           <small>
             ({build?.choices[group.key]?.length || 0}/{group.count})
@@ -183,7 +208,7 @@ export default function Characters({
                 }
                 onChange={() => choose(group, option.id)}
               />
-              <span>{option.name}</span>
+              <span>{choiceLabel(option)}</span>
             </label>
           ))}
         </div>
@@ -192,7 +217,8 @@ export default function Characters({
   }
   const preview = build ? deriveSheet(build) : null;
   const limits = build ? spellLimits(build) : null;
-  const validation = build ? validateBuild(build).errors : [];
+  const validationResult = build ? validateBuild(build) : null;
+  const validation = validationResult?.errors || [];
   return (
     <>
       <button
@@ -274,7 +300,7 @@ export default function Characters({
                 </button>
                 {character.sheet.attacks.slice(0, 5).map((attack) => (
                   <div className="quick-attack" key={attack.id}>
-                    <span>{attack.name}</span>
+                    <span>{attack.name}<small className="action-economy" title="Roll serangan bukan satu aksi tersendiri. Ikuti Attack action atau fitur yang mengizinkan serangan ini.">Serangan · lihat syarat</small></span>
                     <button disabled={!connected || busy} onClick={() => roll("attack", attack.id)}>Hit {attack.bonus >= 0 ? "+" : ""}{attack.bonus}</button>
                     <button disabled={!connected || busy} onClick={() => roll("damage", attack.id)}>Dmg {attack.damage}</button>
                   </div>
@@ -506,22 +532,21 @@ export default function Characters({
                       Handbook 2024 per class.
                     </p>
                     <label>
-                      Race
+                      Buku species
+                      <select value={speciesBook} onChange={e=>setSpeciesBook(e.target.value)}>
+                        <option value="phb-2024">Player’s Handbook 2024</option>
+                        <option value="motm">Monsters of the Multiverse (2022)</option>
+                      </select>
+                    </label>
+                    <p className="species-filter-note">Filter buku hanya mengubah daftar pilihan, bukan species karaktermu.</p>
+                    <label>
+                      Species
                       <select
-                        value={build.race}
-                        onChange={(e) =>
-                          setBuild({
-                            ...build,
-                            race: e.target.value,
-                            subrace:
-                              catalog.races.find(
-                                (r) => r.index === e.target.value,
-                              )?.subraces?.[0]?.index || "",
-                            choices: {},
-                          })
-                        }
+                        value={speciesSource(build.race)===speciesBook?build.race:''}
+                        onChange={e=>setBuild(selectSpecies(build,e.target.value,catalog))}
                       >
-                        {catalog.races.map((r) => (
+                        <option value="" disabled>Pilih species dari buku ini</option>
+                        {speciesForSource(catalog, speciesBook).map((r) => (
                           <option key={r.index} value={r.index}>
                             {r.name}
                           </option>
@@ -549,6 +574,7 @@ export default function Characters({
                         </select>
                       </label>
                     )}
+                    {preview && <SpeciesCard build={build} sheet={preview} />}
                     <label>
                       Background
                       <select
@@ -716,7 +742,7 @@ export default function Characters({
                     {groups.filter((g) => g.kind === "ability").map(groupUI)}
                     {(build.level || 1) >= 4 && (
                       <fieldset>
-                        <legend>Peningkatan level 4</legend>
+                        <legend id="character-choice-asi.4" tabIndex={-1}>Peningkatan level 4</legend>
                         <label>
                           Feat
                           <select
@@ -874,7 +900,7 @@ export default function Characters({
                         );
                         return (
                           <fieldset key={key}>
-                            <legend>
+                            <legend id={`character-choice-${key}`} tabIndex={-1}>
                               {key === "prepared"
                                 ? "Prepared (dari spellbook)"
                                 : key === "spells" && build.classId === "wizard"
@@ -941,26 +967,39 @@ export default function Characters({
                       {preview?.raceName} · {preview?.className} ·{" "}
                       {preview?.backgroundName}
                     </p>
-                    {validation.length ? (
-                      <div className="character-error">
-                        <strong>Pilihan belum lengkap</strong>
-                        <ul>
-                          {validation.map((error, i) => (
-                            <li key={i}>{error}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ) : (
+                    {!validation.length && (
                       <p>Semua pilihan wajib lengkap. Sheet siap disimpan.</p>
                     )}
                     <h3>Fitur sampai level {build.level || 1}</h3>
                     {preview?.features.map((f, i) => (
                       <details key={i}>
-                        <summary>{f.name}</summary>
+                        <summary>{f.name} <ActionEconomy description={f.desc.join(" ")} /></summary>
                         <p>{f.desc.join("\n")}</p>
                       </details>
                     ))}
                   </>
+                )}
+                {(step === 5 || validationOpen) && !!validation.length && (
+                  <div className="character-error" role="region" aria-label="Pilihan belum lengkap" aria-live="polite">
+                    <strong>Pilihan belum lengkap</strong>
+                    <ul>
+                      {validation.map((message, i) => {
+                        const issue = validationResult?.issues?.find((item) => item.message === message);
+                        return (
+                          <li key={i}>
+                            <span>{message}</span>{" "}
+                            {issue?.groupKey && (
+                              <button type="button" aria-label={`Perbaiki: ${message}`} onClick={() => {
+                                setValidationOpen(true);
+                                setStep(({ identity: 0, ability: 1, proficiency: 2, equipment: 3, spell: 4 })[issue.section]);
+                                setValidationTarget(`character-choice-${issue.groupKey}`);
+                              }}>Perbaiki</button>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 )}
                 <footer className="character-builder-footer">
                   <button
@@ -1069,6 +1108,7 @@ export default function Characters({
                   <div>
                     <span>Speed</span>
                     <strong>{character.sheet.speed} ft</strong>
+                    {Object.entries(character.sheet.movement||{}).map(([mode,speed])=><small key={mode}>{mode} {speed} ft </small>)}
                   </div>
                   <div>
                     <span>Passive perception</span>
@@ -1374,9 +1414,10 @@ export default function Characters({
                     {character.sheet.initiative})
                   </button>
                   <h3>Serangan</h3>
+                  <p className="sheet-empty-note">Umumnya lewat Aksi (Attack). Aksi Bonus atau Reaksi hanya jika fitur/pemicu mengizinkan; tombol roll tidak menghabiskan aksi otomatis. Waktu spell ada di tab Spell.</p>
                   {character.sheet.attacks.map((a) => (
                     <div className="character-attack" key={a.id}>
-                      <strong>{a.name}</strong>
+                      <strong>{a.name}<small className="action-economy" title="Attack action dapat mencakup beberapa serangan. Serangan sebagai Aksi Bonus atau Reaksi memerlukan fitur atau pemicu yang sesuai.">Serangan · lihat syarat</small></strong>
                       <button
                         disabled={!connected || busy}
                         onClick={() => roll("attack", a.id)}
@@ -1414,6 +1455,7 @@ export default function Characters({
                   className="sheet-section"
                 >
                   <h3>Spellbook & prepared spells</h3>
+                  {!!character.sheet.innateSpells?.length && <section aria-label="Spell bawaan species"><h4>Spell bawaan species (manual)</h4><p>Terpisah dari ability spell class. Penggunaan gratis per rest tidak memakai slot; jika memakai slot, catat slot secara manual.</p>{character.sheet.innateSpells.map(spell=><p key={spell.id}><strong>{catalog.spells.find(s=>s.index===spell.id)?.name||spell.id}</strong> <ActionEconomy castingTime={catalog.spells.find(s=>s.index===spell.id)?.casting_time} ritual={(catalog.spells.find(s=>s.index===spell.id) as { ritual?: boolean } | undefined)?.ritual} /> · {spell.ability.toUpperCase()} · DC {spell.dc} · attack +{spell.attack} · {spell.uses}</p>)}</section>}
                   <div className="spell-slot-tracker" aria-label="Pelacak spell slot">
                     {Object.entries(character.sheet.slotsByLevel || {})
                       .filter(([, max]) => max > 0)
@@ -1547,7 +1589,7 @@ export default function Characters({
                                       )
                                     }
                                   />
-                                  {s.name}
+                                  {s.name} <ActionEconomy castingTime={s.casting_time} ritual={(s as typeof s & { ritual?: boolean }).ritual} />
                                 </label>
                               ))}
                           </div>
@@ -1616,6 +1658,7 @@ export default function Characters({
                           return (
                             <div className="spell-card" key={id}>
                               <strong>{spell.name}</strong>
+                              <ActionEconomy castingTime={spell.casting_time} ritual={(spell as typeof spell & { ritual?: boolean }).ritual} />
                               {character.sheet.prepared.includes(id) && <small>Prepared</small>}
                               <div className="spell-actions">
                                 <button type="button" title="Kirim deskripsi ke chat" aria-label={`Kirim deskripsi ${spell.name} ke chat`} onClick={() => sendToChat(`📖 ${spell.name}`, description)}>↗</button>
@@ -1635,9 +1678,10 @@ export default function Characters({
                   hidden={sheetTab !== "equipment"}
                   className="sheet-section"
                 >
+                  <CurrencyWallet key={`${character.id}:${character.revision}`} currency={character.currency} disabled={!connected || busy} onSave={currency => request({ type: "currency", id: character.id, revision: character.revision, currency })} />
                   <h3>Equipment & bahasa</h3>
                   <ul>
-                    {character.sheet.equipment.map((e) => {
+                    {character.sheet.equipment.filter(e => !['cp', 'sp', 'ep', 'gp', 'pp'].includes(e.id)).map((e) => {
                       const equipment = catalog.equipment.find(
                         (item) => item.index === e.id,
                       );
@@ -1690,7 +1734,7 @@ export default function Characters({
                     .map((f, i) => (
                       <div className="shareable-feature" key={i}>
                         <details>
-                          <summary>{f.name}</summary>
+                          <summary>{f.name} <ActionEconomy description={f.desc.join(" ")} /></summary>
                           <p>{f.desc.join("\n")}</p>
                         </details>
                         <button

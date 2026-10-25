@@ -1,4 +1,4 @@
-export const gameKinds = ['rps', 'tictactoe', 'connectfour', 'quickmath', 'memory', 'bombdefuse', 'reliccipher', 'chaincipher', 'crossword', 'ttspilihan', 'cooprooms', 'seating', 'drawing'] as const;
+export const gameKinds = ['rps', 'tictactoe', 'connectfour', 'quickmath', 'memory', 'bombdefuse', 'reliccipher', 'chaincipher', 'crossword', 'ttspilihan', 'cooprooms', 'seating', 'drawing', 'wallclock'] as const;
 export type GameKind = typeof gameKinds[number];
 export const gameCatalog: Record<GameKind, { name: string; mark: string; mode: 'duel' | 'party' }> = {
   rps: { name: 'Gunting batu kertas', mark: 'GBK', mode: 'duel' },
@@ -12,6 +12,7 @@ export const gameCatalog: Record<GameKind, { name: string; mark: string; mode: '
   crossword: { name: 'Teka-teki Silang Indonesia', mark: 'TTS', mode: 'party' },
   ttspilihan: { name: 'TTS-Pilihan', mark: 'TTS-P', mode: 'party' },
   cooprooms: { name: 'Dua Ruangan · Kursi & Sandi', mark: '2+2', mode: 'party' },
+  wallclock: { name: 'Misteri Jam Dinding', mark: '◷', mode: 'party' },
   seating: { name: 'Misteri 9 Kursi', mark: '9', mode: 'party' },
   drawing: { name: 'Guess the Drawing', mark: '✎', mode: 'duel' },
 };

@@ -1,0 +1,737 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 1,
+      "url": "https://www.dndbeyond.com/sources/dnd/free-rules/character-origins",
+      "title": "Official Free Rules Origins",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "You have proficiency in the Insight, Perception, or Survival skill.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "url": "https://www.dndbeyond.com/sources/dnd/free-rules/feats",
+      "title": "Official Free Rules Feats",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "To take a feat, you must meet any prerequisite in its description unless a feature allows you to take the feat without the prerequisite.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Actor?expansion=32231",
+      "title": "Actor | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "General Feat (Prerequisite: Level 4+, Charisma 13+)",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Athlete?expansion=32231",
+      "title": "Athlete | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "General Feat (Prerequisite: Level 4+, Strength or Dexterity 13+)",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Charger?expansion=32231",
+      "title": "Charger | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "General Feat (Prerequisite: Level 4+, Strength or Dexterity 13+)",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Crossbow%20Expert?expansion=32231",
+      "title": "Crossbow Expert | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+, Dexterity 13+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Crusher?expansion=32231",
+      "title": "Crusher | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Defensive%20Duelist?expansion=32231",
+      "title": "Defensive Duelist | D&D 2024",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+, Dexterity 13+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Dual%20Wielder?expansion=32231",
+      "title": "Dual Wielder | D&D 2024",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+, Strength or Dexterity 13+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Durable?expansion=32231",
+      "title": "Durable | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Elemental%20Adept?expansion=32231",
+      "title": "Elemental Adept | D&D 2024",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+, Spellcasting or Pact Magic Feature)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Fey-Touched?expansion=32231",
+      "title": "Fey-Touched | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Great%20Weapon%20Master?expansion=32231",
+      "title": "Great Weapon Master | D&D 2024",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+, Strength 13+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Heavily%20Armored?expansion=32231",
+      "title": "Heavily Armored | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "General Feat (Prerequisite: Level 4+, Medium Armor Training)",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Heavy%20Armor%20Master?expansion=32231",
+      "title": "Heavy Armor Master | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "General Feat (Prerequisite: Level 4+, Heavy Armor Training)",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Inspiring%20Leader?expansion=32231",
+      "title": "Inspiring Leader | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "General Feat (Prerequisite: Level 4+, Wisdom or Charisma 13+)",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Lightly%20Armored?expansion=32231",
+      "title": "Lightly Armored | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "_General Feat (Prerequisite: Level 4+)_",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Keen%20Mind?expansion=32231",
+      "title": "Keen Mind | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "_General Feat (Prerequisite: Level 4+, Intelligence 13+)_",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Mage%20Slayer?expansion=32231",
+      "title": "Mage Slayer | D&D 2024",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Martial%20Weapon%20Training?expansion=32231",
+      "title": "Martial Weapon Training | D&D 2024",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Medium%20Armor%20Master?expansion=32231",
+      "title": "Medium Armor Master | D&D 2024",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+, Medium Armor Training)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Moderately%20Armored?expansion=32231",
+      "title": "Moderately Armored | D&D 2024",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+, Light Armor Training)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Mounted%20Combatant?expansion=32231",
+      "title": "Mounted Combatant | D&D 2024",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Observant?expansion=32231",
+      "title": "Observant | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "General Feat (Prerequisite: Level 4+, Intelligence or Wisdom 13+)",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Piercer?expansion=32231",
+      "title": "Piercer | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "General Feat (Prerequisite: Level 4+)",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Poisoner?expansion=32231",
+      "title": "Poisoner | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "_General Feat (Prerequisite: Level 4+)_",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Polearm%20Master?expansion=32231",
+      "title": "Polearm Master | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "_General Feat (Prerequisite: Level 4+, Strength or Dexterity 13+)_",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Resilient?expansion=32231",
+      "title": "Resilient | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Ritual%20Caster?expansion=32231",
+      "title": "Ritual Caster",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+; Intelligence, Wisdom, or Charisma 13+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Sentinel?expansion=32231",
+      "title": "Sentinel | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+, Strength or Dexterity 13+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Shadow-Touched?expansion=32231",
+      "title": "Shadow-Touched | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Sharpshooter?expansion=32231",
+      "title": "Sharpshooter | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "General Feat (Prerequisite: Level 4+, Dexterity 13+)",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Shield%20Master?expansion=32231",
+      "title": "Shield Master | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "General Feat (Prerequisite: Level 4+, Shield Training)",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 34,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Skill%20Expert?expansion=32231",
+      "title": "Skill Expert | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "General Feat (Prerequisite: Level 4+)",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 35,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Skulker?expansion=32231",
+      "title": "Skulker | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "General Feat (Prerequisite: Level 4+, Dexterity 13+)",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 36,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Speedy?expansion=32231",
+      "title": "Speedy | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "_General Feat (Prerequisite: Level 4+, Dexterity or Constitution 13+)_",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 37,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Slasher?expansion=32231",
+      "title": "Slasher | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "_General Feat (Prerequisite: Level 4+)_",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 38,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Spell%20Sniper?expansion=32231",
+      "title": "Spell Sniper | D&D 2024",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+, Spellcasting or Pact Magic Feature)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 39,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Telekinetic?expansion=32231",
+      "title": "Telekinetic | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 40,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Telepathic?expansion=32231",
+      "title": "Telepathic | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 41,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:War%20Caster?expansion=32231",
+      "title": "War Caster",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+, Spellcasting or Pact Magic Feature)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 42,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Weapon%20Master?expansion=32231",
+      "title": "Weapon Master | D&D 2024",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "*General Feat (Prerequisite: Level 4+)*",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 43,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Acolyte?expansion=32231",
+      "title": "Acolyte | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 44,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Artisan?expansion=32231",
+      "title": "Artisan | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "- Step 3 - Determine Ability Scores",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 45,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Charlatan?expansion=32231",
+      "title": "Charlatan | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "- Step 3 - Determine Ability Scores",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 46,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Criminal?expansion=32231",
+      "title": "Criminal | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "- Step 3 - Determine Ability Scores",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 47,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Entertainer?expansion=32231",
+      "title": "Entertainer | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "- Step 3 - Determine Ability Scores",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 48,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Hermit?expansion=32231",
+      "title": "Hermit | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 49,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Farmer?expansion=32231",
+      "title": "Farmer | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 50,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Guard?expansion=32231",
+      "title": "Guard | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 51,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Merchant?expansion=32231",
+      "title": "Merchant | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 52,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Guide?expansion=32231",
+      "title": "Guide | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 53,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Noble?expansion=32231",
+      "title": "Noble | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 54,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Sailor?expansion=32231",
+      "title": "Sailor | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 55,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Sage?expansion=32231",
+      "title": "Sage | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 56,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Scribe?expansion=32231",
+      "title": "Scribe | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 57,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Soldier?expansion=32231",
+      "title": "Soldier | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 58,
+      "url": "https://roll20.net/compendium/dnd5e/Backgrounds:Wayfarer?expansion=32231",
+      "title": "Wayfarer | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 59,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Alert?expansion=32231",
+      "title": "Alert | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "***Initiative Proficiency.*** When you roll [Initiative](https://roll20.net/compendium/dnd5e/Rules:Combat?expansion=32231#Initiative), you can add your [Proficiency Bonus](https://roll20.net/compendium/dnd5e/Rules:Proficiency?expansion=32231) to the roll.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 60,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Crafter?expansion=32231",
+      "title": "Crafter | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 61,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Healer?expansion=32231",
+      "title": "Healer | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 62,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Lucky?expansion=32231",
+      "title": "Lucky | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 63,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Magic%20Initiate?expansion=32231",
+      "title": "Magic Initiate | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "- Step 3 - Determine Ability Scores",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 64,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Musician?expansion=32231",
+      "title": "Musician | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "- Step 3 - Determine Ability Scores",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 65,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Savage%20Attacker?expansion=32231",
+      "title": "Savage Attacker | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "- Step 3 - Determine Ability Scores",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 66,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Skilled?expansion=32231",
+      "title": "Skilled | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "- Step 3 - Determine Ability Scores",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 67,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Tavern%20Brawler?expansion=32231",
+      "title": "Tavern Brawler | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "- Step 3 - Determine Ability Scores",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 68,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Grappler?expansion=32231",
+      "title": "Grappler | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 69,
+      "url": "https://roll20.net/compendium/dnd5e/Feats:Tough?expansion=32231",
+      "title": "Tough | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    },
+    {
+      "id": 70,
+      "url": "https://roll20.net/compendium/dnd5e/Races:Aasimar?expansion=32231",
+      "title": "Aasimar | D&D 2024 | Roll20 Compendium",
+      "accessed": "2026-10-19"
+    }
+  ]
+}

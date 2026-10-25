@@ -1,0 +1,417 @@
+{
+  "version": 1,
+  "sources": [
+    {
+      "id": 1,
+      "url": "https://dnd5e.wikidot.com/lineage:aarakocra",
+      "title": "Wikidot secondary: aarakocra",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "url": "https://dnd5e.wikidot.com/lineage:aasimar",
+      "title": "Wikidot secondary: aasimar",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        },
+        {
+          "text": "Creatures other than your allies within 10 feet of you that can see you must succeed on a Charisma saving throw (DC 8 + your proficiency bonus + your Charisma modifier) or become f",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "url": "https://dnd5e.wikidot.com/lineage:bugbear",
+      "title": "Wikidot secondary: bugbear",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid. You are also considered a goblinoid for any prerequisite or effect that requires you to be a goblinoid.",
+          "added": "2026-10-19"
+        },
+        {
+          "text": "Darkvision. You can see in dim light within 60 feet of you as if it were bright light and in darkness as if it were dim light. You discern colors in that darkness only as shades of",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "url": "https://dnd5e.wikidot.com/lineage:centaur",
+      "title": "Wikidot secondary: centaur",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Fey.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "url": "https://dnd5e.wikidot.com/lineage:changeling",
+      "title": "Wikidot secondary: changeling",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Fey.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "url": "https://dnd5e.wikidot.com/lineage:deep-gnome",
+      "title": "Wikidot secondary: deep-gnome",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid. You are also considered a gnome for any prerequisite or effect that requires you to be a gnome.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "url": "https://dnd5e.wikidot.com/lineage:duergar",
+      "title": "Wikidot secondary: duergar",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid. You are also considered a dwarf for any prerequisite or effect that requires you to be a dwarf.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "url": "https://dnd5e.wikidot.com/lineage:eladrin",
+      "title": "Wikidot secondary: eladrin",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid. You are also considered an elf for any prerequisite or effect that requires you to be an elf.",
+          "added": "2026-10-19"
+        },
+        {
+          "text": "Spring. When you use your Fey Step, you can touch one willing creature within 5 feet of you. That creature then teleports instead of you, appearing in an unoccupied space of your c",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "url": "https://dnd5e.wikidot.com/lineage:fairy",
+      "title": "Wikidot secondary: fairy",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Fey.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "url": "https://dnd5e.wikidot.com/lineage:firbolg",
+      "title": "Wikidot secondary: firbolg",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "url": "https://dnd5e.wikidot.com/lineage:genasi-air",
+      "title": "Wikidot secondary: genasi-air",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "url": "https://dnd5e.wikidot.com/lineage:genasi-earth",
+      "title": "Wikidot secondary: genasi-earth",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "url": "https://dnd5e.wikidot.com/lineage:genasi-fire",
+      "title": "Wikidot secondary: genasi-fire",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "url": "https://dnd5e.wikidot.com/lineage:genasi-water",
+      "title": "Wikidot secondary: genasi-water",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "url": "https://dnd5e.wikidot.com/lineage:githyanki",
+      "title": "Wikidot secondary: githyanki",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "url": "https://dnd5e.wikidot.com/lineage:githzerai",
+      "title": "Wikidot secondary: githzerai",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "url": "https://dnd5e.wikidot.com/lineage:goblin",
+      "title": "Wikidot secondary: goblin",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid. You are also considered a goblinoid for any prerequisite or effect that requires you to be a goblinoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "url": "https://dnd5e.wikidot.com/lineage:goliath",
+      "title": "Wikidot secondary: goliath",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "url": "https://dnd5e.wikidot.com/lineage:harengon",
+      "title": "Wikidot secondary: harengon",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "url": "https://dnd5e.wikidot.com/lineage:hobgoblin",
+      "title": "Wikidot secondary: hobgoblin",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid. You are also considered a goblinoid for any prerequisite or effect that requires you to be a goblinoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "url": "https://dnd5e.wikidot.com/lineage:kenku",
+      "title": "Wikidot secondary: kenku",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "url": "https://dnd5e.wikidot.com/lineage:kobold",
+      "title": "Wikidot secondary: kobold",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "url": "https://dnd5e.wikidot.com/lineage:lizardfolk",
+      "title": "Wikidot secondary: lizardfolk",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "url": "https://dnd5e.wikidot.com/lineage:minotaur",
+      "title": "Wikidot secondary: minotaur",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "url": "https://dnd5e.wikidot.com/lineage:orc",
+      "title": "Wikidot secondary: orc",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "url": "https://dnd5e.wikidot.com/lineage:satyr",
+      "title": "Wikidot secondary: satyr",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Fey.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 27,
+      "url": "https://dnd5e.wikidot.com/lineage:sea-elf",
+      "title": "Wikidot secondary: sea-elf",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid. You are also considered an elf for any prerequisite or effect that requires you to be an elf.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 28,
+      "url": "https://dnd5e.wikidot.com/lineage:shadar-kai",
+      "title": "Wikidot secondary: shadar-kai",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid. You are also considered an elf for any prerequisite or effect that requires you to be an elf.",
+          "added": "2026-10-19"
+        },
+        {
+          "text": "Blessing of the Raven Queen. As a bonus action, you can magically teleport up to 30 feet to an unoccupied space you can see. You can use this trait a number of times equal to your",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 29,
+      "url": "https://dnd5e.wikidot.com/lineage:shifter",
+      "title": "Wikidot secondary: shifter",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 30,
+      "url": "https://dnd5e.wikidot.com/lineage:tabaxi",
+      "title": "Wikidot secondary: tabaxi",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 31,
+      "url": "https://dnd5e.wikidot.com/lineage:tortle",
+      "title": "Wikidot secondary: tortle",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 32,
+      "url": "https://dnd5e.wikidot.com/lineage:triton",
+      "title": "Wikidot secondary: triton",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    },
+    {
+      "id": 33,
+      "url": "https://dnd5e.wikidot.com/lineage:yuan-ti",
+      "title": "Wikidot secondary: yuan-ti",
+      "accessed": "2026-10-19",
+      "quotes": [
+        {
+          "text": "Creature Type. You are a Humanoid.",
+          "added": "2026-10-19"
+        }
+      ]
+    }
+  ]
+}

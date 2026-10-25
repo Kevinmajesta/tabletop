@@ -122,6 +122,14 @@ export default function BoardTools({
 }: Props) {
   const [tool, setTool] = useState<Tool>("select");
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const close = () => setOpen(false);
+    window.addEventListener("tabletop:quick-open", close);
+    return () => window.removeEventListener("tabletop:quick-open", close);
+  }, []);
+  useEffect(() => {
+    if (open) window.dispatchEvent(new Event("tabletop:tools-open"));
+  }, [open]);
   const [dmMenu, setDmMenu] = useState(false);
   const [tokenId, setTokenId] = useState<string | null>(selected ?? null);
   const [selectedMarkId, setSelectedMarkId] = useState<string | null>(null);

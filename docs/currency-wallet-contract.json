@@ -1,0 +1,12 @@
+{
+  "status": "backend implementation in progress; frontend owned by UI agent",
+  "characterField": "currency",
+  "type": "optional Record<cp | sp | ep | gp | pp, number>; missing legacy wallet displays all zero",
+  "event": "character:action",
+  "payload": {"type":"currency","id":"character-id","revision":1,"currency":{"cp":0,"sp":0,"ep":0,"gp":0,"pp":0}},
+  "semantics": "Replace all five balances atomically; every denomination required; only lowercase allowlisted keys accepted; finite nonnegative safe integers. No conversion/purchases.",
+  "authorization": "Character owner or DM, current revision required; success increments revision and uses existing room:state broadcast/persistence.",
+  "ack": {"ok":true,"id":"character-id"},
+  "initialization": "New characters initialize from structured sheet.equipment entries whose id is cp/sp/ep/gp/pp. Existing characters missing currency migrate to zeros. Rebuild/rest/derived sheet changes never reset wallet.",
+  "uiNote": "Sheet equipment still contains original starting money entries as derived build history; do not count them again as wallet balance. UI may filter those coin-id rows. No frontend files modified by backend agent."
+}

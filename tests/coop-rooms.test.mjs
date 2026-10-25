@@ -25,24 +25,36 @@ test('two-room puzzle enforces teams, hides other room, exchanges keys and finis
  assert.doesNotMatch(last.cipher, /Vigenere/);
  assert.equal(last.fragments.length, 9);
  assert.equal(new Set(last.fragments.map(f => f.name)).size, 9);
- assert.ok(last.fragments.every(f => f.text.length > 0));
+ assert.ok(last.fragments.every(f => /^\d{2}$/.test(f.text)));
+ assert.equal(new Set(last.fragments.map(f => f.text)).size, 9);
  assert.equal(gameView(g,'a',false).coop.fragments, undefined);
  assert.equal(gameView(g,'x',false).coop.fragments, undefined);
- assert.ok(act(g,'d','coop:cipher',{answer:'CAHAYA FAJAR'}));
+ assert.ok(act(g,'d','coop:cipher',{answer:last.fragments.map(f => f.text).join('')}));
  const alphabetical=['ANI','BUDI','CITRA','DODI','EKA','FANI','GALIH','HANA','IWAN'];
  for(const [seat,name] of alphabetical.entries())assert.equal(act(g,'b','coop:seat',{seat,name}),null);
  assert.equal(g.coop.seatDone,false);
  for(let seat=0;seat<9;seat++)act(g,'b','coop:seat',{seat,name:''});
  const names=['HANA','CITRA','IWAN','ANI','GALIH','EKA','BUDI','FANI','DODI'];
  assert.notDeepEqual(last.fragments.map(f => f.name), names);
- assert.equal(names.map(name => last.fragments.find(f => f.name === name).text).join(''), 'CAHAYAFAJAR');
+ const code = names.map(name => last.fragments.find(f => f.name === name).text).join('');
+ assert.match(code, /^\d{18}$/);
+ assert.notEqual(code, last.fragments.map(f => f.text).join(''));
  assert.doesNotMatch(gameView(g,'a',false).coop.reward || '', /Vigenere/);
  for(const [seat,name] of names.entries())assert.equal(act(g,'b','coop:seat',{seat,name}),null);
  assert.ok(gameView(g,'a',false).coop.reward);assert.equal(gameView(g,'c',false).coop.reward,undefined);
- assert.equal(act(g,'d','coop:cipher',{answer:'CAHAYA FAJAR'}),null);
- assert.ok(act(g,'a','coop:final',{answer:'CAHAYA FAJAR'}));
+ for (const answer of ['CAHAYA FAJAR', '', code.slice(0, -1), code + '0', last.fragments.map(f => f.text).join('')]) {
+  assert.ok(act(g,'d','coop:cipher',{answer}));
+  assert.equal(g.coop.cipherStage, 2);
+ }
+ assert.equal(act(g,'d','coop:cipher',{answer:code.match(/.{2}/g).join(' ')}),null);
+ assert.ok(gameView(g,'c',false).coop.clues.includes(code));
+ assert.ok(act(g,'a','coop:final',{answer:code}));
  for(const e of g.coop.crossword.crosswordEntries)act(g,'a','coop:crossword',{id:e.id,answer:e.answer});
- assert.equal(act(g,'a','coop:final',{answer:'CAHAYA FAJAR'}),null);assert.equal(g.phase,'finished');
+ for (const answer of ['CAHAYA FAJAR', 'wrong', '', code.slice(0, -1), code + '0']) {
+  assert.ok(act(g,'a','coop:final',{answer}));
+  assert.equal(g.phase, 'open');
+ }
+ assert.equal(act(g,'a','coop:final',{answer:code.match(/.{2}/g).join(' ')}),null);assert.equal(g.phase,'finished');
  assert.equal(act(g,'gm','reset',{},true),null);assert.equal(g.coop,undefined);
 });
 

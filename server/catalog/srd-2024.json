@@ -21892,7 +21892,7 @@
       "description": "You touch a closed door, window, gate, container, or hatch and magically lock it for the duration. This lock can't be unlocked by any nonmagical means. You and any creatures you designate when you cast the spell can open and close the object despite the lock. You can also set a password that, when spoken within 5 feet of the object, unlocks it for 1 minute.",
       "duration": "Until dispelled",
       "level": 2,
-      "material": "(gold dust worth 25+ GP, which the spell consumes",
+      "material": "gold dust worth 25+ GP, which the spell consumes",
       "name": "Arcane Lock",
       "range": "Touch",
       "ritual": false,
@@ -21963,10 +21963,10 @@
         "M"
       ],
       "concentration": false,
-      "description": "You receive an omen from an otherworldly entity about the results of a course of action that you plan to take within the next 30 minutes. The GM chooses the omen from the Omens table. Omens Omen    For Results That Will Be ... Woe    Bad  Weal and woe    Good and bad     Indifference    Neither good nor bad The spell doesn't account for circumstances, such as other spells, that might change the results.\n  If you cast the spell more than once before finishing a Long Rest, there is a cumulative 25 percent chance for each casting after the first that you get no answer.",
+      "description": "You receive an omen from an otherworldly entity about the results of a course of action that you plan to take within the next 30 minutes. The GM chooses the omen from the Omens table. Omens\nOmen | For Results That Will Be ...\nWeal | Good\nWoe | Bad\nWeal and woe | Good and bad\nIndifference | Neither good nor bad\n The spell doesn't account for circumstances, such as other spells, that might change the results. If you cast the spell more than once before finishing a Long Rest, there is a cumulative 25 percent chance for each casting after the first that you get no answer.",
       "duration": "Instantaneous",
       "level": 2,
-      "material": "(specially marked sticks, bones, cards, or other divinatory tokens worth 25+ GP",
+      "material": "specially marked sticks, bones, cards, or other divinatory tokens worth 25+ GP",
       "name": "Augury",
       "range": "Self",
       "ritual": true,
@@ -23028,7 +23028,7 @@
         "M"
       ],
       "concentration": true,
-      "description": "Each creature in a 10-foot-radius Sphere centered on a point you choose within range must succeed on a Wisdom saving throw, or that target can't take Bonus Actions or Reactions and must roll 1d10 at the start of each of its turns to determine its behavior for that turn, consulting the table below. 1d10 Behavior for the Turn 2-6    The target doesn't move or take actions. 9-10  The target chooses its behavior.\n  At the end of each of its turns, an affected target repeats the save, ending the spell on itself on a success.",
+      "description": "Each creature in a 10-foot-radius Sphere centered on a point you choose within range must succeed on a Wisdom saving throw, or that target can't take Bonus Actions or Reactions and must roll 1d10 at the start of each of its turns to determine its behavior for that turn, consulting the table below. 1d10 Behavior for the Turn 1 The target doesn't take an action, and it uses all its movement to move. Roll 1d4 for the direction: 1, north; 2, east; 3, south; or 4, west. 2-6 The target doesn't move or take actions. 7-8 The target doesn't move, and it takes the Attack action to make one melee attack against a random creature within reach. If none are within reach, the target takes no action. 9-10 The target chooses its behavior. At the end of each of its turns, an affected target repeats the save, ending the spell on itself on a success.",
       "duration": "up to 1 minute",
       "higher_level": "The Sphere's radius increases by 5 feet for each spell slot level above 4.",
       "level": 4,
@@ -23251,7 +23251,7 @@
           "4": "2d8"
         }
       },
-      "description": "Until the spell ends, you control any water inside an area you choose that is a Cube up to 100 feet on a side, using one of the following effects. As a Magic action on your later turns, you can repeat the same effect or choose a different one.\n  Flood. You cause the water level of all standing water in the area to rise by as much as 20 feet. If you choose an area in a large body of water, you instead create a 20-foot tall wave that travels from one side of the area to the other and then crashes. Any Huge or smaller vehicles in the wave's path are carried with it to the other side. Any Huge or smaller vehicles struck by the wave have a 25 percent chance of capsizing.\n  The water level remains elevated until the spell ends or you choose a different effect. If this effect produced a wave, the wave repeats on the start of your next turn while the flood effect lasts.\n  Part Water. You part water in the area and create a trench. The trench extends across the spell's area, and the separated water forms a wall to either side. The trench remains until the spell ends or you choose a different effect. The water then slowly fills in the trench over the course of the next round until the normal water level is restored. conditions to take effect. Once they do so, you can change the conditions again. When the spell ends, the weather gradually returns to normal.\n  When you change the weather conditions, find a current condition on the following tables and change its stage by one, up or down. When changing the wind, you can change its direction. Precipitation Stage | Condition\n1 | Clear | 2 | Light clouds\n3 | Overcast or ground fog | 4 | Rain, hail, or snow\n5 | Torrential rain, driving hail, or blizzard    \n  Redirect Flow. You cause flowing water in the area to move in a direction you choose, even if the water has to flow over obstacles, up walls, or in other unlikely directions. The water in the area moves as you direct it, but once it moves beyond the spell's area, it resumes its flow based on the terrain. The water continues to move in the direction you chose until the spell ends or you choose a different effect.\n  Whirlpool. You cause a whirlpool to form in the center of the area, which must be at least 50 feet. Temperature Stage | Condition\n1 | Heat wave | 2 | Hot\n3 | Warm | 4 | Cool\n5 | Cold | 6 | Freezing Counterspell Wind Stage Condition\n10 | Calm | 2 | Moderate wind\n3 | Strong wind | 4 | Gale\n5 | Storm    square and 25 feet deep. The whirlpool lasts until you choose a different effect or the spell ends. The whirlpool is 5 feet wide at the base, up to 50 feet wide at the top, and 25 feet tall. Any creature in the water and within 25 feet of the whirlpool is pulled 10 feet toward it. When a creature enters the whirl- pool for the first time on a turn or ends its turn there, it makes a Strength saving throw. On a failed save, the creature takes 2d8 Bludgeoning damage. On a successful save, the creature takes half as much damage. A creature can swim away from the whirlpool only if it first takes an action to pull away and succeeds on a Strength (Athletics) check against your spell save DC.",
+      "description": "Until the spell ends, you control any water inside an area you choose that is a Cube up to 100 feet on a side, using one of the following effects. As a Magic action on your later turns, you can repeat the same effect or choose a different one. Flood. You cause the water level of all standing water in the area to rise by as much as 20 feet. If you choose an area in a large body of water, you instead create a 20-foot tall wave that travels from one side of the area to the other and then crashes. Any Huge or smaller vehicles in the wave's path are carried with it to the other side. Any Huge or smaller vehicles struck by the wave have a 25 percent chance of capsizing. The water level remains elevated until the spell ends or you choose a different effect. If this effect produced a wave, the wave repeats on the start of your next turn while the flood effect lasts. Part Water. You part water in the area and create a trench. The trench extends across the spell's area, and the separated water forms a wall to either side. The trench remains until the spell ends or you choose a different effect. The water then slowly fills in the trench over the course of the next round until the normal water level is restored. Redirect Flow. You cause flowing water in the area to move in a direction you choose, even if the water has to flow over obstacles, up walls, or in other unlikely directions. The water in the area moves as you direct it, but once it moves beyond the spell's area, it resumes its flow based on the terrain. The water continues to move in the direction you chose until the spell ends or you choose a different effect. Whirlpool. You cause a whirlpool to form in the center of the area, which must be at least 50 feet square and 25 feet deep. The whirlpool lasts until you choose a different effect or the spell ends. The whirlpool is 5 feet wide at the base, up to 50 feet wide at the top, and 25 feet tall. Any creature in the water and within 25 feet of the whirlpool is pulled 10 feet toward it. When a creature enters the whirlpool for the first time on a turn or ends its turn there, it makes a Strength saving throw. On a failed save, the creature takes 2d8 Bludgeoning damage. On a successful save, the creature takes half as much damage. A creature can swim away from the whirlpool only if it first takes an action to pull away and succeeds on a Strength (Athletics) check against your spell save DC.",
       "duration": "up to 10 minutes",
       "level": 4,
       "material": "a mixture of water and dust",
@@ -24125,7 +24125,9 @@
           "url": "/api/2024/classes/paladin"
         }
       ],
-      "components": [],
+      "components": [
+        "V"
+      ],
       "concentration": false,
       "damage": {
         "damage_type": {
@@ -24142,7 +24144,7 @@
       "higher_level": "The damage increases by 1d8 for each spell slot level above 1.",
       "level": 1,
       "name": "Divine Smite",
-      "range": "Self Component: V",
+      "range": "Self",
       "ritual": false,
       "school": {
         "index": "evocation",
@@ -24871,14 +24873,17 @@
           "url": "/api/2024/classes/paladin"
         }
       ],
-      "components": [],
+      "components": [
+        "V",
+        "S"
+      ],
       "concentration": false,
       "description": "You summon an otherworldly being that appears as a loyal steed in an unoccupied space of your choice within range. This creature uses the Otherworldly Steed stat block. If you already have a steed from this spell, the steed is replaced by the new one.\n  The steed resembles a Large, rideable animal of your choice, such as a horse, a camel, a dire wolf, or an elk. Whenever you cast the spell, choose the steed's creature type-Celestial, Fey, or Fiendwhich determines certain traits in the stat block.\n  Combat. The steed is an ally to you and your allies. In combat, it shares your Initiative count, and it functions as a controlled mount while you ride it (as defined in the rules on mounted combat). If you have the Incapacitated condition, the steed takes its turn immediately after yours and acts independently, focusing on protecting you.\n  Disappearance of the Steed. The steed disappears if it drops to 0 Hit Points or if you die. When it disappears, it leaves behind anything it was wearing or carrying. If you cast this spell again, you decide whether you summon the steed that disappeared or a different one.",
       "duration": "Instantaneous",
       "higher_level": "Use the spell slot's level for the spell's level in the stat block. Large Celestial, Fey, or Fiend (Your Choice), Neutral AC 10 + 1 per spell level HP 5 + 10 per spell level (the steed has a number of Hit Dice [d10s] equal to the spell's level) Speed 60 ft., Fly 60 ft. (requires level 4+ spell) MOD SAVE    MOD SAVE    MOD SAVE Str 18 +4 +4 dex 12 +1 +1 con 14 +2 +2 int 6 -2 -2 WiS 12 +1 +1 chA 8 -1 -1 Senses Passive Perception 11 Languages Telepathy 1 mile (works only with you) CR None (XP 0; PB equals your Proficiency Bonus) Traits     Life Bond. When you regain Hit Points from a level 1+ spell, the steed regains the same number of Hit Points if you're within 5 feet of it. Actions     Otherworldly Slam. Melee Attack Roll: Bonus equals your spell attack modifier, reach 5 ft. Hit: 1d8 plus the spell's level of Radiant (Celestial), Psychic (Fey), or Necrotic (Fiend) damage. Bonus Actions     Fell Glare (Fiend Only; Recharges after a Long Rest). Wisdom Saving Throw: DC equals your spell save DC, one creature within 60 feet the steed can see. Failure: The target has the Frightened condition until the end of your next turn. Fey Step (Fey Only; Recharges after a Long Rest). The steed teleports, along with its rider, to an unoccupied space of your choice up to 60 feet away from itself. Healing Touch (Celestial Only; Recharges after a Long Rest). One creature within 5 feet of the steed regains a number of Hit Points equal to 2d8 plus the spell's level.",
       "level": 2,
       "name": "Find Steed",
-      "range": "30 feet Component: V, S",
+      "range": "30 feet",
       "ritual": false,
       "school": {
         "index": "conjuration",
@@ -25653,13 +25658,16 @@
           "url": "/api/2024/classes/druid"
         }
       ],
-      "components": [],
+      "components": [
+        "V",
+        "S"
+      ],
       "concentration": true,
       "description": "You touch a willing creature and choose a skill. Until the spell ends, the creature adds 1d4 to any ability check using the chosen skill.",
       "duration": "up to 1 minute",
       "level": 0,
       "name": "Guidance",
-      "range": "Touch Component: V, S",
+      "range": "Touch",
       "ritual": false,
       "school": {
         "index": "divination",
@@ -28274,11 +28282,11 @@
         "S",
         "M"
       ],
-      "concentration": false,
+      "concentration": true,
       "description": "Until the spell ends, one willing creature you touch is protected against creatures that are Aberrations, Celestials, Elementals, Fey, Fiends, or Undead. The protection grants several benefits. Creatures of those types have Disadvantage on attack rolls against the target. The target also can't be possessed by or gain the Charmed or Frightened conditions from them. If the target is already possessed, Charmed, or Frightened by such a creature, the target has Advantage on any new saving throw against the relevant effect.",
-      "duration": "Concentration up to 10 minutes",
+      "duration": "up to 10 minutes",
       "level": 1,
-      "material": "a flask of Holy Water worth 25+, GP, which the spell consumes",
+      "material": "a flask of Holy Water worth 25+ GP, which the spell consumes",
       "name": "Protection from Evil and Good",
       "range": "Touch",
       "ritual": false,
@@ -28595,13 +28603,16 @@
           "url": "/api/2024/classes/druid"
         }
       ],
-      "components": [],
+      "components": [
+        "V",
+        "S"
+      ],
       "concentration": true,
       "description": "You touch a willing creature and choose a damage type: Acid, Bludgeoning, Cold, Fire, Lightning, Necrotic, Piercing, Poison, Radiant, Slashing, or Thunder. When the creature takes damage of the chosen type before the spell ends, the creature reduces the total damage taken by 1d4. A creature can benefit from this spell only once per turn.",
       "duration": "up to 1 minute",
       "level": 0,
       "name": "Resistance",
-      "range": "Touch Component: V, S",
+      "range": "Touch",
       "ritual": false,
       "school": {
         "index": "abjuration",
@@ -28820,7 +28831,9 @@
           "url": "/api/2024/classes/paladin"
         }
       ],
-      "components": [],
+      "components": [
+        "V"
+      ],
       "concentration": false,
       "damage": {
         "damage_type": {
@@ -28837,7 +28850,7 @@
       "higher_level": "All the damage increases by 1d6 for each spell slot level above 1.",
       "level": 1,
       "name": "Searing Smite",
-      "range": "Self Component: V",
+      "range": "Self",
       "ritual": false,
       "school": {
         "index": "evocation",
@@ -29425,13 +29438,16 @@
           "url": "/api/2024/classes/sorcerer"
         }
       ],
-      "components": [],
+      "components": [
+        "V",
+        "S"
+      ],
       "concentration": false,
       "description": "You cast sorcerous energy at one creature or object within range. Make a ranged spell attack against the target. On a hit, the target takes 1d8 damage of a type you choose: Acid, Cold, Fire, Lightning, Poison, Psychic, or Thunder.\n  If you roll an 8 on a d8 for this spell, you can roll another d8, and add it to the damage. When you cast this spell, the maximum number of these d8s you can add to the spell's damage equals your spellcasting ability modifier.\n  Cantrip Upgrade. The damage increases by 1d8 when you reach levels 5 (2d8), 11 (3d8), and 17 (4d8).",
       "duration": "Instantaneous",
       "level": 0,
       "name": "Sorcerous Burst",
-      "range": "120 feet Component: V, S",
+      "range": "120 feet",
       "ritual": false,
       "school": {
         "index": "evocation",

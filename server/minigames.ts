@@ -7,7 +7,7 @@ const bombOrders = [['red', 'blue', 'yellow'], ['yellow', 'red', 'blue'], ['blue
 const bombKeypads = [['☾', '★', '☂', '♜'], ['☂', '♜', '☾', '★'], ['★', '☂', '♜', '☾']];
 const wireSymbols = ['BURUNG', 'MAHKOTA', 'MATA', 'PEDANG'];
 const wireSymbolMarks: Record<string, string> = { BURUNG: '🐦', MAHKOTA: '♛', MATA: '◉', PEDANG: '⚔' };
-const boardSize = (kind: GameKind) => kind === 'connectfour' ? 42 : kind === 'bombdefuse' ? 3 : 9;
+const boardSize = (kind: GameKind) => kind === 'wallclock' ? 3 : kind === 'connectfour' ? 42 : kind === 'bombdefuse' ? 3 : 9;
 type BombModule = { id: 'wires' | 'button' | 'keypad' | 'dial'; label: string; options: string[]; clue: string; solution?: string[]; progress: string[] };
 type CipherLayer = { title: string; cipher: string; clue: string; method: string; answer?: string };
 type CrosswordEntry = { id: string; clue: string; cells: number[]; answer?: string };
@@ -157,7 +157,7 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
     delete game.question; delete game.answer; delete game.memoryBoard; delete game.memoryCloseAt; delete game.wires; delete game.bombModules; delete game.cipherLayers; delete game.cipherStage; delete game.crosswordEntries; delete game.crosswordSolved; delete game.crosswordLetters; delete game.seatingNames; delete game.seatingSeats; delete game.seatingClues; delete game.seatingSolution; delete game.drawingRound; delete game.drawingChoices; delete game.drawingWord; delete game.drawingStrokes;
   } else if (action.type === 'start') {
     if (!dm) return 'Hanya GM boleh memulai ronde.';
-    const openParty = (game.kind === 'crossword' || game.kind === 'ttspilihan') || game.kind === 'seating';
+    const openParty = (game.kind === 'crossword' || game.kind === 'ttspilihan') || game.kind === 'seating' || game.kind === 'wallclock';
     if (game.phase !== 'waiting' || (!openParty && game.players.length < (gameCatalog[game.kind].mode === 'duel' ? 2 : 1))) return 'Peserta belum cukup atau ronde belum direset.';
     if (game.kind === 'drawing') {
       game.drawingRound = 0;
@@ -259,6 +259,13 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
       game.scores[playerId] = (game.scores[playerId] || 0) + 1;
       game.phase = 'finished';
     }
+  } else if (action.type === 'clock:set') {
+    if (game.kind !== 'wallclock' || game.phase !== 'open' || typeof action.clock !== 'number' || !Number.isInteger(action.clock) || action.clock < 0 || action.clock > 2 || typeof action.hour !== 'number' || !Number.isInteger(action.hour) || action.hour < 1 || action.hour > 12 || typeof action.minute !== 'number' || !Number.isInteger(action.minute) || action.minute < 0 || action.minute > 59) return fail;
+    if (game.board[action.clock]) return 'Jam ini sudah terkunci.';
+    const time = `${action.hour}:${String(action.minute).padStart(2, '0')}`;
+    if (time !== ['2:45', '8:15', '6:45'][action.clock]) return 'Jarum belum menunjukkan waktu yang tepat.';
+    game.board[action.clock] = time;
+    if (game.board.every(Boolean)) { game.phase = 'finished'; game.result = playerId; }
   } else if (action.type === 'seating:place') {
     if (game.kind !== 'seating' || game.phase !== 'open' || typeof action.seat !== 'number' || !Number.isInteger(action.seat) || action.seat < 0 || action.seat > 8 || typeof action.name !== 'string' || (action.name && !game.seatingNames?.includes(action.name))) return fail;
     if (action.name && game.seatingSeats?.some((name, seat) => name === action.name && seat !== action.seat)) return 'Nama itu sudah ditempatkan.';

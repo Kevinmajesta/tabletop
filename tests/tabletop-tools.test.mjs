@@ -71,6 +71,15 @@ test('two-player tools, scene isolation, DM permissions and hidden token payload
     await fetch(`${base}/api/rooms/${room.id}/upload/token`, { method: 'POST', headers: { 'x-player-id': 'player', 'x-player-secret': 'secret-player' }, body: form });
     await new Promise(r => setTimeout(r, 50));
     const hero = player.state.tokens[0].id;
+    assert.ok((await action(player, { type: 'token:update', id: hero, dead: true })).error);
+    assert.equal((await action(dm, { type: 'token:update', id: hero, dead: true })).ok, true);
+    await new Promise(r => setTimeout(r, 50));
+    assert.equal(player.state.tokens.find(t => t.id === hero).dead, true);
+    assert.equal(dm.state.tokens.find(t => t.id === hero).dead, true);
+    assert.ok((await action(dm, { type: 'token:update', id: hero, dead: 'yes' })).error);
+    assert.equal((await action(dm, { type: 'token:update', id: hero, dead: false })).ok, true);
+    await new Promise(r => setTimeout(r, 50));
+    assert.equal(player.state.tokens.find(t => t.id === hero).dead, false);
     const duplicated = await new Promise(resolve => player.socket.emit('token:duplicate', hero, resolve));
     assert.equal(duplicated.ok, true);
     await new Promise(r => setTimeout(r, 50));

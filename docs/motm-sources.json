@@ -1,0 +1,176 @@
+{
+  "book": "Mordenkainen Presents: Monsters of the Multiverse (2022)",
+  "officialIndex": "https://www.dndbeyond.com/sources/dnd/motm",
+  "speciesIndex": "https://www.dndbeyond.com/species",
+  "count": 33,
+  "uniqueCount": 33,
+  "entries": [
+    {
+      "id": "aarakocra",
+      "source": "https://dnd5e.wikidot.com/lineage:aarakocra",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "aasimar",
+      "source": "https://dnd5e.wikidot.com/lineage:aasimar",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "bugbear",
+      "source": "https://dnd5e.wikidot.com/lineage:bugbear",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "centaur",
+      "source": "https://dnd5e.wikidot.com/lineage:centaur",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "changeling",
+      "source": "https://dnd5e.wikidot.com/lineage:changeling",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "deep-gnome",
+      "source": "https://dnd5e.wikidot.com/lineage:deep-gnome",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "duergar",
+      "source": "https://dnd5e.wikidot.com/lineage:duergar",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "eladrin",
+      "source": "https://dnd5e.wikidot.com/lineage:eladrin",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "fairy",
+      "source": "https://dnd5e.wikidot.com/lineage:fairy",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "firbolg",
+      "source": "https://dnd5e.wikidot.com/lineage:firbolg",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "genasi-air",
+      "source": "https://dnd5e.wikidot.com/lineage:genasi-air",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "genasi-earth",
+      "source": "https://dnd5e.wikidot.com/lineage:genasi-earth",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "genasi-fire",
+      "source": "https://dnd5e.wikidot.com/lineage:genasi-fire",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "genasi-water",
+      "source": "https://dnd5e.wikidot.com/lineage:genasi-water",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "githyanki",
+      "source": "https://dnd5e.wikidot.com/lineage:githyanki",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "githzerai",
+      "source": "https://dnd5e.wikidot.com/lineage:githzerai",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "goblin",
+      "source": "https://dnd5e.wikidot.com/lineage:goblin",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "goliath",
+      "source": "https://dnd5e.wikidot.com/lineage:goliath",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "harengon",
+      "source": "https://dnd5e.wikidot.com/lineage:harengon",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "hobgoblin",
+      "source": "https://dnd5e.wikidot.com/lineage:hobgoblin",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "kenku",
+      "source": "https://dnd5e.wikidot.com/lineage:kenku",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "kobold",
+      "source": "https://dnd5e.wikidot.com/lineage:kobold",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "lizardfolk",
+      "source": "https://dnd5e.wikidot.com/lineage:lizardfolk",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "minotaur",
+      "source": "https://dnd5e.wikidot.com/lineage:minotaur",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "orc",
+      "source": "https://dnd5e.wikidot.com/lineage:orc",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "satyr",
+      "source": "https://dnd5e.wikidot.com/lineage:satyr",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "sea-elf",
+      "source": "https://dnd5e.wikidot.com/lineage:sea-elf",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "shadar-kai",
+      "source": "https://dnd5e.wikidot.com/lineage:shadar-kai",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "shifter",
+      "source": "https://dnd5e.wikidot.com/lineage:shifter",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "tabaxi",
+      "source": "https://dnd5e.wikidot.com/lineage:tabaxi",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "tortle",
+      "source": "https://dnd5e.wikidot.com/lineage:tortle",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "triton",
+      "source": "https://dnd5e.wikidot.com/lineage:triton",
+      "verifiedMotMSection": true
+    },
+    {
+      "id": "yuan-ti",
+      "source": "https://dnd5e.wikidot.com/lineage:yuan-ti",
+      "verifiedMotMSection": true
+    }
+  ],
+  "additionalSpellReference": "https://roll20.net/compendium/dnd5e/Spells:Blade%20Ward?expansion=32231",
+  "scope": "33 playable species; no new spell or feat chapter; existing spell references use 2024 versions"
+}

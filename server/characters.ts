@@ -1,3 +1,5 @@
+import { aasimarRace, aasimarTraits, phbSpeciesSizes } from "./catalog/phb-species.js";
+import { motmExtraSpells, motmRaces, motmTraits, motmGroups, motmFor, motmSpells } from "./catalog/motm.js";
 import revisedSnapshot from "./catalog/srd-2024.json" with { type: "json" };
 import {
   phbSubclasses,
@@ -111,6 +113,7 @@ export type Entry = Ref & {
   casting_time?: string;
   range?: string;
   duration?: string;
+  concentration?: boolean;
   components?: string[];
   feature?: { name: string; desc: string[] };
   starting_proficiencies?: Ref[];
@@ -189,6 +192,14 @@ export type BuildInput = {
   shield: boolean;
   notes: string;
 };
+export const coinDenominations = ["cp", "sp", "ep", "gp", "pp"] as const;
+export type Currency = Record<(typeof coinDenominations)[number], number>;
+export function startingCurrency(sheet?: Pick<Sheet, "equipment">): Currency {
+  const currency: Currency = { cp: 0, sp: 0, ep: 0, gp: 0, pp: 0 };
+  for (const coin of coinDenominations)
+    currency[coin] = (sheet?.equipment || []).filter(item => item.id === coin).reduce((sum, item) => sum + item.count, 0);
+  return currency;
+}
 export type Character = {
   id: string;
   ownerId: string;
@@ -201,6 +212,7 @@ export type Character = {
   slotsUsed: number;
   spellSlotsUsed?: Record<string, number>;
   resourcesUsed?: Record<string, number>;
+  currency?: Currency;
   concentration?: string;
   concentrationSaveDC?: number;
   deathSuccess: number;
@@ -219,6 +231,8 @@ export type Sheet = {
   hp: number;
   ac: number;
   speed: number;
+  movement?: Record<string,number>;
+  innateSpells?: {id:string; ability:Ability; dc:number; attack:number; uses:string}[];
   initiative: number;
   proficiency: number;
   skills: {
@@ -278,7 +292,7 @@ export const pointCost = (score: number) =>
 const revisedRaw = revisedSnapshot as unknown as Catalog;
 export const revisedCatalog: Catalog = {
   ...revisedRaw,
-  traits: revisedRaw.traits.map((trait) => ({
+  traits: [...aasimarTraits, ...motmTraits, ...revisedRaw.traits.map((trait) => ({
     ...trait,
     desc: [
       ...(trait.desc?.length
@@ -296,8 +310,8 @@ export const revisedCatalog: Catalog = {
         })
         .filter(Boolean),
     ],
-  })),
-  spells: revisedRaw.spells.map((spell) => ({
+  }))],
+  spells: [...motmExtraSpells.map(spell => spell.index === 'blade-ward' ? {...spell, concentration: true} : spell), ...revisedRaw.spells.map((spell) => ({
     ...spell,
     desc: [
       ...(spell.desc?.length
@@ -311,7 +325,7 @@ export const revisedCatalog: Catalog = {
           ]
         : []),
     ],
-  })),
+  }))],
   subclasses: [...revisedRaw.subclasses, ...phbSubclasses],
   equipment: revisedRaw.equipment.map((e) => ({
     ...e,
@@ -339,10 +353,11 @@ export const revisedCatalog: Catalog = {
       ? "Ranged"
       : "Melee",
   })),
-  races: revisedRaw.races.map((r) => ({
+  races: [aasimarRace, ...motmRaces, ...revisedRaw.races.map((r) => ({
     ...r,
+    ...(phbSpeciesSizes[r.index] ? {size: phbSpeciesSizes[r.index].join(' / ')} : {}),
     subraces: (r as Entry & Progression).subspecies || [],
-  })),
+  }))],
   subraces: revisedRaw.subraces.map((r) => ({
     ...r,
     racial_traits: r.traits || [],
@@ -536,7 +551,7 @@ export function buildGroups(build: BuildInput): ChoiceGroup[] {
     race = catalog.races.find((r) => r.index === build.race),
     sub = catalog.subraces.find((r) => r.index === build.subrace),
     bg = catalog.backgrounds.find((b) => b.id === build.background);
-  const groups: ChoiceGroup[] = [];
+  const groups: ChoiceGroup[] = motmGroups(build, catalog);
   const add = (
     key: string,
     name: string,
@@ -544,12 +559,15 @@ export function buildGroups(build: BuildInput): ChoiceGroup[] {
     options: ChoiceGroup["options"],
     kind: ChoiceGroup["kind"],
   ) => groups.push({ key, name, count, options, kind });
+  if (phbSpeciesSizes[build.race]) add("race.size", `Ukuran ${race?.name || build.race}`, 1, phbSpeciesSizes[build.race].map(id=>({id,name:id})), "feature");
+  if (["elf", "gnome", "tiefling"].includes(build.race))
+    add("race.spell-ability", "Ability spell lineage (bukan bonus score)", 1, ["int", "wis", "cha"].map(id=>({id,name:id.toUpperCase()})), "feature");
   bg?.skills.forEach((options, i) =>
     add(
       `background.skill.${i}`,
       `Background: skill ${i + 1}`,
       1,
-      options.map((id) => ({
+      (options.some(id=>motmFor(build)?.skills?.includes(id)) ? catalog.skills.map(s=>s.index).filter(id=>!motmFor(build)?.skills?.includes(id)) : options).map((id) => ({
         id,
         name: catalog.skills.find((s) => s.index === id)?.name || id,
       })),
@@ -587,7 +605,7 @@ export function buildGroups(build: BuildInput): ChoiceGroup[] {
     const choice = !Array.isArray(trait.proficiency_choices)
       ? trait.proficiency_choices
       : undefined;
-    if (choice)
+    if (choice && !(build.race === "human" && trait.index === "skillful"))
       add(
         `trait.${trait.index}`,
         trait.name,
@@ -596,7 +614,15 @@ export function buildGroups(build: BuildInput): ChoiceGroup[] {
           ...o,
           id: o.id.startsWith("skill-") ? o.id.slice(6) : o.id,
         })),
-        trait.index === "skill-versatility" ? "skill" : "tool",
+        references(choice).every(o => catalog.skills.some(s => s.index === o.id.replace(/^skill-/, ""))) ? "skill" : "tool",
+      );
+    if (trait.index === "high-elf-cantrip-versatility")
+      add(
+        `trait.spell.${trait.index}`,
+        "High Elf: cantrip setelah Long Rest",
+        1,
+        catalog.spells.filter(s => s.level === 0 && s.classes?.some(c => c.index === "wizard")).map(s => ({ id: s.index, name: s.name })),
+        "spell",
       );
     if (trait.trait_specific?.spell_options)
       add(
@@ -1286,8 +1312,8 @@ export function buildGroups(build: BuildInput): ChoiceGroup[] {
     }
     add(
       "character.languages",
-      "Dua bahasa tambahan",
-      2,
+      motmFor(build) ? "Satu bahasa tambahan MotM" : "Dua bahasa tambahan",
+      motmFor(build) ? 1 : 2,
       catalog.languages
         .filter((l) => l.index !== "common")
         .map((l) => ({ id: l.index, name: l.name })),
@@ -1408,6 +1434,16 @@ export function buildGroups(build: BuildInput): ChoiceGroup[] {
   (klass?.starting_equipment_options || []).forEach((c, i) =>
     groups.push(...selectedEquipmentGroups(c, `equipment.${i}`, build)),
   );
+  if (["motm:eladrin", "motm:sea-elf", "motm:shadar-kai"].includes(build.race)) {
+    // Remove the species before deriving existing training: Trance must not count itself or recurse.
+    const owned = deriveSheet({...build, race:"", subrace:""}).proficiencies;
+    const trance = groups.find(g=>g.key==="motm.trance");
+    if (trance) trance.options = trance.options.filter(o=>{
+      const equipment = catalog.equipment.find(e=>e.index===o.id);
+      return !owned.includes(o.id) && !owned.includes(`tool-${o.id}`) &&
+        !(equipment?.weapon_category && owned.includes(`${equipment.weapon_category.toLowerCase()}-weapons`));
+    });
+  }
   return groups;
 }
 export function spellLimits(
@@ -1526,12 +1562,19 @@ export function finalScores(build: BuildInput) {
       if (abilities.includes(id as Ability)) result[id as Ability]++;
   return result;
 }
+export type BuildIssue = {
+  message: string;
+  section: "identity" | "ability" | "proficiency" | "equipment" | "spell";
+  groupKey?: string;
+};
 export function validateBuild(input: unknown): {
   build?: BuildInput;
   errors: string[];
+  issues?: BuildIssue[];
   sheet?: Sheet;
 } {
   const errors: string[] = [];
+  const issues: BuildIssue[] = [];
   if (!input || typeof input !== "object")
     return { errors: ["Data karakter tidak valid."] };
   const p = input as Record<string, unknown>,
@@ -1626,11 +1669,11 @@ export function validateBuild(input: unknown): {
       !Array.isArray(values) ||
       values.length !== 2 ||
       values.some((v) => !abilities.includes(v))
-    )
-      errors.push(
-        `ASI level ${level}: pilih dua peningkatan +1 (boleh ability sama).`,
-      );
-    else build.asi[level] = values as Ability[];
+    ) {
+      const message = `ASI level ${level}: pilih dua peningkatan +1 (boleh ability sama).`;
+      errors.push(message);
+      issues.push({ message, section: "ability", groupKey: `asi.${level}` });
+    } else build.asi[level] = values as Ability[];
   }
   if (!build.name) errors.push("Isi nama karakter.");
   const klass = catalog.classes.find((c) => c.index === build.classId),
@@ -1650,6 +1693,7 @@ export function validateBuild(input: unknown): {
     }
   }
   if (!race) errors.push("Race tidak tersedia.");
+  if (build.race === "motm:tortle" && build.armor) errors.push("Tortle tidak dapat memakai armor.");
   if (
     race &&
     (race.subraces?.length
@@ -1684,8 +1728,15 @@ export function validateBuild(input: unknown): {
     if (
       selected.length !== group.count ||
       selected.some((id) => !group.options.some((o) => o.id === id))
-    )
-      errors.push(`${group.name}: pilih ${group.count} opsi yang valid.`);
+    ) {
+      const message = `${group.name}: pilih ${group.count} opsi yang valid.`;
+      errors.push(message);
+      issues.push({
+        message,
+        section: group.kind === "ability" ? "ability" : group.kind === "equipment" ? "equipment" : group.kind === "spell" ? "spell" : "proficiency",
+        groupKey: group.key,
+      });
+    }
   }
   const selectedSkills = groups
     .filter((g) => g.kind === "skill")
@@ -1787,10 +1838,17 @@ export function validateBuild(input: unknown): {
   if (
     new Set([...selectedSkills, ...fixedSkills]).size !==
     selectedSkills.length + fixedSkills.length
-  )
-    errors.push(
-      "Skill proficiency ganda. Pilih skill lain; proficiency tetap tidak ditumpuk.",
+  ) {
+    const message = "Skill proficiency ganda. Pilih skill lain; proficiency tetap tidak ditumpuk.";
+    errors.push(message);
+    const duplicate = selectedSkills.find((id, index) => selectedSkills.indexOf(id) !== index || fixedSkills.includes(id));
+    const involved = groups.filter((g) =>
+      (g.kind === "skill" || g.key === "origin.skills" || g.key === "human.skilled") &&
+      duplicate !== undefined && choices[g.key]?.includes(duplicate),
     );
+    const group = involved.find((g) => g.options.length > g.count) || involved[0];
+    issues.push({ message, section: "proficiency", groupKey: group?.key });
+  }
   const languages = groups
     .filter((g) => g.kind === "language")
     .flatMap((g) => choices[g.key] || []);
@@ -1819,10 +1877,19 @@ export function validateBuild(input: unknown): {
               s.classes?.some((c) => c.index === limits.spellClass),
           ),
       )
-    )
-      errors.push(
-        `${key}: pilih ${count} spell dari daftar class dan level yang tersedia.`,
-      );
+    ) {
+      const message = `${key}: pilih ${count} spell dari daftar class dan level yang tersedia.`;
+      errors.push(message);
+      issues.push({ message, section: "spell", groupKey: key });
+    }
+  }
+  // Base spells are normal level-up acquisitions; Savant bonuses are separate choices.
+  if (build.classId === "wizard" && [2, 3].some(rank =>
+    build.spells.filter(id => (catalog.spells.find(s => s.index === id)?.level || 0) >= rank).length > Math.max(0, 2 * (levelFor(build) - 2 * (rank - 1)))
+  )) {
+    const message = "Spellbook: progresi Wizard memerlukan enam spell level 1 awal, dua tambahan tiap level, sesuai slot saat diperoleh.";
+    errors.push(message);
+    issues.push({ message, section: "spell", groupKey: "spells" });
   }
   const spellbook = [
     ...build.spells,
@@ -1832,10 +1899,11 @@ export function validateBuild(input: unknown): {
   if (
     build.prepared.length !== Math.min(limits.prepared, spellbook.length) ||
     build.prepared.some((id) => !spellbook.includes(id))
-  )
-    errors.push(
-      `Prepared spells: pilih ${Math.min(limits.prepared, build.spells.length)} dari spellbook.`,
-    );
+  ) {
+    const message = `Prepared spells: pilih ${Math.min(limits.prepared, spellbook.length)} dari spellbook.`;
+    errors.push(message);
+    issues.push({ message, section: "spell", groupKey: "prepared" });
+  }
   const sheet = deriveSheet(build);
   if (
     build.armor &&
@@ -1849,7 +1917,7 @@ export function validateBuild(input: unknown): {
     errors.push("Armor harus berasal dari equipment karakter.");
   if (build.shield && !sheet.equipment.some((e) => e.id === "shield"))
     errors.push("Shield belum dimiliki.");
-  return { build, errors, sheet };
+  return { build, errors, issues, sheet };
 }
 export function deriveSheet(build: BuildInput): Sheet {
   build = { ...build, ruleset: "srd-2024" };
@@ -1872,8 +1940,8 @@ export function deriveSheet(build: BuildInput): Sheet {
   const traits = catalog.traits.filter(
     (t) =>
       traitIds.includes(t.index) &&
-      (t.index !== "lineage-spell-longstrider" || level >= 3) &&
-      (t.index !== "lineage-spell-pass-without-trace" || level >= 5),
+      (t.index !== "aasimar-celestial-revelation" || level >= 3) &&
+      level >= (((sub?.racial_traits || []).find(ref => ref.index === t.index) as Ref & {level?:number})?.level || 1),
   );
   const skills = new Set([
     ...groups
@@ -1967,6 +2035,8 @@ export function deriveSheet(build: BuildInput): Sheet {
       (armor.armor_class.dex_bonus
         ? Math.min(modifiers.dex, armor.armor_class.max_bonus ?? 99)
         : 0);
+  if (build.race === "motm:tortle") ac = Math.max(!armor ? ac : 0, 17);
+  if (build.race === "motm:lizardfolk") ac = Math.max(ac, 13 + modifiers.dex);
   if (shield) ac += 2;
   if (armor && featureChoices.includes("fighter-fighting-style-defense")) ac++;
   const proficiencies = [
@@ -2070,8 +2140,9 @@ export function deriveSheet(build: BuildInput): Sheet {
       },
     ];
   });
+  const martialArts = build.classId === "monk" && !armor && !shield;
   const unarmedAbility =
-    build.classId === "monk"
+    martialArts
       ? Math.max(modifiers.str, modifiers.dex)
       : modifiers.str;
   attacks.push({
@@ -2079,7 +2150,7 @@ export function deriveSheet(build: BuildInput): Sheet {
     name: "Unarmed Strike",
     bonus: unarmedAbility + proficiency,
     damage:
-      build.classId === "monk"
+      martialArts
         ? `1d${level >= 5 ? 8 : 6}${unarmedAbility >= 0 ? "+" : ""}${unarmedAbility}`
         : origin?.feat.index === "tavern-brawler" ||
             build.choices["human.feat"]?.includes("tavern-brawler")
@@ -2093,6 +2164,8 @@ export function deriveSheet(build: BuildInput): Sheet {
       bonus: Math.max(modifiers.str, modifiers.dex) + proficiency,
       damage: `1d6${Math.max(modifiers.str, modifiers.dex) >= 0 ? "+" : ""}${Math.max(modifiers.str, modifiers.dex)}`,
     });
+  const species = motmFor(build);
+  if (species?.natural) attacks.push({id:"motm-natural",name:species.natural,bonus:unarmedAbility+proficiency,damage:`1d${martialArts && level>=5 ? 8 : 6}${unarmedAbility>=0?"+":""}${unarmedAbility}`});
   const skillRows = catalog.skills.map((s) => {
     const expertise = [
       ...(build.choices["class.expertise"] || []),
@@ -2128,7 +2201,13 @@ export function deriveSheet(build: BuildInput): Sheet {
     };
   });
   const limits = spellLimits(build, scores);
-  const spells = [...build.spells];
+  const lineageSpellTraits = traits.filter(t => t.index !== "high-elf-cantrip-versatility" || !build.choices["trait.spell.high-elf-cantrip-versatility"]?.length);
+  const lineageInnate = lineageSpellTraits.flatMap(t=>(t.spells || []).map(ref=>"spell" in ref ? ref.spell.index : ref.index));
+  if (build.subrace === "elven-lineage-wood-elf") lineageInnate.push("druidcraft");
+  if (build.race === "tiefling") lineageInnate.push("thaumaturgy");
+  if (["elf", "gnome"].includes(build.race)) lineageInnate.push(...groups.filter(g=>g.kind==="spell"&&g.key.startsWith("trait.spell.")).flatMap(g=>build.choices[g.key]||[]));
+  const innate = [...new Set([...motmSpells(build), ...lineageInnate])];
+  const spells = [...build.spells, ...innate.filter(id=>catalog.spells.find(s=>s.index===id)?.level !== 0)];
   const extra = subclass && extraSubclassSpells[subclass.index];
   if (extra)
     spells.push(...extra.three, ...(level >= 5 ? extra.five || [] : []));
@@ -2178,8 +2257,9 @@ export function deriveSheet(build: BuildInput): Sheet {
         !g.key.startsWith("invocation.repelling"),
     )
     .flatMap((g) => build.choices[g.key] || []);
+  racialCantrips.push(...innate.filter(id=>catalog.spells.find(s=>s.index===id)?.level === 0));
   if (extra?.cantrips) racialCantrips.push(...extra.cantrips);
-  for (const trait of traits)
+  for (const trait of lineageSpellTraits)
     for (const ref of trait.spells || []) {
       const id = "spell" in ref ? ref.spell.index : ref.index;
       const s = catalog.spells.find((s) => s.index === id);
@@ -2239,6 +2319,7 @@ export function deriveSheet(build: BuildInput): Sheet {
       ? [
           ...new Set([
             ...build.prepared,
+            ...innate.filter(id=>catalog.spells.find(s=>s.index===id)?.level !== 0),
             ...(build.choices["origin.spell"] || []),
             ...(build.choices["human.magic.spell"] || []),
             ...(build.choices["level4.spell"] || []),
@@ -2252,6 +2333,7 @@ export function deriveSheet(build: BuildInput): Sheet {
       damage?: { damage_at_slot_level?: Record<string, string> };
     };
     const diceByLevel = spell?.damage?.damage_at_slot_level;
+    if (innate.includes(id) && !build.spells.includes(id) && !build.cantrips.includes(id)) return [];
     if (!spell || !limits.ability || !diceByLevel || !spell.desc?.some((text) => /make (?:a |an )?(?:melee|ranged )?spell attack/i.test(text))) return [];
     const dice = diceByLevel[String(spell.level)] || diceByLevel["0"];
     const upgrades = [...spell.desc.join(" ").matchAll(/levels? (\d+) \((\d+d\d+)\)/gi)];
@@ -2259,6 +2341,10 @@ export function deriveSheet(build: BuildInput): Sheet {
     return (upgradedDice || dice) ? [{ id: `spell:${spell.index}`, name: spell.name, bonus: proficiency + modifiers[limits.ability], damage: upgradedDice || dice! }] : [];
   });
   attacks.push(...spellAttackRows);
+  const speed = Math.max(race?.speed || 30, ...traits.map(t=>t.speed || 0)) +
+    (build.levelFourFeat === 'speedy' ? 10 : 0) +
+    (build.classId === 'monk' && level >= 2 && !armor && !shield ? 10 : 0) +
+    (build.classId === 'barbarian' && level >= 5 && armor?.armor_category !== 'Heavy' ? 10 : 0);
   return {
     name: build.name,
     className: klass?.name || "",
@@ -2272,7 +2358,7 @@ export function deriveSheet(build: BuildInput): Sheet {
       1,
       (klass?.hit_die || 8) +
         modifiers.con +
-        (build.subrace === "hill-dwarf" ? 1 : 0) +
+        (traitIds.includes("dwarven-toughness") ? level : 0) +
         (build.ruleset !== "srd-2024" && build.classId === "sorcerer" ? 1 : 0) +
         (level - 1) *
           Math.max(
@@ -2286,17 +2372,11 @@ export function deriveSheet(build: BuildInput): Sheet {
           : 0),
     ),
     ac,
-    speed:
-      Math.max(race?.speed || 30,...traits.map(t=>t.speed || 0)) +
-      (build.levelFourFeat==='speedy'?10:0) +
-      (build.classId === "monk" && level >= 2 && !armor && !shield ? 10 : 0) +
-      (build.classId === "barbarian" &&
-      level >= 5 &&
-      armor?.armor_category !== "Heavy"
-        ? 10
-        : 0),
+    speed,
+    movement: species ? Object.fromEntries([...(species.swim ? [['swim', speed]] : []), ...(species.climb ? [['climb', speed]] : []), ...(species.fly && !['Medium','Heavy'].includes(armor?.armor_category || '') ? [['fly', speed]] : [])]) : undefined,
+    innateSpells: [...new Set([...innate,...(build.choices["motm.cantrip"]||[])])].map(id=>{ const ability = ((species?.id==="aasimar"||build.race==="aasimar")?"cha":build.choices[species?"motm.ability":"race.spell-ability"]?.[0]||"int") as Ability; return {id,ability,dc:8+proficiency+modifiers[ability],attack:proficiency+modifiers[ability],uses:catalog.spells.find(s=>s.index===id)?.level===0?"At will":species?.id==="yuan-ti"&&id==="animal-friendship"?"At will; hanya ular":!species&&build.race==="gnome"?"PB/long rest; atau slot yang sesuai":"1/long rest per spell; atau slot yang sesuai" + (species?.id==="duergar"?"; hanya diri sendiri (cast dari trait)":"")}; }),
     initiative:
-      modifiers.dex +
+      modifiers.dex + (species?.id === "harengon" ? proficiency : 0) +
       (origin?.feat.index === "alert" ||
       build.choices["human.feat"]?.includes("alert")
         ? proficiency
@@ -2370,6 +2450,7 @@ export function deriveSheet(build: BuildInput): Sheet {
       ...(bg ? [{ name: `Background: ${bg.name}`, desc: [bg.desc] }] : []),
       ...features.map((f) => ({ name: f.name, desc: f.desc || [] })),
       ...traits.map((t) => ({ name: t.name, desc: t.desc || [] })),
+      ...(species ? [{name:"Pilihan MotM",desc:groups.filter(g=>g.key.startsWith("motm.")).map(g=>`${g.name}: ${(build.choices[g.key]||[]).join(", ")}`)}] : []),
       ...(bg ? [{ name: bg.feature, desc: [bg.featureDesc] }] : []),
     ],
     cantrips: [...new Set([...build.cantrips, ...racialCantrips])],
@@ -2379,6 +2460,7 @@ export function deriveSheet(build: BuildInput): Sheet {
         ? [
             ...new Set([
               ...build.prepared,
+              ...innate.filter(id=>catalog.spells.find(s=>s.index===id)?.level !== 0),
               ...(build.choices["origin.spell"] || []),
               ...(build.choices["human.magic.spell"] || []),
               ...(build.choices['level4.spell'] || []),...(build.choices['level4.rituals'] || []),

@@ -950,6 +950,7 @@ function App() {
                     title={token.name}
                   >
                     {token.minigame ? <div className="minigame-token-mark" aria-hidden="true">{isDM ? gameCatalog[token.minigame].mark : '?'}</div> : <img src={token.image} alt={token.name} loading="lazy" decoding="async" />}
+                    {token.dead && <svg className="token-dead-mark" viewBox="0 0 100 100" role="img" aria-label={`${token.name}: Dead`}><path d="M 18 18 L 82 82 M 82 18 L 18 82" /></svg>}
                     {!!token.conditions?.length && <div className="token-conditions" aria-label={`Kondisi ${token.name}: ${token.conditions.join(', ')}`}>{token.conditions.map((condition) => <b key={condition} title={conditionDescriptions[condition] || condition}>{condition[0]}</b>) }</div>}
                     <span style={{ transform: `translateX(-50%) scale(${1 / zoom})` }}>
                       {token.name}
@@ -1157,6 +1158,11 @@ function App() {
           )}
           {canEditSelected && selectedToken && (
             <div className="token-size-control">
+              {isDM && <button disabled={!connected} aria-pressed={!!selectedToken.dead} onClick={() => {
+                socketRef.current?.timeout(5000).emit('tabletop:action', { type: 'token:update', sceneId: activeScene?.id, id: selectedToken.id, dead: !selectedToken.dead }, (timeout: Error | null, result?: { error?: string }) => {
+                  if (timeout || result?.error) setError(result?.error || 'Status Dead gagal diperbarui.');
+                });
+              }}>{selectedToken.dead ? 'Batalkan Dead' : 'Dead'}</button>}
               <label htmlFor="token-size">Ukuran {selectedToken.name}</label>
               <div>
                 <input

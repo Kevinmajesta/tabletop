@@ -12,7 +12,7 @@ export function complete(classId, level, subclassId) {
   const limits = spellLimits(build);
   build.cantrips = revisedCatalog.spells.filter(s => s.level === 0 && !(build.subclassId === 'arcane-trickster' && s.index === 'mage-hand') && s.classes?.some(c => c.index === limits.spellClass)).slice(0,limits.cantrips).map(s => s.index);
   const bonus = [...build.choices['subclass.savant'] || [], ...build.choices['subclass.savant.5'] || []];
-  build.spells = revisedCatalog.spells.filter(s => s.level && s.level <= limits.maxSpellLevel && !bonus.includes(s.index) && s.classes?.some(c => c.index === limits.spellClass)).slice(0,limits.spells).map(s => s.index);
+  build.spells = revisedCatalog.spells.filter(s => s.level && s.level <= limits.maxSpellLevel && !bonus.includes(s.index) && s.classes?.some(c => c.index === limits.spellClass)).sort((a,b) => a.level - b.level).slice(0,limits.spells).map(s => s.index);
   build.prepared = build.spells.slice(0,limits.prepared);
   for (let pass = 0; pass < 4; pass++) for (const group of buildGroups(build)) if (!build.choices[group.key]?.every(id => group.options.some(o => o.id === id)) || build.choices[group.key]?.length !== group.count) build.choices[group.key] = group.options.slice(0,group.count).map(o=>o.id);
   return build;

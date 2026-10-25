@@ -1,0 +1,23 @@
+.character-dialog .species-filter-note{font-size:12px;color:#a4b7ae;margin:6px 0 12px;line-height:1.5}
+.species-guide{margin:20px 0 24px;padding:20px;background:linear-gradient(135deg,#20352e,#1b2723);border:1px solid #48665a;border-radius:10px;overflow-wrap:anywhere}
+.species-guide-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.species-guide-eyebrow{font-size:10px;letter-spacing:.16em;color:#a2c4b6;font-weight:600}
+.character-dialog .species-guide h3{font:600 26px Georgia,serif;color:#edf1e8;margin:5px 0 0;line-height:1.2}
+.species-guide-book{flex:none;border:1px solid #506d60;border-radius:5px;padding:5px 8px;font-size:11px;color:#c1d9ce;white-space:nowrap}
+.character-dialog .species-guide-overview{color:#c3cec7;line-height:1.65;font-size:13px;margin:14px 0 16px;max-width:62ch}
+.species-guide-stats{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+.species-guide-stats>div{padding:8px 12px;background:#101e1880;border:1px solid #385246;border-radius:6px;min-width:76px}
+.species-guide-stats dt{font-size:10px;color:#9cb6a9;margin-bottom:4px}
+.species-guide-stats dd{font-size:13px;color:#e2e9e1;margin:0;font-weight:600}
+.species-guide-details{border-top:1px solid #3d574b;padding-top:2px}
+.species-guide-details summary{cursor:pointer;min-height:44px;padding:13px 0 1px;color:#d7e6dc;font-size:13px;font-weight:600}
+.species-guide-details summary span{font-size:11px;font-weight:400;color:#a3baae;margin-left:8px}
+.species-guide-details summary:focus-visible{outline:2px solid #a1cfba;outline-offset:5px;border-radius:2px}
+.species-guide-traits{margin-top:14px;display:grid;gap:14px}
+.species-guide-traits>div{border-left:2px solid #537b67;padding-left:12px}
+.character-dialog .species-guide h4{font-size:13px;color:#e0e9df;margin:0 0 6px}
+.character-dialog .species-guide-traits p{font-size:12px;line-height:1.7;color:#bccbc1;margin:5px 0}
+.species-guide-traits ul{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:10px}
+.species-guide-traits li strong,.species-guide-traits li span{display:block;font-size:12px}
+.species-guide-traits li span{color:#afc5b8;margin-top:3px;line-height:1.6}
+@media(max-width:600px){.species-guide{padding:15px}.character-dialog .species-guide h3{font-size:23px}.species-guide-details summary span{display:block;margin:6px 0 0 15px}.species-guide-stats{gap:6px}.species-guide-stats>div{padding:7px 9px;min-width:68px}}

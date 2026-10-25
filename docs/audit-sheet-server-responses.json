@@ -1,0 +1,12 @@
+[
+  {
+    "url": "/api/token-screen",
+    "status": 200,
+    "body": "{\"portraits\":[\"/token_screen/ChatGPT%20Image%20Sep%2019%2C%202026%2C%2007_44_18%20PM.png\",\"/token_screen/Gemini_Generated_Image_4x6hcr4x6hcr4x6h.jpg\",\"/token_screen/WhatsApp%20Image%202026-08-19%20at%2012.39.10.jpeg\",\"/token_screen/WhatsApp%20Image%202026-09-03%20at%2016.51.12.jpeg\"]}"
+  },
+  {
+    "url": "/api/token-screen",
+    "status": 200,
+    "body": "{\"portraits\":[\"/token_screen/ChatGPT%20Image%20Sep%2019%2C%202026%2C%2007_44_18%20PM.png\",\"/token_screen/Gemini_Generated_Image_4x6hcr4x6hcr4x6h.jpg\",\"/token_screen/WhatsApp%20Image%202026-08-19%20at%2012.39.10.jpeg\",\"/token_screen/WhatsApp%20Image%202026-09-03%20at%2016.51.12.jpeg\"]}"
+  }
+]

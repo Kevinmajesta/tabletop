@@ -1,0 +1,79 @@
+{
+  "environment": {
+    "client": "http://localhost:5183",
+    "server": "http://localhost:3027",
+    "store": "C:/Users/USER/AppData/Local/hermes/cache/scratch/audit-sheet-data-3027",
+    "production_data_touched": false
+  },
+  "counts": {
+    "class_identity_menus": 12,
+    "motm_identity_cards": 33,
+    "class_end_to_end": 2,
+    "motm_species_end_to_end": 2,
+    "phb_species_end_to_end": 1,
+    "saved_characters": 3
+  },
+  "e2e_characters": [
+    {
+      "name": "AUDIT PHB Fighter Edited",
+      "species": "aasimar",
+      "class": "fighter",
+      "level": 1
+    },
+    {
+      "name": "AUDIT MotM Aasimar Edited",
+      "species": "motm:aasimar",
+      "class": "fighter",
+      "level": 3
+    },
+    {
+      "name": "AUDIT Fairy Wizard 5",
+      "species": "motm:fairy",
+      "class": "wizard",
+      "level": 5
+    }
+  ],
+  "passes": [
+    "PHB Aasimar Fighter create/save/reload/edit/save",
+    "MotM Aasimar Champion create/save/edit/save and server rejoin",
+    "MotM Fairy Evoker level5 create/save/edit innate ability CHA/save and server rejoin",
+    "Source-only filter preserves selected Human and Fairy",
+    "Duplicate Insight error focuses character-choice-class.proficiency.0",
+    "Incomplete Scholar expertise error focuses character-choice-class.scholar",
+    "Sea Elf Sailor replaces conflicting fixed Perception with alternate background skill options",
+    "Prepared selection of nine spells saved by server",
+    "Mobile 390x844 scroll reaches Kembali/Lanjut inside viewport",
+    "No window error events during instrumented later session"
+  ],
+  "defects": [
+    {
+      "id": "SHEET-01",
+      "severity": "High",
+      "title": "Wizard spellbook accepts invalid level-acquisition distribution",
+      "evidence": "audit-sheet-server-state.json",
+      "details": "Level 5 Evoker spellbook saved with only four level-1 spells and three level-3 spells in base 14; base progression requires six level1 initially and only two level3 at level5. Savant bonus Fireball is separate. Review says all required complete."
+    },
+    {
+      "id": "SHEET-02",
+      "severity": "Medium",
+      "title": "Review ASI and class spell errors have no Perbaiki link",
+      "evidence": "D:/DND/docs/audit-sheet-evidence/missing-correction-links.png",
+      "details": "ASI level4, cantrips and spells li contain span only, unlike group-choice errors with actionable button."
+    },
+    {
+      "id": "SHEET-03",
+      "severity": "Low",
+      "title": "MotM choice labels expose internal keys",
+      "details": "Aasimar Celestial Revelation uses necrotic-shroud / radiant-consumption / radiant-soul; Fairy innate ability uses lowercase int/wis/cha."
+    }
+  ],
+  "limitations": [
+    "12 classes only identity/subclass menus, not 12 E2E flows",
+    "33 MotM cards only identity selection, not 33 E2E flows",
+    "Only standard array and ASI exercised; point buy/manual and other feats untested",
+    "Innate level gates at level1/3 not verified on saved sheet; level5 Fairy verified",
+    "No comprehensive console collection; later window error listener empty",
+    "Mobile controls were scrolled and measured but all mobile paths not exercised",
+    "No build/test rerun; no app/test changes"
+  ]
+}
