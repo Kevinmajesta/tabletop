@@ -148,6 +148,7 @@ export default function BoardTools({
   const [pointers, setPointers] = useState<Record<string, Pointer>>({});
   const [error, setError] = useState("");
   const pointerThrottle = useRef(0);
+  const [localPointer, setLocalPointer] = useState<Point | null>(null);
   const [name, setName] = useState("");
   const [text, setText] = useState("");
   const [waypoints, setWaypoints] = useState<Point[]>([]);
@@ -186,17 +187,46 @@ export default function BoardTools({
   }, [socket, playerId]);
   useEffect(() => {
     let active = false;
-    const send = (event: PointerEvent, state: boolean) => {
+    const point = (event: PointerEvent) => {
       const rect = svg.current?.getBoundingClientRect();
-      if (!connected || !socket || !rect || event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) return;
-      socket.emit("tabletop:pointer", { sceneId: scene.id, x: ((event.clientX - rect.left) / rect.width) * 100, y: ((event.clientY - rect.top) / rect.height) * 100, active: state });
+      if (!connected || !socket || !rect || !rect.width || !rect.height || event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) return null;
+      return { x: ((event.clientX - rect.left) / rect.width) * 100, y: ((event.clientY - rect.top) / rect.height) * 100 };
     };
-    const down = (event: PointerEvent) => { if (event.button === 2) { active = true; event.preventDefault(); send(event, true); } };
-    const move = (event: PointerEvent) => { if (active && performance.now() - pointerThrottle.current > 40) { pointerThrottle.current = performance.now(); send(event, true); } };
-    const up = (event: PointerEvent) => { if (active && event.button === 2) { send(event, false); active = false; } };
+    const stop = () => {
+      if (!active) return;
+      active = false;
+      setLocalPointer(null);
+      socket?.emit("tabletop:pointer", { sceneId: scene.id, x: 0, y: 0, active: false });
+    };
+    const send = (p: Point) => {
+      pointerThrottle.current = performance.now();
+      socket?.emit("tabletop:pointer", { sceneId: scene.id, ...p, active: true });
+    };
+    const down = (event: PointerEvent) => {
+      if (event.button !== 2) return;
+      const p = point(event);
+      if (!p) return;
+      active = true;
+      event.preventDefault();
+      setLocalPointer(p);
+      send(p);
+    };
+    const move = (event: PointerEvent) => {
+      if (!active) return;
+      const p = point(event);
+      if (!(event.buttons & 2) || !p) { stop(); return; }
+      setLocalPointer(p);
+      if (performance.now() - pointerThrottle.current >= 40) send(p);
+    };
+    const up = (event: PointerEvent) => { if (event.button === 2) stop(); };
     const menu = (event: MouseEvent) => { if (active) event.preventDefault(); };
     window.addEventListener("pointerdown", down); window.addEventListener("pointermove", move); window.addEventListener("pointerup", up); window.addEventListener("contextmenu", menu);
-    return () => { window.removeEventListener("pointerdown", down); window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); window.removeEventListener("contextmenu", menu); };
+    window.addEventListener("pointercancel", stop); window.addEventListener("blur", stop);
+    return () => {
+      stop();
+      window.removeEventListener("pointerdown", down); window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); window.removeEventListener("contextmenu", menu);
+      window.removeEventListener("pointercancel", stop); window.removeEventListener("blur", stop);
+    };
   }, [connected, scene.id, socket]);
   useEffect(() => { setDraft(null); setWaypoints([]); setPings([]); setPointers({}); setSharedRulers({}); setTool("select"); }, [scene.id]);
   useEffect(() => {
@@ -1050,8 +1080,13 @@ export default function BoardTools({
             </g>
           ),
       )}
-      {Object.values(pointers).map((pointer) => (
-        <g key={pointer.playerId} className="board-pointer" transform={`translate(${(pointer.x / 100) * width} ${(pointer.y / 100) * height})`}>
+      {localPointer && (
+        <g className="board-pointer" transform={`translate(${(localPointer.x / 100) * width} ${(localPointer.y / 100) * height})`}>
+          <circle r="7" />
+        </g>
+      )}
+      {Object.values(pointers).filter((pointer) => pointer.playerId !== playerId).map((pointer) => (
+        <g key={pointer.playerId} className="board-pointer board-pointer-remote" style={{ transform: `translate(${(pointer.x / 100) * width}px, ${(pointer.y / 100) * height}px)` }}>
           <circle r="7" />
           <text x="11" y="4">{pointer.name}</text>
         </g>

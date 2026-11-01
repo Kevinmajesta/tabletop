@@ -166,6 +166,7 @@ function App() {
     revealed: boolean;
   };
   const [diceAnimations, setDiceAnimations] = useState<DiceAnimation[]>([]);
+  const [pendingRollIds, setPendingRollIds] = useState<string[]>([]);
   const [coinAnimations, setCoinAnimations] = useState<CoinResult[]>([]);
   const [rolling, setRolling] = useState(false);
   const [rollError, setRollError] = useState("");
@@ -249,6 +250,7 @@ function App() {
           }
         },
       );
+    const rollTimers = new Set<number>();
     socket.on("connect", join);
     socket.on("disconnect", () => setConnected(false));
     socket.on(
@@ -261,6 +263,14 @@ function App() {
         color: number;
       }) => {
         setDiceAnimations((current) => [...current, { ...animation, revealed: false }].slice(-8));
+        if (localStorage.getItem("meja-dice-animation") !== "off") {
+          setPendingRollIds((current) => [...current, animation.id]);
+          const timer = window.setTimeout(() => {
+            setPendingRollIds((current) => current.filter(id => id !== animation.id));
+            rollTimers.delete(timer);
+          }, 2500);
+          rollTimers.add(timer);
+        }
       },
     );
     socket.on('coin:animation', (result: CoinResult) => setCoinAnimations(current => [...current, result].slice(-4)));
@@ -296,6 +306,8 @@ function App() {
       ),
     );
     return () => {
+      rollTimers.forEach(window.clearTimeout);
+      setPendingRollIds([]);
       socket.disconnect();
       socketRef.current = null;
       setDiceAnimations([]);
@@ -341,7 +353,7 @@ function App() {
 
   useEffect(() => {
     messagesEnd.current?.scrollIntoView({ behavior: "smooth" });
-  }, [room?.messages.length]);
+  }, [room?.messages.at(-1)?.id, pendingRollIds]);
   useEffect(() => {
     if (!displayMap) return;
     let active = true;
@@ -1274,7 +1286,7 @@ function App() {
                     petualangan bersama.
                   </p>
                 </div>
-                {room?.messages.map((message) => (
+                {room?.messages.filter((message) => !pendingRollIds.includes(message.id)).map((message) => (
                   <div className={`message ${message.kind}`} key={message.id}>
                     <div className="message-avatar">
                       {message.kind === "roll" ? (

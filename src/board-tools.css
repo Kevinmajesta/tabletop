@@ -21,7 +21,8 @@
 .current-turn{color:#f3d49a;font-weight:700}
 .board-ping{animation:board-ping 2.5s ease-out both}.board-pointer circle{fill:#e34b4b;stroke:#fff2d7;stroke-width:2}.board-pointer text{fill:#fff2d7;stroke:#171d1b;stroke-width:3;paint-order:stroke;font-size:11px}
 @keyframes board-ping{0%{opacity:0}15%,65%{opacity:1}100%{opacity:0}}
-@media(prefers-reduced-motion:reduce){.board-ping{animation:none}}
+.board-pointer{pointer-events:none}.board-pointer-remote{transition:transform 40ms linear}
+@media(prefers-reduced-motion:reduce){.board-ping{animation:none}.board-pointer-remote{transition:none}}
 @media(max-width:600px){.board-tools-panel{left:49px;width:min(285px,calc(100vw - 100px))}}
 .board-tools-toggle{display:flex;align-items:center;gap:9px;font-weight:600;box-shadow:0 3px 12px #0004}
 .board-tools-toggle .expanded{transform:rotate(180deg)}

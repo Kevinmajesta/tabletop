@@ -1035,12 +1035,15 @@ io.on("connection", (socket) => {
   });
   socket.on("tabletop:pointer", (payload: unknown) => {
     const room = rooms[socket.data.roomId];
-    if (!room || !payload || typeof payload !== "object" || !admitted(`pointer:${socket.handshake.address}`, 60)) return;
+    if (!room || !payload || typeof payload !== "object") return;
     const p = payload as Record<string, unknown>, scene = sceneFor(room, socket.data.isDM);
     if (p.sceneId !== scene.id || typeof p.active !== "boolean" || typeof p.x !== "number" || typeof p.y !== "number" || !Number.isFinite(p.x) || !Number.isFinite(p.y)) return;
     const location = { x: Math.max(0, Math.min(100, p.x)), y: Math.max(0, Math.min(100, p.y)) };
-    if (!socket.data.isDM && !visible(location, scene, socket.data.playerId)) return;
-    for (const peer of io.sockets.sockets.values()) if (peer.data.roomId === room.id && (peer.data.isDM || visible(location, scene, peer.data.playerId))) peer.emit("tabletop:pointer", { ...location, active: p.active, sceneId: scene.id, playerId: socket.data.playerId, name: room.members[socket.data.playerId].name });
+    if (p.active && (!admitted(`pointer:${socket.id}`, 3600) || (!socket.data.isDM && !visible(location, scene, socket.data.playerId)))) return;
+    for (const peer of io.sockets.sockets.values()) if (peer.data.roomId === room.id) {
+      const active = p.active && (peer.data.isDM || visible(location, scene, peer.data.playerId));
+      peer.emit("tabletop:pointer", { ...(active ? location : { x: 0, y: 0 }), active, sceneId: scene.id, playerId: socket.data.playerId, name: room.members[socket.data.playerId].name });
+    }
   });
   socket.on("tabletop:ruler", (payload: unknown) => {
     const room = rooms[socket.data.roomId];

@@ -39,7 +39,7 @@ function createDie(die: DiceRoll['dice'][number], color: number) {
     const labels = die.sides === 4
       ? face.indices.map(index => String(shape.faces.find(other => !other.indices.includes(index))!.value))
       : [die.percentile === 'tens' ? String((face.value - 1) * 10).padStart(2, '0') : String(face.value)];
-    context.font = `700 ${labels.length === 1 && labels[0].length > 1 ? 56 : labels.length === 1 ? 72 : 28}px Georgia, serif`;
+    context.font = `700 ${labels.length === 1 && labels[0].length > 1 ? 56 : labels.length === 1 ? 72 : 44}px Georgia, serif`;
     const labelPoint = points.reduce((sum, point) => sum.add(new THREE.Vector2(...uv(point))), new THREE.Vector2()).divideScalar(points.length);
     if (labels.length === 1) context.fillText(labels[0], labelPoint.x * 256, (1 - labelPoint.y) * 256);
     else points.forEach((point, index) => { const [x, y] = uv(point); context.fillText(labels[index], 68 + x * 120, 68 + (1 - y) * 120); });
@@ -109,6 +109,7 @@ export default function DiceScene({ roll, onComplete, zoom = 1, color = 0xf3e5cb
     const observer = new ResizeObserver(resize); observer.observe(element); resize();
     refresh.current = resize;
     let frame = 0, done = false;
+
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const start = performance.now();
     const q = new THREE.Quaternion();
@@ -137,6 +138,7 @@ export default function DiceScene({ roll, onComplete, zoom = 1, color = 0xf3e5cb
     renderer.domElement.addEventListener('webglcontextlost', contextLost);
     return () => {
       refresh.current = null;
+
       cancelAnimationFrame(frame); observer.disconnect();
       renderer.domElement.removeEventListener('webglcontextlost', contextLost);
       const materials = new Set<THREE.Material>();

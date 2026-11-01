@@ -42,13 +42,13 @@ test('Trance rejects already owned category weapons and tools, not Astral Knowle
 test('catalog summaries preserve Charger timing, Aasimar turn scope and Duergar self targeting',async()=>{
  const {generalFeats}=await import('../dist-server/catalog/feats-2024.js');
  const charger=generalFeats.find(f=>f.index==='charger').description;
- assert.match(charger,/Attack action/);
- assert.match(charger,/segera/);
- assert.match(charger,/satu ukuran lebih besar/);
+ assert.match(charger,/move at least 10 feet in a straight line toward a target immediately before hitting it with a melee attack roll as part of the Attack action/);
+ assert.match(charger,/gain a 1d8 bonus to the attack's damage roll, or push the target up to 10 feet away if it is no more than one size larger than you/);
+ assert.match(charger,/only once on each of your turns/);
  const aasimar=revisedCatalog.traits.find(t=>t.index==='motm:aasimar').desc.join(' ');
- assert.match(aasimar,/giliranmu sendiri/);
- assert.match(aasimar,/memberi damage/);
- assert.match(aasimar,/bonus action.*mengakhiri/);
+ assert.match(aasimar,/(?:giliranmu sendiri|once on each of your turns)/);
+ assert.match(aasimar,/(?:memberi damage|when you deal damage to it with an attack or a spell)/);
+ assert.match(aasimar,/(?:bonus action.*mengakhiri|until you end it as a bonus action)/);
  const duergar=deriveSheet(build('motm:duergar','',5)).innateSpells;
  assert.ok(duergar.every(s=>s.uses.includes('hanya diri sendiri')));
  for(const trait of revisedCatalog.traits.filter(t=>t.index.startsWith('motm:'))) assert.match(trait.desc.join(' '),/Darkvision.*resistansi.*advantage save.*immunity.*manual/i);

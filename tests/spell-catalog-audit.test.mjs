@@ -8,12 +8,28 @@ const { revisedCatalog } = await tsImport('../server/characters.ts', import.meta
 const snapshot = JSON.parse(readFileSync(new URL('../server/catalog/srd-2024.json', import.meta.url), 'utf8'));
 const catalogs = [snapshot, revisedCatalog];
 const source = JSON.parse(readFileSync(new URL('./fixtures/spell-audit-srd.json', import.meta.url), 'utf8'));
-const normalize = text => text.replace(/\s+/g, ' ').trim();
+// PHB uses DM/% and structured headings/tables where the SRD extraction uses GM/percent.
+const normalize = text => text.replace(/\bDM\b/g, 'GM').replace(/%/g, ' percent').replace(/\|/g, ' ').replace(/\s*\.\.\./g, '...').replace(/(Flood|Part Water|Redirect Flow|Whirlpool)\./g, '$1').replace(/\s+/g, ' ').trim();
+const baseDescription = s => s.source === 'XPHB' && s.higher_level?.length ? s.desc.slice(0, -s.higher_level.length).join('\n') : s.description;
 
 test('spell inventories retain unique entries after repairs', () => {
   assert.equal(snapshot.spells.length, 217);
-  assert.equal(revisedCatalog.spells.length, 218);
+  assert.equal(revisedCatalog.spells.length, 391);
+  const upstream = JSON.parse(readFileSync('D:/5etools-src/data/spells/spells-xphb.json', 'utf8')).spell.filter(s => s.source === 'XPHB');
+  assert.deepEqual(revisedCatalog.spells.map(s => s.name).sort(), upstream.map(s => s.name).sort());
+  for (const s of revisedCatalog.spells) {
+    assert.equal(s.source, 'XPHB', s.index);
+    assert.equal(s.description, s.desc.join('\n'), s.index);
+  }
   for (const catalog of catalogs) assert.equal(new Set(catalog.spells.map(s => s.index)).size, catalog.spells.length);
+});
+
+test('spell schools expose names and IDs used by wizard Savant choices', () => {
+  const schools = { A: 'Abjuration', C: 'Conjuration', D: 'Divination', E: 'Enchantment', V: 'Evocation', I: 'Illusion', N: 'Necromancy', T: 'Transmutation' };
+  for (const s of revisedCatalog.spells) {
+    assert.equal(s.school.name, schools[s.raw.school], s.index);
+    assert.equal(s.school.index, s.school.name.toLowerCase(), s.index);
+  }
 });
 
 test('material text excludes extraction parentheses and broken GP punctuation', () => {
@@ -31,7 +47,7 @@ test('material text excludes extraction parentheses and broken GP punctuation', 
 for (const index of ['augury', 'confusion', 'control-water']) {
   test(`${index} retains its complete official text without neighboring spell contamination`, () => {
     for (const catalog of catalogs) {
-      assert.equal(normalize(spell(catalog, index).description), normalize(source.descriptions[index]));
+      assert.equal(normalize(baseDescription(spell(catalog, index))), normalize(source.descriptions[index]));
     }
   });
 }
@@ -48,7 +64,7 @@ test('restored omen and confusion tables include every outcome', () => {
       "2-6 The target doesn't move or take actions.",
       "7-8 The target doesn't move, and it takes the Attack action to make one melee attack against a random creature within reach. If none are within reach, the target takes no action.",
       '9-10 The target chooses its behavior.',
-    ]) assert.ok(confusion.includes(row), row);
+    ]) assert.ok(normalize(confusion).includes(normalize(row)), row);
     assert.doesNotMatch(spell(catalog, 'control-water').description, /Precipitation|Temperature|Counterspell|Wind Stage|weather conditions|conditions to take effect/);
     assert.match(spell(catalog, 'control-water').description, /at least 50 feet square and 25 feet deep/);
   }

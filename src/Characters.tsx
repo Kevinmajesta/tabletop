@@ -16,6 +16,9 @@ import {
 } from "lucide-react";
 import {
   abilities,
+  asiLevels,
+  featFor,
+  featsForLevel,
   buildGroups,
   revisedCatalog as catalog,
   deriveSheet,
@@ -495,7 +498,7 @@ export default function Characters({
                           })
                         }
                       >
-                        {[1, 2, 3, 4, 5].map((level) => (
+                        {Array.from({ length: 20 }, (_, index) => index + 1).map((level) => (
                           <option key={level} value={level}>
                             {level}
                           </option>
@@ -753,7 +756,7 @@ export default function Characters({
                               setBuild({
                                 ...build,
                                 levelFourFeat: e.target.value,
-                                asi: {},
+                                asi: { ...build.asi, 4: [] },
                               })
                             }
                           >
@@ -782,7 +785,7 @@ export default function Characters({
                                   selected[i] = e.target.value as Ability;
                                   setBuild({
                                     ...build,
-                                    asi: { 4: selected as Ability[] },
+                                    asi: { ...build.asi, 4: selected as Ability[] },
                                   });
                                 }}
                               >
@@ -802,6 +805,29 @@ export default function Characters({
                         </p>
                       </fieldset>
                     )}
+                    {asiLevels(build).filter(level => level !== 4).map(level => (
+                      <fieldset key={level}>
+                        <legend id={`character-choice-asi.${level}`} tabIndex={-1}>Peningkatan level {level}</legend>
+                        <label>Feat
+                          <select value={featFor(build, level)} onChange={e => setBuild({ ...build, feats: { ...build.feats, [level]: e.target.value } })}>
+                            <option value="ability-score-improvement">Ability Score Improvement (+2 atau +1/+1)</option>
+                            {featsForLevel(level).map(feat => <option key={feat.index} value={feat.index}>{feat.name}</option>)}
+                          </select>
+                        </label>
+                        {featFor(build, level) === "ability-score-improvement" && [0, 1].map(index => (
+                          <label key={index}>Ability +1 ({index + 1})
+                            <select value={build.asi?.[level]?.[index] || ""} onChange={e => {
+                              const selected = [...(build.asi?.[level] || ["", ""])];
+                              selected[index] = e.target.value as Ability;
+                              setBuild({ ...build, asi: { ...build.asi, [level]: selected as Ability[] } });
+                            }}>
+                              <option value="">Pilih ability</option>
+                              {abilities.map(ability => <option key={ability} value={ability}>{ability.toUpperCase()}</option>)}
+                            </select>
+                          </label>
+                        ))}
+                      </fieldset>
+                    ))}
                   </>
                 )}
                 {step === 2 && (
@@ -1831,10 +1857,11 @@ export default function Characters({
           </main>
         </div>
         <div className="character-attribution">
-          D&D 2024. Katalog dasar: D&D 5e API, SRD 5.2 oleh Wizards of the
-          Coast, CC BY 4.0. Background: 16 pilihan Player's Handbook 2024,
-          deskripsi dan ringkasan aturan ditulis ulang. Efek situasional feat
-          dijalankan bersama DM.
+          Resource karakter: Player's Handbook 2024 dan species Monsters of
+          the Multiverse, diimpor dari snapshot lokal 5etools. Katalog dasar
+          SRD 5.2 oleh Wizards of the Coast, CC BY 4.0; lisensi tersebut tidak
+          mencakup seluruh konten buku tambahan. Efek kondisional dijalankan
+          bersama DM.
         </div>
       </dialog>
     </>

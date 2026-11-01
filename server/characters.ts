@@ -1,6 +1,9 @@
 import { aasimarRace, aasimarTraits, phbSpeciesSizes } from "./catalog/phb-species.js";
 import { motmExtraSpells, motmRaces, motmTraits, motmGroups, motmFor, motmSpells } from "./catalog/motm.js";
 import revisedSnapshot from "./catalog/srd-2024.json" with { type: "json" };
+import phbProgression from "./catalog/progression-xphb.json" with { type: "json" };
+import { mergeXphbSpells } from "./catalog/spells-xphb.js";
+import { applyXphbResources, xphbFeats } from "./catalog/resources-xphb.js";
 import {
   phbSubclasses,
   phbFeatures,
@@ -9,6 +12,7 @@ import {
 import {
   metamagic,
   invocations,
+  invocationAvailable,
   maneuvers,
 } from "./catalog/class-options-2024.js";
 import { generalFeats } from "./catalog/feats-2024.js";
@@ -175,6 +179,7 @@ export type BuildInput = {
   level?: number;
   subclassId?: string;
   levelFourFeat?: string;
+  feats?: Record<string, string>;
   asi?: Record<string, Ability[]>;
   name: string;
   race: string;
@@ -290,8 +295,9 @@ export const standardArray = [15, 14, 13, 12, 10, 8];
 export const pointCost = (score: number) =>
   ({ 8: 0, 9: 1, 10: 2, 11: 3, 12: 4, 13: 5, 14: 7, 15: 9 })[score] ?? 999;
 const revisedRaw = revisedSnapshot as unknown as Catalog;
-export const revisedCatalog: Catalog = {
+export const revisedCatalog: Catalog = applyXphbResources({
   ...revisedRaw,
+  classes: revisedRaw.classes.map(klass => ({ ...klass, levels: (phbProgression.classes as unknown as Record<string, LevelData[]>)[klass.index].map(row => ({ ...row, features: row.level <= 5 ? (klass as Entry & Progression).levels?.find(l => l.level === row.level)?.features || row.features : row.features })) })),
   traits: [...aasimarTraits, ...motmTraits, ...revisedRaw.traits.map((trait) => ({
     ...trait,
     desc: [
@@ -311,22 +317,8 @@ export const revisedCatalog: Catalog = {
         .filter(Boolean),
     ],
   }))],
-  spells: [...motmExtraSpells.map(spell => spell.index === 'blade-ward' ? {...spell, concentration: true} : spell), ...revisedRaw.spells.map((spell) => ({
-    ...spell,
-    desc: [
-      ...(spell.desc?.length
-        ? spell.desc
-        : spell.description
-          ? [spell.description]
-          : []),
-      ...(spell.higher_level
-        ? [
-            `Using a Higher-Level Spell Slot: ${Array.isArray(spell.higher_level) ? spell.higher_level.join("\n") : spell.higher_level}`,
-          ]
-        : []),
-    ],
-  }))],
-  subclasses: [...revisedRaw.subclasses, ...phbSubclasses],
+  spells: mergeXphbSpells([...motmExtraSpells, ...revisedRaw.spells]),
+  subclasses: [...revisedRaw.subclasses, ...phbSubclasses].map(sub => ({ ...sub, levels: (phbProgression.subclasses as Record<string, LevelData[]>)[sub.index].map(row => ({ ...row, features: row.level <= 5 ? (sub as Entry & Progression).levels?.find(l => l.level === row.level)?.features || row.features : row.features })) })),
   equipment: revisedRaw.equipment.map((e) => ({
     ...e,
     equipment_category: e.equipment_categories?.[0],
@@ -363,6 +355,7 @@ export const revisedCatalog: Catalog = {
     racial_traits: r.traits || [],
   })),
   features: [
+    ...phbProgression.features,
     ...revisedRaw.features.map((f) => ({
       ...f,
       desc: f.desc || [(f as Entry & Progression).description || ""],
@@ -393,13 +386,13 @@ export const revisedCatalog: Catalog = {
     licenseUrl: "",
     available: true,
   })),
-};
+});
 export function catalogFor(build: Pick<BuildInput, "ruleset">): Catalog {
   return revisedCatalog;
 }
 export const catalog = revisedCatalog;
 export function levelFor(build: BuildInput) {
-  return Math.max(1, Math.min(5, Math.trunc(build.level || 1)));
+  return Number.isFinite(build.level) ? Math.max(1, Math.min(20, Math.trunc(build.level || 1))) : 1;
 }
 export function subclassFor(build: BuildInput) {
   return catalogFor(build).subclasses.find(
@@ -415,6 +408,20 @@ export const levelFourFeats = [
   ),
   ...generalFeats,
 ];
+export const epicBoons = phbProgression.epicBoons;
+export function featFor(build: BuildInput, level: number) {
+  return (level === 4 ? build.levelFourFeat : build.feats?.[level]) || "ability-score-improvement";
+}
+function invocationCantripEligible(spell: Entry, invocation: string): boolean {
+  const raw = (spell as Entry & {raw?: {damageInflict?: string[]; spellAttack?: string[]; range?: {distance?: {type?: string; amount?: number}}}}).raw;
+  if (!(raw?.damageInflict?.length || (spell as Entry & {damage?: unknown}).damage)) return false;
+  if (invocation === "repelling-blast") return !!raw?.spellAttack?.length;
+  if (invocation === "eldritch-spear") return raw?.range?.distance?.type === "feet" && Number(raw.range.distance.amount) >= 10;
+  return true;
+}
+export function featsForLevel(level: number) {
+  return level < 4 ? [] : [...levelFourFeats, ...(level >= 19 ? epicBoons : [])];
+}
 export function progression(build: BuildInput): LevelData | undefined {
   return (
     catalogFor(build).classes.find((c) => c.index === build.classId) as Entry &
@@ -422,7 +429,7 @@ export function progression(build: BuildInput): LevelData | undefined {
   )?.levels?.find((l) => l.level === levelFor(build));
 }
 export function asiLevels(build: BuildInput) {
-  return [4, ...(build.classId === "fighter" ? [6] : [])].filter(
+  return [4, 8, 12, 16, 19, ...(build.classId === "fighter" ? [6, 14] : build.classId === "rogue" ? [10] : [])].sort((a, b) => a - b).filter(
     (l) => l <= levelFor(build),
   );
 }
@@ -876,8 +883,8 @@ export function buildGroups(build: BuildInput): ChoiceGroup[] {
     if (build.classId === "sorcerer" && level >= 2)
       add(
         "class.metamagic",
-        "Metamagic: dua pilihan",
-        2,
+        "Metamagic",
+        level >= 17 ? 6 : level >= 10 ? 4 : 2,
         metamagic.map(([id, name]) => ({ id, name })),
         "feature",
       );
@@ -886,15 +893,10 @@ export function buildGroups(build: BuildInput): ChoiceGroup[] {
       add(
         "class.invocations",
         "Eldritch Invocations",
-        level >= 5 ? 5 : level >= 2 ? 3 : 1,
+        Number(progression(build)?.class_specific?.invocations || 1),
         invocations
           .filter(
-            ([id, , minimum]) =>
-              minimum <= level &&
-              (id !== "thirsting-blade" ||
-                selected.includes("pact-of-the-blade")) &&
-              (id !== "investment-of-the-chain-master" ||
-                selected.includes("pact-of-the-chain")),
+            ([id]) => invocationAvailable(id, level, selected),
           )
           .map(([id, name]) => ({ id, name })),
         "feature",
@@ -909,11 +911,15 @@ export function buildGroups(build: BuildInput): ChoiceGroup[] {
               .filter(
                 (s) =>
                   build.cantrips.includes(s.index) &&
-                  (s as Entry & { damage?: unknown }).damage,
+                  s.level === 0 && s.classes?.some(c => c.index === "warlock") &&
+                  invocationCantripEligible(s, id),
               )
               .map((s) => ({ id: s.index, name: s.name })),
             "spell",
           );
+      if (selected.includes("lessons-of-the-first-ones"))
+        add("invocation.lessons.feat", "Lessons of the First Ones: Origin feat (reference effects)", 1,
+          xphbFeats.filter(f => f.category === "O").map(f => ({id:f.index, name:f.name})), "feature");
       if (selected.includes("pact-of-the-tome")) {
         add(
           "invocation.tome.cantrips",
@@ -941,8 +947,8 @@ export function buildGroups(build: BuildInput): ChoiceGroup[] {
     if (subclass?.index === "battle-master") {
       add(
         "subclass.maneuvers",
-        "Battle Master: tiga maneuver",
-        3,
+        "Battle Master: maneuvers",
+        level >= 15 ? 9 : level >= 10 ? 7 : level >= 7 ? 5 : 3,
         maneuvers.map((name) => ({ id: name, name })),
         "feature",
       );
@@ -1126,8 +1132,8 @@ export function buildGroups(build: BuildInput): ChoiceGroup[] {
         "Fighting Style",
         1,
         [
-          ...revisedSnapshot.feats
-            .filter((f) => f.type === "fighting-style")
+          ...xphbFeats
+            .filter((f) => f.category === "FS")
             .map((f) => ({ id: f.index, name: f.name })),
           ...(build.classId === "paladin"
             ? [{ id: "blessed-warrior", name: "Blessed Warrior" }]
@@ -1444,6 +1450,18 @@ export function buildGroups(build: BuildInput): ChoiceGroup[] {
         !(equipment?.weapon_category && owned.includes(`${equipment.weapon_category.toLowerCase()}-weapons`));
     });
   }
+  for (const at of asiLevels(build).filter(at => at !== 4)) {
+    const id = featFor(build, at);
+    const boon = epicBoons.find(f => f.index === id);
+    if (boon) add(`level${at}.ability`, `${boon.name}: ability +1 (max 30)`, 1, boon.abilities.map(id => ({id, name:id.toUpperCase()})), "ability");
+    else if (id !== "ability-score-improvement") {
+      const choices = {...build.choices};
+      for (const [key, value] of Object.entries(build.choices)) if (key.startsWith(`level${at}.`)) choices[key.replace(`level${at}.`, "level4.")] = value;
+      groups.push(...buildGroups({...build, level:at, feats: {}, levelFourFeat:id, choices}).filter(g => g.key.startsWith("level4.")).map(g => ({...g, key:g.key.replace("level4.", `level${at}.`)})));
+    }
+  }
+  if (build.classId === "warlock") for (const rank of [6,7,8,9]) if (level >= rank * 2 - 1)
+    add(`class.arcanum.${rank}`, `Mystic Arcanum: level ${rank}`, 1, catalog.spells.filter(s => s.level === rank && s.classes?.some(c => c.index === "warlock")).map(s => ({id:s.index,name:s.name})), "spell");
   return groups;
 }
 export function spellLimits(
@@ -1467,12 +1485,12 @@ export function spellLimits(
       : undefined;
   const modifiers = scores || finalScores(build);
   const slotsByLevel = Object.fromEntries(
-    [1, 2, 3, 4].map((l) => [
+    Array.from({length: level <= 5 ? 4 : 9}, (_, i) => i + 1).map((l) => [
       l,
-      data?.spellcasting?.[`spell_slots_level_${l}`] || 0,
+      (subclassCaster ? (subclassFor(build) as Entry & Progression)?.levels?.find(row => row.level === level) : data)?.spellcasting?.[`spell_slots_level_${l}`] || 0,
     ]),
   );
-  if (subclassCaster) slotsByLevel[1] = level === 3 ? 2 : 3;
+  const subclassData = subclassCaster ? (subclassFor(build) as Entry & Progression)?.levels?.find(row => row.level === level) : undefined;
   const maxSpellLevel = Math.max(
     0,
     ...Object.entries(slotsByLevel)
@@ -1483,15 +1501,13 @@ export function spellLimits(
     ability,
     spellClass,
     cantrips:
-      (subclassCaster ? 2 : data?.spellcasting?.cantrips_known || 0) +
+      (subclassCaster ? subclassData?.spellcasting?.cantrips_known || 2 : data?.spellcasting?.cantrips_known || 0) +
       (build.ruleset === "srd-2024" &&
       ["thaumaturge", "magician"].includes(build.choices["class.order"]?.[0])
         ? 1
         : 0),
     spells: subclassCaster
-      ? level === 3
-        ? 3
-        : 4
+      ? subclassData?.spellcasting?.prepared_spells || 0
       : build.classId === "wizard"
         ? 6 + (level - 1) * 2
         : build.ruleset === "srd-2024"
@@ -1542,8 +1558,7 @@ export function finalScores(build: BuildInput) {
   }
   for (const level of asiLevels(build))
     for (const id of build.ruleset === "srd-2024" &&
-    build.levelFourFeat &&
-    build.levelFourFeat !== "ability-score-improvement"
+    featFor(build, level) !== "ability-score-improvement"
       ? []
       : build.asi?.[level] || [])
       if (abilities.includes(id)) result[id]++;
@@ -1560,6 +1575,16 @@ export function finalScores(build: BuildInput) {
   )
     for (const id of build.choices["level4.ability"] || [])
       if (abilities.includes(id as Ability)) result[id as Ability]++;
+  // shortcut: later feats apply ability bonuses here; non-ability effects still need per-level derivation when automated.
+  for (const at of asiLevels(build).filter(at => at !== 4)) {
+    const id = featFor(build, at);
+    if (generalFeats.some(f => f.index === id) || id === "grappler" || epicBoons.some(f => f.index === id))
+      for (const ability of build.choices[`level${at}.ability`] || []) if (abilities.includes(ability as Ability)) result[ability as Ability]++;
+  }
+  if (levelFor(build) === 20) {
+    if (build.classId === "barbarian") { result.str += 4; result.con += 4; }
+    if (build.classId === "monk") { result.dex += 4; result.wis += 4; }
+  }
   return result;
 }
 export type BuildIssue = {
@@ -1591,7 +1616,7 @@ export function validateBuild(input: unknown): {
               (s): s is string => typeof s === "string" && s.length <= 120,
             ),
           ),
-        ].slice(0, 30)
+        ].slice(0, 100)
       : [];
   const scores = {} as Record<Ability, number>;
   for (const ability of abilities) {
@@ -1645,23 +1670,36 @@ export function validateBuild(input: unknown): {
     (typeof p.level !== "number" ||
       !Number.isInteger(p.level) ||
       p.level < 1 ||
-      p.level > (build.ruleset === "srd-2024" ? 5 : 7))
+      p.level > 20)
   )
     errors.push(
-      build.ruleset === "srd-2024" ? "Level harus 1–5." : "Level harus 1–7.",
+      "Level harus 1–20.",
     );
   build.level =
     typeof p.level === "number" &&
     Number.isInteger(p.level) &&
     p.level >= 1 &&
-    p.level <= 7
+    p.level <= 20
       ? p.level
       : 1;
+  build.feats = {};
+  for (const at of asiLevels(build).filter(at => at !== 4)) {
+    const id = clean((p.feats as Record<string, unknown>)?.[at], 80) || "ability-score-improvement";
+    build.feats[at] = id;
+    if (id !== "ability-score-improvement" && !featsForLevel(at).some(f => f.index === id)) errors.push(`Feat level ${at} tidak tersedia.`);
+  }
+  for (const at of asiLevels(build)) {
+    const feat = xphbFeats.find(f => f.index === featFor(build, at));
+    if (feat?.category === "EB" && feat.prerequisite.some((p: any) => p.spellcasting2020) && !spellLimits({...build, level:at}).ability)
+      errors.push(`${feat.name} memerlukan Spellcasting atau Pact Magic.`);
+  }
+  const selectedFeats = asiLevels(build).map(at => featFor(build, at)).filter(id => id !== "ability-score-improvement");
+  if (new Set(selectedFeats).size !== selectedFeats.length) errors.push("Feat ganda tidak diperbolehkan.");
   build.asi = {};
   for (const level of asiLevels(build)) {
     if (
       build.ruleset === "srd-2024" &&
-      build.levelFourFeat !== "ability-score-improvement"
+      featFor(build, level) !== "ability-score-improvement"
     )
       continue;
     const values = (p.asi as Record<string, unknown>)?.[level];
@@ -1741,7 +1779,11 @@ export function validateBuild(input: unknown): {
   const selectedSkills = groups
     .filter((g) => g.kind === "skill")
     .flatMap((g) => choices[g.key] || []);
-  if (abilities.some((a) => finalScores(build)[a] > 20))
+  if (abilities.some((a) => {
+    const boonBonus = asiLevels(build).filter(at => epicBoons.some(f => f.index === featFor(build, at)) && build.choices[`level${at}.ability`]?.includes(a)).length;
+    const capstone = levelFor(build) === 20 && ((build.classId === "barbarian" && ["str", "con"].includes(a)) || (build.classId === "monk" && ["dex", "wis"].includes(a))) ? 4 : 0;
+    return finalScores(build)[a] > Math.min(30, 20 + boonBonus + capstone);
+  }))
     errors.push("Ability setelah peningkatan maksimal 20.");
   if (
     build.ruleset === "srd-2024" &&
@@ -1769,7 +1811,7 @@ export function validateBuild(input: unknown): {
       asi: {},
     });
     if (
-      generalFeat.minimum &&
+      generalFeat.minimum?.length &&
       !generalFeat.minimum.some((a) => base[a as Ability] >= 13)
     )
       errors.push(`${generalFeat.name}: ability prasyarat minimal 13.`);
@@ -1818,6 +1860,20 @@ export function validateBuild(input: unknown): {
       )
     )
       errors.push("Resilient: pilih saving throw yang belum proficient.");
+  }
+  for (const at of asiLevels(build).filter(at => at !== 4)) {
+    const id = featFor(build, at);
+    if (id === "ability-score-improvement" || epicBoons.some(f => f.index === id)) continue;
+    const prior = {...build, level: at - 1, feats: Object.fromEntries(Object.entries(build.feats || {}).filter(([key]) => Number(key) < at))};
+    const base = finalScores(prior);
+    const feat = generalFeats.find(f => f.index === id);
+    if (id === "grappler" && base.str < 13 && base.dex < 13) errors.push("Grappler membutuhkan STR atau DEX minimal 13 sebelum bonus feat.");
+    if (feat?.minimum?.length && !feat.minimum.some(a => base[a as Ability] >= 13)) errors.push(`${feat.name}: ability prasyarat minimal 13.`);
+    const prerequisiteChoices = {...build.choices};
+    for (const [key, value] of Object.entries(build.choices)) if (key.startsWith(`level${at}.`)) prerequisiteChoices[key.replace(`level${at}.`, "level4.")] = value;
+    // Reuse the existing training/spellcasting prerequisites, excluding score checks handled at acquisition above.
+    const check = validateBuild({...build, level: at, feats: {}, levelFourFeat: id, choices: prerequisiteChoices});
+    errors.push(...check.errors.filter(message => /memerlukan|Resilient:/.test(message)));
   }
   selectedSkills.push(
     ...(choices["origin.skills"] || []).filter((id) => !id.startsWith("tool:")),
@@ -1884,7 +1940,7 @@ export function validateBuild(input: unknown): {
     }
   }
   // Base spells are normal level-up acquisitions; Savant bonuses are separate choices.
-  if (build.classId === "wizard" && [2, 3].some(rank =>
+  if (build.classId === "wizard" && [2, 3, 4, 5, 6, 7, 8, 9].some(rank =>
     build.spells.filter(id => (catalog.spells.find(s => s.index === id)?.level || 0) >= rank).length > Math.max(0, 2 * (levelFor(build) - 2 * (rank - 1)))
   )) {
     const message = "Spellbook: progresi Wizard memerlukan enam spell level 1 awal, dua tambahan tiap level, sesuai slot saat diperoleh.";
@@ -2151,7 +2207,7 @@ export function deriveSheet(build: BuildInput): Sheet {
     bonus: unarmedAbility + proficiency,
     damage:
       martialArts
-        ? `1d${level >= 5 ? 8 : 6}${unarmedAbility >= 0 ? "+" : ""}${unarmedAbility}`
+        ? `1d${level >= 17 ? 12 : level >= 11 ? 10 : level >= 5 ? 8 : 6}${unarmedAbility >= 0 ? "+" : ""}${unarmedAbility}`
         : origin?.feat.index === "tavern-brawler" ||
             build.choices["human.feat"]?.includes("tavern-brawler")
           ? `1d4${unarmedAbility >= 0 ? "+" : ""}${unarmedAbility}`
@@ -2207,7 +2263,8 @@ export function deriveSheet(build: BuildInput): Sheet {
   if (build.race === "tiefling") lineageInnate.push("thaumaturgy");
   if (["elf", "gnome"].includes(build.race)) lineageInnate.push(...groups.filter(g=>g.kind==="spell"&&g.key.startsWith("trait.spell.")).flatMap(g=>build.choices[g.key]||[]));
   const innate = [...new Set([...motmSpells(build), ...lineageInnate])];
-  const spells = [...build.spells, ...innate.filter(id=>catalog.spells.find(s=>s.index===id)?.level !== 0)];
+  const automatic = subclass ? (phbProgression.subclassSpells as Record<string, {level:number; spells:string[]}[]>)[subclass.index]?.filter(row => row.level <= level).flatMap(row => row.spells) || [] : [];
+  const spells = [...build.spells, ...automatic, ...groups.filter(g => g.key.startsWith("class.arcanum.")).flatMap(g => build.choices[g.key] || []), ...innate.filter(id=>catalog.spells.find(s=>s.index===id)?.level !== 0)];
   const extra = subclass && extraSubclassSpells[subclass.index];
   if (extra)
     spells.push(...extra.three, ...(level >= 5 ? extra.five || [] : []));
@@ -2251,6 +2308,7 @@ export function deriveSheet(build: BuildInput): Sheet {
           "level4.spell",
           "level4.rituals",
         ].includes(g.key) &&
+        !g.key.startsWith("class.arcanum.") &&
         !g.key.startsWith("subclass.savant") &&
         !g.key.startsWith("invocation.ag") &&
         !g.key.startsWith("invocation.eldritch") &&
@@ -2343,7 +2401,7 @@ export function deriveSheet(build: BuildInput): Sheet {
   attacks.push(...spellAttackRows);
   const speed = Math.max(race?.speed || 30, ...traits.map(t=>t.speed || 0)) +
     (build.levelFourFeat === 'speedy' ? 10 : 0) +
-    (build.classId === 'monk' && level >= 2 && !armor && !shield ? 10 : 0) +
+    (build.classId === 'monk' && level >= 2 && !armor && !shield ? Number(data?.class_specific?.['unarmored-movement'] || 0) : 0) +
     (build.classId === 'barbarian' && level >= 5 && armor?.armor_category !== 'Heavy' ? 10 : 0);
   return {
     name: build.name,
@@ -2366,6 +2424,7 @@ export function deriveSheet(build: BuildInput): Sheet {
             Math.floor((klass?.hit_die || 8) / 2) + 1 + modifiers.con,
           ) +
         (subclass?.index === "draconic-sorcery" ? level : 0) +
+        (asiLevels(build).some(at => featFor(build, at) === "boon-of-fortitude") ? 40 : 0) +
         (origin?.feat.index === "tough" ||
         build.choices["human.feat"]?.includes("tough")
           ? level * 2
@@ -2421,11 +2480,12 @@ export function deriveSheet(build: BuildInput): Sheet {
       ...invocations
         .filter(([id]) => build.choices["class.invocations"]?.includes(id))
         .map(([, name, , desc]) => ({ name, desc: [desc] })),
-      ...revisedSnapshot.feats
+      ...xphbFeats
         .filter(
           (f) =>
             build.ruleset === "srd-2024" &&
-            build.choices["class.fighting-style"]?.includes(f.index),
+            (build.choices["class.fighting-style"]?.includes(f.index) ||
+              build.choices["invocation.lessons.feat"]?.includes(f.index)),
         )
         .map((f) => ({ name: f.name, desc: [f.description] })),
       ...(build.ruleset === "srd-2024" && level >= 4
@@ -2448,6 +2508,7 @@ export function deriveSheet(build: BuildInput): Sheet {
           ]
         : []),
       ...(bg ? [{ name: `Background: ${bg.name}`, desc: [bg.desc] }] : []),
+      ...asiLevels(build).filter(at => at !== 4).flatMap(at => { const feat = featsForLevel(at).find(f => f.index === featFor(build, at)); return feat ? [{name:`Level ${at}: ${feat.name}`, desc:[feat.description]}] : []; }),
       ...features.map((f) => ({ name: f.name, desc: f.desc || [] })),
       ...traits.map((t) => ({ name: t.name, desc: t.desc || [] })),
       ...(species ? [{name:"Pilihan MotM",desc:groups.filter(g=>g.key.startsWith("motm.")).map(g=>`${g.name}: ${(build.choices[g.key]||[]).join(", ")}`)}] : []),

@@ -3,11 +3,12 @@ import assert from 'node:assert/strict';
 import {emptyBuild, buildGroups, revisedCatalog, validateBuild, deriveSheet} from '../dist-server/characters.js';
 import {speciesGuide} from '../dist-server/catalog/species-guide.js';
 
-// Blade Ward 2024: https://roll20.net/compendium/dnd5e/Spells:Blade%20Ward?expansion=32231
- test('runtime Blade Ward concentration flag agrees with its duration and description',()=>{
+test('runtime Blade Ward retains 2024 source mechanics and separate concentration metadata',()=>{
  const spell=revisedCatalog.spells.find(s=>s.index==='blade-ward');
- assert.match(spell.duration,/Concentration, up to 1 minute/);
- assert.match(spell.desc.join(' '),/konsentrasi/);
+ assert.equal(spell.source,'XPHB');
+ assert.equal(spell.duration,'up to 1 minute');
+ assert.deepEqual(spell.raw.duration,[{type:'timed',duration:{type:'minute',amount:1},concentration:true}]);
+ assert.match(spell.desc.join(' '),/attacker subtracts 1d4 from the attack roll/);
  assert.equal(spell.concentration,true);
 });
 

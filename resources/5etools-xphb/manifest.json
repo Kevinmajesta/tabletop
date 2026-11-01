@@ -1,0 +1,282 @@
+{
+  "repository": "5etools-mirror-3/5etools-src",
+  "commit": "8790755429c346d20020eed7826d312d484c393f",
+  "source": "XPHB",
+  "note": "Unmodified upstream JSON. Shared files contain other editions and require filtering and reference resolution before application use. Availability is not a license grant.",
+  "files": [
+    {
+      "path": "data/actions.json",
+      "bytes": 45532,
+      "sha256": "691dc03cdf01d79d58d5881c134b1be01a668ced5f400828b9b39fd66941b5e5",
+      "xphbCounts": {
+        "action": 18
+      }
+    },
+    {
+      "path": "data/backgrounds.json",
+      "bytes": 733029,
+      "sha256": "97b576f45f8770aaba058c6b0b6b21380bba572a63c869a4d33bbcb5e3f05565",
+      "xphbCounts": {
+        "background": 16
+      }
+    },
+    {
+      "path": "data/bestiary/bestiary-xphb.json",
+      "bytes": 57897,
+      "sha256": "915c418b82d54637ac77b24b9c5ed481505e2130a5ad24768cd3d0c92bbd8566",
+      "xphbCounts": {
+        "monster": 15
+      }
+    },
+    {
+      "path": "data/bestiary/fluff-bestiary-xphb.json",
+      "bytes": 4115,
+      "sha256": "b0626ff128e21142f1dfb023bda0122a50405c08d1dec1d7e5af098b5ef8f393",
+      "xphbCounts": {
+        "monsterFluff": 15
+      }
+    },
+    {
+      "path": "data/book/book-xphb.json",
+      "bytes": 630396,
+      "sha256": "92aa9216f130eaf25804a453d57f0c5207d0531df6648e88021bf5432bb8ebd6",
+      "xphbCounts": {
+        "bookData": 1
+      }
+    },
+    {
+      "path": "data/class/class-barbarian.json",
+      "bytes": 121637,
+      "sha256": "ce324f2b0cd65631efb0be53cc13e42cdfadfa8cf1592e0b889dd74e873e429b",
+      "xphbCounts": {
+        "class": 1,
+        "subclass": 4,
+        "classFeature": 26,
+        "subclassFeature": 22
+      }
+    },
+    {
+      "path": "data/class/class-bard.json",
+      "bytes": 138377,
+      "sha256": "6a5529d642061f3b8c84304051b0c2fe61c1040e930ad39275396460fb9dcf27",
+      "xphbCounts": {
+        "class": 1,
+        "subclass": 4,
+        "classFeature": 18,
+        "subclassFeature": 24
+      }
+    },
+    {
+      "path": "data/class/class-cleric.json",
+      "bytes": 259254,
+      "sha256": "f154848698681bb76301daa7571f0a9f45c1c50429f5a8ed02288b2a22ed7390",
+      "xphbCounts": {
+        "class": 1,
+        "subclass": 4,
+        "classFeature": 22,
+        "subclassFeature": 24
+      }
+    },
+    {
+      "path": "data/class/class-druid.json",
+      "bytes": 144442,
+      "sha256": "49361e1985a8c52be68cb97842455ccd050cad77c080066ca5aee9cf5b686c32",
+      "xphbCounts": {
+        "class": 1,
+        "subclass": 4,
+        "classFeature": 23,
+        "subclassFeature": 27
+      }
+    },
+    {
+      "path": "data/class/class-fighter.json",
+      "bytes": 168561,
+      "sha256": "eddf54273fd940e6bc2899f7b05b38257764e473868b14f09675ba40dffe5ae1",
+      "xphbCounts": {
+        "class": 1,
+        "subclass": 4,
+        "classFeature": 27,
+        "subclassFeature": 33
+      }
+    },
+    {
+      "path": "data/class/class-monk.json",
+      "bytes": 151421,
+      "sha256": "eea20ce4fedd36865e734fc7cd00735d1d135bc297b1d295dd5e2bfb7fa9e641",
+      "xphbCounts": {
+        "class": 1,
+        "subclass": 4,
+        "classFeature": 34,
+        "subclassFeature": 26
+      }
+    },
+    {
+      "path": "data/class/class-paladin.json",
+      "bytes": 164577,
+      "sha256": "3e9480cc9c4821ffc6889073108b32d5d9e72850dd0171bb000497765c2baa5d",
+      "xphbCounts": {
+        "class": 1,
+        "subclass": 4,
+        "classFeature": 24,
+        "subclassFeature": 25
+      }
+    },
+    {
+      "path": "data/class/class-ranger.json",
+      "bytes": 149877,
+      "sha256": "8c115b467be3dddec4c7c588f2cc5222dfc6d9bd8c1d7aab7705fdc85349352f",
+      "xphbCounts": {
+        "class": 1,
+        "subclass": 4,
+        "classFeature": 23,
+        "subclassFeature": 25
+      }
+    },
+    {
+      "path": "data/class/class-rogue.json",
+      "bytes": 147219,
+      "sha256": "d36c3f948ed582670c575833314ce1c68129b702e3504c7cd1832607a09181ae",
+      "xphbCounts": {
+        "class": 1,
+        "subclass": 4,
+        "classFeature": 32,
+        "subclassFeature": 28
+      }
+    },
+    {
+      "path": "data/class/class-sorcerer.json",
+      "bytes": 177122,
+      "sha256": "a66bf3e60034322f1b87ed367d41dce2fd60da714c13017ccd17aec444272b72",
+      "xphbCounts": {
+        "class": 1,
+        "subclass": 4,
+        "classFeature": 19,
+        "subclassFeature": 25
+      }
+    },
+    {
+      "path": "data/class/class-warlock.json",
+      "bytes": 162077,
+      "sha256": "867a945c460be5925df0e6d87238b226912e7f2eb567fde0a88c05179eadbcac",
+      "xphbCounts": {
+        "class": 1,
+        "subclass": 4,
+        "classFeature": 19,
+        "subclassFeature": 26
+      }
+    },
+    {
+      "path": "data/class/class-wizard.json",
+      "bytes": 192861,
+      "sha256": "229793e225c61c69b4ea6ca5d32b3c16e292e653df759b9b1e44e5b3ac2671cb",
+      "xphbCounts": {
+        "class": 1,
+        "subclass": 4,
+        "classFeature": 16,
+        "subclassFeature": 24
+      }
+    },
+    {
+      "path": "data/conditionsdiseases.json",
+      "bytes": 68307,
+      "sha256": "22fbcdf297e10e55abc33bd02e3b9686aba05408c23c6053268b657654667a98",
+      "xphbCounts": {
+        "condition": 15,
+        "status": 3
+      }
+    },
+    {
+      "path": "data/feats.json",
+      "bytes": 408182,
+      "sha256": "f2f2f8beddac8f9e65d7f9157f26520854bf4a8140f1de41aa71dcb019eb0b33",
+      "xphbCounts": {
+        "feat": 77
+      }
+    },
+    {
+      "path": "data/items-base.json",
+      "bytes": 185338,
+      "sha256": "77f843ad3738684eb3d0ef567021f865120fc827a271b5f2d8ca19aa1aa5b067",
+      "xphbCounts": {
+        "baseitem": 94,
+        "itemProperty": 9,
+        "itemType": 23,
+        "itemMastery": 8
+      }
+    },
+    {
+      "path": "data/items.json",
+      "bytes": 2886019,
+      "sha256": "f1fe5e2533b252705741b7d4736f8db237319512276b145c0f641dba40a75bea",
+      "xphbCounts": {
+        "item": 123,
+        "itemGroup": 6
+      }
+    },
+    {
+      "path": "data/languages.json",
+      "bytes": 62764,
+      "sha256": "594c028eef751e32baa01387643e9a2efb6e48fd6543b69d531254c422b82ac0",
+      "xphbCounts": {
+        "language": 19,
+        "languageScript": 1
+      }
+    },
+    {
+      "path": "data/optionalfeatures.json",
+      "bytes": 146939,
+      "sha256": "a91cf9db1baf0e634ba2dd0d72ba6f2cfb05661a0c815678f29b61811ecb54a4",
+      "xphbCounts": {
+        "optionalfeature": 58
+      }
+    },
+    {
+      "path": "data/races.json",
+      "bytes": 567194,
+      "sha256": "584355e10c6f2a1c06c8d3c74c1377d27553456ca6208e09461a389ce09a246a",
+      "xphbCounts": {
+        "race": 10
+      }
+    },
+    {
+      "path": "data/senses.json",
+      "bytes": 4898,
+      "sha256": "64812f6d9217e247b9ba6a280cdf4bcb3d9e6254742f6864edc28471e869ec2b",
+      "xphbCounts": {
+        "sense": 4
+      }
+    },
+    {
+      "path": "data/skills.json",
+      "bytes": 12903,
+      "sha256": "23327c7b6504232b0c6eb25690fec419c2aa447342337011668dbc53cc72c54f",
+      "xphbCounts": {
+        "skill": 18
+      }
+    },
+    {
+      "path": "data/spells/fluff-spells-xphb.json",
+      "bytes": 14447,
+      "sha256": "8ded639c1c47fa65c61839ba8b96c3dc6e484ff30712684f4e0b5f99d1c01536",
+      "xphbCounts": {
+        "spellFluff": 51
+      }
+    },
+    {
+      "path": "data/spells/spells-xphb.json",
+      "bytes": 596499,
+      "sha256": "b608fc1b9ed4d42be40e51f732e6c4f295b65d8c141a14f6d17170c9ffd61eb6",
+      "xphbCounts": {
+        "spell": 391
+      }
+    },
+    {
+      "path": "data/variantrules.json",
+      "bytes": 677182,
+      "sha256": "fbbaed4bb8002076fac0e38a59ed65bac34e261ac753602f3a02b0bdfb1a6485",
+      "xphbCounts": {
+        "variantrule": 115
+      }
+    }
+  ]
+}
