@@ -15,6 +15,7 @@ import {
   newScene,
   visible,
   blocked,
+  blocksMovement,
   conditions,
   type Scene,
   type BoardToken,
@@ -55,11 +56,13 @@ type Room = {
   scenes?: Scene[];
   activeSceneId?: string;
   preparedSceneId?: string;
+  shownImage?: string | null;
   characters?: Character[];
   minigames?: Game[];
   portraits?: string[];
 };
 type SafeRoom = Omit<Room, "dmKey" | "members"> & {
+  publishedSceneId?: string;
   members: { id: string; name: string; online: boolean; dm: boolean }[];
 };
 
@@ -231,6 +234,7 @@ function safeRoom(room: Room, playerId = "", dm = false): SafeRoom {
     messages: room.messages,
     minigames: (room.minigames || []).filter(game => gameKinds.includes(game.kind) && (tokens.some(token => token.id === game.tokenId) || (game.declaration && game.players.includes(playerId) && scene.tokens.some(token => token.id === game.tokenId)))).map(game => gameView(game, playerId, dm)),
     activeSceneId: scene.id,
+    publishedSceneId: room.activeSceneId,
     scenes: dm
       ? room.scenes!.map((s) =>
           s.id === scene.id ? sceneView : { ...s, tokens: [], marks: [] },
@@ -771,6 +775,19 @@ io.on("connection", (socket) => {
           return;
         }
         room.activeSceneId = scene.id;
+      } else if (p.type === "image:show") {
+        const allowedImages = new Set(room.scenes!.flatMap(s => [s.map, ...s.tokens.map(t => t.image)]).filter((url): url is string => !!url));
+        if (!dm || typeof p.url !== "string" || !allowedImages.has(p.url)) {
+          fail("Hanya DM bisa menampilkan gambar.");
+          return;
+        }
+        room.shownImage = p.url;
+      } else if (p.type === "image:hide") {
+        if (!dm) {
+          fail("Hanya DM bisa menutup tayangan.");
+          return;
+        }
+        room.shownImage = null;
       } else if (p.type === "scene:settings") {
         if (!dm) {
           fail("Hanya DM bisa mengatur visibilitas.");
@@ -867,6 +884,7 @@ io.on("connection", (socket) => {
             "text",
             "wall",
             "door",
+            "window",
             "light",
             "reveal",
           ].includes(kind) ||
@@ -876,7 +894,7 @@ io.on("connection", (socket) => {
           fail("Bentuk tidak valid.");
           return;
         }
-        if (["wall", "door", "light", "reveal"].includes(kind) && !dm) {
+        if (["wall", "door", "window", "light", "reveal"].includes(kind) && !dm) {
           fail("Alat ini khusus DM.");
           return;
         }
@@ -891,16 +909,16 @@ io.on("connection", (socket) => {
           a,
           b,
           text: clean(p.text, 120),
-          open: kind === "door" ? false : undefined,
+          open: kind === "door" || kind === "window" ? false : undefined,
         });
       } else if (p.type === "door:toggle") {
         if (!dm) {
-          fail("Hanya DM bisa membuka pintu.");
+          fail("Hanya DM bisa membuka pintu atau jendela.");
           return;
         }
-        const door = scene.marks.find((mark) => mark.id === p.id && mark.kind === "door");
+        const door = scene.marks.find((mark) => mark.id === p.id && (mark.kind === "door" || mark.kind === "window"));
         if (!door) {
-          fail("Pintu tidak tersedia.");
+          fail("Pintu atau jendela tidak tersedia.");
           return;
         }
         door.open = !door.open;
@@ -1228,7 +1246,7 @@ io.on("connection", (socket) => {
       !socket.data.isDM &&
       scene.vision &&
       (!visible(destination, scene, socket.data.playerId) ||
-        blocked(token, destination, scene.marks))
+        blocksMovement(token, destination, scene.marks))
     )
       return;
     if (

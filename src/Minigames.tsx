@@ -23,6 +23,7 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
   const seenDeclarations = useRef(new Map<string, number>());
   const [error, setError] = useState(''); const [busy, setBusy] = useState(false);
   const dialog = useRef<HTMLDialogElement>(null);
+  const tokenMenu = useRef<HTMLDetailsElement>(null);
   const game = games.find(game => game.tokenId === openToken);
   useEffect(() => {
     if (!connected) { seenDeclarations.current.clear(); return; }
@@ -53,8 +54,9 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
   const disabled = !connected || busy;
   const openParty = (game?.kind === 'crossword' || game?.kind === 'ttspilihan') || game?.kind === 'seating' || game?.kind === 'wallclock';
   const name = (id: string) => members.find(member => member.id === id)?.name || 'Pemain';
-  return <section className="minigames">{dm && <details>
-    <summary>Token minigame · {games.length}</summary>
+  return <section className="minigames">{dm && <details ref={tokenMenu}>
+      <summary>Token minigame · {games.length}</summary>
+      <button type="button" aria-label="Tutup menu token minigame" onClick={() => { if (tokenMenu.current) { tokenMenu.current.open = false; tokenMenu.current.querySelector('summary')?.focus(); } }}>×</button>
     <p>Token siap pakai. Keluarkan ke peta, lalu klik token untuk deklarasikan permainan.</p><div className="minigame-actions">{Object.entries(gameCatalog).filter(([kind]) => kind !== 'crossword').map(([kind, entry]) => <button key={kind} disabled={disabled} onClick={() => send({ type: 'create', kind })}>Keluarkan {entry.name} · {entry.mode === 'duel' ? '1v1' : 'Semua pemain'}</button>)}</div>
     {!!games.length && <p>GM deklarasikan peserta. Layar peserta otomatis membuka permainan.</p>}
     <div className="minigame-token-list">{games.map(item => <div key={item.tokenId}><button onClick={() => onOpen(item.tokenId)}>{gameNames[item.kind]} · ronde {item.round}</button><button className="remove-action" aria-label={`Hapus ${gameNames[item.kind]} dari map`} title="Hapus token dari map" disabled={disabled} onClick={() => remove(item)}>Hapus</button></div>)}</div>

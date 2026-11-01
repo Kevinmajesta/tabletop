@@ -81,6 +81,8 @@ type Room = {
   messages: Message[];
   scenes?: Scene[];
   activeSceneId?: string;
+  publishedSceneId?: string;
+  shownImage?: string | null;
   characters?: Character[];
   minigames?: Game[];
   members: { id: string; name: string; online: boolean; dm: boolean }[];
@@ -126,6 +128,8 @@ function App() {
   const [panelOpen, setPanelOpen] = useState(() => window.innerWidth >= 900);
   const [mapTool, setMapTool] = useState<"select" | "pan">("select");
   const [toolsOpen, setToolsOpen] = useState(false);
+  const [imageOpen, setImageOpen] = useState(true);
+  useEffect(() => setImageOpen(true), [room?.shownImage]);
   const [gridVisible, setGridVisible] = useState(true);
   const [zoom, setZoom] = useState(1);
   const zoomRef = useRef(zoom);
@@ -195,6 +199,7 @@ function App() {
   const [previewTokenId, setPreviewTokenId] = useState<string | null>(null);
   const [combatOrderOpen, setCombatOrderOpen] = useState(true);
   const activeScene = room?.scenes?.find((s) => s.id === room.activeSceneId);
+  (window as unknown as { __activeScene?: typeof activeScene }).__activeScene = activeScene;
   const combatants = activeScene?.combat.active
     ? activeScene.combat.ids.map((id) => activeScene.tokens.find((token) => token.id === id)).filter((token): token is Token => !!token)
     : [];
@@ -234,6 +239,7 @@ function App() {
     if (!roomId || !identity) return;
     const socket = io();
     socketRef.current = socket;
+    (window as unknown as { __socket?: typeof socket }).__socket = socket;
     const join = () =>
       socket.emit(
         "room:join",
@@ -787,6 +793,12 @@ function App() {
         </div>, boardRef.current
       )}
       <div className={`workspace ${panelOpen ? "panel-visible" : ""}`}>
+        {room?.shownImage && imageOpen && (
+          <div className="player-image-overlay" role="dialog" aria-modal="true" aria-label="Gambar dari DM" onClick={() => setImageOpen(false)}>
+            <img src={room.shownImage} alt="Gambar yang ditampilkan DM" onClick={(event) => event.stopPropagation()} />
+            {isDM && <button type="button" onClick={(event) => { event.stopPropagation(); socketRef.current?.emit("tabletop:action", { type: "image:hide", sceneId: activeScene?.id }); }}>Tutup untuk semua</button>}
+          </div>
+        )}
         <nav className="tabletop-rail" aria-label="Alat meja">
           <button
             className="rail-menu"
@@ -813,6 +825,7 @@ function App() {
             <Hand size={20} />
           </button>
           <div className="rail-caption">ALAT</div>
+          <div id="player-tools-slot" />
           <button
             className={gridVisible ? "active" : ""}
             aria-pressed={gridVisible}
@@ -1020,6 +1033,7 @@ function App() {
             <Suspense fallback={null}>
               <BoardTools
                 scene={activeScene}
+                publishedSceneId={room?.publishedSceneId}
                 scenes={room?.scenes || []}
                 socket={socketRef.current}
                 dm={isDM}
@@ -1153,6 +1167,14 @@ function App() {
                   <Plus size={18} />
                   {uploading ? "Mengunggah..." : "Tambah token"}
                 </button>
+                {isDM && (
+                  <button
+                    disabled={!connected || !(selectedToken?.image || activeScene?.map)}
+                    onClick={() => socketRef.current?.timeout(5000).emit("tabletop:action", { type: "image:show", sceneId: activeScene?.id, url: selectedToken?.image || activeScene?.map }, (timeout: Error | null, result?: { error?: string }) => { if (timeout || result?.error) setError(result?.error || "Gambar gagal ditampilkan."); })}
+                  >
+                    Tampilkan ke pemain
+                  </button>
+                )}
                 {canEditSelected && (
                   <button
                     className="remove-action"

@@ -246,6 +246,7 @@ export default function Characters({
           </button>
           {quickOpen && (
             <div className="character-quick-panel">
+              {error && <p className="character-error" role="alert">{error}</p>}
               <div className="quick-sheet-heading">
                 <div>
                   <strong>{character.sheet.name}</strong>

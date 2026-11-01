@@ -76,6 +76,18 @@ for (const end of ['pointerup', 'pointercancel', 'blur']) test(`pointer clears o
   assert.equal(g.local, null);
 });
 
+test('map right click suppresses browser menu even after pointer release', () => {
+  const g = gesture();
+  let blocked = 0;
+  g.fire('pointerdown');
+  g.fire('pointerup');
+  g.fire('contextmenu', { preventDefault() { blocked++; } });
+  assert.equal(blocked, 1);
+  g.fire('pointerdown', { button: 0, buttons: 1, clientX: 150 });
+  g.fire('contextmenu', { clientX: 150, preventDefault() { blocked++; } });
+  assert.equal(blocked, 1, 'normal browser menu outside the map stays available');
+});
+
 test('lost right-button release clears on the next move', () => {
   const g = gesture();
   g.fire('pointerdown');

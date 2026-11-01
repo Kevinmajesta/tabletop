@@ -12,6 +12,7 @@ import {
   Type,
   BrickWall,
   DoorOpen,
+  SquareDashedBottom,
   Lamp,
   Scan,
   SlidersHorizontal,
@@ -43,6 +44,7 @@ type Pointer = Point & { playerId: string; name: string };
 type Props = {
   scene: Scene;
   scenes: Scene[];
+  publishedSceneId?: string;
   socket: Socket | null;
   dm: boolean;
   previewTokenId?: string | null;
@@ -65,6 +67,7 @@ const labels: [Tool, string][] = [
   ["text", "Teks"],
   ["wall", "Dinding"],
   ["door", "Pintu"],
+  ["window", "Jendela"],
   ["light", "Cahaya"],
   ["reveal", "Buka fog"],
 ];
@@ -79,6 +82,7 @@ const toolIcons = {
   text: Type,
   wall: BrickWall,
   door: DoorOpen,
+  window: SquareDashedBottom,
   light: Lamp,
   reveal: Scan,
 };
@@ -102,13 +106,14 @@ const toolGroups: { name: string; description: string; ids: Tool[] }[] = [
   {
     name: "Visibilitas DM",
     description: "Atur pandangan dan area terbuka.",
-    ids: ["wall", "door", "light", "reveal"],
+    ids: ["wall", "door", "window", "light", "reveal"],
   },
 ];
 
 export default function BoardTools({
   scene,
   scenes,
+  publishedSceneId,
   socket,
   dm,
   previewTokenId,
@@ -122,6 +127,17 @@ export default function BoardTools({
 }: Props) {
   const [tool, setTool] = useState<Tool>("select");
   const [open, setOpen] = useState(false);
+  const [pagesOpen, setPagesOpen] = useState(false);
+  const pagesToggle = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const toggle = () => { if (dm) { setPagesOpen(value => !value); setOpen(false); } };
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && pagesOpen) { setPagesOpen(false); pagesToggle.current?.focus(); }
+    };
+    window.addEventListener("tabletop:pages-menu", toggle);
+    window.addEventListener("keydown", close);
+    return () => { window.removeEventListener("tabletop:pages-menu", toggle); window.removeEventListener("keydown", close); };
+  }, [dm, pagesOpen]);
   useEffect(() => {
     const close = () => setOpen(false);
     window.addEventListener("tabletop:quick-open", close);
@@ -187,6 +203,7 @@ export default function BoardTools({
   }, [socket, playerId]);
   useEffect(() => {
     let active = false;
+    let suppressMenu = false;
     const point = (event: PointerEvent) => {
       const rect = svg.current?.getBoundingClientRect();
       if (!connected || !socket || !rect || !rect.width || !rect.height || event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) return null;
@@ -203,10 +220,12 @@ export default function BoardTools({
       socket?.emit("tabletop:pointer", { sceneId: scene.id, ...p, active: true });
     };
     const down = (event: PointerEvent) => {
+      suppressMenu = false;
       if (event.button !== 2) return;
       const p = point(event);
       if (!p) return;
       active = true;
+      suppressMenu = true;
       event.preventDefault();
       setLocalPointer(p);
       send(p);
@@ -219,7 +238,7 @@ export default function BoardTools({
       if (performance.now() - pointerThrottle.current >= 40) send(p);
     };
     const up = (event: PointerEvent) => { if (event.button === 2) stop(); };
-    const menu = (event: MouseEvent) => { if (active) event.preventDefault(); };
+    const menu = (event: MouseEvent) => { if (suppressMenu) event.preventDefault(); };
     window.addEventListener("pointerdown", down); window.addEventListener("pointermove", move); window.addEventListener("pointerup", up); window.addEventListener("contextmenu", menu);
     window.addEventListener("pointercancel", stop); window.addEventListener("blur", stop);
     return () => {
@@ -329,7 +348,9 @@ export default function BoardTools({
             ? "#ffc1b4"
             : mark.kind === "door"
               ? mark.open ? "#9fdca6" : "#f1b767"
-              : "#f3d49a",
+              : mark.kind === "window"
+                ? "#72c7ea"
+                : "#f3d49a",
       strokeWidth: selectedMarkId === key ? 4 : 2,
       fill: "#d6ae7030",
       vectorEffect: "non-scaling-stroke" as const,
@@ -387,6 +408,44 @@ export default function BoardTools({
         />
       );
     }
+    if (mark.kind === "door" || mark.kind === "window") {
+      const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      const isDoor = mark.kind === "door";
+      const strokeColor = isDoor
+        ? mark.open ? "#9fdca6" : "#f1b767"
+        : mark.open ? "#a5e8ff" : "#72c7ea";
+      return (
+        <g key={key} className={`board-portal board-portal-${mark.kind} ${mark.open ? "open" : "closed"}`}>
+          <line
+            x1={a.x}
+            y1={a.y}
+            x2={b.x}
+            y2={b.y}
+            stroke={selectedMarkId === key ? "#ffffff" : strokeColor}
+            strokeWidth={selectedMarkId === key ? 4 : 3}
+            strokeDasharray={mark.open ? "8 6" : undefined}
+            vectorEffect="non-scaling-stroke"
+            pointerEvents={tool === "select" ? "visiblePainted" : "none"}
+            onPointerDown={key !== "draft" && tool === "select" ? (e) => selectMark(e, key) : undefined}
+          />
+          {key !== "draft" && dm && (
+            <g
+              transform={`translate(${mid.x}, ${mid.y})`}
+              style={{ cursor: "pointer", pointerEvents: "all" }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                action({ type: "door:toggle", id: key });
+              }}
+            >
+              <circle r={11} fill="#171d1b" stroke={strokeColor} strokeWidth={2} />
+              <text textAnchor="middle" dy="3.5" fontSize="10" fill={strokeColor} fontWeight="bold" style={{ userSelect: "none" }}>
+                {isDoor ? (mark.open ? "○" : "●") : (mark.open ? "◫" : "▥")}
+              </text>
+            </g>
+          )}
+        </g>
+      );
+    }
     return (
       <line key={key} x1={a.x} y1={a.y} x2={b.x} y2={b.y} {...properties} />
     );
@@ -430,7 +489,9 @@ export default function BoardTools({
       className="board-tools-panel"
       onPointerDown={(e) => e.stopPropagation()}
     >
-      <button
+      {document.getElementById('player-tools-slot') && createPortal(<button
+        title="Opsi alat pemain"
+        aria-label="Opsi alat pemain"
         className="board-tools-toggle"
         onClick={() => { setDmMenu(false); setTab('tools'); setOpen((v) => !v); }}
         aria-expanded={open}
@@ -442,7 +503,44 @@ export default function BoardTools({
           className={open ? "expanded" : ""}
           aria-hidden="true"
         />
-      </button>
+      </button>, document.getElementById('player-tools-slot')!)}
+      {dm && (
+        <button ref={pagesToggle} type="button" className="scene-pages-toggle" aria-label="Menu scene" aria-expanded={pagesOpen} aria-controls="scene-page-menu" onClick={() => { setPagesOpen(value => !value); setOpen(false); }}>
+          <Layers size={17} aria-hidden="true" /> Scene
+        </button>
+      )}
+      {dm && pagesOpen && (
+        <section id="scene-page-menu" className="scene-page-menu" aria-label="Daftar scene">
+          <header>
+            <div><strong>Scene</strong><p>Preview DM tidak memindahkan pemain.</p></div>
+            <button type="button" aria-label="Tutup menu scene" onClick={() => { setPagesOpen(false); pagesToggle.current?.focus(); }}><X size={18} /></button>
+          </header>
+          <div className="scene-page-cards">
+            {scenes.map(page => {
+              const map = page.map && /^(?:https?:\/\/|\/uploads\/)/i.test(page.map) ? page.map : null;
+              return <button key={page.id} type="button" className="scene-page-card" disabled={!connected} aria-pressed={scene.id === page.id} aria-label={`Preview ${page.name}`} onClick={() => action({ type: "scene:activate", id: page.id })}>
+                <span className="scene-page-thumbnail">
+                  {map ? /\.(?:mp4|webm|ogg)(?:[?#]|$)/i.test(map) ? <video src={map} muted playsInline preload="metadata" aria-hidden="true" /> : <img src={map} alt="" loading="lazy" /> : <Layers size={30} aria-hidden="true" />}
+                </span>
+                <strong>{page.name}</strong>
+                <span className="scene-page-badges">
+                  {scene.id === page.id && <span>DM · Preview</span>}
+                  {publishedSceneId === page.id && <span className="scene-player-ribbon">Pemain aktif</span>}
+                </span>
+              </button>;
+            })}
+          </div>
+          <footer>
+            <span>Preview: <strong>{scene.name}</strong></span>
+            <button type="button" disabled={!connected} onClick={() => action({ type: "scene:publish" })}>Tampilkan ke pemain</button>
+          </footer>
+          <form onSubmit={event => { event.preventDefault(); if (name.trim()) { action({ type: "scene:create", name }); setName(""); } }}>
+            <label>Scene baru<input value={name} maxLength={60} onChange={event => setName(event.target.value)} /></label>
+            <button type="submit" disabled={!connected || !name.trim() || scenes.length >= 20}>Buat scene</button>
+          </form>
+          {error && <p role="alert">{error}</p>}
+        </section>
+      )}
       {!open && tool !== "select" && (
         <div className="board-active-compact">
           {labels.find(([id]) => id === tool)?.[1]} aktif
@@ -545,7 +643,7 @@ export default function BoardTools({
             {tab === "tools" && (
               <>
                 {toolGroups
-                  .filter((group) => group.name !== 'Visibilitas DM' || dm && dmMenu)
+                  .filter((group) => group.name !== 'Visibilitas DM' || dm)
                   .map((group) => (
                     <section className="board-tool-group" key={group.name}>
                       <h3>{group.name}</h3>
@@ -618,7 +716,7 @@ export default function BoardTools({
                           <span>
                             {labels.find(([id]) => id === m.kind)?.[1]} {m.text}
                           </span>
-                          {dm && m.kind === "door" && (
+                          {dm && (m.kind === "door" || m.kind === "window") && (
                             <button
                               disabled={!connected}
                               onClick={() => action({ type: "door:toggle", id: m.id })}
@@ -984,7 +1082,9 @@ export default function BoardTools({
         drawing.current = true;
         setWaypoints([]);
         setDraft({ a, b: a });
-        e.currentTarget.setPointerCapture(e.pointerId);
+        try {
+          e.currentTarget.setPointerCapture(e.pointerId);
+        } catch {}
       }}
       onPointerMove={(e) => {
         if (draft && drawing.current) {
@@ -997,8 +1097,10 @@ export default function BoardTools({
         if (!draft) return;
         e.stopPropagation();
         const b = point(e);
-        if (e.currentTarget.hasPointerCapture(e.pointerId))
-          e.currentTarget.releasePointerCapture(e.pointerId);
+        try {
+          if (e.currentTarget.hasPointerCapture(e.pointerId))
+            e.currentTarget.releasePointerCapture(e.pointerId);
+        } catch {}
         if (tool === "ruler") {
           setDraft({ ...draft, b });
           return;
@@ -1013,6 +1115,7 @@ export default function BoardTools({
         setWaypoints([]);
       }}
     >
+      <defs><filter id="vision-fog-blur"><feGaussianBlur stdDeviation="5" /></filter></defs>
       {scene.marks
         .filter((m) => m.kind !== "reveal")
         .map((m) => shape(m, m.id))}
@@ -1043,7 +1146,7 @@ export default function BoardTools({
           </text>
         </>
       )}
-      {fogCells}
+      {fogCells.length > 0 && <g filter="url(#vision-fog-blur)">{fogCells}</g>}
       {Object.entries(sharedRulers).map(
         ([id, ruler]) =>
           ruler.points.length > 1 && (
