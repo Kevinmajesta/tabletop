@@ -1428,6 +1428,19 @@ export default function Characters({
                     </button>
                     <button
                       disabled={!connected || busy}
+                      title="Roll 1 Hit Die + CON untuk memulihkan HP (memakai 1 Hit Dice)"
+                      onClick={() =>
+                        request({
+                          type: "hitdie",
+                          id: character.id,
+                          revision: character.revision,
+                        })
+                      }
+                    >
+                      Pakai Hit Die ({character.sheet.level - (character.resourcesUsed?.["hit-dice"] || 0)} sisa)
+                    </button>
+                    <button
+                      disabled={!connected || busy}
                       onClick={() =>
                         request({
                           type: "rest",
@@ -1928,7 +1941,7 @@ export default function Characters({
             )}
           </main>
         </div>
-        <div className="character-attribution">
+        <div className="character-attribution" title="Resource karakter: Player's Handbook 2024 dan species Monsters of the Multiverse via snapshot lokal 5etools. Katalog dasar SRD 5.2 oleh Wizards of the Coast, CC BY 4.0; tidak mencakup seluruh konten buku tambahan. Efek kondisional dijalankan bersama DM.">
           Resource karakter: Player's Handbook 2024 dan species Monsters of
           the Multiverse, diimpor dari snapshot lokal 5etools. Katalog dasar
           SRD 5.2 oleh Wizards of the Coast, CC BY 4.0; lisensi tersebut tidak

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Socket } from "socket.io-client";
 import {
@@ -347,6 +347,7 @@ export default function BoardTools({
   function shape(mark: Pick<Mark, "kind" | "a" | "b" | "text" | "open">, key: string) {
     const a = { x: (mark.a.x / 100) * width, y: (mark.a.y / 100) * height },
       b = { x: (mark.b.x / 100) * width, y: (mark.b.y / 100) * height };
+    if (mark.kind === "wall" && (!dm || previewTokenId)) return null;
     const radius = Math.hypot(b.x - a.x, b.y - a.y);
     const properties = {
       stroke:
@@ -417,6 +418,7 @@ export default function BoardTools({
       );
     }
     if (mark.kind === "door" || mark.kind === "window") {
+      if (!dm || previewTokenId) return null;
       const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
       const isDoor = mark.kind === "door";
       const strokeColor = isDoor
@@ -466,32 +468,19 @@ export default function BoardTools({
         total + distance(path[i], p, { ...scene.grid, width, height }),
       0,
     );
-  const fogCells: React.ReactNode[] = [];
-  if ((previewTokenId || !dm) && (scene.fog || scene.vision)) {
-    const columns = 80,
-      rows = Math.ceil((80 * height) / width);
-    for (let x = 0; x < columns; x++)
-      for (let y = 0; y < rows; y++) {
-        if (
-          !visible(
-            { x: ((x + 0.5) / columns) * 100, y: ((y + 0.5) / rows) * 100 },
-            scene,
-            playerId,
-            previewTokenId,
-          )
-        )
-          fogCells.push(
-            <rect
-              key={`${x}:${y}`}
-              x={(x * width) / columns}
-              y={(y * height) / rows}
-              width={width / columns + 0.5}
-              height={height / rows + 0.5}
-              fill="#11151c"
-            />,
-          );
-      }
-  }
+  const columns = 100,
+    rows = Math.ceil((columns * height) / width);
+  const fogCells = useMemo(() => {
+    const cells: string[] = [];
+    if ((previewTokenId || !dm) && (scene.fog || scene.vision)) {
+      for (let x = 0; x < columns; x++)
+        for (let y = 0; y < rows; y++) {
+          if (!visible({ x: ((x + 0.5) / columns) * 100, y: ((y + 0.5) / rows) * 100 }, scene, playerId, previewTokenId))
+            cells.push(`M${x * width / columns},${y * height / rows}h${width / columns + 1}v${height / rows + 1}h${-width / columns - 1}Z`);
+        }
+    }
+    return cells;
+  }, [scene, playerId, previewTokenId, dm, width, height, rows]);
   const panel = (
     <div
       className="board-tools-panel"
@@ -1038,6 +1027,15 @@ export default function BoardTools({
                     Mulai / urutkan semua token
                   </button>
                 )}
+                {dm && dmMenu && (
+                  <button
+                    disabled={!connected || !scene.tokens.length}
+                    title="Roll d20 initiative untuk token tanpa sheet karakter, lalu mulai combat"
+                    onClick={() => action({ type: "combat:roll-npc" })}
+                  >
+                    Roll initiative semua NPC &amp; mulai
+                  </button>
+                )}
                 {scene.combat.active &&
                   (dm ||
                     scene.tokens.find(
@@ -1127,7 +1125,7 @@ export default function BoardTools({
         setWaypoints([]);
       }}
     >
-      <defs><filter id="vision-fog-blur"><feGaussianBlur stdDeviation="5" /></filter></defs>
+      <defs><filter id="vision-fog-blur" filterUnits="userSpaceOnUse" x={-20} y={-20} width={width + 40} height={height + 40}><feGaussianBlur stdDeviation={Math.max(width / 100, height / rows)} /></filter></defs>
       {scene.marks
         .filter((m) => m.kind !== "reveal")
         .map((m) => shape(m, m.id))}
@@ -1166,7 +1164,7 @@ export default function BoardTools({
           </text>
         </>
       )}
-      {fogCells.length > 0 && <g filter="url(#vision-fog-blur)">{fogCells}</g>}
+      {fogCells.length > 0 && <g filter="url(#vision-fog-blur)"><path d={fogCells.join('')} fill="#11151c" /></g>}
       {Object.entries(sharedRulers).map(
         ([id, ruler]) =>
           ruler.points.length > 1 && (

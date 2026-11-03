@@ -52,7 +52,7 @@ function DiceScene(props: { roll: DiceRoll; onComplete: () => void; zoom?: numbe
 import type { Game } from '../server/minigames';
 import { gameCatalog } from '../server/game-catalog';
 import type { Character } from "../server/characters";
-import { distance, type BoardToken, type Scene } from "../server/tabletop";
+import { blocksMovement, distance, type BoardToken, type Scene } from "../server/tabletop";
 import type { DiceRoll } from "../server/dice-physics";
 import { randomId } from "./random-id";
 
@@ -83,6 +83,7 @@ type Room = {
   activeSceneId?: string;
   publishedSceneId?: string;
   shownImage?: string | null;
+  ambience?: { url: string; name: string } | null;
   characters?: Character[];
   minigames?: Game[];
   members: { id: string; name: string; online: boolean; dm: boolean }[];
@@ -130,6 +131,19 @@ function App() {
   const [toolsOpen, setToolsOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(true);
   useEffect(() => setImageOpen(true), [room?.shownImage]);
+  const [audioMuted, setAudioMuted] = useState(() => localStorage.getItem("meja-audio-muted") === "1");
+  const [audioVolume, setAudioVolume] = useState(() => Number(localStorage.getItem("meja-audio-volume") ?? 0.5));
+  const ambience = useRef<HTMLAudioElement>(null);
+  useEffect(() => {
+    const el = ambience.current;
+    if (!el) return;
+    el.volume = audioVolume;
+    el.muted = audioMuted;
+    // Browsers block autoplay until a user gesture; the catch keeps a silent failure from throwing.
+    if (room?.ambience) el.play().catch(() => undefined);
+    localStorage.setItem("meja-audio-muted", audioMuted ? "1" : "0");
+    localStorage.setItem("meja-audio-volume", String(audioVolume));
+  }, [room?.ambience?.url, audioMuted, audioVolume]);
   const [gridVisible, setGridVisible] = useState(true);
   const [zoom, setZoom] = useState(1);
   const zoomRef = useRef(zoom);
@@ -168,6 +182,7 @@ function App() {
     roll: DiceRoll;
     color: number;
     revealed: boolean;
+    revealedAt?: number;
   };
   const [diceAnimations, setDiceAnimations] = useState<DiceAnimation[]>([]);
   const [pendingRollIds, setPendingRollIds] = useState<string[]>([]);
@@ -177,6 +192,8 @@ function App() {
   const socketRef = useRef<Socket | null>(null);
   const mapInput = useRef<HTMLInputElement>(null);
   const tokenInput = useRef<HTMLInputElement>(null);
+  const handoutInput = useRef<HTMLInputElement>(null);
+  const audioInput = useRef<HTMLInputElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const panning = useRef<{
@@ -199,7 +216,7 @@ function App() {
   const [previewTokenId, setPreviewTokenId] = useState<string | null>(null);
   const [combatOrderOpen, setCombatOrderOpen] = useState(true);
   const activeScene = room?.scenes?.find((s) => s.id === room.activeSceneId);
-  (window as unknown as { __activeScene?: typeof activeScene }).__activeScene = activeScene;
+
   const combatants = activeScene?.combat.active
     ? activeScene.combat.ids.map((id) => activeScene.tokens.find((token) => token.id === id)).filter((token): token is Token => !!token)
     : [];
@@ -261,7 +278,7 @@ function App() {
     if (!roomId || !identity) return;
     const socket = io();
     socketRef.current = socket;
-    (window as unknown as { __socket?: typeof socket }).__socket = socket;
+
     const join = () =>
       socket.emit(
         "room:join",
@@ -348,9 +365,10 @@ function App() {
   useEffect(() => {
     const active = diceAnimations.filter((animation) => animation.revealed);
     if (!active.length) return;
+    const expiresAt = Math.min(...active.map((animation) => animation.revealedAt! + 2000));
     const timer = window.setTimeout(() => {
-      setDiceAnimations((current) => current.filter((animation) => !animation.revealed));
-    }, 4000);
+      setDiceAnimations((current) => current.filter((animation) => !animation.revealed || animation.revealedAt! + 2000 > Date.now()));
+    }, Math.max(0, expiresAt - Date.now()));
     return () => window.clearTimeout(timer);
   }, [diceAnimations]);
 
@@ -498,7 +516,24 @@ function App() {
     }
   }
 
-  async function upload(kind: "map" | "token", file?: File, extra?: { name?: string; characterId?: string }) {
+  async function uploadAudio(file?: File) {
+    if (!file || !identity) return;
+    setUploading(true);
+    setError("");
+    try {
+      const form = new FormData();
+      form.append("audio", file);
+      const response = await fetch(`/api/rooms/${roomId}/audio`, { method: "POST", headers: { "x-player-id": identity.playerId, "x-player-secret": identity.playerSecret, "x-dm-key": identity.dmKey || "" }, body: form });
+      if (!response.ok) throw new Error((await response.json()).error || "Upload audio gagal.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload audio gagal.");
+    } finally {
+      setUploading(false);
+      if (audioInput.current) audioInput.current.value = "";
+    }
+  }
+
+  async function upload(kind: "map" | "token" | "handout", file?: File, extra?: { name?: string; characterId?: string }) {
     if (!file || !identity) return;
     if (
       !["image/png", "image/jpeg", "image/webp", "image/gif"].includes(
@@ -541,6 +576,7 @@ function App() {
       setUploading(false);
       if (mapInput.current) mapInput.current.value = "";
       if (tokenInput.current) tokenInput.current.value = "";
+      if (handoutInput.current) handoutInput.current.value = "";
     }
   }
 
@@ -578,12 +614,13 @@ function App() {
   function moveToken(event: React.PointerEvent) {
     if (!dragging.current || !mapRef.current) return;
     const { x, y } = tokenPosition(event);
+    const original = room?.tokens.find((t) => t.id === dragging.current);
+    if (!isDM && original && activeScene && blocksMovement(original, { x, y }, activeScene.marks)) return;
     const now = performance.now();
     if (now - lastTokenMove.current >= 50) {
       lastTokenMove.current = now;
       socketRef.current?.emit("token:move", { id: dragging.current, x, y, final: false });
     }
-    const original = room?.tokens.find((t) => t.id === dragging.current);
     if (original)
       setMovement((current) => ({
         id: dragging.current!,
@@ -626,9 +663,12 @@ function App() {
       tokenDragStart.current = null;
       return;
     }
+    const destination = tokenPosition(event);
+    const token = room?.tokens.find((item) => item.id === dragging.current);
+    const blockedMove = !isDM && token && activeScene && blocksMovement(token, destination, activeScene.marks);
     socketRef.current?.emit("token:move", {
       id: dragging.current,
-      ...tokenPosition(event),
+      ...(blockedMove ? { x: token.x, y: token.y } : destination),
       final: true,
     });
     dragging.current = null;
@@ -792,7 +832,7 @@ function App() {
                 key={animation.id}
                 roll={animation.roll}
                 color={animation.color}
-                onComplete={() => setDiceAnimations((current) => current.map((item) => item.id === animation.id ? { ...item, revealed: true } : item))}
+                onComplete={() => setDiceAnimations((current) => current.map((item) => item.id === animation.id ? { ...item, revealed: true, revealedAt: item.revealedAt ?? Date.now() } : item))}
               /></div>, mapRef.current || boardRef.current!)}
               {animation.revealed && diceEffects && <Suspense fallback={null}>
                 <NaturalRollEffect rollId={animation.id} sides={animation.roll.sides} values={animation.roll.values} />
@@ -991,16 +1031,11 @@ function App() {
                     title={token.name}
                   >
                     {token.minigame ? <div className="minigame-token-mark" aria-hidden="true">{isDM ? gameCatalog[token.minigame].mark : '?'}</div> : <img src={token.image} alt={token.name} loading="lazy" decoding="async" />}
+                    {isDM && !!token.maxHp && <div className="token-hp-bar" aria-label={`HP ${token.name}: ${token.hp ?? 0}/${token.maxHp}`}><i style={{ width: `${Math.max(0, Math.min(100, ((token.hp ?? 0) / token.maxHp) * 100))}%` }} /></div>}
                     {token.dead && <svg className="token-dead-mark" viewBox="0 0 100 100" role="img" aria-label={`${token.name}: Dead`}><path d="M 18 18 L 82 82 M 82 18 L 18 82" /></svg>}
                     {!!token.conditions?.length && <div className="token-conditions" aria-label={`Kondisi ${token.name}: ${token.conditions.join(', ')}`}>{token.conditions.map((condition) => <b key={condition} title={conditionDescriptions[condition] || condition}>{condition[0]}</b>) }</div>}
                     <span style={{ transform: `translateX(-50%) scale(${1 / zoom})` }}>
                       {token.name}
-                      {token.maxHp
-                        ? ` · HP ${token.hp ?? 0}/${token.maxHp}`
-                        : ""}
-                      {token.conditions?.length
-                        ? ` · ${token.conditions.join(", ")}`
-                        : ""}
                       {token.hidden ? " · DM saja" : ""}
                     </span>
                   </button>
@@ -1155,6 +1190,29 @@ function App() {
                   <Plus size={18} />
                   {uploading ? "Mengunggah..." : "Tambah token"}
                 </button>
+                {isDM && (
+                  <button onClick={() => audioInput.current?.click()} disabled={uploading || !connected}>
+                    <Plus size={18} />
+                    Putar audio latar (MP3/OGG/WAV)
+                  </button>
+                )}
+                {isDM && room?.ambience && (
+                  <button onClick={() => socketRef.current?.emit("tabletop:action", { type: "audio:stop", sceneId: activeScene?.id })}>
+                    Hentikan: {room.ambience.name}
+                  </button>
+                )}
+                {room?.ambience && (
+                  <label className="ambience-volume">
+                    <button type="button" onClick={() => setAudioMuted((v) => !v)}>{audioMuted ? "Bunyikan" : "Bisukan"}</button>
+                    <input type="range" min={0} max={1} step={0.05} value={audioVolume} aria-label="Volume audio latar" onChange={(e) => setAudioVolume(Number(e.target.value))} />
+                  </label>
+                )}
+                {isDM && (
+                  <button onClick={() => handoutInput.current?.click()} disabled={uploading || !connected}>
+                    <Plus size={18} />
+                    Unggah &amp; tampilkan gambar
+                  </button>
+                )}
                 {isDM && (
                   <button
                     disabled={!connected || !(selectedToken?.image || activeScene?.map)}
@@ -1408,6 +1466,21 @@ function App() {
         accept="image/png,image/jpeg,image/webp,image/gif"
         hidden
         onChange={(e) => void upload("map", e.target.files?.[0])}
+      />
+      <input
+        ref={audioInput}
+        type="file"
+        accept="audio/mpeg,audio/ogg,audio/wav"
+        hidden
+        onChange={(e) => void uploadAudio(e.target.files?.[0])}
+      />
+      {room?.ambience && <audio ref={ambience} src={room.ambience.url} loop preload="auto" />}
+      <input
+        ref={handoutInput}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        hidden
+        onChange={(e) => void upload("handout", e.target.files?.[0])}
       />
       <input
         ref={tokenInput}

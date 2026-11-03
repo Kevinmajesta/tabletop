@@ -33,12 +33,12 @@ test('Roll20-style doors and windows vision and movement rules', () => {
   assert.equal(blocksMovement({ x: 20, y: 50 }, { x: 60, y: 50 }, scene.marks), false, 'open door passes movement');
   assert.equal(visible({ x: 60, y: 50 }, scene, 'player'), true, 'can see through open door');
 
-  // 4. Closed window permits vision, blocks movement
+  // 4. Closed window blocks both vision and movement
   const closedWindow = { id: 'win1', ownerId: 'dm', kind: 'window', a: { x: 40, y: 0 }, b: { x: 40, y: 100 }, text: '', open: false };
   scene.marks = [closedWindow];
-  assert.equal(blocked({ x: 20, y: 50 }, { x: 60, y: 50 }, scene.marks), false, 'closed window does NOT block vision');
+  assert.equal(blocked({ x: 20, y: 50 }, { x: 60, y: 50 }, scene.marks), true, 'closed window blocks vision');
   assert.equal(blocksMovement({ x: 20, y: 50 }, { x: 60, y: 50 }, scene.marks), true, 'closed window blocks movement');
-  assert.equal(visible({ x: 60, y: 50 }, scene, 'player'), true, 'can see through closed window');
+  assert.equal(visible({ x: 60, y: 50 }, scene, 'player'), false, 'cannot see through closed window');
 
   // 5. Open window permits both (player can climb through)
   const openWindow = { id: 'win1', ownerId: 'dm', kind: 'window', a: { x: 40, y: 0 }, b: { x: 40, y: 100 }, text: '', open: true };

@@ -57,6 +57,7 @@ type Room = {
   activeSceneId?: string;
   preparedSceneId?: string;
   shownImage?: string | null;
+  ambience?: { url: string; name: string } | null;
   characters?: Character[];
   minigames?: Game[];
   portraits?: string[];
@@ -214,7 +215,7 @@ function safeRoom(room: Room, playerId = "", dm = false): SafeRoom {
     marks: scene.marks.filter(
       (m) =>
         dm ||
-        ["wall", "light", "reveal"].includes(m.kind) ||
+        ["wall", "door", "window", "light", "reveal"].includes(m.kind) ||
         visible(m.a, scene, playerId),
     ),
     combat: {
@@ -230,6 +231,8 @@ function safeRoom(room: Room, playerId = "", dm = false): SafeRoom {
     id: room.id,
     title: room.title,
     map: scene.map,
+    shownImage: room.shownImage ?? null,
+    ambience: room.ambience ?? null,
     tokens,
     messages: room.messages,
     minigames: (room.minigames || []).filter(game => gameKinds.includes(game.kind) && (tokens.some(token => token.id === game.tokenId) || (game.declaration && game.players.includes(playerId) && scene.tokens.some(token => token.id === game.tokenId)))).map(game => gameView(game, playerId, dm)),
@@ -393,6 +396,7 @@ io.on("connection", (socket) => {
       for (const token of scene.tokens) references.add(token.image);
     }
     if (room.map) references.add(room.map);
+    if (room.shownImage) references.add(room.shownImage);
     try {
       const images = [];
       let total = 0;
@@ -585,6 +589,25 @@ io.on("connection", (socket) => {
           character!.spellSlotsUsed = {};
           character!.slotsUsed = 0;
         }
+        character!.revision++;
+      } else if (p.type === "hitdie") {
+        if (p.revision !== character!.revision) {
+          respond({ error: "Sheet berubah. Coba lagi." });
+          return;
+        }
+        const left = character!.sheet.level - (character!.resourcesUsed?.["hit-dice"] || 0);
+        const die = catalogFor(character!.build).classes.find((c) => c.index === character!.build.classId)?.hit_die || 8;
+        if (left < 1 || character!.hp >= character!.sheet.hp) {
+          respond({ error: left < 1 ? "Hit Dice habis." : "HP sudah penuh." });
+          return;
+        }
+        const rolled = randomInt(1, die + 1);
+        const healed = Math.max(1, rolled + character!.sheet.modifiers.con);
+        character!.hp = Math.min(character!.sheet.hp, character!.hp + healed);
+        character!.resourcesUsed ||= {};
+        character!.resourcesUsed["hit-dice"] = (character!.resourcesUsed["hit-dice"] || 0) + 1;
+        room.messages.push({ id: randomUUID(), name: character!.sheet.name, text: `Hit Die d${die}: ${rolled}${character!.sheet.modifiers.con >= 0 ? "+" : ""}${character!.sheet.modifiers.con} → pulih ${healed} HP (${character!.hp}/${character!.sheet.hp})`, time: Date.now(), kind: "roll" });
+        room.messages = room.messages.slice(-100);
         character!.revision++;
       } else if (p.type === "resources") {
         if (p.revision !== character!.revision) {
@@ -782,6 +805,12 @@ io.on("connection", (socket) => {
           return;
         }
         room.shownImage = p.url;
+      } else if (p.type === "audio:stop") {
+        if (!dm) {
+          fail("Hanya DM bisa menghentikan audio.");
+          return;
+        }
+        room.ambience = null;
       } else if (p.type === "image:hide") {
         if (!dm) {
           fail("Hanya DM bisa menutup tayangan.");
@@ -953,6 +982,17 @@ io.on("connection", (socket) => {
             (scene.tokens.find((t) => t.id === b)?.initiative ?? 0) -
             (scene.tokens.find((t) => t.id === a)?.initiative ?? 0),
         );
+        scene.combat.turn = 0;
+        scene.combat.round = 1;
+        scene.combat.active = scene.combat.ids.length > 0;
+      } else if (p.type === "combat:roll-npc") {
+        if (!dm) {
+          fail("Hanya DM mengatur combat.");
+          return;
+        }
+        const fighters = scene.tokens.filter((t) => !t.minigame && !t.conditions?.includes("Defeated"));
+        for (const t of fighters) if (!t.characterId) t.initiative = randomInt(1, 21);
+        scene.combat.ids = fighters.sort((a, b) => (b.initiative ?? 0) - (a.initiative ?? 0)).map((t) => t.id);
         scene.combat.turn = 0;
         scene.combat.round = 1;
         scene.combat.active = scene.combat.ids.length > 0;
@@ -1244,8 +1284,7 @@ io.on("connection", (socket) => {
     if (token.x === destination.x && token.y === destination.y) return;
     if (
       !socket.data.isDM &&
-      scene.vision &&
-      (!visible(destination, scene, socket.data.playerId) ||
+      ((scene.vision && !visible(destination, scene, socket.data.playerId)) ||
         blocksMovement(token, destination, scene.marks))
     )
       return;
@@ -1344,6 +1383,7 @@ io.on("connection", (socket) => {
         | { id: string; ownerId: string; sceneId: string }
         | undefined;
       let rollMode: "normal" | "advantage" | "disadvantage" = "normal";
+      let conditionNote = "";
       if (room && expression && typeof expression === "object") {
         const request = expression as Record<string, unknown>;
         if (typeof request.expression === "string") {
@@ -1434,6 +1474,12 @@ io.on("connection", (socket) => {
           request.mode === "advantage" || request.mode === "disadvantage"
             ? request.mode
             : "normal";
+        // Poisoned/Blinded/Restrained: disadvantage on attacks and ability checks. Advantage and disadvantage cancel.
+        const penalized = character.conditions?.some((c) => ["Poisoned", "Blinded", "Restrained"].includes(c)) && ["attack", "spell", "ability", "skill"].includes(String(request.kind));
+        if (penalized && !damage) {
+          rollMode = rollMode === "advantage" ? "normal" : "disadvantage";
+          conditionNote = rollMode === "disadvantage" ? " (disadvantage dari kondisi)" : " (advantage dan disadvantage saling batal)";
+        }
         expression = damage
           ? request.critical === true
             ? damage.replace(/^(\d+)d/, (_, n) => `${Number(n) * 2}d`)
@@ -1532,7 +1578,7 @@ io.on("connection", (socket) => {
         characterName || room.members[socket.data.playerId]?.name || "Pemain";
       const colors = [0xe07a5f, 0x4d96ff, 0x6bcB77, 0xc77dff, 0xffc857, 0xf28482];
       const color = colors[[...socket.data.playerId].reduce((sum, char) => sum + char.charCodeAt(0), 0) % colors.length];
-      const text = `${rollMode === "normal" ? "" : rollMode + ": "}${count}d${sides}${modifier ? (modifier > 0 ? "+" : "") + modifier : ""} → [${roll.values.join(", ")}]${modifier ? ` ${modifier > 0 ? "+" : "−"} ${Math.abs(modifier)}` : ""} = ${roll.total}`;
+      const text = `${rollMode === "normal" ? "" : rollMode + ": "}${count}d${sides}${modifier ? (modifier > 0 ? "+" : "") + modifier : ""} → [${roll.values.join(", ")}]${modifier ? ` ${modifier > 0 ? "+" : "−"} ${Math.abs(modifier)}` : ""} = ${roll.total}${conditionNote}`;
       io.to(room.id).emit("dice:animation", {
         id,
         name,
@@ -1605,6 +1651,43 @@ app.post("/api/hero-lobby", async (_req, res) => {
   }
 });
 
+const audioUpload = multer({
+  storage: multer.diskStorage({
+    destination: uploadDir,
+    filename: (_req, file, cb) => cb(null, `${randomUUID()}${({ "audio/mpeg": ".mp3", "audio/ogg": ".ogg", "audio/wav": ".wav", "audio/x-wav": ".wav" } as Record<string, string>)[file.mimetype] || ".bin"}`),
+  }),
+  limits: { fileSize: 15 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => cb(null, ["audio/mpeg", "audio/ogg", "audio/wav", "audio/x-wav"].includes(file.mimetype)),
+});
+app.post(
+  "/api/rooms/:id/audio",
+  (req, res, next) => {
+    const room = rooms[req.params.id.toUpperCase()];
+    const player = clean(req.headers["x-player-id"], 100);
+    const secret = req.headers["x-player-secret"];
+    const member = room && Object.hasOwn(room.members, player) ? room.members[player] : undefined;
+    const dm = !!member && typeof secret === "string" && member.secret === secret && (member.name.toLowerCase() === "dm" || req.headers["x-dm-key"] === room.dmKey);
+    if (!dm || !admitted(`upload:${player}`, 12)) {
+      res.status(dm ? 429 : 403).json({ error: dm ? "Terlalu banyak upload. Tunggu satu menit." : "Hanya DM bisa mengunggah audio." });
+      return;
+    }
+    next();
+  },
+  audioUpload.single("audio"),
+  (req, res) => {
+    const room = rooms[req.params.id.toUpperCase()];
+    if (!room || !req.file) {
+      if (req.file) unlinkSync(req.file.path);
+      res.status(400).json({ error: "Gunakan file MP3, OGG, atau WAV (maks 15 MB)." });
+      return;
+    }
+    room.ambience = { url: `/uploads/${req.file.filename}`, name: clean(req.body?.name, 60) || req.file.originalname.slice(0, 60) };
+    save();
+    broadcast(room);
+    res.json({ ok: true });
+  },
+);
+
 let activeUploads = 0;
 app.post(
   "/api/rooms/:id/upload/:kind",
@@ -1619,8 +1702,8 @@ app.post(
       typeof secret !== "string" ||
       !secret ||
       room.members[player].secret !== secret ||
-      !["map", "token"].includes(kind) ||
-      (kind === "map" && req.headers["x-dm-key"] !== room.dmKey)
+      !["map", "token", "handout"].includes(kind) ||
+      (kind !== "token" && room.members[player].name.toLowerCase() !== "dm" && req.headers["x-dm-key"] !== room.dmKey)
     ) {
       res.status(403).json({ error: "Upload ditolak." });
       return;
@@ -1646,19 +1729,19 @@ app.post(
     res.once("close", release);
     next();
   },
-  (req, res, next) => (req.params.kind === "map" ? mapUpload : tokenUpload).single("image")(req, res, next),
+  (req, res, next) => (req.params.kind === "token" ? tokenUpload : mapUpload).single("image")(req, res, next),
   (req, res) => {
     const room = rooms[req.params.id.toUpperCase()];
     const kind = req.params.kind;
     const playerId = clean(req.headers["x-player-id"], 100);
     const playerSecret = clean(req.headers["x-player-secret"], 100);
     const authorized = room && room.members[playerId]?.secret === playerSecret;
-    const dm = room && req.headers["x-dm-key"] === room.dmKey;
+    const dm = authorized && (room.members[playerId].name.toLowerCase() === "dm" || req.headers["x-dm-key"] === room.dmKey);
     if (
       !room ||
       !authorized ||
-      !["map", "token"].includes(kind) ||
-      (kind === "map" && !dm) ||
+      !["map", "token", "handout"].includes(kind) ||
+      (kind !== "token" && !dm) ||
       !req.file
     ) {
       if (req.file) unlinkSync(req.file.path);
@@ -1677,7 +1760,10 @@ app.post(
       res.status(429).json({ error: "Maksimal 100 token per scene." });
       return;
     }
-    if (kind === "map") {
+    if (kind === "handout") {
+      // Handout: shown to everyone immediately, not added to the scene or tokens.
+      room.shownImage = url;
+    } else if (kind === "map") {
       const previous = scene.map;
       scene.map = url;
       room.map = url;

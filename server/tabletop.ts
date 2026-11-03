@@ -12,25 +12,25 @@ export function distance(a: Point, b: Point, grid: Grid) {
   const y = Math.abs(a.y - b.y) / 100 * grid.columns * grid.height / grid.width;
   return (grid.diagonal === 'grid' ? Math.max(x, y) : Math.hypot(x, y)) * grid.distance;
 }
-export function blocked(a: Point, b: Point, marks: Mark[]) {
+export function blocked(a: Point, b: Point, marks: Mark[], pad = 0) {
+  // pad extends each wall at both ends so sight rays cannot slip through hairline gaps at wall joints
+  const ext = (w: Mark): Mark => { if (!pad) return w; const dx = w.b.x - w.a.x, dy = w.b.y - w.a.y, l = Math.hypot(dx, dy) || 1, ux = dx / l * pad, uy = dy / l * pad; return { ...w, a: { x: w.a.x - ux, y: w.a.y - uy }, b: { x: w.b.x + ux, y: w.b.y + uy } }; };
   const cross = (p: Point, q: Point, r: Point) => (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
   const on = (p: Point, q: Point, r: Point) => Math.abs(cross(p, q, r)) < 1e-8 && r.x >= Math.min(p.x, q.x) - 1e-8 && r.x <= Math.max(p.x, q.x) + 1e-8 && r.y >= Math.min(p.y, q.y) - 1e-8 && r.y <= Math.max(p.y, q.y) + 1e-8;
-  return marks.some(w => (w.kind === 'wall' || (w.kind === 'door' && !w.open)) && ((cross(a, b, w.a) * cross(a, b, w.b) < 0 && cross(w.a, w.b, a) * cross(w.a, w.b, b) < 0) || on(a, b, w.a) || on(a, b, w.b) || on(w.a, w.b, a) || on(w.a, w.b, b)));
+  return marks.map(ext).some(w => (w.kind === 'wall' || ((w.kind === 'door' || w.kind === 'window') && !w.open)) && ((cross(a, b, w.a) * cross(a, b, w.b) < 0 && cross(w.a, w.b, a) * cross(w.a, w.b, b) < 0) || on(a, b, w.a) || on(a, b, w.b) || on(w.a, w.b, a) || on(w.a, w.b, b)));
 }
 export function blocksMovement(a: Point, b: Point, marks: Mark[]) {
-  const cross = (p: Point, q: Point, r: Point) => (q.x - p.x) * (r.y - p.y) - (q.y - p.y) * (r.x - p.x);
-  const on = (p: Point, q: Point, r: Point) => Math.abs(cross(p, q, r)) < 1e-8 && r.x >= Math.min(p.x, q.x) - 1e-8 && r.x <= Math.max(p.x, q.x) + 1e-8 && r.y >= Math.min(p.y, q.y) - 1e-8 && r.y <= Math.max(p.y, q.y) + 1e-8;
-  return marks.some(w => (w.kind === 'wall' || (w.kind === 'window' && !w.open) || (w.kind === 'door' && !w.open)) && ((cross(a, b, w.a) * cross(a, b, w.b) < 0 && cross(w.a, w.b, a) * cross(w.a, w.b, b) < 0) || on(a, b, w.a) || on(a, b, w.b) || on(w.a, w.b, a) || on(w.a, w.b, b)));
+  return blocked(a, b, marks);
 }
 export function visible(point: Point, scene: Scene, playerId: string, previewTokenId?: string | null) {
   const grid = { ...scene.grid, diagonal: 'euclidean' as const };
   const sources = scene.tokens.filter(t =>
     !t.hidden && (previewTokenId ? t.id === previewTokenId : t.ownerId === playerId && t.visionSource),
   );
-  const tokenLight = (token: BoardToken) => !!token.lightRange && !token.hidden && distance(token, point, grid) <= token.lightRange && !blocked(token, point, scene.marks);
+  const tokenLight = (token: BoardToken) => !!token.lightRange && !token.hidden && distance(token, point, grid) <= token.lightRange && !blocked(token, point, scene.marks, 0.4);
   const revealed = scene.marks.some(m => m.kind === 'reveal' && point.x >= Math.min(m.a.x, m.b.x) && point.x <= Math.max(m.a.x, m.b.x) && point.y >= Math.min(m.a.y, m.b.y) && point.y <= Math.max(m.a.y, m.b.y));
   if (scene.fog && !revealed && !sources.some(tokenLight)) return false;
   if (!scene.vision) return true;
-  const lit = scene.daylight || scene.marks.some(m => m.kind === 'light' && distance(m.a, point, grid) <= distance(m.a, m.b, grid) && !blocked(m.a, point, scene.marks)) || scene.tokens.some(tokenLight);
-  return sources.some(t => distance(t, point, grid) <= (t.visionRange ?? 60) && !blocked(t, point, scene.marks)) && lit;
+  const lit = scene.daylight || scene.marks.some(m => m.kind === 'light' && distance(m.a, point, grid) <= distance(m.a, m.b, grid) && !blocked(m.a, point, scene.marks, 0.4)) || scene.tokens.some(tokenLight);
+  return sources.some(t => distance(t, point, grid) <= (t.visionRange ?? 60) && !blocked(t, point, scene.marks, 0.4)) && lit;
 }
