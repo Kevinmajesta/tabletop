@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import SpeciesCard from "./SpeciesCard";
-import ActionEconomy from "./ActionEconomy";
+import ActionEconomy, { Requirement } from "./ActionEconomy";
 import CurrencyWallet from "./CurrencyWallet";
 import { choiceLabel } from "./character-labels";
 import "./species-guide.css";
@@ -57,6 +57,7 @@ export default function Characters({
   tokens,
   playerId,
   dm,
+  uploadToken,
 }: {
   initialOpen?: boolean;
   requestedCharacter?: { id: string; nonce: number } | null;
@@ -66,6 +67,7 @@ export default function Characters({
   tokens: BoardToken[];
   playerId: string;
   dm: boolean;
+  uploadToken?: (file: File, name: string, characterId: string) => void;
 }) {
   const characters = savedCharacters.filter((c) => c.ruleset === "srd-2024");
   const [rollMode, setRollMode] = useState<
@@ -74,8 +76,8 @@ export default function Characters({
   const [quickOpen, setQuickOpen] = useState(false);
   useEffect(() => {
     const close = () => setQuickOpen(false);
-    window.addEventListener("tabletop:tools-open", close);
-    return () => window.removeEventListener("tabletop:tools-open", close);
+    for (const name of ["tabletop:tools-open", "tabletop:popover-open", "tabletop:pages-open"]) window.addEventListener(name, close);
+    return () => { for (const name of ["tabletop:tools-open", "tabletop:popover-open", "tabletop:pages-open"]) window.removeEventListener(name, close); };
   }, []);
   useEffect(() => {
     if (quickOpen) window.dispatchEvent(new Event("tabletop:quick-open"));
@@ -83,6 +85,41 @@ export default function Characters({
   const [critical, setCritical] = useState(false);
   const [sheetTab, setSheetTab] = useState("combat");
   const [healthAmount, setHealthAmount] = useState(1);
+  // Token picked during creation; uploaded and linked automatically once the sheet is saved.
+  const [tokenFile, setTokenFile] = useState<File | null>(null);
+  const [tokenPreview, setTokenPreview] = useState("");
+  useEffect(() => {
+    if (!tokenFile) { setTokenPreview(""); return; }
+    const url = URL.createObjectURL(tokenFile);
+    setTokenPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [tokenFile]);
+  const quickRef = useRef<HTMLDivElement>(null);
+  const saveQuick = () => {
+    const el = quickRef.current;
+    if (el) localStorage.setItem("meja-quick-sheet", JSON.stringify({ left: el.style.left, top: el.style.top, width: el.style.width, height: el.style.height }));
+  };
+  // Restore saved geometry when the panel mounts; resize saved on pointer release.
+  const quickPanel = (node: HTMLDivElement | null) => {
+    quickRef.current = node;
+    if (!node || node.dataset.restored) return;
+    node.dataset.restored = "1";
+    try { Object.assign(node.style, JSON.parse(localStorage.getItem("meja-quick-sheet") || "{}")); } catch { /* ignore bad data */ }
+    if (node.style.top) node.style.bottom = "auto";
+  };
+  const dragQuick = (e: React.PointerEvent) => {
+    const el = quickRef.current;
+    if (!el || (e.target as HTMLElement).closest("button")) return;
+    const r = el.getBoundingClientRect(), dx = e.clientX - r.left, dy = e.clientY - r.top;
+    const move = (ev: PointerEvent) => {
+      el.style.left = `${Math.min(Math.max(0, ev.clientX - dx), window.innerWidth - 60)}px`;
+      el.style.top = `${Math.min(Math.max(0, ev.clientY - dy), window.innerHeight - 40)}px`;
+      el.style.bottom = "auto";
+    };
+    const up = () => { window.removeEventListener("pointermove", move); window.removeEventListener("pointerup", up); saveQuick(); };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  };
   const [speciesBook, setSpeciesBook] = useState("phb-2024");
   const [search, setSearch] = useState("");
   const [spellFilter, setSpellFilter] = useState("all");
@@ -245,9 +282,9 @@ export default function Characters({
             {quickOpen ? "Tutup quick sheet" : "Quick sheet"}
           </button>
           {quickOpen && (
-            <div className="character-quick-panel">
+            <div className="character-quick-panel" ref={quickPanel} onPointerUp={saveQuick}>
               {error && <p className="character-error" role="alert">{error}</p>}
-              <div className="quick-sheet-heading">
+              <div className="quick-sheet-heading" onPointerDown={dragQuick} title="Tarik untuk memindahkan">
                 <div>
                   <strong>{character.sheet.name}</strong>
                   <span>Level {character.sheet.level} {character.sheet.className}</span>
@@ -304,7 +341,7 @@ export default function Characters({
                 </button>
                 {character.sheet.attacks.slice(0, 5).map((attack) => (
                   <div className="quick-attack" key={attack.id}>
-                    <span>{attack.name}<small className="action-economy" title="Roll serangan bukan satu aksi tersendiri. Ikuti Attack action atau fitur yang mengizinkan serangan ini.">Serangan · lihat syarat</small></span>
+                    <span>{attack.name}<Requirement label="Serangan · lihat syarat" text="Roll serangan bukan satu aksi tersendiri. Ikuti Attack action atau fitur yang mengizinkan serangan ini." /></span>
                     <button disabled={!connected || busy} onClick={() => roll("attack", attack.id)}>Hit {attack.bonus >= 0 ? "+" : ""}{attack.bonus}</button>
                     <button disabled={!connected || busy} onClick={() => roll("damage", attack.id)}>Dmg {attack.damage}</button>
                   </div>
@@ -386,6 +423,7 @@ export default function Characters({
               disabled={!connected || busy}
               onClick={() => {
                 setBuild(emptyBuild());
+                setTokenFile(null);
                 setEditing(null);
                 setStep(0);
                 setError("");
@@ -437,9 +475,11 @@ export default function Characters({
                     <button
                       key={title}
                       aria-current={i === step ? "step" : undefined}
+                      className={i < step ? "done" : ""}
                       onClick={() => setStep(i)}
                     >
-                      {i + 1}. {title}
+                      <b>{i < step ? "✓" : i + 1}</b>
+                      <span>{title}</span>
                     </button>
                   ))}
                 </nav>
@@ -455,6 +495,24 @@ export default function Characters({
                         }
                       />
                     </label>
+                    {!editing && uploadToken && (
+                      <label className="character-token-pick">
+                        Token di peta (opsional)
+                        <span className="character-token-row">
+                          {tokenPreview ? <img src={tokenPreview} alt="" /> : <span className="character-token-empty">?</span>}
+                          <input
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp,image/gif"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0] ?? null;
+                              if (file && file.size > 10 * 1024 * 1024) { setError("Gambar token maksimal 10 MB."); e.target.value = ""; return; }
+                              setTokenFile(file);
+                            }}
+                          />
+                        </span>
+                        <small>Otomatis terhubung ke sheet ini setelah disimpan.</small>
+                      </label>
+                    )}
                     <label>
                       Class
                       <select
@@ -936,8 +994,12 @@ export default function Characters({
                               ({build[key].length}/{count})
                             </legend>
                             <div className="character-options">
-                              {options.map((s) => (
-                                <label key={s.index}>
+                              {[...options].sort((a, b) => (a.level || 0) - (b.level || 0) || a.name.localeCompare(b.name)).map((s) => {
+                                const x = s as { school?: { name?: string } | string; concentration?: boolean; ritual?: boolean };
+                                const school = typeof x.school === "string" ? x.school : x.school?.name;
+                                return (
+                                <div key={s.index} className="spell-option">
+                                <label>
                                   <input
                                     type="checkbox"
                                     checked={build[key].includes(s.index)}
@@ -954,13 +1016,20 @@ export default function Characters({
                                       })
                                     }
                                   />
-                                  <span>{s.name}</span>
+                                  <span className="spell-option-main">
+                                    <strong>{s.name}</strong>
+                                    <small>
+                                      {[s.level ? `Lv ${s.level}` : "Cantrip", school, s.casting_time, x.concentration && "Konsentrasi", x.ritual && "Ritual"].filter(Boolean).join(" · ")}
+                                    </small>
+                                  </span>
+                                </label>
                                   <details>
                                     <summary>Detail</summary>
                                     <p>{s.desc?.join("\n")}</p>
                                   </details>
-                                </label>
-                              ))}
+                                </div>
+                                );
+                              })}
                             </div>
                           </fieldset>
                         );
@@ -1052,6 +1121,8 @@ export default function Characters({
                             ...editing,
                           },
                           (id) => {
+                            if (!editing && id && tokenFile) uploadToken?.(tokenFile, build.name.slice(0, 32), id);
+                            setTokenFile(null);
                             setBuild(null);
                             setSelected(id || "");
                             setEditing(null);
@@ -1444,7 +1515,7 @@ export default function Characters({
                   <p className="sheet-empty-note">Umumnya lewat Aksi (Attack). Aksi Bonus atau Reaksi hanya jika fitur/pemicu mengizinkan; tombol roll tidak menghabiskan aksi otomatis. Waktu spell ada di tab Spell.</p>
                   {character.sheet.attacks.map((a) => (
                     <div className="character-attack" key={a.id}>
-                      <strong>{a.name}<small className="action-economy" title="Attack action dapat mencakup beberapa serangan. Serangan sebagai Aksi Bonus atau Reaksi memerlukan fitur atau pemicu yang sesuai.">Serangan · lihat syarat</small></strong>
+                      <strong>{a.name}<Requirement label="Serangan · lihat syarat" text="Attack action dapat mencakup beberapa serangan. Serangan sebagai Aksi Bonus atau Reaksi memerlukan fitur atau pemicu yang sesuai." /></strong>
                       <button
                         disabled={!connected || busy}
                         onClick={() => roll("attack", a.id)}

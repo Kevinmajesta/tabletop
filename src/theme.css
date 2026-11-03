@@ -358,3 +358,162 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline-color:
 .game-start-entry .game-start-reset { margin: 17px auto 0; text-align: center; }
 .game-start-card > .form-error { width: 100%; margin: 18px 0 0; padding: 0; text-align: center; }
 
+
+/* Menu polish: rail, popovers, DM/board tools panel. Specificity via .app-shell to beat board-tools.css load order. */
+.app-shell .tabletop-rail { width: 54px; gap: 4px; padding: 10px 6px; background: linear-gradient(180deg,#151c1d,#0f1415); box-shadow: 4px 0 18px #0003; }
+.app-shell .tabletop-rail button { width: 40px; height: 40px; border-radius: 10px; color: #b9c3be; transition: background-color .16s, color .16s, transform .16s; }
+.app-shell .tabletop-rail button:hover { background: #dfbb8014; color: var(--gold); transform: translateY(-1px); }
+.app-shell .tabletop-rail button.active { background: linear-gradient(135deg,#dfbb8026,#dfbb800d); color: var(--gold); box-shadow: inset 0 0 0 1px #dfbb8040, inset 3px 0 var(--gold); }
+.app-shell .rail-separator { width: 24px; margin: 6px 0; }
+.app-shell .rail-caption { font-size: 8px; letter-spacing: .18em; color: #7d8a85; margin: 10px 0 2px; }
+
+.app-shell .tabletop-popover { width: min(300px,calc(100% - 70px)); padding: 0; overflow: hidden; border-color: #dfbb8038; border-radius: 14px; background: linear-gradient(180deg,#1b2325f7,#141a1cf7); backdrop-filter: blur(10px); box-shadow: 0 18px 50px #0007; }
+.app-shell .popover-heading { margin: 0; padding: 12px 14px; border-bottom: 1px solid var(--edge); background: #dfbb800a; }
+.app-shell .popover-heading strong { color: var(--gold); font-family: 'Space Grotesk',sans-serif; font-size: 12px; letter-spacing: .14em; text-transform: uppercase; }
+.app-shell .popover-heading button { width: 28px; height: 28px; border-radius: 8px; color: var(--muted); }
+.app-shell .popover-heading button:hover { background: #ffffff14; color: #fff; }
+.app-shell .popover-actions { padding: 10px; gap: 6px; }
+.app-shell .popover-actions button { border: 1px solid transparent; border-radius: 10px; background: #ffffff08; color: #e6e0d2; font-size: 13px; padding: 11px 12px; }
+.app-shell .popover-actions button:hover:not(:disabled) { background: #dfbb8018; border-color: #dfbb8040; color: #fff; }
+.app-shell .popover-actions button svg { color: var(--gold); }
+.app-shell .popover-actions .remove-action { color: #f0a99e; }
+.app-shell .popover-actions .remove-action:hover:not(:disabled) { background: #e5534b1a; border-color: #e5534b55; }
+.app-shell .tabletop-popover .dice-tray { padding: 12px; }
+.app-shell .tabletop-popover .dice-tray button { background: #ffffff0a; border: 1px solid #dfbb8035; color: #ecd9b0; border-radius: 8px; min-width: 44px; padding: 8px 10px; font-weight: 700; }
+.app-shell .tabletop-popover .dice-tray button:hover { background: #dfbb8022; border-color: var(--gold); }
+
+.app-shell .board-tools-toggle, .app-shell .board-tools-body { background: #161d1ff7; border: 1px solid #dfbb8038; border-radius: 14px; backdrop-filter: blur(10px); }
+.app-shell .board-tools-body { box-shadow: 0 18px 50px #0007; }
+.app-shell .board-tools-body nav { background: #161d1f; padding: 8px; gap: 4px; border-bottom: 1px solid var(--edge); }
+.app-shell .board-tools-body nav button { border-radius: 9px; color: var(--muted); }
+.app-shell .board-tools-body nav button:hover { background: #ffffff0a; color: #fff; }
+.app-shell .board-tools-body nav button[aria-pressed=true] { background: #dfbb8018; color: var(--gold); box-shadow: inset 0 -2px var(--gold); }
+.app-shell .board-tools-panel button { border-color: #dfbb8040; border-radius: 10px; background: #ffffff08; color: #eadfc6; }
+.app-shell .board-tools-panel button:hover:not(:disabled) { background: #dfbb8018; border-color: var(--gold); }
+.app-shell .board-tool-buttons button[aria-pressed=true], .app-shell .board-tools-panel button[aria-pressed=true]:not(.scene-page-card) { background: var(--gold); color: #17201f; border-color: var(--gold); }
+.app-shell .board-tools-body nav button[aria-pressed=true] { background: #dfbb8018; color: var(--gold); }
+.app-shell .board-tool-hint, .app-shell .board-tab-scene form { background: #dfbb800d; border-color: #dfbb8030; border-radius: 10px; }
+.app-shell .board-tools-body input, .app-shell .board-tools-body select { background: #0f1516; border-color: #ffffff26; border-radius: 8px; }
+.app-shell .board-tools-body input:focus, .app-shell .board-tools-body select:focus { border-color: var(--gold); }
+.app-shell .board-tool-group h3 { color: var(--gold); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+.dm-launch { border-radius: 10px; background: #161d1ff2; color: var(--gold); }
+.dm-launch:hover { background: #dfbb8018; border-color: var(--gold); }
+.dm-quick-actions { display: grid; gap: 6px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--edge); }
+.dm-quick-actions button { text-align: left; min-height: 40px; }
+
+/* Character builder UX: stepper, sticky footer, option cards. */
+.character-dialog .character-steps { position: sticky; top: -20px; z-index: 2; margin: -20px -24px 22px; padding: 14px 24px; gap: 4px; flex-wrap: nowrap; overflow-x: auto; background: #1b2024f2; backdrop-filter: blur(8px); border-bottom: 1px solid var(--edge); }
+.character-dialog .character-steps button { flex: 1 0 auto; min-height: 40px; padding: 6px 12px; gap: 8px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font-size: 13px; white-space: nowrap; }
+.character-dialog .character-steps button b { display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid #ffffff30; font-size: 11px; }
+.character-dialog .character-steps button.done { color: #a9d3b4; }
+.character-dialog .character-steps button.done b { background: #3d6b4d; border-color: #3d6b4d; color: #fff; }
+.character-dialog .character-steps button:hover { background: #ffffff0a; color: #fff; }
+.character-dialog .character-steps button[aria-current=step] { background: #dfbb8020; color: var(--gold); box-shadow: inset 0 0 0 1px #dfbb8050; }
+.character-dialog .character-steps button[aria-current=step] b { background: var(--gold); border-color: var(--gold); color: #17201f; }
+.character-dialog .character-builder-footer { position: sticky; bottom: -20px; z-index: 2; margin: 24px -24px -20px; padding: 14px 24px; background: #1b2024f7; border-top: 1px solid var(--edge); }
+.character-dialog .character-builder-footer button:last-child { background: var(--gold); color: #17201f; border-color: var(--gold); font-weight: 700; }
+.character-dialog .character-builder-footer button:disabled { opacity: .4; }
+.character-dialog .character-options label, .character-dialog .character-check { background: #ffffff08; border: 1px solid transparent; border-radius: 10px; cursor: pointer; }
+.character-dialog .character-options label:hover, .character-dialog .character-check:hover { background: #dfbb8012; border-color: #dfbb8040; }
+.character-dialog .character-options label:has(input:checked), .character-dialog .character-check:has(input:checked) { background: #dfbb801c; border-color: var(--gold); }
+.character-dialog input, .character-dialog select, .character-dialog textarea { background: #0f1516; border-color: #ffffff26; border-radius: 8px; }
+.character-dialog input:focus, .character-dialog select:focus, .character-dialog textarea:focus { border-color: var(--gold); outline: none; box-shadow: 0 0 0 3px #dfbb8030; }
+.character-dialog fieldset { border-color: var(--edge); border-radius: 12px; background: #ffffff05; }
+.character-dialog legend { color: var(--gold); font-weight: 700; }
+.character-dialog .character-stats > div { background: #dfbb800f; border: 1px solid #dfbb8030; border-radius: 10px; }
+.character-dialog .character-form { max-width: 720px; margin-inline: auto; }
+@media (max-width: 650px) { .character-dialog .character-steps { margin: -16px -16px 16px; padding: 10px 12px; } .character-dialog .character-steps button span { display: none; } .character-dialog .character-steps button[aria-current=step] span { display: inline; } .character-dialog .character-builder-footer { margin: 20px -16px -16px; padding: 12px 16px; bottom: -16px; } .character-options { grid-template-columns: 1fr; } }
+
+/* Quick sheet: drag by heading, resize via native corner handle. */
+.character-quick-panel { resize: both; overflow: auto; min-width: 240px; min-height: 140px; max-width: calc(100vw - 24px); max-height: calc(100dvh - 24px); }
+.quick-sheet-heading { cursor: grab; touch-action: none; user-select: none; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid var(--edge); }
+.quick-sheet-heading:active { cursor: grabbing; }
+/* Anchor by top so the resize handle can grow downward (bottom anchor blocked it). */
+.character-quick-panel { top: 110px; bottom: auto; }
+.session-toolbar .character-quick-panel { top: 110px; bottom: auto; max-height: calc(100dvh - 24px); }
+.session-toolbar .character-quick-panel { height: min(360px, calc(100dvh - 140px)); }
+
+.action-economy-toggle { min-height: 0 !important; cursor: pointer; font: inherit; font-size: 12px; text-decoration: underline dotted; }
+.action-economy-toggle:hover, .action-economy-toggle[aria-expanded=true] { border-color: var(--gold); color: var(--gold); }
+.action-economy-note { display: block; margin: 4px 0; padding: 8px 10px; font-size: 12px; line-height: 1.5; color: #d7dfdb; background: #dfbb800d; border-left: 2px solid var(--gold); border-radius: 4px; white-space: normal; }
+
+/* Rail with visible labels. */
+.app-shell .tabletop-rail { width: 62px; }
+.app-shell .tabletop-rail button { width: 52px; height: auto; min-height: 46px; padding: 6px 2px 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+.rail-label { font-size: 10px; line-height: 1; letter-spacing: .02em; }
+.app-shell .tabletop-rail .board-tools-toggle span { display: none; }
+.app-shell .rail-caption { display: none; }
+.app-shell .rail-separator { width: 30px; }
+.dice-effects-inline { position: static; display: flex; align-items: center; gap: 8px; min-height: 0; padding: 0; margin: 10px 0 0; border: 0; background: none; font-size: 12px; color: var(--muted); }
+.dice-effects-inline input { width: auto; margin: 0; }
+@media (max-width: 600px) { .app-shell .tabletop-rail { width: 50px; } .app-shell .tabletop-rail button { width: 44px; } .rail-label { font-size: 9px; } }
+
+/* Empty-state card would sit under any open floating panel; hide it meanwhile. */
+.app-shell:has(.board-tools-body, .tabletop-popover, .scene-page-menu, .character-quick-panel) .empty-board { display: none; }
+
+/* Layout collision fixes. */
+.app-shell #player-tools-slot .board-tools-toggle > span { display: block; }
+.app-shell #player-tools-slot .board-tools-toggle > .lucide-chevron-down { display: none; }
+.stage:has(.tabletop-popover) .canvas-help { display: none; }
+@media (max-width: 900px) {
+  /* Open chat/party drawer must sit above the floating board-tools button. */
+  .app-shell .board-tools-panel { z-index: 5; }
+  .workspace .side-panel { z-index: 8; }
+}
+
+/* Mobile: chat/party as bottom sheet so the map stays visible above it. */
+@media (max-width: 900px) {
+  .workspace .side-panel { top: auto; left: 50px; right: 0; bottom: 0; width: auto; height: min(55dvh, 460px); border-left: 0; border-top: 1px solid #dfbb8040; border-radius: 16px 16px 0 0; box-shadow: 0 -10px 30px #0006; }
+  .workspace .side-tabs { height: 48px; }
+  .workspace .side-panel::before { content: ''; position: absolute; top: 6px; left: 50%; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: #ffffff30; pointer-events: none; }
+}
+@media (max-width: 900px) {
+  /* Sheet covers the lower map; keep only the compact zoom buttons so none are clipped. */
+  .workspace.panel-visible .map-controls input[type=range] { display: none; }
+}
+@media (max-width: 900px) { .workspace.panel-visible .canvas-help, .workspace.panel-visible .empty-board { display: none; } }
+@media (max-width: 900px) {
+  .workspace .side-panel { left: 62px; }
+  .map-viewport .empty-board { width: min(90%, 440px); max-width: calc(100% - 100px); margin-left: -25px; }
+}
+@media (max-width: 600px) { .workspace .side-panel { left: 50px; } }
+.scene-page-menu { z-index: 14; top: 132px; left: 70px; width: min(720px, calc(100vw - 150px)); }
+@media (max-width: 600px) { .scene-page-menu { left: 58px; width: calc(100vw - 66px); } }
+@media (max-width: 900px) { .scene-page-menu { max-height: calc(100dvh - 150px); } }
+/* board-tools.css loads later and sets this fixed; .app-shell prefix wins. Clears the Scene button above it. */
+.app-shell .scene-page-menu { top: 132px; left: 70px; z-index: 14; width: min(720px, calc(100vw - 150px)); max-height: calc(100dvh - 150px); }
+
+/* Dice popover polish: themed controls, aligned dice grid. */
+.app-shell .tabletop-popover input[type=checkbox] { accent-color: var(--gold); }
+.app-shell .tabletop-popover select { background: #0f1516; color: #eee7d9; border: 1px solid #ffffff26; border-radius: 8px; padding: 6px 8px; margin-left: 8px; }
+.app-shell .tabletop-popover .dice-tray { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.app-shell .tabletop-popover .dice-tray > span, .app-shell .tabletop-popover .dice-tray > label { grid-column: 1 / -1; }
+.app-shell .tabletop-popover .dice-tray > button:last-of-type { grid-column: span 2; }
+.app-shell .tabletop-rail button { font-size: 11px; }
+.app-shell .rail-label { font-size: 11px; }
+
+.character-token-row { display: flex; align-items: center; gap: 12px; margin-top: 6px; }
+.character-token-row img, .character-token-empty { width: 56px; height: 56px; flex: none; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); background: #0f1516; display: grid; place-items: center; color: var(--muted); font-size: 22px; }
+.character-token-row input { margin-top: 0; }
+.character-token-pick small { display: block; margin-top: 6px; }
+.character-dialog input[type=file]::file-selector-button { margin-right: 10px; padding: 7px 12px; border: 1px solid #dfbb8055; border-radius: 8px; background: #dfbb8018; color: var(--gold); font: inherit; font-size: 12px; cursor: pointer; }
+.character-dialog input[type=file]::file-selector-button:hover { background: #dfbb8030; }
+.character-dialog input[type=file] { color: var(--muted); font-size: 12px; padding: 6px; min-height: 44px; }
+.character-dialog .character-form { padding-bottom: 24px; }
+
+.character-dialog .character-options { max-height: min(420px, 50dvh); padding-right: 4px; }
+.character-dialog .character-options .spell-option { position: relative; display: block; background: #ffffff08; border: 1px solid transparent; border-radius: 10px; }
+.character-dialog .character-options .spell-option:hover { background: #dfbb8012; border-color: #dfbb8040; }
+.character-dialog .character-options .spell-option:has(input:checked) { background: #dfbb801c; border-color: var(--gold); }
+.character-dialog .character-options .spell-option > label { display: flex !important; align-items: center; gap: 10px; min-height: 52px; margin: 0 !important; padding: 9px 78px 9px 12px; background: none !important; border: 0 !important; cursor: pointer; }
+.character-dialog .spell-option-main { display: grid; gap: 2px; min-width: 0; }
+.character-dialog .spell-option-main strong { font-size: 13px; font-weight: 600; color: #f2e8d3; }
+.character-dialog .spell-option-main small { font-size: 11px; color: var(--muted); }
+.character-dialog .spell-option summary { position: absolute; top: 14px; right: 10px; padding: 3px 10px; border: 1px solid #dfbb8040; border-radius: 999px; color: var(--gold); font-size: 11px; line-height: 1.3; cursor: pointer; list-style: none; }
+.character-dialog .spell-option summary::-webkit-details-marker { display: none; }
+.character-dialog .spell-option details[open] summary { background: #dfbb8022; }
+.character-dialog .spell-option details p { margin: 0 12px 12px; padding: 8px 10px; border-radius: 8px; background: #0000002e; color: #d9d2c0; font-size: 12px; line-height: 1.5; white-space: pre-line; }
+.character-dialog .character-options .spell-option:has(details[open]) { grid-column: 1 / -1; }
+.character-dialog .spell-option summary { min-height: 0 !important; height: auto !important; width: auto !important; display: block; }
+.character-dialog .character-options:has(.spell-option) { max-height: none; overflow: visible; }
+.character-dialog .spell-option details p strong { color: var(--gold); }

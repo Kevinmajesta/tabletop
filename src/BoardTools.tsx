@@ -146,6 +146,14 @@ export default function BoardTools({
   useEffect(() => {
     if (open) window.dispatchEvent(new Event("tabletop:tools-open"));
   }, [open]);
+  useEffect(() => {
+    if (pagesOpen) window.dispatchEvent(new Event("tabletop:pages-open"));
+  }, [pagesOpen]);
+  useEffect(() => {
+    const close = () => { setOpen(false); setPagesOpen(false); };
+    window.addEventListener("tabletop:popover-open", close);
+    return () => window.removeEventListener("tabletop:popover-open", close);
+  }, []);
   const [dmMenu, setDmMenu] = useState(false);
   const [tokenId, setTokenId] = useState<string | null>(selected ?? null);
   const [selectedMarkId, setSelectedMarkId] = useState<string | null>(null);
@@ -324,7 +332,7 @@ export default function BoardTools({
       0,
       Math.min(100, ((event.clientY - rect.top) / rect.height) * 100),
     );
-    if (tool !== "ruler" || event.altKey) return { x, y };
+    if (!["ruler", "circle", "cone", "rect", "line"].includes(tool) || event.altKey) return { x, y };
     const cell = 100 / scene.grid.columns,
       row = (cell * width) / height;
     const snap = (value: number, step: number, offset: number) => {
@@ -497,7 +505,7 @@ export default function BoardTools({
         aria-expanded={open}
       >
         <SlidersHorizontal size={17} aria-hidden="true" />
-        <span>{dmMenu ? 'Kontrol DM' : 'Alat pemain'}</span>
+        <span className="rail-label">Opsi</span>
         <ChevronDown
           size={15}
           className={open ? "expanded" : ""}
@@ -593,8 +601,10 @@ export default function BoardTools({
             })}
           </nav>
           <div className={`board-tab-content board-tab-${tab}`}>
-            {dm && dmMenu && <button disabled={!connected} onClick={() => window.dispatchEvent(new Event('tabletop:dm-upload'))}>Unggah / ganti peta</button>}
-            {dm && dmMenu && <><button disabled={!connected} onClick={()=>socket?.timeout(5000).emit('campaign:undo',(err:Error|null,result?:{error?:string})=>{if(err || result?.error)setError(result?.error || 'Undo gagal.');})}>Undo aksi DM terakhir</button><button disabled={!connected} onClick={backup}>Backup campaign & gambar</button></>}
+            {dm && dmMenu && tab === "scene" && <div className="dm-quick-actions">
+              <button disabled={!connected} onClick={() => window.dispatchEvent(new Event('tabletop:dm-upload'))}>Unggah / ganti peta</button>
+              <button disabled={!connected} onClick={()=>socket?.timeout(5000).emit('campaign:undo',(err:Error|null,result?:{error?:string})=>{if(err || result?.error)setError(result?.error || 'Undo gagal.');})}>Undo aksi DM terakhir</button><button disabled={!connected} onClick={backup}>Backup campaign & gambar</button>
+            </div>}
             {error && <p role="alert">{error}</p>}
             {tab === "token" && dm && dmMenu && token && (
               <label className="board-checkbox">
@@ -1105,7 +1115,9 @@ export default function BoardTools({
           setDraft({ ...draft, b });
           return;
         }
-        if (tool !== "select" && tool !== "ping")
+        // Template shapes are previews only: gone on release. Walls, doors, lights, text, fog still persist.
+        const temporary = ["circle", "cone", "rect", "line"].includes(tool);
+        if (tool !== "select" && tool !== "ping" && !temporary)
           action({ type: "mark:add", kind: tool, a: draft.a, b, text });
         setDraft(null);
       }}
@@ -1122,6 +1134,14 @@ export default function BoardTools({
       {draft &&
         tool !== "ruler" &&
         shape({ kind: tool as Mark["kind"], ...draft, text }, "draft")}
+      {draft && ["circle", "cone", "rect", "line"].includes(tool) && (() => {
+        const g = { ...scene.grid, width, height }, u = scene.grid.unit;
+        const fmt = (n: number) => `${Number.isInteger(n) ? n : n.toFixed(1)} ${u}`;
+        const label = tool === "rect"
+          ? `${fmt(distance(draft.a, { x: draft.b.x, y: draft.a.y }, g))} × ${fmt(distance(draft.a, { x: draft.a.x, y: draft.b.y }, g))}`
+          : `${tool === "circle" ? "Radius " : ""}${fmt(distance(draft.a, draft.b, g))}`;
+        return <text x={(draft.b.x / 100) * width} y={(draft.b.y / 100) * height - 10} fontSize="18" fill="#fff2d7" stroke="#171d1b" strokeWidth="4" paintOrder="stroke" pointerEvents="none">{label}</text>;
+      })()}
       {draft && tool === "ruler" && (
         <>
           <polyline

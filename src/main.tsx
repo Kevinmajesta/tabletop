@@ -216,6 +216,28 @@ function App() {
     dragging.current = null;
     copiedToken.current = null;
   }, [room?.activeSceneId]);
+  // One floating panel at a time: announce ours, close ours when another opens.
+  useEffect(() => {
+    if (toolsOpen || diceOpen) window.dispatchEvent(new Event("tabletop:popover-open"));
+  }, [toolsOpen, diceOpen]);
+  useEffect(() => {
+    const close = () => { setToolsOpen(false); setDiceOpen(false); };
+    for (const name of ["tabletop:tools-open", "tabletop:quick-open", "tabletop:pages-open"]) window.addEventListener(name, close);
+    return () => { for (const name of ["tabletop:tools-open", "tabletop:quick-open", "tabletop:pages-open"]) window.removeEventListener(name, close); };
+  }, []);
+  useEffect(() => {
+    // Plain-key rail shortcuts; R/P are owned by BoardTools.
+    const hotkeys = (event: KeyboardEvent) => {
+      if (event.ctrlKey || event.metaKey || event.altKey || (event.target as HTMLElement)?.closest("input,textarea,select,[contenteditable]")) return;
+      const key = event.key.toLowerCase();
+      if (key === "v") setMapTool("select");
+      else if (key === "h") setMapTool("pan");
+      else if (key === "g") setGridVisible((value) => !value);
+      else if (key === "d") { setDiceOpen((value) => !value); setToolsOpen(false); }
+    };
+    window.addEventListener("keydown", hotkeys);
+    return () => window.removeEventListener("keydown", hotkeys);
+  }, []);
   useEffect(() => {
     const keyboard = (event: KeyboardEvent) => {
       if (!(event.ctrlKey || event.metaKey) || (event.target as HTMLElement)?.closest("input,textarea,select,[contenteditable]")) return;
@@ -476,7 +498,7 @@ function App() {
     }
   }
 
-  async function upload(kind: "map" | "token", file?: File) {
+  async function upload(kind: "map" | "token", file?: File, extra?: { name?: string; characterId?: string }) {
     if (!file || !identity) return;
     if (
       !["image/png", "image/jpeg", "image/webp", "image/gif"].includes(
@@ -492,7 +514,7 @@ function App() {
     }
     const tokenName =
       kind === "token"
-        ? prompt("Nama token:", file.name.replace(/\.[^.]+$/, "").slice(0, 32))
+        ? extra?.name ?? prompt("Nama token:", file.name.replace(/\.[^.]+$/, "").slice(0, 32))
         : null;
     if (kind === "token" && tokenName === null) return;
     setUploading(true);
@@ -501,6 +523,7 @@ function App() {
       const form = new FormData();
       form.append("image", file);
       if (tokenName) form.append("name", tokenName);
+      if (extra?.characterId) form.append("characterId", extra.characterId);
       const response = await fetch(`/api/rooms/${roomId}/upload/${kind}`, {
         method: "POST",
         headers: {
@@ -725,20 +748,6 @@ function App() {
           Buka sheet {selectedToken.name}
         </button>
       )}
-      <label className="dice-effects-setting">
-        <input
-          type="checkbox"
-          checked={diceEffects}
-          onChange={(e) => {
-            setDiceEffects(e.target.checked);
-            localStorage.setItem(
-              "meja-dice-animation",
-              e.target.checked ? "on" : "off",
-            );
-          }}
-        />
-        Animasi dadu
-      </label>
       {charactersLoaded ? (
         <Suspense fallback={<span role="status">Memuat karakter…</span>}>
           <Characters
@@ -750,6 +759,7 @@ function App() {
             tokens={room?.tokens || []}
             playerId={identity.playerId}
             dm={isDM}
+            uploadToken={(file, name, characterId) => upload("token", file, { name, characterId })}
           />
         </Suspense>
       ) : (
@@ -805,34 +815,34 @@ function App() {
             title="Keluar ke beranda"
             onClick={() => navigate("", null)}
           >
-            <ArrowLeft size={19} />
+            <ArrowLeft size={19} /><span className="rail-label">Keluar</span>
           </button>
           <div className="rail-separator" />
           <button
             className={mapTool === "select" ? "active" : ""}
             aria-pressed={mapTool === "select"}
-            title="Pilih dan geser token"
+            title="Pilih dan geser token (V)"
             onClick={() => setMapTool("select")}
           >
-            <MousePointer2 size={21} />
+            <MousePointer2 size={21} /><span className="rail-label">Pilih</span>
           </button>
           <button
             className={mapTool === "pan" ? "active" : ""}
             aria-pressed={mapTool === "pan"}
-            title="Geser peta"
+            title="Geser peta (H)"
             onClick={() => setMapTool("pan")}
           >
-            <Hand size={20} />
+            <Hand size={20} /><span className="rail-label">Geser</span>
           </button>
           <div className="rail-caption">ALAT</div>
           <div id="player-tools-slot" />
           <button
             className={gridVisible ? "active" : ""}
             aria-pressed={gridVisible}
-            title="Tampilkan atau sembunyikan grid"
+            title="Tampilkan atau sembunyikan grid (G)"
             onClick={() => setGridVisible((value) => !value)}
           >
-            <Grid2X2 size={20} />
+            <Grid2X2 size={20} /><span className="rail-label">Grid</span>
           </button>
           <button
             className={toolsOpen ? "active" : ""}
@@ -843,18 +853,18 @@ function App() {
               setDiceOpen(false);
             }}
           >
-            <ImagePlus size={20} />
+            <ImagePlus size={20} /><span className="rail-label">Token</span>
           </button>
           <button
             className={diceOpen ? "active" : ""}
             aria-expanded={diceOpen}
-            title="Lempar dadu"
+            title="Lempar dadu (D)"
             onClick={() => {
               setDiceOpen((value) => !value);
               setToolsOpen(false);
             }}
           >
-            <Dice5 size={20} />
+            <Dice5 size={20} /><span className="rail-label">Dadu</span>
           </button>
           <div className="rail-spacer" />
           <div className="rail-caption">RUANG</div>
@@ -864,9 +874,12 @@ function App() {
             onClick={() => {
               setSidebar("chat");
               setPanelOpen(true);
+              setToolsOpen(false);
+              setDiceOpen(false);
+              window.dispatchEvent(new Event("tabletop:popover-open"));
             }}
           >
-            <MessageCircle size={20} />
+            <MessageCircle size={20} /><span className="rail-label">Chat</span>
           </button>
           <button
             title="Party"
@@ -874,9 +887,12 @@ function App() {
             onClick={() => {
               setSidebar("players");
               setPanelOpen(true);
+              setToolsOpen(false);
+              setDiceOpen(false);
+              window.dispatchEvent(new Event("tabletop:popover-open"));
             }}
           >
-            <Users size={20} />
+            <Users size={20} /><span className="rail-label">Party</span>
           </button>
         </nav>
         <main className="stage">
@@ -1092,34 +1108,6 @@ function App() {
               <RotateCcw size={17} />
             </button>
           </div>
-          <div className="canvas-info">
-            <strong>{room?.title || "Memuat petualangan..."}</strong>
-            <span className={`canvas-status ${connected ? "online" : ""}`}>
-              {connected ? "Terhubung" : "Menghubungkan..."}
-            </span>
-            <button
-              className="invite-button"
-              onClick={() => {
-                navigator.clipboard
-                  .writeText(
-                    `${location.origin}${location.pathname}?room=${roomId}`,
-                  )
-                  .then(() => {
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 2200);
-                  })
-                  .catch(() =>
-                    setError(
-                      "Tidak bisa menyalin tautan. Salin URL dari browser.",
-                    ),
-                  );
-              }}
-              title="Salin tautan undangan"
-            >
-              {copied ? <Check size={15} /> : <Link2 size={15} />}
-              <span>{copied ? "Tersalin" : `Undang · ${roomId}`}</span>
-            </button>
-          </div>
           <div className="canvas-help">
             {room?.map
               ? mapTool === "pan"
@@ -1241,6 +1229,20 @@ function App() {
                   </button>
                 ))}
                 <button disabled={!connected || rolling} onClick={() => throwDice('coin')}>Koin flip</button>
+      <label className="dice-effects-setting dice-effects-inline">
+        <input
+          type="checkbox"
+          checked={diceEffects}
+          onChange={(e) => {
+            setDiceEffects(e.target.checked);
+            localStorage.setItem(
+              "meja-dice-animation",
+              e.target.checked ? "on" : "off",
+            );
+          }}
+        />
+        Animasi dadu
+      </label>
                 <label>
                   Mode d20
                   <select value={rollMode} onChange={(e) => setRollMode(e.target.value as typeof rollMode)}>

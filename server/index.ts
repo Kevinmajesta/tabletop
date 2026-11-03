@@ -1697,7 +1697,11 @@ app.post(
         void unlink(path.join(uploadDir, path.basename(previous))).catch(
           (error) => console.error("Gagal menghapus peta lama:", error),
         );
-    } else
+    } else {
+      // Optional characterId links the new token to the uploader's own sheet in one step.
+      const linked = room.characters?.find(
+        (c) => c.id === req.body.characterId && c.ownerId === playerId,
+      );
       scene.tokens.push({
         id: randomUUID(),
         name: clean(req.body.name, 32) || "Token",
@@ -1706,7 +1710,14 @@ app.post(
         y: 50,
         ownerId: playerId,
         size: 1,
+        ...(linked && {
+          characterId: linked.id,
+          hp: linked.hp,
+          maxHp: linked.sheet.hp,
+          conditions: linked.conditions,
+        }),
       });
+    }
     room.tokens = scene.tokens;
     save();
     broadcast(room);
