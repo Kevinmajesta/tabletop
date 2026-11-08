@@ -5,6 +5,7 @@ import { io, type Socket } from "socket.io-client";
 import {
   ArrowLeft,
   ArrowRight,
+  BookOpen,
   Check,
   Compass,
   Crown,
@@ -36,6 +37,9 @@ import "./start-templates/template-3.css"; // ganti ke template-1.css / template
 import CoinFlip, { type CoinResult } from './CoinFlip';
 import IntroSplash from "./IntroSplash";
 import DieIcon from "./DieIcon";
+import RollCard from "./RollCard";
+import RuleSearch from "./RuleSearch";
+import RestScreen, { RestControl, type RestState } from "./RestScreen";
 import "./table-polish.css";
 import "./weather.css";
 import "./table-motion.css";
@@ -79,6 +83,7 @@ type Message = {
   text: string;
   time: number;
   kind: "chat" | "roll" | "system";
+  roll?: { sides: number; modifier: number; values: number[]; total: number };
 };
 type Room = {
   id: string;
@@ -91,6 +96,7 @@ type Room = {
   publishedSceneId?: string;
   shownImage?: string | null;
   ambience?: { url: string; name: string } | null;
+  rest?: RestState | null;
   characters?: Character[];
   minigames?: Game[];
   members: { id: string; name: string; online: boolean; dm: boolean }[];
@@ -161,6 +167,7 @@ function App() {
   const [mapSize, setMapSize] = useState({ width: 1200, height: 800 });
   const [uploading, setUploading] = useState(false);
   const [diceOpen, setDiceOpen] = useState(false);
+  const [rulesOpen, setRulesOpen] = useState(false);
   useEffect(() => {
     if (diceOpen && window.innerWidth <= 900) setPanelOpen(false);
   }, [diceOpen]);
@@ -324,6 +331,20 @@ function App() {
     };
     window.addEventListener("keydown", hotkeys);
     return () => window.removeEventListener("keydown", hotkeys);
+  }, []);
+  useEffect(() => {
+    // "/" atau Ctrl+K membuka pencarian aturan & spell; "/" tidak aktif saat mengetik, keduanya tidak aktif saat ada dialog.
+    const openRules = (event: KeyboardEvent) => {
+      const ctrlK = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k";
+      const slash = event.key === "/" && !event.ctrlKey && !event.metaKey && !event.altKey;
+      if (!ctrlK && !slash) return;
+      if (slash && (event.target as HTMLElement)?.closest("input,textarea,select,[contenteditable]")) return;
+      if (document.querySelector("dialog[open]")) return;
+      event.preventDefault();
+      setRulesOpen((value) => (ctrlK ? !value : true));
+    };
+    window.addEventListener("keydown", openRules);
+    return () => window.removeEventListener("keydown", openRules);
   }, []);
   useEffect(() => {
     const keyboard = (event: KeyboardEvent) => {
@@ -877,6 +898,14 @@ function App() {
           DM
         </button>
       )}
+      {isDM && (
+        <RestControl
+          rest={room?.rest ?? null}
+          disabled={!connected}
+          onStart={(kind, note) => socketRef.current?.emit("tabletop:action", { type: "rest:start", sceneId: activeScene?.id, kind, note })}
+          onEnd={() => socketRef.current?.emit("tabletop:action", { type: "rest:end", sceneId: activeScene?.id })}
+        />
+      )}
       {canEditSelected && selectedToken?.characterId && (
         <button
           className="token-sheet-launch"
@@ -1008,6 +1037,14 @@ function App() {
             }}
           >
             <Dice5 size={20} /><span className="rail-label">Dadu</span>
+          </button>
+          <button
+            className={rulesOpen ? "active" : ""}
+            aria-expanded={rulesOpen}
+            title="Cari aturan & spell (/ atau Ctrl+K)"
+            onClick={() => { setRulesOpen((value) => !value); setToolsOpen(false); setDiceOpen(false); }}
+          >
+            <BookOpen size={20} /><span className="rail-label">Aturan</span>
           </button>
           <div className="rail-spacer" />
           <div className="rail-caption">RUANG</div>
@@ -1458,6 +1495,14 @@ function App() {
               </div>
             </div>
           )}
+          <RuleSearch open={rulesOpen} onClose={() => setRulesOpen(false)} />
+          {room?.rest && (
+            <RestScreen
+              rest={room.rest}
+              isDM={isDM}
+              onEnd={() => socketRef.current?.emit("tabletop:action", { type: "rest:end", sceneId: activeScene?.id })}
+            />
+          )}
           {removedNotice && (
             <div className="toast-removed" role="status" key={removedNotice.at}>
               <span>Token <b>{removedNotice.name}</b> dihapus.</span>
@@ -1534,10 +1579,16 @@ function App() {
                           })}
                         </span>
                       </div>
-                      <div className="message-text">
-                        {message.kind === "roll" && <Dice5 size={15} />}{" "}
-                        {message.text}
-                      </div>
+                      {message.kind === "roll" && message.roll ? (
+                        <div className="message-text has-card">
+                          <RollCard roll={message.roll} text={message.text} />
+                        </div>
+                      ) : (
+                        <div className="message-text">
+                          {message.kind === "roll" && <Dice5 size={15} />}{" "}
+                          {message.text}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

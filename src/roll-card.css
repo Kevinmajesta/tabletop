@@ -1,0 +1,51 @@
+/* Kartu hasil lemparan di chat: total besar, chip dadu, sorotan natural 20 dan natural 1. */
+.roll-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #5c4a2e;
+  border-radius: 8px;
+  background: linear-gradient(160deg, #241c13, #17130e);
+  color: #ece2cc;
+}
+.roll-card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.roll-formula { font-size: 11px; font-weight: 700; letter-spacing: .12em; color: #cfa95f; font-variant-numeric: tabular-nums; }
+.roll-mode { padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.roll-mode.advantage { background: #2c4626; color: #c9e6ae; }
+.roll-mode.disadvantage { background: #4a1f1a; color: #f6c3b6; }
+.roll-card-body { display: flex; align-items: center; gap: 14px; }
+.roll-total { min-width: 44px; font-family: Georgia, "Times New Roman", serif; font-size: 34px; font-weight: 400; line-height: 1; color: #f6e6c0; font-variant-numeric: lining-nums; }
+.roll-dice { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.roll-die {
+  min-width: 26px;
+  height: 26px;
+  padding: 0 5px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #5c4a2e;
+  border-radius: 6px;
+  background: #0f0c08;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.roll-die.dropped { opacity: .4; text-decoration: line-through; }
+.roll-die.max { border-color: #e8cf96; color: #f6e2a8; }
+.roll-die.min { border-color: #b0544a; color: #f0a596; }
+.roll-mod { margin-left: 2px; font-size: 13px; font-weight: 700; color: #a99c84; font-variant-numeric: tabular-nums; }
+.roll-natural { font-size: 11px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
+.roll-note { font-size: 12px; line-height: 1.45; color: #a99c84; }
+
+.roll-card.crit { border-color: #e8cf96; background: radial-gradient(ellipse at 20% 50%, #4a3a1a 0%, #1c160e 70%); box-shadow: 0 0 18px #e8cf9640; }
+.roll-card.crit .roll-total { color: #ffe6a8; text-shadow: 0 0 14px #e8cf9699; }
+.roll-card.crit .roll-natural { color: #f2d48a; }
+.roll-card.fumble { border-color: #b0544a; background: radial-gradient(ellipse at 20% 50%, #3a1712 0%, #1a0f0c 70%); }
+.roll-card.fumble .roll-total { color: #f6b5a8; }
+.roll-card.fumble .roll-natural { color: #f0a596; }
+.roll-card.crit, .roll-card.fumble { animation: roll-pop .5s cubic-bezier(.3, 1.5, .5, 1) both; }
+@keyframes roll-pop { from { transform: scale(.94); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .roll-card.crit, .roll-card.fumble { animation: none; } }
+
+/* Pesan lemparan memakai kartu: tanpa kotak teks lama di sekelilingnya. */
+.message.roll .message-text.has-card { padding: 0; border: 0; background: none; }

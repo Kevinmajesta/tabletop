@@ -60,6 +60,8 @@ type Room = {
   preparedSceneId?: string;
   shownImage?: string | null;
   ambience?: { url: string; name: string } | null;
+  // Layar jeda/istirahat yang dinyalakan DM untuk semua orang di ruang.
+  rest?: { kind: "pause" | "short" | "long"; note: string; since: number } | null;
   characters?: Character[];
   minigames?: Game[];
   portraits?: string[];
@@ -239,6 +241,7 @@ function safeRoom(room: Room, playerId = "", dm = false): SafeRoom {
     map: scene.map,
     shownImage: room.shownImage ?? null,
     ambience: room.ambience ?? null,
+    rest: room.rest ?? null,
     tokens,
     messages: room.messages,
     minigames: (room.minigames || []).filter(game => gameKinds.includes(game.kind) && (tokens.some(token => token.id === game.tokenId) || (game.declaration && game.players.includes(playerId) && scene.tokens.some(token => token.id === game.tokenId)))).map(game => gameView(game, playerId, dm)),
@@ -817,6 +820,18 @@ io.on("connection", (socket) => {
           return;
         }
         room.ambience = null;
+      } else if (p.type === "rest:start") {
+        if (!dm || (p.kind !== "pause" && p.kind !== "short" && p.kind !== "long")) {
+          fail("Hanya DM bisa menjeda permainan.");
+          return;
+        }
+        room.rest = { kind: p.kind, note: clean(p.note, 140), since: Date.now() };
+      } else if (p.type === "rest:end") {
+        if (!dm) {
+          fail("Hanya DM bisa melanjutkan permainan.");
+          return;
+        }
+        room.rest = null;
       } else if (p.type === "image:hide") {
         if (!dm) {
           fail("Hanya DM bisa menutup tayangan.");
@@ -1064,7 +1079,8 @@ io.on("connection", (socket) => {
       const active = sceneFor(room, socket.data.isDM);
       room.map = active.map;
       room.tokens = active.tokens;
-      if (beforeUndo)
+      // Jeda/istirahat tidak mengubah peta, jadi tidak menimpa catatan undo terakhir DM.
+      if (beforeUndo && p.type !== "rest:start" && p.type !== "rest:end")
         undoStates.set(room.id, {
           ...beforeUndo,
           after: JSON.stringify({

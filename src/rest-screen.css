@@ -1,0 +1,138 @@
+/* Layar jeda dan istirahat: langit malam, jam pasir untuk jeda, api unggun untuk Short/Long Rest. */
+.rest-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  color: #ece2cc;
+  background: radial-gradient(ellipse at 50% 120%, #2a1d10 0%, #120e0a 45%, #07080c 100%);
+  animation: rest-in .9s ease-out both;
+}
+.rest-pause { background: radial-gradient(ellipse at 50% 40%, #1c1a22 0%, #0d0c11 55%, #050507 100%); }
+.rest-long { background: radial-gradient(ellipse at 50% 120%, #2a1a0e 0%, #0e0f1a 50%, #04050b 100%); }
+
+.rest-sky { position: absolute; inset: 0; pointer-events: none; }
+.rest-sky i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #f6e9c8; opacity: .2; animation: rest-twinkle 4.2s ease-in-out infinite; }
+.rest-sky i:nth-child(3n) { width: 3px; height: 3px; }
+.rest-short .rest-sky i { opacity: .12; }
+.rest-vignette { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 180px 60px #000c; }
+
+.rest-content { position: relative; z-index: 2; max-width: 640px; text-align: center; animation: rest-rise 1.1s .15s cubic-bezier(.2, .8, .2, 1) both; }
+.rest-kicker { font-size: 11px; font-weight: 700; letter-spacing: .34em; text-transform: uppercase; color: #cfa95f; }
+.rest-title { margin: 14px 0 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(34px, 6vw, 64px); font-weight: 400; line-height: 1.05; letter-spacing: .01em; color: #f6e6c0; text-shadow: 0 2px 30px #cfa95f33; }
+.rest-rule { display: flex; justify-content: center; align-items: center; gap: 0; margin: 22px auto 18px; width: 220px; height: 1px; background: linear-gradient(90deg, transparent, #cfa95f88, transparent); }
+.rest-rule span { width: 8px; height: 8px; transform: rotate(45deg); border: 1px solid #cfa95f; background: #120e0a; }
+.rest-line { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp(16px, 2.2vw, 20px); font-style: italic; line-height: 1.5; color: #e3cf9f; }
+.rest-sub { margin: 8px 0 0; font-size: 13px; color: #a99c84; }
+.rest-clock { margin-top: 22px; font-size: 13px; font-weight: 600; letter-spacing: .2em; color: #a99c84; font-variant-numeric: tabular-nums; }
+
+/* Jam pasir */
+.rest-hourglass { position: relative; z-index: 2; order: -1; margin-bottom: 30px; animation: rest-rise 1s cubic-bezier(.2, .8, .2, 1) both; }
+.hg-glass { position: relative; width: 46px; height: 76px; animation: hg-flip 8s ease-in-out infinite; }
+.hg-glass::before, .hg-glass::after { content: ""; position: absolute; left: -6px; right: -6px; height: 4px; border-radius: 2px; background: #cfa95f; }
+.hg-glass::before { top: -4px; }
+.hg-glass::after { bottom: -4px; }
+.hg-glass .hg-top, .hg-glass .hg-bottom { position: absolute; left: 0; right: 0; height: 38px; border: 1.5px solid #cfa95f99; background: #ffffff06; overflow: hidden; }
+.hg-glass .hg-top { top: 0; clip-path: polygon(0 0, 100% 0, 54% 100%, 46% 100%); border-radius: 4px 4px 0 0; }
+.hg-glass .hg-bottom { bottom: 0; clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%); border-radius: 0 0 4px 4px; }
+.hg-glass .hg-top::after, .hg-glass .hg-bottom::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; background: #e8cf96; }
+.hg-glass .hg-top::after { height: 70%; animation: hg-drain 8s linear infinite; }
+.hg-glass .hg-bottom::after { height: 0; animation: hg-fill 8s linear infinite; }
+.hg-stream { position: absolute; left: 50%; top: 36px; width: 1.5px; height: 40px; margin-left: -.75px; background: #e8cf96; animation: hg-stream 8s linear infinite; }
+
+/* Api unggun */
+.rest-fire { position: absolute; z-index: 1; left: 50%; bottom: 0; width: 260px; height: 230px; transform: translateX(-50%); pointer-events: none; }
+.fire-glow { position: absolute; left: 50%; bottom: -120px; width: 900px; height: 420px; transform: translateX(-50%); border-radius: 50%; background: radial-gradient(ellipse at center, #ff9a3c40 0%, #ff7a1a18 35%, transparent 65%); animation: fire-glow 3.2s ease-in-out infinite; }
+.fire-flames { position: absolute; left: 50%; bottom: 46px; width: 120px; height: 150px; transform: translateX(-50%); filter: blur(.4px); }
+.fire-flames i { position: absolute; bottom: 0; left: 50%; border-radius: 50% 50% 20% 20% / 60% 60% 40% 40%; transform-origin: 50% 100%; mix-blend-mode: screen; animation: flame 1.6s ease-in-out infinite alternate; }
+.fire-flames i:nth-child(1) { width: 92px; height: 130px; margin-left: -46px; background: radial-gradient(ellipse at 50% 80%, #ff6a1a 0%, #c2370f 55%, transparent 72%); }
+.fire-flames i:nth-child(2) { width: 66px; height: 110px; margin-left: -40px; background: radial-gradient(ellipse at 50% 80%, #ffae42 0%, #ff6a1a 50%, transparent 72%); animation-duration: 1.2s; animation-delay: -.4s; }
+.fire-flames i:nth-child(3) { width: 60px; height: 100px; margin-left: -18px; background: radial-gradient(ellipse at 50% 80%, #ffb84d 0%, #ff7a1a 50%, transparent 72%); animation-duration: 1.4s; animation-delay: -.8s; }
+.fire-flames i:nth-child(4) { width: 38px; height: 70px; margin-left: -19px; background: radial-gradient(ellipse at 50% 85%, #fff2c2 0%, #ffd27a 45%, transparent 72%); animation-duration: .9s; }
+.fire-logs { position: absolute; left: 50%; bottom: 30px; width: 170px; height: 30px; transform: translateX(-50%); }
+.fire-logs i { position: absolute; top: 6px; left: 0; width: 170px; height: 20px; border-radius: 10px; background: linear-gradient(180deg, #4a2e1a, #24150b); box-shadow: inset 0 -3px 6px #00000080, inset 0 3px 4px #ff8a3a30; }
+.fire-logs i:nth-child(1) { transform: rotate(14deg); }
+.fire-logs i:nth-child(2) { transform: rotate(-14deg); }
+.fire-embers i { position: absolute; bottom: 70px; width: 3px; height: 3px; border-radius: 50%; background: #ffc46b; box-shadow: 0 0 6px #ff8a3a; opacity: 0; animation: ember 3s ease-out infinite; }
+
+.rest-actions { position: absolute; z-index: 3; top: 16px; right: 16px; display: flex; gap: 8px; }
+.rest-screen .rest-actions button {
+  display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 14px;
+  border: 1px solid #cfa95f40; border-radius: 999px; background: #0f0c08b0; color: #e3cf9f;
+  font-size: 13px; font-weight: 600; backdrop-filter: blur(4px);
+}
+.rest-screen .rest-actions button:hover { border-color: #cfa95f; }
+.rest-screen .rest-actions .rest-resume { background: #cfa95f; border-color: #cfa95f; color: #1a140c; }
+.rest-screen .rest-actions .rest-resume:hover { background: #e3c27a; }
+
+/* Pil kecil saat pemain kembali melihat meja */
+.rest-pill {
+  position: fixed; z-index: 85; top: 64px; left: 50%; transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: 9px; height: 34px; padding: 0 16px;
+  border: 1px solid #cfa95f80; border-radius: 999px; background: #17130ef2; color: #e3cf9f;
+  font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; box-shadow: 0 8px 24px #0008;
+}
+.rest-pill-dot { width: 7px; height: 7px; border-radius: 50%; background: #cfa95f; animation: fire-glow 1.8s ease-in-out infinite; }
+
+/* Kontrol DM di toolbar */
+.rest-control { position: relative; display: inline-flex; }
+.app-shell .session-toolbar .rest-launch.active { background: #cfa95f; color: #1a140c; border-color: #cfa95f; }
+.rest-menu {
+  position: fixed; z-index: 95; width: 280px; padding: 6px; display: flex; flex-direction: column; gap: 2px;
+  border: 1px solid #5c4a2e; border-radius: 10px; background: linear-gradient(170deg, #211a12, #15110c);
+  box-shadow: 0 18px 40px #000a; animation: rest-pop .14s ease-out both;
+}
+.rest-menu .rest-option {
+  display: flex; align-items: center; gap: 12px; width: 100%; padding: 9px 10px;
+  border: 1px solid transparent; border-radius: 7px; background: none; color: #cfa95f; text-align: left;
+}
+.rest-menu .rest-option:hover { border-color: #3a3124; background: #cfa95f14; }
+.rest-menu .rest-option span:last-child { display: flex; flex-direction: column; gap: 1px; }
+.rest-menu .rest-option strong { font-family: Georgia, "Times New Roman", serif; font-size: 15px; font-weight: 400; color: #f3e9d2; }
+.rest-menu .rest-option small { font-size: 11px; color: #a99c84; }
+.rest-moon { flex: none; width: 16px; height: 16px; margin: 0 1px; border-radius: 50%; box-shadow: inset -5px -2px 0 0 #cfa95f; transform: rotate(-20deg); }
+.rest-menu input {
+  margin: 4px 2px 2px; height: 34px; padding: 0 10px; border: 1px solid #3a3124; border-radius: 7px;
+  background: #0f0c08; color: #ece2cc; font-size: 12px;
+}
+.rest-menu input:focus { outline: 0; border-color: #cfa95f; }
+
+@keyframes rest-in { from { opacity: 0; } }
+@keyframes rest-rise { from { opacity: 0; transform: translateY(14px); } }
+@keyframes rest-pop { from { opacity: 0; transform: translateY(-4px); } }
+@keyframes rest-twinkle { 50% { opacity: .7; } }
+@keyframes hg-flip { 0%, 92% { transform: rotate(0); } 100% { transform: rotate(180deg); } }
+@keyframes hg-drain { 0% { height: 70%; } 90%, 100% { height: 0; } }
+@keyframes hg-fill { 0% { height: 0; } 90%, 100% { height: 62%; } }
+@keyframes hg-stream { 0%, 89% { opacity: 1; } 90%, 100% { opacity: 0; } }
+@keyframes flame {
+  0% { transform: scale(1, 1) skewX(0); }
+  33% { transform: scale(.94, 1.06) skewX(2deg); }
+  66% { transform: scale(1.04, .95) skewX(-3deg); }
+  100% { transform: scale(.97, 1.08) skewX(1deg); }
+}
+@keyframes fire-glow { 50% { opacity: .7; } }
+@keyframes ember {
+  0% { opacity: 0; transform: translate(0, 0); }
+  15% { opacity: 1; }
+  100% { opacity: 0; transform: translate(18px, -170px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rest-screen, .rest-content, .rest-hourglass, .hg-glass, .hg-glass *, .hg-glass *::after, .fire-flames i, .fire-glow, .fire-embers i, .rest-sky i { animation: none !important; }
+  .fire-embers { display: none; }
+}
+@media (max-width: 560px) {
+  .rest-actions { right: 50%; transform: translateX(50%); white-space: nowrap; }
+  .rest-fire { transform: translateX(-50%) scale(.8); transform-origin: 50% 100%; }
+  .rest-content { margin-bottom: 120px; }
+}
+/* Teks diberi ruang di atas api unggun. */
+.rest-short .rest-content, .rest-long .rest-content { margin-bottom: 170px; }
+@media (min-width: 561px) {
+  .rest-fire { transform: translateX(-50%) scale(1.35); transform-origin: 50% 100%; }
+}
