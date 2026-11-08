@@ -223,50 +223,25 @@
 /* Jurnal Terkoyak */
 .minigame-dialog:has(.torn-journal) { width: min(640px, calc(100vw - 32px)); }
 .torn-journal { display: grid; gap: 10px; }
-.torn-journal > p:first-child { margin: 0; font-size: 13px; line-height: 1.55; }
-.torn-journal h4 { margin: 6px 0 0; color: #d7b77e; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
-.journal-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.journal-page { border: 1px solid #766548; border-radius: 6px 10px 10px 6px; border-left: 6px solid #775333; background: linear-gradient(180deg, #2b2115, #20170f); }
-.journal-page.reading { border-color: #e7c48b; border-left-color: #e7c48b; background: #2f2416; }
-.journal-row { display: flex; align-items: stretch; gap: 6px; padding-right: 8px; }
-.journal-tab { flex: 1; display: flex; justify-content: space-between; align-items: center; gap: 8px; min-width: 0; padding: 10px 12px; background: transparent; border: 0; color: #f3e5cb; font-size: 14px; text-align: left; }
-.journal-tab span { color: #e7c48b; font-size: 13px; white-space: nowrap; }
-.journal-body { padding: 0 14px 10px; }
-.journal-body p { margin: 0 0 8px; font-family: Georgia, serif; font-size: 15px; line-height: 1.7; }
-.journal-body .journal-foot { margin: 0; padding-top: 6px; border-top: 1px dashed #766548; color: #d7b77e; font-size: 13px; font-style: italic; }
-.journal-actions { display: flex; align-items: center; gap: 6px; padding: 6px 0; }
-.journal-actions:empty { display: none; }
-.journal-actions button { min-height: 36px; padding: 4px 12px; background: #e7c48b22; border-color: #e7c48b88; color: #f3e5cb; white-space: nowrap; }
-.journal-empty { padding: 12px; color: #a79d86; font-size: 13px; border: 1px dashed #766548; border-radius: 8px; }
-.journal-hint { margin: 0; color: #a6afad; font-size: 13px; }
-.torn-journal .journal-primary:not(:disabled) { background: #e7c48b; color: #17201f; border-color: #e7c48b; font-weight: 700; }
-.torn-journal .minigame-actions button:disabled { opacity: .35; }
-.journal-wrong { margin: 0; padding: 8px 12px; border: 1px solid #d97a68; border-radius: 8px; background: #5a2a22; color: #ffe1db; font-weight: 600; }
-.journal-win { margin: 0; padding: 12px 14px; border: 1px solid #6bcb77; border-radius: 8px; background: #1d3a26; color: #d9f5de; font-weight: 600; }
-.journal-win::before { content: '✓ '; }
-@media (max-width: 650px) { .minigame-dialog:has(.torn-journal) { padding: 16px; } .journal-actions button { flex: 1 1 auto; } }
-
+.journal-intro > summary { cursor: pointer; color: #e7c48b; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
 .journal-intro > p { margin: 0 0 6px; font-size: 14px; line-height: 1.55; }
 .journal-intro ul { margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.6; color: #e2d9c9; }
-.journal-intro em { color: #e7c48b; font-style: normal; font-weight: 700; }
-.journal-bar { position: sticky; top: -24px; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border: 1px solid #e7c48b88; border-radius: 10px; background: #2b2013f5; backdrop-filter: blur(6px); }
-.journal-bar > div { min-width: 0; display: grid; gap: 6px; }
-.journal-chips { display: flex; flex-wrap: wrap; gap: 4px; }
-.journal-chips em { color: #a79d86; font-size: 12px; }
-.journal-chip { min-height: 28px; padding: 0 8px; border-radius: 999px; border: 1px solid #e7c48b88; background: #e7c48b22; color: #f3e5cb; font-size: 12px; font-weight: 700; }
-.journal-chip:hover:not(:disabled) { background: #5a2a22; border-color: #d97a68; }
-.journal-bar .journal-primary { flex: none; min-height: 40px; }
-@media (max-width: 650px) { .journal-bar { top: -16px; flex-direction: column; align-items: stretch; } .journal-bar .journal-primary { width: 100%; } .journal-row { flex-wrap: wrap; } .journal-actions { padding: 0 8px 8px; width: 100%; } }
-
-.journal-bar small { color: #a79d86; font-size: 11px; font-weight: 400; margin-left: 8px; }
-.journal-chip { font-size: 13px; background: #3a2c18; }
-.journal-actions button:disabled { opacity: .45; background: transparent; }
-.journal-actions { padding-right: 4px; }
-.journal-win { font-size: 15px; background: #1f4a2c; border-width: 2px; }
-.journal-list .journal-tab { border-radius: 0; }
-
-.journal-intro > summary { cursor: pointer; color: #e7c48b; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
-.journal-wrong { text-indent: -1.1em; padding-left: calc(12px + 1.1em); }
+.journal-book { display: grid; gap: 4px; padding: 12px 14px; border: 1px solid #766548; border-left: 6px solid #775333; border-radius: 6px 10px 10px 6px; background: linear-gradient(180deg, #2b2115, #20170f); }
+.journal-book strong { color: #e7c48b; letter-spacing: 1px; font-size: 13px; }
+.journal-book a { color: #f3e5cb; font-weight: 700; }
+.journal-book small, .journal-hint { color: #a6afad; font-size: 13px; margin: 0; }
+.journal-questions { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; counter-reset: q; }
+.journal-question { counter-increment: q; padding: 10px 12px 12px; border: 1px solid #766548; border-radius: 8px; background: #20170f; }
+.journal-question.solved { border-color: #6bcb77; background: #1d3a26; }
+.journal-question > p:first-child { margin: 0 0 8px; font-family: Georgia, serif; font-size: 15px; line-height: 1.6; }
+.journal-question > p:first-child::before { content: counter(q) '. '; color: #e7c48b; font-weight: 700; }
+.journal-question form { display: flex; gap: 6px; }
+.journal-question input { flex: 1; min-width: 0; min-height: 36px; padding: 0 10px; }
+.journal-primary:not(:disabled) { background: #e7c48b; color: #17201f; border-color: #e7c48b; font-weight: 700; }
+.journal-ok { margin: 0; color: #d9f5de; font-weight: 600; }
+.journal-wrong { margin: 8px 0 0; padding: 8px 12px; border: 1px solid #d97a68; border-radius: 8px; background: #5a2a22; color: #ffe1db; font-weight: 600; }
+.journal-win { margin: 0; padding: 12px 14px; border: 2px solid #6bcb77; border-radius: 8px; background: #1f4a2c; color: #d9f5de; font-weight: 600; font-size: 15px; }
+.journal-win::before { content: '✓ '; }
 
 /* Sandi Cryptex */
 .minigame-dialog:has(.cryptex-board) { width: min(680px, calc(100vw - 32px)); }

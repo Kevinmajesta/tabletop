@@ -1,0 +1,88 @@
+/* Kode Peti: papan seperti pelat gembok kuningan, lubang tebakan zamrud, kuning tua, dan abu batu. */
+.lp-layout { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 28px; align-items: start; }
+.lp-chest {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 18px 20px;
+  border: 1px solid #6b5432;
+  border-radius: 10px 10px 6px 6px;
+  background:
+    linear-gradient(180deg, #3a2c1a 0%, #241b10 100%);
+  box-shadow: inset 0 1px #ffffff14, inset 0 0 0 4px #1a130b, 0 14px 30px #0009;
+}
+.lp-lock-head { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 50%; border: 1px solid #cfa95f; color: #cfa95f; background: radial-gradient(circle, #4a3820, #241b10); }
+.lp-board { display: flex; flex-direction: column; gap: 6px; }
+.lp-row { display: flex; align-items: center; gap: 6px; padding: 3px 6px; border-radius: 6px; }
+.lp-row.active { background: #cfa95f1f; box-shadow: inset 0 0 0 1px #cfa95f66; }
+.lp-row-num { width: 18px; font-size: 11px; color: #7d6c50; text-align: right; font-variant-numeric: tabular-nums; }
+.lp-row.active .lp-row-num { color: #cfa95f; }
+.minigame-dialog .lp-socket {
+  width: 46px;
+  height: 46px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 1px solid #120d07;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #1b140c, #0c0905);
+  box-shadow: inset 0 3px 6px #000c, 0 1px 0 #ffffff14;
+  font-size: 22px;
+  line-height: 1;
+}
+.minigame-dialog .lp-socket:disabled { opacity: 1; cursor: default; }
+.minigame-dialog .lp-socket.typed { border-color: #cfa95f; box-shadow: inset 0 3px 6px #000a, 0 0 0 1px #cfa95f55; cursor: pointer; }
+.minigame-dialog .lp-socket.g { background: radial-gradient(circle at 40% 35%, #5fb67a, #2e6a41); border-color: #8fd3a3; box-shadow: 0 0 10px #5fb67a55; }
+.minigame-dialog .lp-socket.y { background: radial-gradient(circle at 40% 35%, #e3b74f, #8d6a1f); border-color: #f0d38a; box-shadow: 0 0 10px #e3b74f44; }
+.minigame-dialog .lp-socket.x { background: radial-gradient(circle at 40% 35%, #59544d, #2f2c28); border-color: #6d675e; }
+.lp-row.done .lp-socket { animation: lp-flip .45s ease both; animation-delay: calc(var(--i) * 70ms); }
+
+.lp-side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.lp-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 0; padding: 0; list-style: none; font-size: 13px; color: var(--mg-mute); }
+.lp-legend li { display: inline-flex; align-items: center; gap: 8px; }
+.lp-legend i { width: 14px; height: 14px; border-radius: 50%; }
+.lp-legend i.g { background: #5fb67a; }
+.lp-legend i.y { background: #e3b74f; }
+.lp-legend i.x { background: #59544d; }
+
+.lp-keys { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.minigame-dialog .lp-key {
+  min-height: 72px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid #5c4a2e;
+  border-radius: 6px;
+  background: linear-gradient(#2a2117, #1c1610);
+  color: var(--mg-ink);
+}
+.lp-key span { font-size: 26px; line-height: 1; }
+.lp-key small { font-size: 11px; letter-spacing: .08em; color: var(--mg-mute); }
+.minigame-dialog .lp-key:hover:not(:disabled) { border-color: #cfa95f; transform: translateY(-1px); }
+.minigame-dialog .lp-key.g { border-color: #5fb67a; box-shadow: inset 0 -3px 0 #5fb67a; }
+.minigame-dialog .lp-key.y { border-color: #e3b74f; box-shadow: inset 0 -3px 0 #e3b74f; }
+.minigame-dialog .lp-key.x { opacity: .45; }
+.lp-actions { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; }
+.lp-actions .mg-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+
+@keyframes lp-flip { from { transform: rotateX(90deg); } to { transform: rotateX(0); } }
+@media (max-width: 720px) {
+  .lp-layout { grid-template-columns: minmax(0, 1fr); }
+  .lp-chest { justify-self: center; }
+  .minigame-dialog .lp-socket { width: 34px; height: 34px; font-size: 16px; }
+  .lp-board { gap: 4px; }
+  .lp-chest { padding: 12px; gap: 8px; }
+  .lp-lock-head { width: 40px; height: 40px; }
+  .minigame-dialog .lp-key { min-height: 58px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp-row.done .lp-socket { animation: none; }
+  .minigame-dialog .lp-key:hover:not(:disabled) { transform: none; }
+}

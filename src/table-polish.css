@@ -1,0 +1,282 @@
+/* Penyelarasan meja permainan dengan bahasa visual minigame dan halaman start:
+   judul serif, aksen kuningan, tanpa sisa ungu, peta seperti tergelar di atas meja kayu.
+   Selektor diawali .app-shell supaya menang atas gaya lama tanpa !important. */
+.app-shell {
+  --tp-brass: #cfa95f;
+  --tp-brass-soft: #cfa95f2e;
+  --tp-sand: #e3cf9f;
+  --tp-ink: #ece2cc;
+  --tp-mute: #a99c84;
+  --tp-panel: #17130f;
+  --tp-panel-2: #1e1913;
+  --tp-line: #3a3124;
+  --tp-serif: Georgia, "Times New Roman", serif;
+}
+
+/* ---------- 1. Menu minigame di toolbar ---------- */
+/* Aturan lama membatasi tinggi menu ke tinggi toolbar dikurangi 76px, jadi isinya terpotong. */
+.app-shell .session-toolbar .minigames { max-height: none; overflow: visible; padding: 0; border: 0; background: transparent; }
+/* Pemain tidak punya menu token: jangan gambar kotak kosong. */
+.app-shell .session-toolbar .minigames:not(:has(> details)) { display: contents; }
+.app-shell .session-toolbar .minigames:has(details[open]) { flex-basis: auto; }
+.app-shell .session-toolbar .minigames > details > summary {
+  min-height: 40px;
+  padding: 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  border: 1px solid #dfbb8045;
+  border-radius: 8px;
+  background: #182120;
+  color: var(--tp-ink);
+  font-size: 14px;
+  white-space: nowrap;
+}
+.app-shell .session-toolbar .minigames > details > summary::-webkit-details-marker { display: none; }
+.app-shell .session-toolbar .minigames > details > summary::after { content: "▾"; font-size: 11px; color: var(--tp-brass); }
+.app-shell .session-toolbar .minigames > details[open] > summary { border-color: var(--tp-brass); background: var(--tp-brass-soft); }
+.app-shell .session-toolbar .minigames details[open] { max-height: none; overflow: visible; }
+.app-shell .minigame-menu {
+  position: fixed;
+  top: 60px;
+  left: 12px;
+  z-index: 40;
+  width: min(720px, calc(100vw - 24px));
+  max-height: min(72dvh, 680px);
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 0 18px 18px;
+  border: 1px solid #5c4a2e;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #1c1712, #13100c);
+  box-shadow: 0 24px 60px #000c;
+  color: var(--tp-ink);
+}
+.app-shell .minigame-menu-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 -18px;
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--tp-line);
+  background: #1c1712;
+}
+.app-shell .minigame-menu-head strong { font-family: var(--tp-serif); font-size: 20px; font-weight: 400; color: #f3e3bd; }
+.app-shell .minigame-menu-head p { margin: 4px 0 0; font-size: 13px; color: var(--tp-mute); }
+.app-shell .minigame-menu-head button { flex: none; width: 36px; min-height: 36px; padding: 0; border: 1px solid var(--tp-line); border-radius: 8px; background: transparent; color: var(--tp-mute); font-size: 18px; }
+.app-shell .minigame-menu-group { display: flex; flex-direction: column; gap: 8px; }
+.app-shell .minigame-menu-group h4 { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--tp-brass); }
+.app-shell .minigame-menu-group p { margin: 0; font-size: 12px; color: var(--tp-mute); }
+.app-shell .minigame-create-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 6px; }
+.app-shell .minigames button.minigame-create {
+  min-height: 44px;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--tp-line);
+  border-radius: 6px;
+  background: var(--tp-panel-2);
+  color: var(--tp-ink);
+  font-size: 13px;
+  text-align: left;
+}
+.app-shell .minigames button.minigame-create b { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; border: 1px solid #5c4a2e; color: var(--tp-brass); font-size: 12px; font-weight: 400; }
+.app-shell .minigames button.minigame-create:hover:not(:disabled) { border-color: var(--tp-brass); background: #2a2117; }
+.app-shell .minigame-menu .minigame-token-list button { min-height: 40px; border-radius: 6px; border-color: var(--tp-line); background: var(--tp-panel-2); }
+
+/* ---------- 2. Huruf ---------- */
+.app-shell .board-panel-heading strong,
+.app-shell .scene-page-menu header strong,
+.app-shell .popover-heading strong,
+.app-shell .message-meta strong,
+.app-shell .player-info strong,
+.app-shell .player-row strong,
+.app-shell .chat-intro strong,
+.app-shell .party-invite strong,
+.app-shell .empty-board h2,
+.app-shell .scene-page-card strong {
+  font-family: var(--tp-serif);
+  font-weight: 400;
+  letter-spacing: .01em;
+  text-transform: none;
+}
+.app-shell .board-panel-heading strong { font-size: 19px; color: #f3e3bd; }
+.app-shell .scene-page-menu header strong { font-size: 19px; color: #f3e3bd; }
+.app-shell .popover-heading strong { font-size: 17px; color: #f3e3bd; }
+.app-shell .message-meta strong { font-size: 14px; color: var(--tp-sand); }
+.app-shell .player-info strong, .app-shell .player-row strong { font-size: 15px; }
+.app-shell .empty-board h2 { font-size: 26px; color: #f3e3bd; }
+.app-shell .board-panel-heading span,
+.app-shell .chat-topline,
+.app-shell .scene-page-menu header p { letter-spacing: .14em; text-transform: uppercase; font-size: 10px; }
+.app-shell .scene-page-menu header p { text-transform: none; letter-spacing: 0; font-size: 12px; color: var(--tp-mute); }
+.app-shell .side-tabs button { font-size: 13px; letter-spacing: .02em; }
+.app-shell .side-tabs button.active { color: var(--tp-sand); }
+
+/* ---------- 3. Warna: tanpa sisa ungu, status rail yang jelas ---------- */
+.app-shell .map-controls .zoom-label { background: #17130fe8; border: 1px solid var(--tp-line); color: var(--tp-sand); }
+.app-shell .map-controls input[type=range]::-webkit-slider-runnable-track { background: #3a3124; }
+.app-shell .map-controls input[type=range]::-webkit-slider-thumb { background: var(--tp-brass); border-color: #3a2a12; box-shadow: 0 0 8px #cfa95f66; }
+.app-shell .map-controls input[type=range]::-moz-range-track { background: #3a3124; }
+.app-shell .map-controls input[type=range]::-moz-range-thumb { background: var(--tp-brass); border-color: #3a2a12; }
+.app-shell .map-controls input[type=range] { accent-color: var(--tp-brass); }
+
+/* Rail kiri: mode alat terisi kuningan, saklar hanya ikon menyala dengan titik, panel terbuka bergaris tepi. */
+.app-shell .tabletop-rail button.active { background: transparent; color: var(--tp-sand); box-shadow: inset 3px 0 var(--tp-brass); }
+.app-shell .tabletop-rail button.rail-mode.active { background: linear-gradient(160deg, #cfa95f, #a8843f); color: #1a140b; box-shadow: 0 4px 12px #0006; }
+.app-shell .tabletop-rail button.rail-toggle { position: relative; }
+.app-shell .tabletop-rail button.rail-toggle.active { background: transparent; box-shadow: none; color: var(--tp-sand); }
+.app-shell .tabletop-rail button.rail-toggle.active::after { content: ""; position: absolute; top: 6px; right: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--tp-brass); box-shadow: 0 0 6px var(--tp-brass); }
+.app-shell .tabletop-rail .board-tools-toggle { border: 0; background: transparent; box-shadow: none; backdrop-filter: none; }
+.app-shell .tabletop-rail .board-tools-toggle[aria-expanded="true"] { color: var(--tp-sand); box-shadow: inset 3px 0 var(--tp-brass); }
+
+/* Panel melayang di atas meja memakai panel hangat yang sama. */
+.app-shell .tabletop-popover,
+.app-shell .board-tools-body,
+.app-shell .scene-page-menu,
+.app-shell .combat-order {
+  background: linear-gradient(180deg, #1c1712f5, #14110df5);
+  border-color: #5c4a2e;
+}
+
+/* ---------- 4. Peta tergelar di atas meja ---------- */
+.app-shell .workspace .stage,
+.app-shell .map-viewport {
+  background-color: #120e0a;
+  background-image:
+    radial-gradient(ellipse 70% 60% at 50% 45%, #2c2219 0%, #17120d 60%, #0d0a07 100%),
+    repeating-linear-gradient(92deg, #ffffff05 0 1px, transparent 1px 11px);
+  background-blend-mode: normal;
+  background-size: auto;
+}
+.app-shell .map-canvas {
+  border-radius: 3px;
+  box-shadow:
+    inset 0 0 70px 6px #0009,
+    inset 0 0 0 1px #00000080,
+    0 0 0 1px #0a0806,
+    0 0 0 6px #2b2016,
+    0 0 0 7px #8a6c3a66,
+    0 30px 70px #000d;
+}
+.app-shell .map-viewport .empty-board { background: #17130ff2; border-color: #5c4a2e; }
+
+/* ---------- 5. Panel lempar dadu ---------- */
+/* Ditambatkan ke bawah supaya tidak menimpa panel urutan combat di kiri atas. */
+.app-shell .dice-popover { top: auto; bottom: 64px; width: min(330px, calc(100% - 65px)); padding: 16px; border-radius: 12px; }
+.app-shell .dice-popover .popover-heading { margin-bottom: 4px; }
+.app-shell .dice-tray-v2 { display: flex; flex-direction: column; gap: 14px; }
+.app-shell .dice-tray-v2 .dice-tray-status { margin: 0; font-size: 12px; color: var(--tp-mute); }
+.app-shell .dice-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.app-shell .tabletop-popover .dice-tray-v2 .die-btn {
+  min-height: 64px;
+  min-width: 0;
+  margin: 0;
+  padding: 6px 2px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border: 1px solid var(--tp-line);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #221c15, #19140f);
+  color: var(--tp-sand);
+}
+.app-shell .tabletop-popover .dice-tray-v2 .die-btn span { font-size: 12px; font-weight: 700; letter-spacing: .04em; color: var(--tp-ink); }
+.app-shell .tabletop-popover .dice-tray-v2 .die-btn:hover:not(:disabled) { border-color: var(--tp-brass); background: #2c2318; transform: translateY(-1px); }
+.app-shell .tabletop-popover .dice-tray-v2 .die-btn.d20 { border-color: #8a6c3a; background: linear-gradient(180deg, #2f2518, #1d1710); }
+.app-shell .tabletop-popover .dice-tray-v2 .die-btn.d20 .die-icon { color: #f2d48a; }
+.app-shell .dice-tray-v2 .dice-option { display: flex; flex-direction: column; gap: 6px; }
+.app-shell .dice-tray-v2 .dice-option > span { font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--tp-brass); }
+.app-shell .dice-mode { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 3px; border: 1px solid var(--tp-line); border-radius: 8px; background: #0f0c09; }
+.app-shell .tabletop-popover .dice-tray-v2 .dice-mode button { min-height: 34px; min-width: 0; padding: 4px 2px; border: 0; border-radius: 6px; background: transparent; color: var(--tp-mute); font-size: 12px; }
+.app-shell .tabletop-popover .dice-tray-v2 .dice-mode button[aria-checked="true"] { background: var(--tp-brass); color: #1a140b; font-weight: 700; }
+.app-shell .dice-stepper { display: grid; grid-template-columns: 40px minmax(0, 1fr) 40px; border: 1px solid var(--tp-line); border-radius: 8px; background: #0f0c09; overflow: hidden; }
+.app-shell .tabletop-popover .dice-tray-v2 .dice-stepper button { min-height: 38px; min-width: 0; margin: 0; padding: 0; display: grid; place-items: center; border: 0; border-radius: 0; background: transparent; color: var(--tp-brass); }
+.app-shell .tabletop-popover .dice-tray-v2 .dice-stepper button:hover { background: #ffffff0a; }
+.app-shell .tabletop-popover .dice-tray-v2 .dice-stepper input { width: 100%; min-height: 38px; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--tp-ink); font-size: 17px; font-weight: 600; text-align: center; font-variant-numeric: tabular-nums; -moz-appearance: textfield; }
+.app-shell .dice-stepper input::-webkit-outer-spin-button, .app-shell .dice-stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.app-shell .tabletop-popover .dice-tray-v2 .dice-effects-inline { display: flex; align-items: center; gap: 8px; width: auto; margin: 0; font-size: 12px; color: var(--tp-mute); }
+.app-shell .dice-tray-v2 .dice-effects-inline input { accent-color: var(--tp-brass); width: 16px; height: 16px; }
+
+/* ---------- 6. Dialog karakter ---------- */
+.file-pick { position: relative; }
+.file-pick input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+.file-pick-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  margin-top: 8px;
+  padding: 8px 16px;
+  border: 1px solid #b99459;
+  border-radius: 6px;
+  background: #1e2724;
+  color: #f3e5cb;
+  font-size: 14px;
+  cursor: pointer;
+}
+.file-pick:hover .file-pick-btn { background: #284438; }
+.file-pick:focus-within .file-pick-btn { outline: 2px solid #f3e5cb; outline-offset: 2px; }
+.character-token-row .file-pick-btn { margin-top: 0; }
+/* Lisensi tetap satu baris; saat disorot, teks lengkap membuka ke atas sebagai lapisan. */
+.character-dialog { position: relative; }
+.character-dialog .character-attribution { position: absolute; left: 0; right: 0; bottom: 0; z-index: 3; cursor: help; transition: background-color .2s ease; }
+.character-dialog .character-attribution:hover { height: auto; padding: 10px 20px; white-space: normal; text-overflow: clip; overflow: visible; background: #15191c; box-shadow: 0 -12px 30px #0009; }
+
+@media (max-width: 600px) {
+  .app-shell .minigame-menu { top: 56px; left: 8px; width: calc(100vw - 16px); }
+  .app-shell .minigame-create-grid { grid-template-columns: 1fr; }
+  .app-shell .dice-popover { bottom: 70px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell .tabletop-popover .dice-tray-v2 .die-btn:hover:not(:disabled) { transform: none; }
+}
+
+/* Perbaikan setelah cek tampilan */
+/* Tema lama memaksa .dice-tray jadi grid empat kolom; panel dadu baru memakai kolom bertumpuk. */
+.app-shell .tabletop-popover .dice-tray.dice-tray-v2 { display: flex; flex-direction: column; gap: 14px; padding: 4px 0 0; }
+.app-shell .tabletop-popover .dice-tray.dice-tray-v2 > * { grid-column: auto; }
+/* Menu minigame harus berada di atas tombol dan panel di atas peta. */
+.app-shell .session-toolbar:has(details[open]) { position: relative; z-index: 60; }
+
+/* Isi panel dadu memenuhi lebar panel (aturan lama memusatkannya). */
+.app-shell .tabletop-popover .dice-tray.dice-tray-v2 { align-items: stretch; }
+.app-shell .tabletop-popover .dice-tray.dice-tray-v2 .dice-tray-status { text-align: left; }
+/* Label unggah JSON: tombol di baris sendiri. */
+.character-dialog label.file-pick:not(.character-token-pick) { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+
+/* Notifikasi token dihapus (dengan Batalkan untuk DM) */
+.app-shell .toast-removed {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  z-index: 30;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 8px 8px 16px;
+  border: 1px solid #5c4a2e;
+  border-radius: 999px;
+  background: #17130ff2;
+  box-shadow: 0 12px 30px #000a;
+  color: var(--tp-ink);
+  font-size: 13px;
+  white-space: nowrap;
+  animation: toast-in .25s ease-out both;
+}
+.app-shell .toast-removed b { font-family: var(--tp-serif); font-weight: 400; color: var(--tp-sand); }
+.app-shell .toast-removed button { min-height: 32px; padding: 4px 14px; border: 1px solid var(--tp-brass); border-radius: 999px; background: var(--tp-brass); color: #1a140b; font-size: 12px; font-weight: 700; }
+.app-shell .toast-removed button.toast-close { padding: 0; width: 32px; display: grid; place-items: center; border-color: transparent; background: transparent; color: var(--tp-mute); }
+@keyframes toast-in { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@media (prefers-reduced-motion: reduce) { .app-shell .toast-removed { animation: none; } }

@@ -31,7 +31,9 @@ import {
   type Point,
   type Mark,
 } from "../server/tabletop";
+import { monsters } from "../server/monsters";
 import "./board-tools.css";
+import "./dm-menu.css";
 
 type Tool = "select" | "ruler" | "ping" | Mark["kind"];
 type Ping = Point & {
@@ -156,6 +158,9 @@ export default function BoardTools({
   }, []);
   const [dmMenu, setDmMenu] = useState(false);
   const [tokenId, setTokenId] = useState<string | null>(selected ?? null);
+  const [monsterKey, setMonsterKey] = useState(monsters[0].key);
+  const [monsterCount, setMonsterCount] = useState(1);
+  const [monsterHidden, setMonsterHidden] = useState(false);
   const [selectedMarkId, setSelectedMarkId] = useState<string | null>(null);
   useEffect(() => { const toggle = () => { if(!dm)return;setDmMenu(true); setTab('scene'); setOpen(true); }; window.addEventListener('tabletop:dm-menu',toggle); return () => window.removeEventListener('tabletop:dm-menu',toggle); }, [dm]);
   useEffect(() => setSelectedMarkId(null), [scene.id]);
@@ -580,7 +585,7 @@ export default function BoardTools({
                   {
                     {
                       tools: "Alat",
-                      scene: "Scene",
+                      scene: "Peta",
                       combat: "Combat",
                       token: "Token",
                     }[t]
@@ -590,27 +595,7 @@ export default function BoardTools({
             })}
           </nav>
           <div className={`board-tab-content board-tab-${tab}`}>
-            {dm && dmMenu && tab === "scene" && <div className="dm-quick-actions">
-              <button disabled={!connected} onClick={() => window.dispatchEvent(new Event('tabletop:dm-upload'))}>Unggah / ganti peta</button>
-              <button disabled={!connected} onClick={()=>socket?.timeout(5000).emit('campaign:undo',(err:Error|null,result?:{error?:string})=>{if(err || result?.error)setError(result?.error || 'Undo gagal.');})}>Undo aksi DM terakhir</button><button disabled={!connected} onClick={backup}>Backup campaign & gambar</button>
-            </div>}
             {error && <p role="alert">{error}</p>}
-            {tab === "token" && dm && dmMenu && token && (
-              <label className="board-checkbox">
-                <input
-                  type="checkbox"
-                  checked={!!token.visionSource}
-                  onChange={(e) =>
-                    action({
-                      type: "token:update",
-                      id: token.id,
-                      visionSource: e.target.checked,
-                    })
-                  }
-                />
-                Token menjadi sumber vision pemain
-              </label>
-            )}
             {tab === "tools" && tool === "ruler" && (
               <label className="board-checkbox">
                 <input
@@ -620,24 +605,6 @@ export default function BoardTools({
                 />
                 Bagikan pengukuran ke party
               </label>
-            )}
-            {tab === "scene" && dm && (
-              <>
-                {(["offsetX", "offsetY"] as const).map((key) => (
-                  <label key={key}>
-                    Offset grid {key === "offsetX" ? "X" : "Y"} (% kotak)
-                    <input
-                      type="number"
-                      min={0}
-                      max={99}
-                      value={scene.grid[key] ?? 0}
-                      onChange={(e) =>
-                        action({ type: "grid", [key]: e.target.valueAsNumber })
-                      }
-                    />
-                  </label>
-                ))}
-              </>
             )}
             {tab === "tools" && (
               <>
@@ -742,181 +709,161 @@ export default function BoardTools({
               </>
             )}
             {tab === "scene" && (
-              <>
-                {dm && dmMenu ? (
-                  <>
-                    <label>
-                      Preview pandangan player
-                      <select
-                        value={previewTokenId || ""}
-                        onChange={(e) => onPreviewToken(e.target.value || null)}
-                      >
-                        <option value="">Map DM penuh</option>
-                        {scene.tokens.map((item) => (
-                          <option key={item.id} value={item.id}>
-                            {item.name}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label>
-                      Scene aktif
-                      <select
-                        value={scene.id}
-                        onChange={(e) =>
-                          action({ type: "scene:activate", id: e.target.value })
-                        }
-                      >
-                        {scenes.map((s) => (
-                          <option key={s.id} value={s.id}>
-                            {s.name}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <button
-                      type="button"
-                      disabled={!connected}
-                      onClick={() => action({ type: "scene:publish" })}
-                    >
-                      Tampilkan ke pemain
-                    </button>
-                    <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        if (name.trim()) {
-                          action({ type: "scene:create", name });
-                          setName("");
-                        }
-                      }}
-                    >
-                      <label>
-                        Nama scene baru
-                        <input
-                          value={name}
-                          maxLength={60}
-                          onChange={(e) => setName(e.target.value)}
-                        />
-                      </label>
-                      <button disabled={!connected || !name.trim()}>
-                        Buat scene
+              dm && dmMenu ? (
+                <div className="dm-sections">
+                  <section className="dm-section">
+                    <h3>Scene</h3>
+                    <div className="dm-scene-now">
+                      <strong>{scene.name}</strong>
+                      <span className={publishedSceneId === scene.id ? "live" : ""}>
+                        {publishedSceneId === scene.id ? "Sedang dilihat pemain" : "Belum ditampilkan ke pemain"}
+                      </span>
+                    </div>
+                    <div className="dm-row">
+                      {publishedSceneId !== scene.id && (
+                        <button type="button" className="dm-primary" disabled={!connected} onClick={() => action({ type: "scene:publish" })}>
+                          Tampilkan ke pemain
+                        </button>
+                      )}
+                      <button type="button" onClick={() => { setOpen(false); setPagesOpen(true); }}>
+                        Ganti atau buat scene
                       </button>
-                    </form>
-                    <label>
-                      Kolom grid
-                      <input
-                        type="number"
-                        min={4}
-                        max={100}
-                        value={scene.grid.columns}
-                        onChange={(e) =>
-                          action({
-                            type: "grid",
-                            columns: e.target.valueAsNumber,
-                          })
-                        }
-                      />
-                    </label>
+                    </div>
+                  </section>
+
+                  <section className="dm-section">
+                    <h3>Peta</h3>
+                    <button type="button" disabled={!connected} onClick={() => window.dispatchEvent(new Event("tabletop:dm-upload"))}>
+                      Unggah atau ganti peta
+                    </button>
                     <label>
                       Ukuran peta · {Math.round((scene.mapScale ?? 1) * 100)}%
-                      <input
-                        type="range"
-                        min={50}
-                        max={400}
-                        step={10}
-                        value={(scene.mapScale ?? 1) * 100}
-                        onChange={(e) =>
-                          action({
-                            type: "grid",
-                            mapScale: e.target.valueAsNumber / 100,
-                          })
-                        }
-                      />
+                      <input type="range" min={50} max={400} step={10} value={(scene.mapScale ?? 1) * 100} onChange={(e) => action({ type: "grid", mapScale: e.target.valueAsNumber / 100 })} />
                     </label>
-                    <label>
-                      Jarak per kotak
-                      <input
-                        type="number"
-                        min={0.1}
-                        max={1000}
-                        value={scene.grid.distance}
-                        onChange={(e) =>
-                          action({
-                            type: "grid",
-                            distance: e.target.valueAsNumber,
-                          })
-                        }
-                      />
-                    </label>
-                    <label>
-                      Satuan
-                      <select
-                        value={scene.grid.unit}
-                        onChange={(e) =>
-                          action({ type: "grid", unit: e.target.value })
-                        }
-                      >
-                        <option value="ft">feet</option>
-                        <option value="m">meter</option>
-                      </select>
-                    </label>
-                    <label>
-                      Diagonal
-                      <select
-                        value={scene.grid.diagonal}
-                        onChange={(e) =>
-                          action({ type: "grid", diagonal: e.target.value })
-                        }
-                      >
-                        <option value="grid">Satu kotak (D&D 5e)</option>
-                        <option value="euclidean">Garis lurus</option>
-                      </select>
-                    </label>
+                  </section>
+
+                  <section className="dm-section">
+                    <h3>Pandangan pemain</h3>
                     {(["fog", "vision", "daylight"] as const).map((key) => (
                       <label className="board-checkbox" key={key}>
-                        <input
-                          type="checkbox"
-                          checked={scene[key]}
-                          onChange={(e) =>
-                            action({
-                              type: "scene:settings",
-                              [key]: e.target.checked,
-                            })
-                          }
-                        />
-                        {
-                          {
-                            fog: "Fog manual",
-                            vision: "Vision dengan dinding",
-                            daylight: "Cahaya siang",
-                          }[key]
-                        }
+                        <input type="checkbox" checked={scene[key]} onChange={(e) => action({ type: "scene:settings", [key]: e.target.checked })} />
+                        {{ fog: "Fog manual", vision: "Vision dengan dinding", daylight: "Cahaya siang" }[key]}
                       </label>
                     ))}
-                    <button
-                      disabled={!connected}
-                      onClick={() => action({ type: "fog:reset" })}
-                    >
-                      Tutup semua fog
-                    </button>
-                    <p>
-                      Buka fog dengan alat Buka fog. Dinding membatasi
-                      pandangan; cahaya dipakai saat cahaya siang mati.
-                    </p>
-                  </>
-                ) : (
-                  <p>
-                    {scene.name}. Skala: {scene.grid.distance} {scene.grid.unit}{" "}
-                    / kotak. Pengaturan scene dikelola DM.
-                  </p>
-                )}
-              </>
+                    {scene.fog && (
+                      <button type="button" disabled={!connected} onClick={() => action({ type: "fog:reset" })}>
+                        Tutup semua fog
+                      </button>
+                    )}
+                    <label>
+                      Lihat peta sebagai
+                      <select value={previewTokenId || ""} onChange={(e) => onPreviewToken(e.target.value || null)}>
+                        <option value="">DM (semua terlihat)</option>
+                        {scene.tokens.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
+                      </select>
+                    </label>
+                    <p className="dm-hint">Buka fog dan pasang dinding lewat tab Alat. Cahaya dipakai saat cahaya siang mati.</p>
+                  </section>
+
+                  <section className="dm-section">
+                    <h3>Suasana</h3>
+                    <div className="weather-chips" role="radiogroup" aria-label="Efek suasana">
+                      {([["", "Tidak ada"], ["rain", "Hujan"], ["storm", "Badai"], ["snow", "Salju"], ["fog", "Kabut"], ["night", "Malam"], ["torch", "Cahaya obor"]] as const).map(([value, label]) => (
+                        <button key={value || "none"} type="button" role="radio" className={`weather-chip w-${value || "none"}`} aria-checked={(scene.weather ?? "") === value} disabled={!connected} onClick={() => action({ type: "scene:settings", weather: value })}>
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="dm-hint">Efek tampil di atas peta untuk semua pemain di scene ini.</p>
+                  </section>
+
+                  <details className="dm-section dm-advanced">
+                    <summary>Pengaturan grid</summary>
+                    <div className="dm-grid-2">
+                      <label>
+                        Kolom
+                        <input type="number" min={4} max={100} value={scene.grid.columns} onChange={(e) => action({ type: "grid", columns: e.target.valueAsNumber })} />
+                      </label>
+                      <label>
+                        Jarak per kotak
+                        <input type="number" min={0.1} max={1000} value={scene.grid.distance} onChange={(e) => action({ type: "grid", distance: e.target.valueAsNumber })} />
+                      </label>
+                      <label>
+                        Satuan
+                        <select value={scene.grid.unit} onChange={(e) => action({ type: "grid", unit: e.target.value })}>
+                          <option value="ft">feet</option>
+                          <option value="m">meter</option>
+                        </select>
+                      </label>
+                      <label>
+                        Diagonal
+                        <select value={scene.grid.diagonal} onChange={(e) => action({ type: "grid", diagonal: e.target.value })}>
+                          <option value="grid">Satu kotak (5e)</option>
+                          <option value="euclidean">Garis lurus</option>
+                        </select>
+                      </label>
+                      {(["offsetX", "offsetY"] as const).map((key) => (
+                        <label key={key}>
+                          Geser grid {key === "offsetX" ? "X" : "Y"} (%)
+                          <input type="number" min={0} max={99} value={scene.grid[key] ?? 0} onChange={(e) => action({ type: "grid", [key]: e.target.valueAsNumber })} />
+                        </label>
+                      ))}
+                    </div>
+                  </details>
+
+                  <section className="dm-section">
+                    <h3>Campaign</h3>
+                    <div className="dm-row">
+                      <button type="button" disabled={!connected} onClick={() => socket?.timeout(5000).emit("campaign:undo", (err: Error | null, result?: { error?: string }) => { if (err || result?.error) setError(result?.error || "Undo gagal."); })}>
+                        Undo aksi terakhir
+                      </button>
+                      <button type="button" disabled={!connected} onClick={backup}>
+                        Backup campaign
+                      </button>
+                    </div>
+                  </section>
+                </div>
+              ) : (
+                <p>
+                  {scene.name}. Skala: {scene.grid.distance} {scene.grid.unit} / kotak. Pengaturan scene dikelola DM.
+                </p>
+              )
             )}
             {tab === "token" && (
               <>
                 {dm && dmMenu && (
+                  <section className="dm-section monster-quick">
+                    <h3>Tambah monster</h3>
+                    <label>
+                      Monster
+                      <select value={monsterKey} onChange={(e) => setMonsterKey(e.target.value)}>
+                        {[...new Set(monsters.map((m) => m.group))].map((group) => (
+                          <optgroup key={group} label={group}>
+                            {monsters.filter((m) => m.group === group).map((m) => <option key={m.key} value={m.key}>{m.name} · AC {m.ac} · HP {m.hp}</option>)}
+                          </optgroup>
+                        ))}
+                      </select>
+                    </label>
+                    <div className="monster-row">
+                      <div className="monster-count" aria-label="Jumlah monster">
+                        <button type="button" aria-label="Kurangi jumlah" disabled={monsterCount <= 1} onClick={() => setMonsterCount((n) => Math.max(1, n - 1))}>−</button>
+                        <strong>{monsterCount}</strong>
+                        <button type="button" aria-label="Tambah jumlah" disabled={monsterCount >= 8} onClick={() => setMonsterCount((n) => Math.min(8, n + 1))}>+</button>
+                      </div>
+                      <label className="board-checkbox">
+                        <input type="checkbox" checked={monsterHidden} onChange={(e) => setMonsterHidden(e.target.checked)} />
+                        Sembunyikan dulu
+                      </label>
+                    </div>
+                    <button type="button" className="dm-primary" disabled={!connected} onClick={() => action({ type: "token:monster", monster: monsterKey, count: monsterCount, hidden: monsterHidden })}>
+                      Taruh {monsterCount} {monsters.find((m) => m.key === monsterKey)?.name} di peta
+                    </button>
+                    <p className="dm-hint">Token muncul di tengah peta. Initiative monster dilempar dengan bonusnya saat combat dimulai. Ikon token dari game-icons.net (CC BY 3.0).</p>
+                  </section>
+                )}
+                {dm && dmMenu && (
                   <label className="token-picker">
-                    Token yang diatur
+                    Token
                     <select value={tokenId || ""} onChange={(e) => setTokenId(e.target.value || null)}>
                       <option value="">Pilih token…</option>
                       {scene.tokens.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}
@@ -924,140 +871,109 @@ export default function BoardTools({
                   </label>
                 )}
                 {editable && token ? (
-                  <details className="token-stats">
-                    <summary>{token.name} — buka statistik</summary>
-                    {(
-                      ["hp", "maxHp", "initiative", "visionRange", "lightRange"] as const
-                    ).filter(key => !["visionRange", "lightRange"].includes(key) || dm && dmMenu).map((key) => (
-                      <label key={key}>
-                        {
-                          {
-                            hp: "HP",
-                            maxHp: "HP maksimum",
-                            initiative: "Initiative",
-                            visionRange: `Jarak pandang (${scene.grid.unit})`,
-                            lightRange: `Jarak cahaya (${scene.grid.unit})`,
-                          }[key]
-                        }
-                        <input
-                          type="number"
-                          min={key === "initiative" ? -100 : 0}
-                          max={["visionRange", "lightRange"].includes(key) ? 1000 : 9999}
-                          value={token[key] ?? (key === "visionRange" ? 60 : 0)}
-                          onChange={(e) =>
-                            action({
-                              type: "token:update",
-                              id: token.id,
-                              [key]: e.target.valueAsNumber,
-                            })
-                          }
-                        />
-                      </label>
-                    ))}
-                    {conditions.map((c) => (
-                      <label className="board-checkbox" key={c}>
-                        <input
-                          type="checkbox"
-                          checked={token.conditions?.includes(c) || false}
-                          onChange={(e) =>
-                            action({
-                              type: "token:update",
-                              id: token.id,
-                              conditions: e.target.checked
-                                ? [...(token.conditions || []), c]
-                                : token.conditions?.filter((v) => v !== c) ||
-                                  [],
-                            })
-                          }
-                        />
-                        {c}
-                      </label>
-                    ))}
+                  <div className="token-editor">
+                    <div className="token-editor-head">
+                      <img src={token.image} alt="" />
+                      <strong>{token.name}</strong>
+                    </div>
+                    <div className="dm-grid-2">
+                      {(["hp", "maxHp", "ac", "initiative"] as const).map((key) => (
+                        <label key={key}>
+                          {{ hp: "HP", maxHp: "HP maks", ac: "AC", initiative: "Initiative" }[key]}
+                          <input type="number" min={key === "initiative" ? -100 : 0} max={9999} value={token[key] ?? 0} onChange={(e) => action({ type: "token:update", id: token.id, [key]: e.target.valueAsNumber })} />
+                        </label>
+                      ))}
+                    </div>
+                    <h4>Kondisi</h4>
+                    <div className="condition-chips">
+                      {conditions.map((c) => {
+                        const on = token.conditions?.includes(c) || false;
+                        return (
+                          <button type="button" key={c} className="condition-chip" aria-pressed={on} disabled={!connected} onClick={() => action({ type: "token:update", id: token.id, conditions: on ? token.conditions?.filter((v) => v !== c) || [] : [...(token.conditions || []), c] })}>
+                            {c}
+                          </button>
+                        );
+                      })}
+                    </div>
                     {dm && dmMenu && (
-                      <label className="board-checkbox">
-                        <input
-                          type="checkbox"
-                          checked={!!token.hidden}
-                          onChange={(e) =>
-                            action({
-                              type: "token:update",
-                              id: token.id,
-                              hidden: e.target.checked,
-                            })
-                          }
-                        />
-                        Sembunyikan dari pemain
-                      </label>
+                      <section className="dm-section">
+                        <h3>Khusus DM</h3>
+                        <label className="board-checkbox">
+                          <input type="checkbox" checked={!!token.hidden} onChange={(e) => action({ type: "token:update", id: token.id, hidden: e.target.checked })} />
+                          Sembunyikan dari pemain
+                        </label>
+                        <label className="board-checkbox">
+                          <input type="checkbox" checked={!!token.visionSource} onChange={(e) => action({ type: "token:update", id: token.id, visionSource: e.target.checked })} />
+                          Jadi sumber pandangan pemain
+                        </label>
+                        <div className="dm-grid-2">
+                          {(["visionRange", "lightRange"] as const).map((key) => (
+                            <label key={key}>
+                              {key === "visionRange" ? "Jarak pandang" : "Jarak cahaya"} ({scene.grid.unit})
+                              <input type="number" min={0} max={1000} value={token[key] ?? (key === "visionRange" ? 60 : 0)} onChange={(e) => action({ type: "token:update", id: token.id, [key]: e.target.valueAsNumber })} />
+                            </label>
+                          ))}
+                        </div>
+                      </section>
                     )}
-                  </details>
+                  </div>
                 ) : (
-                  <p>
-                    Pilih token milikmu untuk mengatur HP dan kondisi. DM dapat
-                    mengatur semua token.
+                  <p className="dm-hint">
+                    {dm ? "Klik token di peta atau pilih dari daftar untuk mengaturnya." : "Klik token milikmu di peta untuk mengatur HP dan kondisi."}
                   </p>
                 )}
               </>
             )}
-            {tab === "combat" && (
-              <>
-                <strong>
-                  {scene.combat.active
-                    ? `Ronde ${scene.combat.round}`
-                    : "Combat belum dimulai"}
-                </strong>
-                <ol>
-                  {(scene.combat.active ? scene.combat.ids.map((id) => scene.tokens.find((t) => t.id === id)).filter((t): t is NonNullable<typeof t> => !!t) : scene.tokens).map((t) => (
-                    <li key={t.id} className={scene.combat.ids[scene.combat.turn] === t.id ? "current-turn" : ""}>
-                      {t.name}{" "}
-                      {dm && dmMenu ? <label className="combat-initiative">Initiative <input type="number" min={-100} max={9999} value={t.initiative ?? 0} onChange={(e) => action({ type: "token:update", id: t.id, initiative: e.target.valueAsNumber })} /></label> : `(${t.initiative ?? 0})`}{" "}
-                      {t.conditions?.includes("Defeated") ? "Defeated" : ""}
-                    </li>
-                  ))}
-                </ol>
-                {dm && dmMenu && (
-                  <button
-                    disabled={!connected || !scene.tokens.length}
-                    onClick={() =>
-                      action({
-                        type: "combat:set",
-                        ids: scene.tokens.map((t) => t.id),
-                      })
-                    }
-                  >
-                    Mulai / urutkan semua token
-                  </button>
-                )}
-                {dm && dmMenu && (
-                  <button
-                    disabled={!connected || !scene.tokens.length}
-                    title="Roll d20 initiative untuk token tanpa sheet karakter, lalu mulai combat"
-                    onClick={() => action({ type: "combat:roll-npc" })}
-                  >
-                    Roll initiative semua NPC &amp; mulai
-                  </button>
-                )}
-                {scene.combat.active &&
-                  (dm ||
-                    scene.tokens.find(
-                      (t) => t.id === scene.combat.ids[scene.combat.turn],
-                    )?.ownerId === playerId) && (
-                    <button
-                      disabled={!connected}
-                      onClick={() => action({ type: "combat:next" })}
-                    >
+            {tab === "combat" && (() => {
+              const current = scene.tokens.find((t) => t.id === scene.combat.ids[scene.combat.turn]);
+              const canAdvance = scene.combat.active && (dm || current?.ownerId === playerId);
+              const list = scene.combat.active
+                ? scene.combat.ids.map((id) => scene.tokens.find((t) => t.id === id)).filter((t): t is NonNullable<typeof t> => !!t)
+                : scene.tokens;
+              return (
+                <>
+                  <div className="combat-status">
+                    <strong>{scene.combat.active ? `Ronde ${scene.combat.round}` : "Combat belum dimulai"}</strong>
+                    {scene.combat.active && current && <span>Giliran {current.name}</span>}
+                  </div>
+                  {canAdvance && (
+                    <button type="button" className="dm-primary" disabled={!connected} onClick={() => action({ type: "combat:next" })}>
                       Giliran berikutnya
                     </button>
                   )}
-                {dm && dmMenu && scene.combat.active && (
-                  <button
-                    disabled={!connected}
-                    onClick={() => action({ type: "combat:end" })}
-                  >
-                    Akhiri combat
-                  </button>
-                )}
-              </>
-            )}
+                  {dm && dmMenu && !scene.combat.active && (
+                    <>
+                      <button type="button" className="dm-primary" disabled={!connected || !scene.tokens.length} onClick={() => action({ type: "combat:roll-npc" })}>
+                        Mulai combat
+                      </button>
+                      <p className="dm-hint">NPC otomatis roll initiative. Token yang terhubung ke sheet memakai initiative pemiliknya.</p>
+                    </>
+                  )}
+                  <ol className="combat-list">
+                    {list.map((t) => (
+                      <li key={t.id} className={scene.combat.active && scene.combat.ids[scene.combat.turn] === t.id ? "current-turn" : ""}>
+                        <span>{t.name}{t.conditions?.includes("Defeated") ? " · Defeated" : ""}</span>
+                        {dm && dmMenu
+                          ? <input type="number" aria-label={`Initiative ${t.name}`} min={-100} max={9999} value={t.initiative ?? 0} onChange={(e) => action({ type: "token:update", id: t.id, initiative: e.target.valueAsNumber })} />
+                          : <b>{t.initiative ?? 0}</b>}
+                      </li>
+                    ))}
+                  </ol>
+                  {dm && dmMenu && (
+                    <div className="dm-row">
+                      <button type="button" disabled={!connected || !scene.tokens.length} title="Urutkan memakai angka initiative di daftar ini" onClick={() => action({ type: "combat:set", ids: scene.tokens.map((t) => t.id) })}>
+                        {scene.combat.active ? "Urutkan ulang" : "Mulai pakai angka ini"}
+                      </button>
+                      {scene.combat.active && (
+                        <button type="button" className="dm-danger" disabled={!connected} onClick={() => action({ type: "combat:end" })}>
+                          Akhiri combat
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
           <footer className="board-panel-footer">
             <span>

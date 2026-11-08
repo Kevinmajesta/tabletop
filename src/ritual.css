@@ -1,0 +1,253 @@
+/* Ritual Lingkaran Sihir. Malam ungu kehitaman, emas tipis, lilin berwarna, api ringan.
+   Animasi hanya memakai transform dan opacity. */
+.minigame-dialog:has(.ritual) {
+  width: min(980px, calc(100vw - 32px));
+  height: fit-content;
+  max-height: calc(100dvh - 32px);
+  background:
+    radial-gradient(ellipse 70% 60% at 30% 45%, #2a1d3a 0%, transparent 70%),
+    #120e17;
+  border-color: #6d5a3a;
+  color: #e9dcc0;
+}
+.minigame-dialog:has(.ritual) h2 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; letter-spacing: .02em; color: #e8cf96; }
+
+.ritual {
+  --gold: #d6b56f;
+  --gold-dim: #8a7448;
+  --ink: #e9dcc0;
+  --mute: #a99a80;
+  --night: #120e17;
+  --blood: #c0503f;
+  --wax-0: #b8463a;  /* Merah */
+  --wax-1: #3f68b5;  /* Biru */
+  --wax-2: #3e8a5a;  /* Hijau */
+  --wax-3: #7a52ad;  /* Ungu */
+  --wax-4: #d1a43f;  /* Emas */
+  --serif: Georgia, "Times New Roman", serif;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+  margin-top: 12px;
+}
+.ritual-intro { max-width: 60ch; color: #c9bba0; font-family: var(--serif); font-style: italic; line-height: 1.6; }
+
+/* Lingkaran */
+.ritual-stage { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.ritual-circle {
+  position: relative;
+  width: min(100%, 440px);
+  aspect-ratio: 1;
+  container-type: inline-size;
+}
+.ritual-sigil { position: absolute; inset: 9%; width: 82%; height: 82%; fill: none; stroke: var(--gold-dim); stroke-width: .8; opacity: .75; transition: opacity .6s ease; }
+.ritual-sigil .thin { stroke-dasharray: 2 4; opacity: .7; }
+.ritual-sigil polygon { stroke-width: .6; opacity: .65; }
+.ritual-sigil .core { fill: #1b1424; stroke: var(--gold); stroke-width: 1; }
+.ritual-win .ritual-sigil { stroke: var(--gold); opacity: 1; filter: drop-shadow(0 0 6px #d6b56f88); }
+.ritual-backfire .ritual-sigil,
+.ritual-lost .ritual-sigil { stroke: var(--blood); }
+.ritual-backfire .ritual-circle { animation: ritual-shake .45s ease-in-out 1; }
+
+.ritual-altar {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+  pointer-events: none;
+}
+.ritual-altar span { font-family: var(--serif); font-size: clamp(22px, 7cqw, 32px); color: var(--gold); }
+.ritual-altar small { margin-top: 3px; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: var(--mute); }
+
+/* Lilin */
+.minigame-dialog .ritual-candle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 54px;
+  height: 96px;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  color: var(--ink);
+  cursor: pointer;
+  transform: translate(-50%, -50%) rotate(var(--angle)) translateX(39cqw) rotate(calc(var(--angle) * -1));
+}
+.minigame-dialog .ritual-candle:disabled { cursor: default; opacity: 1; }
+.minigame-dialog .ritual-candle:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.ritual-candle:not(:disabled):hover .ritual-wax { transform: translateY(-2px); box-shadow: 0 0 0 1px #e8cf9688, 0 6px 14px #000a; }
+
+.ritual-flame {
+  width: 12px;
+  height: 20px;
+  margin-bottom: 2px;
+  border-radius: 50% 50% 45% 45% / 65% 65% 35% 35%;
+  background: radial-gradient(ellipse at 50% 75%, #fff8dc 0%, #ffd27a 35%, #f08a3c 70%, transparent 72%);
+  opacity: 0;
+  transform: scale(.4);
+  transform-origin: 50% 100%;
+  transition: opacity .35s ease, transform .35s ease;
+}
+.ritual-candle.lit .ritual-flame { opacity: 1; transform: none; animation: ritual-flicker 1.4s ease-in-out infinite alternate; }
+
+.ritual-wax {
+  position: relative;
+  width: 20px;
+  height: 40px;
+  border-radius: 5px 5px 2px 2px;
+  background:
+    linear-gradient(90deg, #ffffff26 0 30%, transparent 30% 70%, #00000033 70%),
+    var(--wax, #5d5762);
+  box-shadow: 0 4px 10px #0009;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.ritual-candle[data-hidden-color] .ritual-wax::after {
+  content: "?";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--serif);
+  font-size: 13px;
+  color: #d8cfe0aa;
+}
+/* Cahaya di sekitar lilin yang menyala, hanya opacity yang berubah */
+.ritual-candle::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  width: 92px;
+  height: 92px;
+  margin-left: -46px;
+  margin-top: -46px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffcf7a55 0%, #ffcf7a00 65%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s ease;
+}
+.ritual-candle.lit::before { opacity: 1; }
+
+.ritual-base {
+  width: 36px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50% / 40%;
+  background: linear-gradient(#2c2236, #1a1422);
+  border: 1px solid var(--gold-dim);
+  color: var(--gold);
+  font-size: 12px;
+  line-height: 1;
+}
+.ritual-num { margin-top: 3px; font-family: var(--serif); font-size: 11px; color: var(--mute); }
+.ritual-candle.lit .ritual-num { color: var(--gold); }
+.ritual-candle.wrong .ritual-base { border-color: var(--blood); color: #f2a090; box-shadow: 0 0 12px #c0503f88; }
+.ritual-candle.wrong .ritual-wax { animation: ritual-shake .45s ease-in-out 1; }
+
+/* Segel */
+.ritual-seals { display: flex; align-items: center; gap: 8px; }
+.ritual-seals span {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #d96a55, #8c2a22 70%);
+  box-shadow: inset 0 0 0 3px #00000033, 0 2px 6px #0008;
+  transition: opacity .4s ease, transform .4s ease;
+}
+.ritual-seals span.broken { opacity: .22; transform: scale(.82) rotate(-18deg); }
+.ritual-seals small { margin-left: 4px; font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--mute); }
+
+/* Gulungan petunjuk */
+.ritual-scroll {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid #4a3d2a;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #1d1724, #16111c);
+  box-shadow: inset 0 1px #ffffff0a;
+}
+.ritual-scroll header { display: flex; flex-direction: column; gap: 6px; }
+.ritual-kicker { font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--gold); }
+.ritual-scroll header p { margin: 0; font-size: 13px; line-height: 1.55; color: #c9bba0; }
+
+.ritual-status p { margin: 0; font-family: var(--serif); font-size: 16px; line-height: 1.45; color: var(--ink); }
+.ritual-status strong { color: var(--gold); font-weight: 400; }
+.ritual-status .good { color: #e8cf96; }
+.ritual-status .bad { color: #f0a596; }
+
+.ritual-steps { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.ritual-steps li {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 10px 10px 10px 4px;
+  border-top: 1px solid #ffffff0d;
+}
+.ritual-steps li:first-child { border-top: 0; }
+.ritual-step-num {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #4a3d2a;
+  border-radius: 50%;
+  font-family: var(--serif);
+  font-size: 12px;
+  color: var(--mute);
+}
+.ritual-steps p { margin: 4px 0 0; font-family: var(--serif); font-size: 15px; line-height: 1.45; color: var(--ink); }
+.ritual-steps p.sealed { font-style: italic; color: #7f7466; }
+.ritual-steps small { display: block; margin-top: 4px; font-size: 11px; color: var(--gold); letter-spacing: .06em; }
+.ritual-steps li.current .ritual-step-num { border-color: var(--gold); color: #1b1424; background: var(--gold); box-shadow: 0 0 12px #d6b56f66; }
+.ritual-steps li.done .ritual-step-num { border-color: var(--gold-dim); color: var(--gold); }
+.ritual-steps li.done p { color: #8f8574; }
+.ritual-steps li.mine.current p { color: #fff3d6; }
+.ritual-hint { margin: 0; font-size: 12px; line-height: 1.5; color: var(--mute); }
+
+@keyframes ritual-flicker {
+  0% { transform: scale(1, 1) rotate(-1deg); opacity: .95; }
+  50% { transform: scale(.92, 1.08) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1.04, .94) rotate(-2deg); opacity: .9; }
+}
+@keyframes ritual-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+}
+
+@media (max-width: 760px) {
+  .ritual { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+  .minigame-dialog .ritual-candle { width: 46px; height: 84px; }
+  .ritual-wax { width: 17px; height: 32px; }
+  .ritual-base { width: 30px; height: 19px; font-size: 11px; }
+  .ritual-scroll { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ritual-candle.lit .ritual-flame,
+  .ritual-backfire .ritual-circle,
+  .ritual-candle.wrong .ritual-wax { animation: none; }
+}
+
+/* Kunci rune dan warna */
+.ritual-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 6px 0 0; padding: 0; list-style: none; font-size: 12px; color: #c9bba0; }
+.ritual-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.ritual-legend b { width: 20px; height: 20px; display: grid; place-items: center; border: 1px solid #8a7448; border-radius: 50%; color: #d6b56f; font-weight: 400; font-size: 11px; }
+.ritual-legend i { width: 10px; height: 16px; border-radius: 3px 3px 1px 1px; box-shadow: 0 1px 3px #0008; }

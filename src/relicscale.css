@@ -1,0 +1,127 @@
+/* Timbangan Relik: neraca kuningan yang miring sesuai hasil, relik berupa koin emas. */
+.rs-layout { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 24px; align-items: start; }
+.rs-main { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+
+.rs-balance { position: relative; height: 230px; max-width: 560px; width: 100%; margin: 0 auto; }
+.rs-stand { position: absolute; left: 50%; top: 0; width: 400px; max-width: 100%; height: 150px; transform: translateX(-50%); fill: none; stroke: #8a6c3c; stroke-width: 5; stroke-linecap: round; }
+.rs-stand circle { fill: #cfa95f; stroke: #6b5432; stroke-width: 2; }
+.rs-beam {
+  position: absolute;
+  left: 50%;
+  top: 30px;
+  width: 72%;
+  height: 8px;
+  margin-left: -36%;
+  border-radius: 4px;
+  background: linear-gradient(#e2c27f, #9c7a3e);
+  box-shadow: 0 2px 6px #000a;
+  transform-origin: 50% 50%;
+  transition: transform .8s cubic-bezier(.3, 1.4, .5, 1);
+}
+.rs-beam i { position: absolute; top: 6px; width: 2px; height: 40px; background: #8a6c3c; }
+.rs-beam i:first-child { left: 4%; }
+.rs-beam i:last-child { right: 4%; }
+.rs-pan {
+  position: absolute;
+  top: 72px;
+  width: 40%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: transform .8s cubic-bezier(.3, 1.4, .5, 1);
+}
+.rs-pan.left { left: 0; }
+.rs-pan.right { right: 0; }
+.rs-pan-label { font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--mg-mute); }
+.rs-dish {
+  width: 100%;
+  min-height: 82px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 10px 18px;
+  border-bottom: 3px solid #b28c4c;
+  border-radius: 0 0 50% 50% / 0 0 34px 34px;
+  background: linear-gradient(180deg, transparent 30%, #cfa95f14);
+}
+.rs-dish em, .rs-pool em { font-family: var(--mg-serif); font-size: 13px; color: var(--mg-dim); }
+.rs-balance[data-tilt="left-light"] .rs-beam { transform: rotate(7deg); }
+.rs-balance[data-tilt="left-light"] .rs-pan.left { transform: translateY(-22px); }
+.rs-balance[data-tilt="left-light"] .rs-pan.right { transform: translateY(22px); }
+.rs-balance[data-tilt="right-light"] .rs-beam { transform: rotate(-7deg); }
+.rs-balance[data-tilt="right-light"] .rs-pan.left { transform: translateY(22px); }
+.rs-balance[data-tilt="right-light"] .rs-pan.right { transform: translateY(-22px); }
+
+.minigame-dialog .rs-relic {
+  width: 52px;
+  height: 52px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  border: 1px solid #8a6c3c;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f6dc9c, #c99a46 55%, #8a6326);
+  box-shadow: inset 0 -3px 4px #0005, 0 3px 6px #0008;
+  color: #3a2a12;
+}
+.rs-relic span { font-size: 17px; line-height: 1; }
+.rs-relic small { font-size: 10px; font-weight: 700; }
+.minigame-dialog .rs-relic:hover:not(:disabled) { transform: translateY(-2px); }
+.minigame-dialog .rs-relic.picked { outline: 2px solid #f3e3bd; outline-offset: 3px; box-shadow: 0 0 16px #cfa95f99; }
+.minigame-dialog .rs-relic:disabled { opacity: 1; cursor: default; }
+
+.rs-table { display: flex; flex-direction: column; gap: 10px; padding: 16px; border: 1px solid var(--mg-line); border-radius: 6px; background: var(--mg-panel); }
+.rs-pool { display: flex; flex-wrap: wrap; gap: 8px; min-height: 52px; }
+.rs-hint { font-size: 13px; color: var(--mg-mute); }
+.rs-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.rs-actions .primary { margin-left: auto; min-width: 120px; }
+
+.rs-side { display: flex; flex-direction: column; gap: 16px; }
+.rs-ledger { display: flex; flex-direction: column; gap: 8px; }
+.rs-ledger ol { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.rs-ledger li { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border: 1px solid var(--mg-line); border-radius: 4px; background: var(--mg-panel); }
+.rs-ledger-pans { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; font-variant-numeric: tabular-nums; }
+.rs-ledger-pans b { font-weight: 600; color: var(--mg-ink); }
+.rs-ledger-pans i { font-size: 11px; font-style: normal; color: var(--mg-mute); }
+.rs-ledger strong { font-family: var(--mg-serif); font-size: 15px; font-weight: 400; color: #f3e3bd; }
+.rs-ledger strong[data-result="balanced"] { color: var(--mg-mute); }
+.rs-empty { font-size: 13px; color: var(--mg-dim); }
+
+.rs-guess { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid #5c4a2e; border-radius: 6px; background: #1f1810; }
+.rs-guess-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.minigame-dialog .rs-chip {
+  min-height: 38px;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 1px solid #4a3d2a;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--mg-ink);
+  font-variant-numeric: tabular-nums;
+}
+.minigame-dialog .rs-chip span { color: var(--mg-brass); }
+.minigame-dialog .rs-chip[aria-checked="true"] { border-color: #e0675d; background: #3a1d17; color: #ffd9cf; box-shadow: 0 0 0 1px #e0675d55; }
+
+@media (max-width: 820px) {
+  .rs-layout { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 480px) {
+  .rs-balance { height: 210px; }
+  .minigame-dialog .rs-relic { width: 44px; height: 44px; }
+  .rs-actions .primary { margin-left: 0; flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .rs-beam, .rs-pan { transition: none; }
+  .minigame-dialog .rs-relic:hover:not(:disabled) { transform: none; }
+}

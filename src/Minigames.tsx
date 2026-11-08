@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { Socket } from 'socket.io-client';
 import type { Game } from '../server/minigames';
-import { gameCatalog } from '../server/game-catalog';
+import { gameCatalog, fixedPlayers } from '../server/game-catalog';
 import './minigames.css';
 import Crossword from './Crossword';
 import CoopPuzzle from './CoopPuzzle';
@@ -12,6 +12,10 @@ import Cryptex from './Cryptex';
 import TileFloor from './TileFloor';
 import Whodunit from './Whodunit';
 import Lockpick from './Lockpick';
+import Ritual from './Ritual';
+import QuickMath from './QuickMath';
+import MirrorRoom from './MirrorRoom';
+import WireHack from './WireHack';
 
 export const gameNames = Object.fromEntries(Object.entries(gameCatalog).map(([kind, entry]) => [kind, entry.name]));
 const choices: Record<string, string> = { rock: 'Batu', paper: 'Kertas', scissors: 'Gunting' };
@@ -61,13 +65,28 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
   const openParty = (game?.kind === 'crossword' || game?.kind === 'ttspilihan') || game?.kind === 'seating' || game?.kind === 'wallclock' || game?.kind === 'relicscale' || game?.kind === 'journal' || game?.kind === 'cryptex' || game?.kind === 'whodunit' || game?.kind === 'lockpick';
   const name = (id: string) => members.find(member => member.id === id)?.name || 'Pemain';
   return <section className="minigames">{dm && <details ref={tokenMenu}>
-      <summary>Token minigame · {games.length}</summary>
-      <button type="button" aria-label="Tutup menu token minigame" onClick={() => { if (tokenMenu.current) { tokenMenu.current.open = false; tokenMenu.current.querySelector('summary')?.focus(); } }}>×</button>
-    <p>Token siap pakai. Keluarkan ke peta, lalu klik token untuk deklarasikan permainan.</p><div className="minigame-actions">{Object.entries(gameCatalog).filter(([kind]) => kind !== 'crossword').map(([kind, entry]) => <button key={kind} disabled={disabled} onClick={() => send({ type: 'create', kind })}>Keluarkan {entry.name} · {entry.mode === 'duel' ? '1v1' : 'Semua pemain'}</button>)}</div>
-    {!!games.length && <p>GM deklarasikan peserta. Layar peserta otomatis membuka permainan.</p>}
-    <div className="minigame-token-list">{games.map(item => <div key={item.tokenId}><button onClick={() => onOpen(item.tokenId)}>{gameNames[item.kind]} · ronde {item.round}</button><button className="remove-action" aria-label={`Hapus ${gameNames[item.kind]} dari map`} title="Hapus token dari map" disabled={disabled} onClick={() => remove(item)}>Hapus</button></div>)}</div>
-    {!!games.length && <p>Geser token dengan Shift sambil menyeret. Hapus menghilangkan token dan seluruh ronde game.</p>}
-    {!game && error && <p role="alert">{error}</p>}
+      <summary>Minigame{games.length ? ` · ${games.length} di peta` : ''}</summary>
+      <div className="minigame-menu">
+        <header className="minigame-menu-head">
+          <div><strong>Token minigame</strong><p>Keluarkan token ke peta, lalu klik tokennya untuk mendeklarasikan peserta.</p></div>
+          <button type="button" aria-label="Tutup menu token minigame" onClick={() => { if (tokenMenu.current) { tokenMenu.current.open = false; tokenMenu.current.querySelector('summary')?.focus(); } }}>×</button>
+        </header>
+        {!game && error && <p role="alert">{error}</p>}
+        {!!games.length && <section className="minigame-menu-group">
+          <h4>Di peta sekarang</h4>
+          <div className="minigame-token-list">{games.map(item => <div key={item.tokenId}><button onClick={() => onOpen(item.tokenId)}>{gameNames[item.kind]} · ronde {item.round}</button><button className="remove-action" aria-label={`Hapus ${gameNames[item.kind]} dari map`} title="Hapus token dari map" disabled={disabled} onClick={() => remove(item)}>Hapus</button></div>)}</div>
+          <p>Geser token dengan Shift sambil menyeret. Hapus menghilangkan token dan seluruh ronde game.</p>
+        </section>}
+        {([['party', 'Semua pemain'], ['duel', '1 lawan 1'], ['solo', '1 pemain']] as const).map(([mode, label]) => {
+          const list = Object.entries(gameCatalog).filter(([kind, entry]) => kind !== 'crossword' && entry.mode === mode);
+          return list.length ? <section key={mode} className="minigame-menu-group">
+            <h4>{label}</h4>
+            <div className="minigame-create-grid">{list.map(([kind, entry]) => <button key={kind} type="button" className="minigame-create" disabled={disabled} onClick={() => send({ type: 'create', kind })} aria-label={`Keluarkan ${entry.name}`}>
+              <b aria-hidden="true">{entry.mark}</b><span>{entry.name}</span>
+            </button>)}</div>
+          </section> : null;
+        })}
+      </div>
     </details>}
     {game && <dialog ref={dialog} className={`minigame-dialog ${game.kind === 'cooprooms' ? 'coop-dialog' : ''}`} onCancel={onClose} aria-labelledby="minigame-title">
       <header><h2 id="minigame-title">{gameNames[game.kind]}</h2><button onClick={onClose} aria-label="Tutup permainan">Tutup</button></header>
@@ -77,29 +96,24 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
       {!openParty && !game.players.length && <p>Menunggu GM deklarasikan peserta.</p>}
       {!openParty && !dm && !game.players.includes(playerId) && <p>Kamu penonton. Aksi permainan hanya untuk peserta yang dipilih GM.</p>}
       {game.phase === 'waiting' && <div className="minigame-actions">
-        {dm && !openParty && game.kind !== 'cooprooms' && <fieldset className="minigame-participants"><legend>{gameCatalog[game.kind].mode === 'duel' ? 'Pilih dua peserta 1v1' : 'Seluruh pemain online menjadi peserta'}</legend>
-          {gameCatalog[game.kind].mode === 'duel' && members.filter(member => member.online).map(member => <label key={member.id}><input type="checkbox" checked={participants.includes(member.id)} disabled={disabled || (!participants.includes(member.id) && participants.length >= 2)} onChange={e => setParticipants(current => e.target.checked ? [...current, member.id] : current.filter(id => id !== member.id))} />{member.name}{member.dm ? ' (GM)' : ''}</label>)}
-          <button disabled={disabled || (gameCatalog[game.kind].mode === 'duel' && participants.length !== 2)} onClick={() => send({ type: 'declare', players: participants })}>Deklarasikan {gameNames[game.kind]}</button>
+        {dm && !openParty && game.kind !== 'cooprooms' && <fieldset className="minigame-participants"><legend>{fixedPlayers(game.kind) === 2 ? 'Pilih dua peserta 1v1' : fixedPlayers(game.kind) === 1 ? 'Pilih satu pemain' : 'Seluruh pemain online menjadi peserta'}</legend>
+          {fixedPlayers(game.kind) > 0 && members.filter(member => member.online).map(member => <label key={member.id}><input type="checkbox" checked={participants.includes(member.id)} disabled={disabled || (fixedPlayers(game.kind) === 2 && !participants.includes(member.id) && participants.length >= 2)} onChange={e => setParticipants(current => fixedPlayers(game.kind) === 1 ? (e.target.checked ? [member.id] : []) : e.target.checked ? [...current, member.id] : current.filter(id => id !== member.id))} />{member.name}{member.dm ? ' (GM)' : ''}</label>)}
+          <button disabled={disabled || (fixedPlayers(game.kind) > 0 && participants.length !== fixedPlayers(game.kind))} onClick={() => send({ type: 'declare', players: participants })}>Deklarasikan {gameNames[game.kind]}</button>
         </fieldset>}
         {dm && <button disabled={disabled || (!openParty && game.players.length < (gameCatalog[game.kind].mode === 'duel' ? 2 : 1))} onClick={() => send({ type: 'start' })}>Mulai ronde</button>}
       </div>}
       {game.kind === 'journal' && <TornJournal key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}
       {game.kind === 'whodunit' && <Whodunit key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}
       {game.kind === 'tilefloor' && game.players.length === 2 && <TileFloor key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
+      {game.kind === 'wirehack' && <WireHack key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
+      {game.kind === 'mirrors' && <MirrorRoom key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} />}
+      {game.kind === 'ritual' && <Ritual key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
       {game.kind === 'lockpick' && <Lockpick key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}
       {game.kind === 'cryptex' && <Cryptex key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} dm={dm} />}
       {game.kind === 'relicscale' && <RelicScale key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}
       {game.kind === 'wallclock' && <WallClock key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}
       {game.kind === 'cooprooms' && <CoopPuzzle game={game} disabled={disabled} send={send} dm={dm} members={members} />}
-      {game.kind === 'quickmath' && <>
-        <p>Sepuluh soal acak dari server. Jawaban benar pertama tiap soal mendapat 1 poin; jawaban salah boleh dicoba lagi.</p>
-        {game.phase !== 'waiting' && <><p>Soal {Math.min(game.turn + 1, 10)} dari 10</p><h3 className="quickmath-question" aria-live="polite">{game.question} = ?</h3></>}
-        {game.phase === 'open' && (dm || game.players.includes(playerId)) && <form onSubmit={e => { e.preventDefault(); if (/^\d+$/.test(response.trim())) send({ type: 'answer', round: game.round, question: game.turn, answer: Number(response.trim()) }); }}>
-          <label>Jawaban<input type="text" inputMode="numeric" pattern="[0-9]+" required maxLength={4} value={response} disabled={disabled} onChange={e => setResponse(e.target.value)} /></label>
-          <button disabled={disabled || !/^\d+$/.test(response.trim())}>Kirim jawaban</button>
-        </form>}
-        {game.phase === 'finished' && <p role="status">Selesai. Jawaban terakhir: {game.question} = {game.answer}.</p>}
-      </>}
+      {game.kind === 'quickmath' && <QuickMath key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} dm={dm} name={name} />}
       {game.kind === 'drawing' && <>
         <p>Player 1 menggambar. Player 2 menebak. Tiga ronde: hewan, makanan, lalu buah.</p>
         {game.phase !== 'waiting' && <><p>Ronde {Math.min((game.drawingRound || 0) + 1, 3)} dari 3</p>

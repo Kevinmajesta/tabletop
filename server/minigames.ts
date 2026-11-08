@@ -1,5 +1,5 @@
-import { gameCatalog, type GameKind } from './game-catalog.js';
-export { gameCatalog, gameKinds } from './game-catalog.js';
+import { gameCatalog, fixedPlayers, type GameKind } from './game-catalog.js';
+export { gameCatalog, gameKinds, fixedPlayers } from './game-catalog.js';
 export type { GameKind } from './game-catalog.js';
 import { ttsPilihanEntries } from './tts-pilihan.js';
 import { coopAction, coopView, type CoopState } from './coop-rooms.js';
@@ -9,6 +9,9 @@ import { newLock, validLock, score, marksOf, lockView, lockLength, lockTries, ty
 import { newWhodunit, checkWhodunit, whodunitReveal, suspects, type WhodunitState } from './whodunit.js';
 import { newTiles, tilesView, adjacent, isSafe, tileFall, armTimer, tileCols, tileRows, type TileState } from './tilefloor.js';
 import { newCryptex, checkCryptex, cryptexView, type CryptexState } from './cryptex.js';
+import { newRitual, ritualLight, ritualView, type RitualState, type RitualView } from './ritual.js';
+import { newMirrors, mirrorAction, mirrorMinPlayers, mirrorMaxPlayers, type MirrorState } from './mirrors.js';
+import { newWires, wireAction, wireView, type WireState } from './wirehack.js';
 const bombOrders = [['red', 'blue', 'yellow'], ['yellow', 'red', 'blue'], ['blue', 'yellow', 'red'], ['green', 'red', 'black'], ['black', 'yellow', 'green'], ['black', 'green', 'yellow']];
 const bombKeypads = [['☾', '★', '☂', '♜'], ['☂', '♜', '☾', '★'], ['★', '☂', '♜', '☾']];
 const wireSymbols = ['BURUNG', 'MAHKOTA', 'MATA', 'PEDANG'];
@@ -76,7 +79,7 @@ function bombModules(randomInt: (max: number) => number): BombModule[] {
   ];
 }
 export type Game = {
-  coop?: CoopState; scale?: ScaleState; journal?: JournalState; cryptex?: CryptexState; whodunit?: WhodunitState; lock?: LockState; tiles?: TileState;
+  coop?: CoopState; scale?: ScaleState; journal?: JournalState; cryptex?: CryptexState; whodunit?: WhodunitState; lock?: LockState; tiles?: TileState; ritual?: RitualState | RitualView; mirrors?: MirrorState; wirehack?: WireState;
   tokenId: string; kind: GameKind; round: number; phase: 'waiting' | 'open' | 'finished';
   players: string[]; scores: Record<string, number>; choices: Record<string, string>;
   result: string;
@@ -105,6 +108,10 @@ export function closeMemoryMismatch(game: Game, now = Date.now()) {
 export function gameView(game: Game, playerId: string, dm: boolean): Game {
   const { coop, scale, journal, cryptex, whodunit, lock, tiles, answer, memoryBoard, memoryOpen, wires, bombModules, cipherLayers: layers, crosswordEntries: entries, seatingSolution, drawingChoices, drawingWord, ...view } = game;
   if (game.kind === 'cooprooms') return { ...view, coop: coopView(game, playerId, dm) };
+  if (game.kind === 'wirehack') { const { wirehack, ...rest } = view as Game; return { ...rest, ...(wirehack && game.phase !== 'waiting' ? { wirehack: wireView(wirehack, dm, game.phase === 'finished') } : {}) } as Game; }
+  // Ruang Cermin Cahaya tidak punya rahasia: semua pemain melihat ruangan yang sama.
+  if (game.kind === 'mirrors') { const { mirrors, ...rest } = view as Game; return { ...rest, ...(mirrors && game.phase !== 'waiting' ? { mirrors } : {}) } as Game; }
+  if (game.kind === 'ritual') { const { ritual, ...rest } = view as Game; return { ...rest, ...(ritual && game.phase !== 'waiting' ? { ritual: ritualView(ritual as RitualState, game.players.indexOf(playerId), game.players.length, dm, game.phase === 'finished') } : {}) } as Game; }
   const memoryViewer = game.players.indexOf(playerId);
   const canSeeMemoryOpen = memoryViewer < 0 || memoryViewer === game.turn;
   const filteredMemoryBoard = memoryBoard?.map((card, i) =>
@@ -124,7 +131,8 @@ export function gameView(game: Game, playerId: string, dm: boolean): Game {
 }
 export function declareGame(game: Game, participants: string[]): string | null {
   if (game.phase !== 'waiting') return 'Reset ronde sebelum deklarasi berikutnya.';
-  if (new Set(participants).size !== participants.length || participants.length < 1 || (gameCatalog[game.kind].mode === 'duel' && participants.length !== 2)) return 'Pilih tepat dua pemain untuk permainan 1v1.';
+  const fixed = fixedPlayers(game.kind);
+  if (new Set(participants).size !== participants.length || participants.length < 1 || (fixed && participants.length !== fixed)) return fixed === 1 ? 'Pilih tepat satu pemain.' : 'Pilih tepat dua pemain untuk permainan 1v1.';
   game.players = [...participants];
   for (const id of participants) if (!Object.hasOwn(game.scores, id)) Object.defineProperty(game.scores, id, { value: 0, writable: true, enumerable: true, configurable: true });
   game.declaration = (game.declaration || 0) + 1;
@@ -140,6 +148,10 @@ function nextQuickMath(game: Game, randomInt: (max: number) => number) {
 }
 export function gameAction(game: Game, playerId: string, dm: boolean, action: Record<string, unknown>, randomInt?: (max: number) => number): string | null {
   if (game.kind === 'cooprooms') return coopAction(game, playerId, dm, action);
+  if (game.kind === 'wirehack' && String(action.type).startsWith('wire:')) return wireAction(game, playerId, dm, action, randomInt);
+  // Log Ruang Cermin Cahaya menyimpan penanda @indeks; tampilan menggantinya dengan nama pemain.
+  if (game.kind === 'mirrors' && String(action.type).startsWith('mirror:')) return mirrorAction(game, playerId, action, randomInt, i => `@${i}`);
+  if (game.kind === 'ritual' && action.type === 'ritual:light') return ritualLight(game as Game & { ritual?: RitualState }, playerId, action.candle);
   const fail = 'Aksi tidak tersedia pada ronde ini.';
   const partyActions = ['cipher:answer'];
   if (partyActions.includes(String(action.type)) && !dm && !game.players.includes(playerId)) {
@@ -147,7 +159,7 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
   }
   if (action.type === 'join') {
     if (game.declaration) return 'Peserta ditentukan GM lewat deklarasi token.';
-    if (game.phase !== 'waiting' || game.players.includes(playerId) || game.players.length >= (gameCatalog[game.kind].mode === 'duel' ? 2 : 20)) return fail;
+    if (game.phase !== 'waiting' || game.players.includes(playerId) || game.players.length >= (fixedPlayers(game.kind) || 20)) return fail;
     game.players.push(playerId);
     if (!Object.hasOwn(game.scores, playerId)) Object.defineProperty(game.scores, playerId, { value: 0, writable: true, enumerable: true, configurable: true });
   } else if (action.type === 'leave') {
@@ -200,13 +212,23 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
         `${solution[8]} duduk bersebelahan dengan ${solution[0]}.`,
       ];
     } else if (game.kind === 'journal') {
-      if (!randomInt) return 'Pembuat acak tidak tersedia.';
-      game.journal = newJournal(randomInt);
+      game.journal = newJournal();
     } else if (game.kind === 'lockpick') {
       if (!randomInt) return 'Pembuat acak tidak tersedia.';
       game.lock = newLock(randomInt);
     } else if (game.kind === 'whodunit') {
       game.whodunit = newWhodunit();
+    } else if (game.kind === 'wirehack') {
+      if (!randomInt) return 'Pembuat acak tidak tersedia.';
+      if (game.players.length !== 1) return 'Retas Panel Kabel dimainkan tepat satu peretas.';
+      game.wirehack = newWires(randomInt);
+    } else if (game.kind === 'mirrors') {
+      if (!randomInt) return 'Pembuat acak tidak tersedia.';
+      if (game.players.length < mirrorMinPlayers || game.players.length > mirrorMaxPlayers) return `Ruang Cermin Cahaya butuh ${mirrorMinPlayers} sampai ${mirrorMaxPlayers} pemain.`;
+      game.mirrors = newMirrors(game.players.length, randomInt);
+    } else if (game.kind === 'ritual') {
+      if (!randomInt) return 'Pembuat acak tidak tersedia.';
+      game.ritual = newRitual(randomInt);
     } else if (game.kind === 'tilefloor') {
       if (!randomInt) return 'Pembuat acak tidak tersedia.';
       game.tiles = newTiles(randomInt);
@@ -330,18 +352,20 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
       game.scores[playerId] = (game.scores[playerId] || 0) + 1;
       game.phase = 'finished';
     }
-  } else if (action.type === 'journal:order') {
+  } else if (action.type === 'journal:answer') {
     if (game.kind !== 'journal' || game.phase !== 'open' || !game.journal) return fail;
-    if (!Array.isArray(action.order) || action.order.some(id => typeof id !== 'string')) return fail;
-    game.journal.order = action.order as string[];
-  } else if (action.type === 'journal:submit') {
-    if (game.kind !== 'journal' || game.phase !== 'open' || !game.journal) return fail;
-    const verdict = checkJournal(game.journal, action.order);
-    if (verdict === 'invalid') return 'Susun kesepuluh halaman, masing-masing sekali.';
+    const index = action.index as number;
+    const verdict = checkJournal(game.journal, index, action.text);
+    if (verdict === 'invalid') return 'Pertanyaan atau jawaban tidak valid.';
+    if (verdict === 'done') return 'Pertanyaan ini sudah terjawab.';
     if (verdict === 'right') {
-      game.result = playerId;
-      game.scores[playerId] = (game.scores[playerId] || 0) + 1;
-      game.phase = 'finished';
+      game.journal.solved[index] = true;
+      game.result = 'right';
+      if (game.journal.solved.every(Boolean)) {
+        game.result = playerId;
+        game.scores[playerId] = (game.scores[playerId] || 0) + 1;
+        game.phase = 'finished';
+      }
     } else {
       // Not an error return: errors skip save/broadcast. The counter lets every client show the miss.
       game.journal.attempts++;

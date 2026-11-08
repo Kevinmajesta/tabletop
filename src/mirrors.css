@@ -1,0 +1,83 @@
+/* Ruang Cermin Cahaya: lantai batu dungeon, cahaya emas yang memantul, cermin berwarna pemiliknya. */
+.mr-layout { display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 24px; align-items: start; }
+.mr-main { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.mr-room-head { display: flex; flex-direction: column; gap: 4px; }
+.mr-room-head h3 { margin: 0; font-family: var(--mg-serif); font-size: 24px; font-weight: 400; color: #f3e3bd; }
+.mr-room-head p { max-width: 62ch; font-family: var(--mg-serif); font-size: 15px; line-height: 1.55; color: #cfc2a6; font-style: italic; }
+
+.mr-board {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #3a3124;
+  border-radius: 10px;
+  background: radial-gradient(ellipse at 50% 40%, #241d15 0%, #0b0907 80%);
+  box-shadow: inset 0 0 40px #000;
+  transition: box-shadow .8s ease;
+}
+.mr-board.cleared { box-shadow: inset 0 0 40px #000, 0 0 40px #ffd77a33; }
+.mr-board svg { display: block; width: 100%; height: auto; max-width: 100%; }
+
+.mr-floor { fill: #2b241b; stroke: #1a150f; stroke-width: .02; }
+.mr-floor.alt { fill: #262017; }
+
+.mr-pillar rect { fill: #4a4033; stroke: #18130d; stroke-width: .03; }
+.mr-pillar .top { fill: #5c5040; stroke: none; }
+
+.mr-source .core { fill: #fffbe6; }
+.mr-source .dir { fill: #7a4b12; }
+
+.mr-crystal path { fill: #4b5d7a; stroke: #9db4d9; stroke-width: .03; transition: fill .4s ease; }
+.mr-crystal .aura { fill: transparent; transition: fill .4s ease; }
+.mr-crystal.lit path { fill: #cfe4ff; stroke: #ffffff; }
+.mr-crystal.lit .aura { fill: #bcd8ff33; }
+
+.mr-door .ring { fill: #1a140d; stroke: #8a6c3c; stroke-width: .05; transition: fill .4s ease, stroke .4s ease; }
+.mr-door text { fill: #8a6c3c; font-size: .42px; font-family: Georgia, serif; transition: fill .4s ease; }
+.mr-door.lit .ring { fill: #ffd77a; stroke: #fff4d0; }
+.mr-door.lit text { fill: #3a2508; }
+
+.mr-beam polyline { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.mr-beam .halo { stroke: #ffd77a; stroke-width: .28; opacity: .18; }
+.mr-beam .core { stroke: #fff2c4; stroke-width: .07; }
+.mr-beam.hit .halo { opacity: .32; animation: mr-pulse 2.4s ease-in-out infinite; }
+
+.mr-mirror .base { fill: #1f1912; stroke: var(--mc); stroke-width: .035; stroke-opacity: .55; }
+.mr-mirror .glass { stroke: var(--mc); stroke-width: .11; stroke-linecap: round; }
+.mr-mirror .tag { fill: var(--mc); }
+.mr-mirror.mine { cursor: pointer; }
+.mr-mirror.mine .base { stroke-opacity: 1; stroke-width: .05; }
+.mr-mirror.mine:hover .base, .mr-mirror.mine:focus-visible .base { fill: #3a2f20; }
+.mr-mirror.mine:focus-visible { outline: none; }
+.mr-mirror.mine:focus-visible .base { stroke: #f3e3bd; stroke-width: .07; }
+
+.mr-side { display: flex; flex-direction: column; gap: 16px; }
+.mr-you { display: flex; align-items: center; gap: 8px; margin: 0; font-size: 14px; line-height: 1.5; color: var(--mg-ink); }
+.mr-you i { flex: none; width: 14px; height: 14px; border-radius: 3px; background: var(--mc, #6f6553); }
+.mr-you b { color: var(--mc); }
+.mr-cleared { display: flex; flex-direction: column; gap: 10px; }
+.mg-alert svg { vertical-align: -3px; }
+
+.mr-party { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.mr-party li { display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 4px; background: var(--mg-panel); font-size: 14px; }
+.mr-party i { width: 14px; height: 14px; border-radius: 3px; background: var(--mc); }
+.mr-party span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mr-party small { font-size: 12px; color: var(--mg-mute); }
+
+.mr-stars { display: inline-flex; gap: 2px; }
+.mr-stars svg { color: #4a3d2a; }
+.mr-stars svg.on { color: #f2d48a; fill: #f2d48a; }
+
+.mr-progress { display: flex; flex-direction: column; gap: 8px; }
+.mr-progress ol { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.mr-progress li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border: 1px solid transparent; border-radius: 4px; background: var(--mg-panel); font-size: 14px; color: var(--mg-mute); }
+.mr-progress li.current { border-color: var(--mg-brass); color: var(--mg-ink); }
+.mr-progress li.done { color: var(--mg-ink); }
+
+.mr-log { display: flex; flex-direction: column; gap: 8px; }
+.mr-log ol { display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow: auto; margin: 0; padding: 0; list-style: none; }
+.mr-log li { padding: 7px 10px; border-radius: 4px; background: var(--mg-panel); font-size: 13px; line-height: 1.45; color: var(--mg-mute); }
+
+@keyframes mr-pulse { 0%, 100% { opacity: .22; } 50% { opacity: .42; } }
+@media (max-width: 860px) { .mr-layout { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 520px) { .mr-board { padding: 6px; } .mr-room-head h3 { font-size: 20px; } }
+@media (prefers-reduced-motion: reduce) { .mr-beam.hit .halo { animation: none; } .mr-board, .mr-crystal path, .mr-door .ring { transition: none; } }

@@ -71,17 +71,18 @@ test('Cryptex: cryptex:draft syncs current entered text in realtime across playe
   assert.equal(viewB.cryptex.chamber.answer, undefined); // secret answer remains hidden
 });
 
-test('TornJournal: journal:order syncs placed pages in realtime across players', () => {
+test('TornJournal: a correct journal:answer is visible to every player in realtime', () => {
   const g = newGame('jn', 'journal');
   assert.equal(act(g, 'gm', 'start', {}, true, () => 0), null);
   assert.equal(g.phase, 'open');
 
-  // Player A places page 'B' and 'A'
-  assert.equal(act(g, 'playerA', 'journal:order', { order: ['B', 'A'] }), null);
+  // Player A answers question 2 correctly
+  assert.equal(act(g, 'playerA', 'journal:answer', { index: 1, text: 'empat' }), null);
 
-  // Player B sees the placed order in realtime
+  // Player B sees it solved, without the answer text
   const viewB = gameView(g, 'playerB', false);
-  assert.deepEqual(viewB.journal.order, ['B', 'A']);
+  assert.deepEqual(viewB.journal.solved, [false, true, false, false, false]);
+  assert.equal(viewB.journal.solution, undefined);
 });
 
 test('RelicScale: scale:place syncs relics on scale pans in realtime across players', () => {

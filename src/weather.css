@@ -1,0 +1,94 @@
+/* Efek suasana di atas peta. Ikut bergeser dan zoom bersama peta.
+   Animasi hanya transform dan opacity (GPU), tanpa filter blur, supaya tidak berat. */
+.weather { position: absolute; inset: 0; z-index: 3; overflow: hidden; pointer-events: none; border-radius: inherit; }
+.weather > i { position: absolute; inset: -40%; background-repeat: repeat; will-change: transform; }
+
+/* Hujan: rintik miring dua lapis */
+.weather-rain > i, .weather-storm > i {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><g stroke='%23c9dcff' stroke-opacity='.42' stroke-width='1.1' stroke-linecap='round'><line x1='10' y1='4' x2='6' y2='26'/><line x1='48' y1='30' x2='44' y2='52'/><line x1='86' y1='8' x2='82' y2='30'/><line x1='28' y1='68' x2='24' y2='90'/><line x1='70' y1='78' x2='66' y2='100'/><line x1='108' y1='56' x2='104' y2='78'/><line x1='96' y1='96' x2='92' y2='118'/></g></svg>");
+  background-size: 120px 120px;
+  animation: weather-fall-rain .55s linear infinite;
+}
+.weather-rain > i:last-child, .weather-storm > i:last-child { background-size: 90px 90px; opacity: .6; animation-duration: .8s; }
+.weather-rain { background: linear-gradient(#1a2a3a22, #0a142233); }
+.weather-storm { background: linear-gradient(#0c162455, #050a1366); }
+.weather-storm > i { animation-duration: .38s; }
+.weather-storm > i:last-child { animation-duration: .5s; }
+.weather-storm::after { content: ""; position: absolute; inset: 0; background: #e8f0ff; opacity: 0; animation: weather-lightning 9s linear infinite; }
+
+/* Salju: butiran turun pelan sambil melayang */
+.weather-snow > i {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><g fill='%23ffffff'><circle cx='20' cy='30' r='3' fill-opacity='.8'/><circle cx='90' cy='12' r='1.4' fill-opacity='.6'/><circle cx='150' cy='60' r='3.2' fill-opacity='.75'/><circle cx='60' cy='110' r='1.6' fill-opacity='.7'/><circle cx='130' cy='150' r='2.8' fill-opacity='.8'/><circle cx='180' cy='120' r='1.2' fill-opacity='.55'/><circle cx='30' cy='170' r='2.2' fill-opacity='.7'/><circle cx='100' cy='190' r='1.3' fill-opacity='.6'/></g></svg>");
+  background-size: 200px 200px;
+  animation: weather-fall-snow 11s linear infinite;
+}
+.weather-snow > i:last-child { background-size: 140px 140px; opacity: .55; animation-duration: 16s; }
+.weather-snow { background: linear-gradient(#dfe8f526, #c9d6e833); }
+
+/* Kabut: gumpalan lembut yang bergeser */
+.weather-fog > i {
+  background-image:
+    radial-gradient(closest-side, #d9dde4 0%, #d9dde400 100%),
+    radial-gradient(closest-side, #cfd4db 0%, #cfd4db00 100%),
+    radial-gradient(closest-side, #e2e5ea 0%, #e2e5ea00 100%);
+  background-size: 46% 34%, 58% 40%, 40% 30%;
+  background-position: 10% 30%, 70% 60%, 40% 90%;
+  background-repeat: no-repeat;
+  opacity: .62;
+  animation: weather-drift 38s ease-in-out infinite alternate;
+}
+.weather-fog > i:last-child { opacity: .45; animation-duration: 52s; animation-direction: alternate-reverse; background-position: 60% 20%, 20% 70%, 85% 85%; }
+.weather-fog { background: #c5ccd540; }
+
+/* Malam: biru gelap, tengah lebih terang */
+.weather-night { background: radial-gradient(ellipse 65% 55% at 50% 50%, #0b173570 0%, #060d22b8 60%, #02050de6 100%); }
+.weather-night > i { display: none; }
+
+/* Cahaya obor: hangat di tengah, tepi gelap, berkedip pelan */
+.weather-torch { background: radial-gradient(ellipse 55% 50% at 50% 50%, #ffb45a00 0%, #1a0b0099 60%, #0a0400e0 100%); }
+.weather-torch > i:first-child { inset: 0; background: radial-gradient(ellipse 50% 45% at 50% 50%, #ffae5a4d 0%, #ffae5a00 70%); animation: weather-flicker 2.6s ease-in-out infinite; }
+.weather-torch > i:last-child { display: none; }
+
+@keyframes weather-fall-rain { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-20px, 120px, 0); } }
+@keyframes weather-fall-snow { from { transform: translate3d(0, 0, 0); } 50% { transform: translate3d(14px, 100px, 0); } to { transform: translate3d(0, 200px, 0); } }
+@keyframes weather-drift { from { transform: translate3d(-6%, 0, 0); } to { transform: translate3d(6%, -2%, 0); } }
+@keyframes weather-flicker { 0%, 100% { opacity: .85; } 20% { opacity: 1; } 35% { opacity: .78; } 55% { opacity: .95; } 70% { opacity: .82; } }
+@keyframes weather-lightning { 0%, 90%, 92.5%, 94%, 100% { opacity: 0; } 91% { opacity: .45; } 93% { opacity: .25; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .weather > i, .weather-storm::after { animation: none; }
+}
+
+/* Lencana AC monster, hanya untuk DM */
+.map-canvas .map-token .token-ac {
+  position: absolute;
+  left: -6px;
+  top: -6px;
+  z-index: 3;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #0a0806;
+  border-radius: 5px 5px 50% 50%;
+  background: linear-gradient(#cfa95f, #8a6c3a);
+  color: #17120a;
+  font-size: 11px;
+  font-weight: 800;
+  font-style: normal;
+  transform-origin: top left;
+  pointer-events: none;
+  box-shadow: 0 2px 4px #000a;
+}
+
+/* Menu DM: pilihan suasana dan monster cepat */
+.board-tools-body .weather-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.board-tools-panel button.weather-chip { min-height: 34px; padding: 4px 12px; border: 1px solid #53675b; border-radius: 999px; background: transparent; color: #d7c5a8; font-size: 12px; }
+.board-tools-panel button.weather-chip[aria-checked="true"] { border-color: #d7b77e; background: #d7b77e; color: #171d1b; font-weight: 700; }
+.board-tools-body .monster-quick select { margin-top: 5px; }
+.board-tools-body .monster-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.board-tools-body .monster-count { display: grid; grid-template-columns: 34px 36px 34px; align-items: center; border: 1px solid #53675b; border-radius: 6px; overflow: hidden; }
+.board-tools-panel .monster-count button { min-height: 34px; padding: 0; border: 0; border-radius: 0; background: transparent; color: #d7b77e; font-size: 16px; }
+.board-tools-body .monster-count strong { text-align: center; font-size: 16px; font-variant-numeric: tabular-nums; }
+.board-tools-body .monster-row .board-checkbox { min-height: 34px; margin: 0; font-size: 12px; }

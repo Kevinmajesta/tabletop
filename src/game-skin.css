@@ -1,0 +1,87 @@
+/* Kulit bersama minigame: Lantai Ubin, Kode Peti, Timbangan Relik, Misteri Jam Dinding, Hitung Cepat.
+   Latar gelap hangat, judul serif, aksen kuningan. Setiap game menambah aksennya sendiri di file masing-masing. */
+.minigame-dialog:has(.mg-skin) {
+  --mg-ink: #ece2cc;
+  --mg-mute: #a99c84;
+  --mg-dim: #6f6553;
+  --mg-brass: #cfa95f;
+  --mg-brass-soft: #cfa95f33;
+  --mg-line: #3a3124;
+  --mg-panel: #1c1712;
+  --mg-good: #9fd0a0;
+  --mg-bad: #f0a596;
+  --mg-serif: Georgia, "Times New Roman", serif;
+  width: min(1040px, calc(100vw - 32px));
+  height: fit-content;
+  max-height: calc(100dvh - 32px);
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 0%, #2a2117 0%, transparent 70%),
+    #13100c;
+  border-color: #5c4a2e;
+  color: var(--mg-ink);
+}
+.minigame-dialog:has(.mg-skin) > header h2 { font-family: var(--mg-serif); font-weight: 400; letter-spacing: .01em; color: #f3e3bd; }
+.minigame-dialog:has(.mg-skin) > p { margin: 4px 0 0; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--mg-brass); }
+.minigame-dialog:has(.mg-skin:not([data-phase="waiting"])) .minigame-scores { display: none; }
+.minigame-dialog:has(.mg-skin) .minigame-actions button { border-radius: 4px; }
+
+.mg-skin { display: flex; flex-direction: column; gap: 16px; margin-top: 14px; }
+.mg-skin p { margin: 0; }
+
+/* Cara main */
+.mg-rules { border: 1px solid var(--mg-line); border-radius: 6px; background: var(--mg-panel); }
+.mg-rules > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 14px;
+  cursor: pointer;
+  list-style: none;
+  color: var(--mg-brass);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.mg-rules > summary::-webkit-details-marker { display: none; }
+.mg-rules > summary::after { content: "+"; margin-left: auto; font-size: 16px; font-weight: 400; letter-spacing: 0; }
+.mg-rules[open] > summary::after { content: "−"; }
+.mg-rules > summary:focus-visible { outline: 2px solid var(--mg-brass); outline-offset: 2px; border-radius: 6px; }
+.mg-rules-body { display: flex; flex-direction: column; gap: 10px; padding: 0 16px 16px; max-width: 78ch; font-size: 14px; line-height: 1.6; color: #d8cdb5; }
+.mg-rules-body strong { color: var(--mg-ink); }
+
+/* Baris statistik */
+.mg-stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.mg-stats li { display: flex; flex-direction: column; gap: 3px; min-width: 96px; padding: 8px 12px; border: 1px solid var(--mg-line); border-radius: 4px; background: var(--mg-panel); }
+.mg-stats span { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--mg-mute); }
+.mg-stats strong { font-size: 18px; font-weight: 600; color: var(--mg-ink); font-variant-numeric: tabular-nums; }
+
+/* Pesan */
+.mg-alert { margin: 0; padding: 12px 16px; border: 1px solid; border-radius: 6px; font-family: var(--mg-serif); font-size: 16px; line-height: 1.45; }
+.mg-alert.good { border-color: #6f9a62; background: #1d2a19; color: #d8efc9; }
+.mg-alert.bad { border-color: #8f4c40; background: #2a1712; color: #f6c3b6; }
+
+/* Tombol */
+.minigame-dialog .mg-btn {
+  min-height: 42px;
+  padding: 8px 18px;
+  border: 1px solid #5c4a2e;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--mg-ink);
+  font-size: 14px;
+}
+.minigame-dialog .mg-btn:hover:not(:disabled) { border-color: var(--mg-brass); background: #ffffff08; }
+.minigame-dialog .mg-btn.primary { border-color: var(--mg-brass); background: var(--mg-brass); color: #17120a; font-weight: 700; }
+.minigame-dialog .mg-btn.primary:hover:not(:disabled) { background: #e0bf7c; }
+.minigame-dialog .mg-btn:disabled { opacity: .45; cursor: not-allowed; }
+.minigame-dialog .mg-btn:focus-visible { outline: 2px solid var(--mg-brass); outline-offset: 2px; }
+
+.mg-kicker { font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--mg-brass); }
+.mg-title { margin: 0; font-family: var(--mg-serif); font-size: 18px; font-weight: 400; color: #f3e3bd; }
+
+@media (max-width: 560px) {
+  .minigame-dialog:has(.mg-skin) { padding: 16px; }
+  .mg-stats li { flex: 1 1 40%; min-width: 0; }
+}

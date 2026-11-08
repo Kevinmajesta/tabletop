@@ -1,0 +1,347 @@
+/* Dua Ruangan · Kursi & Sandi.
+   Hijau tua dengan aksen kuningan. Ruang Kursi beraksen hangat, Ruang Sandi beraksen biru kehijauan. */
+.minigame-dialog.coop-dialog {
+  --ink: #e8e1cf;
+  --mute: #9fb1a6;
+  --brass: #c8a86b;
+  --line: #2c4238;
+  --panel: #13221c;
+  --chairs: #d79a5c;
+  --cipher: #6fb8aa;
+  --serif: Georgia, "Times New Roman", serif;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, #1d3329 0%, transparent 70%),
+    #0e1814;
+  border-color: #4d6a5a;
+  color: var(--ink);
+}
+.minigame-dialog.coop-dialog > header h2 { font-family: var(--serif); font-weight: 400; letter-spacing: .01em; color: #f1e6c8; }
+/* Saat ronde berjalan, daftar poin dan status umum tidak berguna di game kerja sama. Banner ruangan menggantikannya. */
+.coop-dialog:has(.coop-workspace) > p,
+.coop-dialog:has(.coop-workspace) .minigame-scores { display: none; }
+
+.coop-kicker { font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--brass); }
+.coop-workspace { --accent: var(--brass); display: flex; flex-direction: column; gap: 18px; margin-top: 16px; }
+.coop-workspace[data-room="chairs"] { --accent: var(--chairs); }
+.coop-workspace[data-room="cipher"] { --accent: var(--cipher); }
+
+/* Banner ruangan */
+.coop-banner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: linear-gradient(120deg, #172a22, #111d18);
+}
+.coop-emblem {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  background: radial-gradient(circle, #ffffff0d, transparent 70%);
+}
+.coop-banner-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.coop-banner-text .coop-kicker { color: var(--accent); }
+.coop-banner-text h3 { margin: 0; font-family: var(--serif); font-size: 24px; font-weight: 400; color: #f1e6c8; }
+.coop-banner-text p { margin: 0; font-size: 13px; color: var(--mute); }
+.coop-banner-text b { color: var(--ink); font-weight: 600; }
+
+.coop-milestones { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.coop-milestones li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 104px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #0e1814;
+}
+.coop-milestones li > span:first-child { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--mute); }
+.coop-milestones strong { display: inline-flex; align-items: center; gap: 5px; font-family: inherit; font-size: 17px; font-weight: 400; color: var(--ink); font-variant-numeric: tabular-nums; }
+.coop-milestones small { font-size: 12px; color: var(--mute); }
+.coop-milestones li[data-done] { border-color: #6d8f5f; }
+.coop-milestones li[data-done] strong { color: #b9dba0; }
+.coop-meter { display: block; height: 3px; border-radius: 2px; background: #ffffff14; overflow: hidden; }
+.coop-meter > i { display: block; height: 100%; background: var(--brass); transition: width .4s ease; }
+.coop-dots { display: flex; gap: 4px; }
+.coop-dots i { width: 8px; height: 8px; border-radius: 50%; background: #ffffff1c; }
+.coop-dots i[data-on] { background: var(--cipher); }
+
+.coop-victory {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 14px 18px;
+  border: 1px solid #8fae6f;
+  border-radius: 6px;
+  background: #23361f;
+  color: #dcefc4;
+  font-family: var(--serif);
+  font-size: 17px;
+}
+
+/* Tab */
+.minigame-dialog .coop-tabs { display: inline-flex; flex-wrap: wrap; gap: 4px; margin: 0; padding: 4px; border: 1px solid var(--line); border-bottom: 1px solid var(--line); border-radius: 6px; background: #0b1410; align-self: flex-start; }
+.minigame-dialog .coop-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--mute);
+  font-size: 13px;
+}
+.minigame-dialog .coop-tabs button:hover { color: var(--ink); background: #ffffff08; }
+.minigame-dialog .coop-tabs button[aria-pressed="true"] { background: #213a2f; color: #f1e6c8; box-shadow: inset 0 0 0 1px #4d6a5a; }
+
+/* Kolom catatan + panel utama */
+.coop-dialog .coop-columns { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 20px; align-items: start; }
+.coop-dialog .coop-notes {
+  position: sticky;
+  top: 0;
+  padding: 18px;
+  border: 1px solid #4a3f2a;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #1e1a12, #17140e);
+  color: #e6d9b8;
+}
+.coop-notes h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-family: var(--serif); font-size: 16px; font-weight: 400; color: #f0dfb4; }
+.coop-dialog .coop-notes ol { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 0 0 0 20px; }
+.coop-dialog .coop-notes li { margin: 0; font-family: var(--serif); font-size: 14px; line-height: 1.55; color: #e6d9b8; }
+.coop-dialog .coop-notes li::marker { color: var(--brass); }
+.coop-notes li b { font-family: Georgia, serif; letter-spacing: .04em; color: #f6e2a8; }
+.coop-dialog .coop-notes p { margin: 14px 0 0; font-size: 12px; color: #a99a7a; }
+
+.coop-panel { display: flex; flex-direction: column; gap: 16px; }
+.coop-panel-head { display: flex; flex-direction: column; gap: 4px; }
+.coop-panel-head h4 { display: flex; align-items: center; gap: 10px; margin: 0; font-family: var(--serif); font-size: 20px; font-weight: 400; color: #f1e6c8; }
+.coop-panel-head p { margin: 0; font-size: 13px; color: var(--mute); }
+.coop-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; background: #2c4626; color: #c9e6ae; font-family: system-ui, sans-serif; font-size: 11px; }
+
+/* Meja bundar */
+.coop-table-room { position: relative; width: min(100%, 470px); aspect-ratio: 1; margin: 0 auto; container-type: inline-size; }
+.coop-table {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 44%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 40% 35%, #6b4a2b 0%, #4a3220 55%, #2f1f14 100%);
+  box-shadow: inset 0 0 0 6px #2a1b10, inset 0 0 0 7px #8a6a43, 0 14px 30px #000a;
+}
+.coop-table span { font-family: var(--serif); font-size: 13px; letter-spacing: .4em; text-transform: uppercase; color: #e9cf9f; opacity: .8; }
+.coop-table svg { position: absolute; inset: -22%; width: 144%; height: 144%; fill: none; stroke: #c8a86b55; stroke-width: .6; stroke-dasharray: 1.5 2.5; overflow: visible; }
+.coop-table svg path { stroke: var(--brass); stroke-dasharray: none; stroke-width: .8; }
+.coop-table svg polygon { fill: var(--brass); stroke: none; }
+
+.coop-seat {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 108px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  transform: translate(-50%, -50%) rotate(var(--angle)) translateX(38cqw) rotate(calc(var(--angle) * -1));
+}
+.coop-seat-num {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid #5a7364;
+  background: #13221c;
+  color: var(--mute);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 13px;
+}
+.coop-seat[data-filled] .coop-seat-num { border-color: var(--chairs); background: var(--chairs); color: #1d140b; }
+.minigame-dialog .coop-seat select {
+  appearance: none;
+  width: 100%;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid #3d5649;
+  border-radius: 4px;
+  background: #0f1a16;
+  color: var(--mute);
+  font-size: 12px;
+  text-align: center;
+  text-align-last: center;
+  cursor: pointer;
+}
+.minigame-dialog .coop-seat[data-filled] select { border-color: #8a6a43; background: #1f1810; color: #f6e2a8; font-family: var(--serif); font-size: 14px; letter-spacing: .06em; }
+.minigame-dialog .coop-seat select:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+.minigame-dialog .coop-seat select:disabled { cursor: default; opacity: 1; }
+
+.coop-reward { margin: 0; padding: 14px 16px; border: 1px solid #8a6a43; border-radius: 4px; background: #241c10; color: #f0dfb4; font-family: var(--serif); font-size: 15px; line-height: 1.55; }
+
+/* Form pintu dan jawaban */
+.minigame-dialog form.coop-door,
+.minigame-dialog form.coop-answer {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+  margin: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--panel);
+}
+.minigame-dialog form.coop-answer { grid-template-columns: minmax(0, 1fr) auto; }
+.coop-door-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; border: 1px solid #5a7364; color: var(--brass); }
+.minigame-dialog .coop-door label,
+.minigame-dialog .coop-answer label { display: flex; flex-direction: column; gap: 6px; margin: 0; font-size: 12px; letter-spacing: .06em; color: var(--mute); }
+.minigame-dialog .coop-door input,
+.minigame-dialog .coop-answer input {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #3d5649;
+  border-radius: 4px;
+  background: #0b1410;
+  color: var(--ink);
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 16px;
+  letter-spacing: .12em;
+}
+.minigame-dialog .coop-door input:focus,
+.minigame-dialog .coop-answer input:focus { border-color: var(--brass); outline: none; box-shadow: 0 0 0 3px #c8a86b26; }
+.minigame-dialog button.coop-primary {
+  min-height: 44px;
+  padding: 8px 18px;
+  border: 1px solid var(--brass);
+  border-radius: 4px;
+  background: var(--brass);
+  color: #15120b;
+  font-weight: 700;
+}
+.minigame-dialog button.coop-primary:hover:not(:disabled) { background: #dcc08a; }
+.minigame-dialog button.coop-primary:disabled { background: transparent; color: var(--mute); border-color: #3d5649; }
+
+/* Ekstraksi TTS */
+.coop-extract { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 16px; align-items: center; padding: 14px 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.coop-extract .coop-kicker { grid-column: 1 / -1; }
+.coop-extract p { margin: 0; font-size: 13px; color: var(--mute); }
+.coop-extract ol { display: flex; gap: 6px; margin: 0; padding: 0; list-style: none; counter-reset: extract; }
+.coop-extract li {
+  counter-increment: extract;
+  position: relative;
+  min-width: 42px;
+  padding: 6px 8px;
+  border: 1px solid #8a6a43;
+  border-radius: 4px;
+  background: #241c10;
+  color: #f6e2a8;
+  font-family: var(--serif);
+  font-size: 14px;
+  text-align: center;
+}
+.coop-extract li::before { content: counter(extract); position: absolute; top: -8px; left: -6px; width: 16px; height: 16px; display: grid; place-items: center; border-radius: 50%; background: var(--brass); color: #15120b; font-size: 9px; font-weight: 700; }
+
+/* Ruang sandi */
+.coop-stepper { display: flex; gap: 0; margin: 0; padding: 0; list-style: none; }
+.coop-stepper li { display: flex; align-items: center; gap: 8px; padding-right: 18px; color: var(--mute); font-size: 13px; }
+.coop-stepper li + li::before { content: ""; width: 24px; height: 1px; margin-right: 10px; background: #3d5649; }
+.coop-stepper li span { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; border: 1px solid #3d5649; font-size: 11px; }
+.coop-stepper li[data-state="current"] { color: var(--ink); }
+.coop-stepper li[data-state="current"] span { border-color: var(--cipher); background: var(--cipher); color: #0b1410; font-weight: 700; }
+.coop-stepper li[data-state="done"] span { border-color: #6d8f5f; color: #b9dba0; }
+
+.coop-cipher-intro { margin: 0; font-family: var(--serif); font-size: 16px; line-height: 1.55; color: var(--ink); }
+.coop-cipher-text {
+  margin: 0;
+  padding: 22px 24px;
+  border: 1px solid #2f4a52;
+  border-radius: 6px;
+  background:
+    linear-gradient(#ffffff05 1px, transparent 1px) 0 0 / 100% 28px,
+    #0a1416;
+  color: #cfeee6;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 20px;
+  line-height: 1.7;
+  letter-spacing: .14em;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.coop-dialog .coop-fragments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; }
+.coop-dialog .coop-fragments > div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 10px;
+  border: 1px solid #a88c5c;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #ecdcb6, #d8c497);
+  color: #3a2e1d;
+  box-shadow: 0 6px 14px #0007;
+}
+.coop-dialog .coop-fragments small { font-size: 11px; letter-spacing: .14em; }
+.coop-dialog .coop-fragments strong { font: 400 30px Georgia, serif; }
+
+/* Layar persiapan */
+.coop-setup { display: flex; flex-direction: column; gap: 16px; margin-top: 12px; }
+.coop-lede { margin: 0; max-width: 62ch; font-family: var(--serif); font-size: 16px; line-height: 1.55; color: var(--ink); }
+.coop-waiting { margin: 0; color: var(--mute); font-family: var(--serif); font-style: italic; }
+.minigame-dialog .coop-assign { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; border: 0; }
+.coop-assign legend { margin-bottom: 10px; font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--brass); }
+.coop-assign-room { display: flex; flex-direction: column; gap: 10px; padding: 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); }
+.coop-assign-room h4 { display: flex; align-items: center; gap: 8px; margin: 0; font-family: var(--serif); font-size: 18px; font-weight: 400; }
+.coop-assign-room[data-room="chairs"] h4 { color: var(--chairs); }
+.coop-assign-room[data-room="cipher"] h4 { color: var(--cipher); }
+.minigame-dialog .coop-assign-room label { display: flex; flex-direction: column; gap: 5px; margin: 0; font-size: 12px; color: var(--mute); }
+.minigame-dialog .coop-assign-room select { min-height: 40px; padding: 6px 10px; border: 1px solid #3d5649; border-radius: 4px; background: #0b1410; color: var(--ink); }
+.coop-assign-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
+.coop-assign-actions p { margin: 0; font-size: 12px; color: var(--mute); }
+.coop-team-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.coop-team-list li { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); font-size: 13px; color: var(--mute); }
+.coop-team-list strong { color: var(--ink); font-weight: 600; }
+
+@media (max-width: 900px) {
+  .coop-banner { grid-template-columns: auto minmax(0, 1fr); }
+  .coop-milestones { grid-column: 1 / -1; flex-wrap: wrap; }
+  .coop-milestones li { flex: 1 1 120px; }
+  .coop-dialog .coop-columns { grid-template-columns: minmax(0, 1fr); }
+  .coop-dialog .coop-notes { position: static; }
+}
+@media (max-width: 560px) {
+  .minigame-dialog.coop-dialog { padding: 16px; }
+  .coop-banner { padding: 14px; gap: 12px; }
+  .coop-emblem { width: 42px; height: 42px; }
+  .coop-banner-text h3 { font-size: 20px; }
+  .coop-table-room { aspect-ratio: auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 8px; width: 100%; }
+  .coop-table { display: none; }
+  .coop-seat { position: static; width: auto; transform: none; }
+  .minigame-dialog form.coop-door { grid-template-columns: minmax(0, 1fr); }
+  .coop-door-icon { display: none; }
+  .minigame-dialog form.coop-answer { grid-template-columns: minmax(0, 1fr); }
+  .coop-extract { grid-template-columns: minmax(0, 1fr); }
+  .coop-extract ol { flex-wrap: wrap; }
+  .coop-cipher-text { padding: 16px; font-size: 16px; }
+  .minigame-dialog .coop-assign { grid-template-columns: minmax(0, 1fr); }
+  .coop-stepper li { padding-right: 8px; font-size: 12px; }
+  .coop-stepper li + li::before { width: 10px; margin-right: 6px; }
+}
+@media (prefers-reduced-motion: reduce) { .coop-meter > i { transition: none; } }

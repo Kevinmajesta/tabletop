@@ -1,0 +1,79 @@
+/* Menu DM yang dikelompokkan: Peta, Token, Combat.
+   Warna mengikuti panel alat yang sudah ada: hijau tua, emas, krem. */
+.board-tools-body .dm-sections { display: flex; flex-direction: column; gap: 18px; }
+.board-tools-body .dm-section { display: flex; flex-direction: column; gap: 8px; padding-top: 14px; border-top: 1px solid #53675b; }
+.board-tools-body .dm-sections > .dm-section:first-child { padding-top: 0; border-top: 0; }
+.board-tools-body .dm-section h3,
+.board-tools-body .dm-advanced > summary {
+  margin: 0;
+  color: #d7b77e;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.board-tools-body .dm-section label { margin: 0; color: #d7c5a8; font-size: 12px; }
+.board-tools-body .dm-section label input,
+.board-tools-body .dm-section label select { margin-top: 5px; color: #f3e5cb; }
+.board-tools-body .dm-section label.board-checkbox { min-height: 36px; color: #f3e5cb; font-size: 13px; }
+.board-tools-body .dm-section label.board-checkbox input { margin-top: 0; }
+.board-tools-body .dm-section > button { width: 100%; text-align: left; }
+
+.board-tools-body .dm-scene-now { display: flex; flex-direction: column; gap: 2px; }
+.board-tools-body .dm-scene-now strong { font-family: Georgia, "Times New Roman", serif; font-size: 18px; color: #f3e5cb; overflow-wrap: anywhere; }
+.board-tools-body .dm-scene-now span { font-size: 12px; color: #d7c5a8; }
+.board-tools-body .dm-scene-now span.live { color: #9fd3a8; }
+.board-tools-body .dm-scene-now span.live::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: #83b996; box-shadow: 0 0 8px #83b996; }
+
+.board-tools-body .dm-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 6px; }
+.board-tools-body .dm-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.board-tools-body .dm-grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.board-tools-body .dm-grid-2 label,
+.board-tools-body .dm-grid-3 label { margin: 0; font-size: 11px; color: #d7c5a8; }
+.board-tools-body .dm-grid-2 input,
+.board-tools-body .dm-grid-2 select,
+.board-tools-body .dm-grid-3 input { margin-top: 5px; font-variant-numeric: tabular-nums; }
+
+.board-tools-panel button.dm-primary { background: #d7b77e; border-color: #d7b77e; color: #171d1b; font-weight: 700; }
+.board-tools-panel button.dm-primary:hover:not(:disabled) { background: #ecd3a1; border-color: #ecd3a1; }
+.board-tools-panel button.dm-danger { background: transparent; border-color: #b0544a; color: #f0a596; }
+.board-tools-panel button.dm-danger:hover:not(:disabled) { background: #b0544a22; border-color: #f0a596; }
+
+.board-tools-body .dm-hint { margin: 0; font-size: 11px; line-height: 1.5; color: #a99c86; }
+
+.board-tools-body .dm-advanced > summary { cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; min-height: 32px; }
+.board-tools-body .dm-advanced > summary::-webkit-details-marker { display: none; }
+.board-tools-body .dm-advanced > summary::after { content: "+"; font-size: 16px; letter-spacing: 0; }
+.board-tools-body .dm-advanced[open] > summary::after { content: "−"; }
+
+/* Editor token */
+.board-tools-body .token-editor { display: flex; flex-direction: column; gap: 12px; }
+.board-tools-body .token-editor-head { display: flex; align-items: center; gap: 12px; }
+.board-tools-body .token-editor-head img { width: 48px; height: 48px; flex: none; object-fit: cover; object-position: 50% 15%; border-radius: 50%; border: 2px solid #d7b77e; background: #101514; }
+.board-tools-body .token-editor-head strong { font-family: Georgia, "Times New Roman", serif; font-size: 18px; overflow-wrap: anywhere; }
+.board-tools-body .token-editor h4 { margin: 0; color: #d7c5a8; font-size: 11px; font-weight: 600; }
+.board-tools-body .condition-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.board-tools-panel button.condition-chip { min-height: 30px; padding: 4px 10px; border-color: #53675b; border-radius: 999px; background: transparent; color: #d7c5a8; font-size: 12px; }
+.board-tools-panel button.condition-chip[aria-pressed="true"] { background: #f0d49a; border-color: #f0d49a; color: #241829; font-weight: 700; }
+
+/* Combat */
+.board-tab-combat { display: flex; flex-direction: column; gap: 10px; }
+.board-tools-body .combat-status { display: flex; flex-direction: column; gap: 2px; }
+.board-tools-body .combat-status strong { font-family: Georgia, "Times New Roman", serif; font-size: 20px; }
+.board-tools-body .combat-status span { font-size: 12px; color: #d7c5a8; }
+.board-tools-body .combat-list { display: flex; flex-direction: column; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.board-tools-body .combat-list li { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 40px; padding: 4px 6px 4px 10px; border-radius: 4px; background: #202924; }
+.board-tools-body .combat-list li > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.board-tools-body .combat-list li.current-turn { background: #d7b77e; color: #171d1b; font-weight: 700; }
+.board-tools-body .combat-list input { width: 64px; min-height: 32px; padding: 4px 6px; text-align: center; font-variant-numeric: tabular-nums; }
+.board-tools-body .combat-list b { font-variant-numeric: tabular-nums; }
+
+/* Perbaikan setelah cek tampilan */
+.app-shell .board-tools-panel .board-tools-body { max-height: min(72dvh, 640px, calc(100dvh - 125px)); }
+.board-tools-body .dm-section input[type="range"] { accent-color: #d7b77e; border: 0; padding: 0; min-height: 28px; background: transparent; }
+.board-tab-combat ol.combat-list { margin: 0; }
+.board-tab-combat .combat-list li { padding: 4px 6px 4px 10px; border-bottom: 0; line-height: 1.3; }
+.board-tab-combat .combat-list li:before { margin-right: 0; flex: none; }
+.board-tools-body .combat-list li > span { flex: 1; text-align: left; }
+.board-tab-combat .combat-list li.current-turn { background: #d7b77e; color: #171d1b; }
+.board-tab-combat .combat-list li.current-turn:before { color: #171d1b; }

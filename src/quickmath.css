@@ -1,0 +1,77 @@
+/* Hitung Cepat: soal besar di tengah, penanda sepuluh soal, papan skor berurutan. */
+.qm-layout { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 24px; align-items: start; }
+.qm-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 20px;
+  border: 1px solid var(--mg-line);
+  border-radius: 8px;
+  background: radial-gradient(ellipse at 50% 30%, #2b2117 0%, #17120d 70%);
+  text-align: center;
+}
+.qm-progress { display: flex; gap: 6px; }
+.qm-progress i { width: 22px; height: 4px; border-radius: 2px; background: #ffffff14; }
+.qm-progress i[data-state="done"] { background: var(--mg-brass); }
+.qm-progress i[data-state="current"] { background: #f3e3bd; box-shadow: 0 0 8px #f3e3bd88; }
+.minigame-dialog .qm-question {
+  margin: 4px 0;
+  font-family: var(--mg-serif);
+  font-size: clamp(48px, 9vw, 84px);
+  font-weight: 400;
+  line-height: 1;
+  color: #f6e6c0;
+  letter-spacing: .02em;
+  font-variant-numeric: lining-nums;
+  animation: qm-in .35s cubic-bezier(.2, .7, .2, 1) both;
+}
+.qm-question span { color: var(--mg-brass); }
+.qm-question.done { animation: none; }
+.qm-flash { font-size: 14px; color: var(--mg-mute); animation: qm-in .4s ease both; }
+.qm-flash b { color: var(--mg-good); font-weight: 600; }
+.qm-watch { font-size: 13px; color: var(--mg-mute); }
+
+.minigame-dialog form.qm-answer { display: grid; grid-template-columns: minmax(0, 220px) auto; gap: 8px; align-items: stretch; margin: 6px 0 0; }
+.qm-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.minigame-dialog .qm-answer input {
+  min-height: 52px;
+  padding: 0 14px;
+  border: 1px solid #5c4a2e;
+  border-radius: 6px;
+  background: #0d0a07;
+  color: var(--mg-ink);
+  font-size: 26px;
+  font-weight: 600;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.minigame-dialog .qm-answer input:focus { border-color: var(--mg-brass); outline: none; box-shadow: 0 0 0 3px var(--mg-brass-soft); }
+.minigame-dialog .qm-answer .mg-btn { min-height: 52px; min-width: 96px; }
+
+.qm-board { display: flex; flex-direction: column; gap: 10px; }
+.qm-board .mg-kicker { display: inline-flex; align-items: center; gap: 6px; }
+.qm-board ol { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.qm-board li {
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--mg-line);
+  border-radius: 4px;
+  background: var(--mg-panel);
+  transition: border-color .3s ease;
+}
+.qm-rank { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; border: 1px solid #4a3d2a; font-size: 12px; color: var(--mg-mute); }
+.qm-board li:first-child .qm-rank { border-color: var(--mg-brass); color: var(--mg-brass); }
+.qm-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.qm-board li strong { font-family: var(--mg-serif); font-size: 22px; font-weight: 400; color: #f3e3bd; font-variant-numeric: lining-nums tabular-nums; }
+.qm-board li.me { border-color: #5c4a2e; }
+.qm-board li.fresh { border-color: #6f9a62; }
+.qm-board li.champion { border-color: var(--mg-brass); background: #2a2013; box-shadow: 0 0 0 1px var(--mg-brass-soft); }
+
+@keyframes qm-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (max-width: 760px) { .qm-layout { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 420px) { .minigame-dialog form.qm-answer { grid-template-columns: minmax(0, 1fr); width: 100%; } }
+@media (prefers-reduced-motion: reduce) { .minigame-dialog .qm-question, .qm-flash { animation: none; } }

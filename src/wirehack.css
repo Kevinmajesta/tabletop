@@ -1,0 +1,101 @@
+/* Retas Panel Kabel: terminal peretas ala GTA. Layar gelap, angka neon, kabel berwarna, kedip merah saat alarm. */
+.minigame-dialog:has(.wirehack-skin) {
+  --wh-bg: #05090b;
+  --wh-neon: #3cf2c4;
+  --wh-dim: #1f6e5c;
+  --wh-red: #ff3b4f;
+  --wh-mono: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+  width: min(760px, calc(100vw - 32px));
+  background: radial-gradient(ellipse 80% 50% at 50% 0%, #0c1a1a 0%, transparent 70%), #030607;
+  border-color: #1f6e5c;
+}
+.minigame-dialog:has(.wirehack-skin) > header h2 { font-family: var(--wh-mono); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--wh-neon); }
+.minigame-dialog:has(.wirehack-skin) > p { color: #5fbfa6; }
+
+.wh-console {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid #12403a;
+  border-radius: 6px;
+  background:
+    repeating-linear-gradient(0deg, #ffffff05 0 1px, transparent 1px 3px),
+    var(--wh-bg);
+  box-shadow: inset 0 0 40px #000, 0 0 0 1px #000;
+  font-family: var(--wh-mono);
+  color: #b9fbe9;
+  overflow: hidden;
+}
+.wirehack-skin.alarm .wh-console { animation: wh-alarm .9s ease-out 1; }
+
+.wh-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; gap: 16px; }
+.wh-head span { display: block; font-size: 10px; letter-spacing: .22em; color: var(--wh-dim); }
+.wh-stage strong { font-size: 26px; color: var(--wh-neon); }
+.wh-stage small, .wh-target small { font-size: 13px; color: var(--wh-dim); margin-left: 3px; }
+.wh-target { text-align: center; }
+.wh-target strong { font-size: clamp(40px, 8vw, 60px); line-height: 1; color: var(--wh-neon); text-shadow: 0 0 12px #3cf2c488, 0 0 30px #3cf2c433; letter-spacing: .06em; }
+.wh-alarms div { display: flex; gap: 6px; margin-top: 6px; }
+.wh-alarms i { width: 16px; height: 16px; border-radius: 50%; border: 1px solid #5a1a22; background: #1a0a0c; }
+.wh-alarms i.on { background: var(--wh-red); border-color: #ff8b97; box-shadow: 0 0 10px var(--wh-red); }
+
+.wh-timer { position: relative; height: 22px; border: 1px solid #12403a; border-radius: 3px; background: #071312; overflow: hidden; }
+.wh-timer i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #1f6e5c, var(--wh-neon)); transition: width .25s linear; }
+.wh-timer span { position: relative; display: block; text-align: center; font-size: 13px; line-height: 20px; letter-spacing: .2em; color: #effff9; font-weight: 700; text-shadow: 0 0 3px #000, 0 0 6px #000; }
+.wh-timer.low i { background: linear-gradient(90deg, #6e1f2a, var(--wh-red)); }
+
+.wh-who { margin: 0; font-size: 12px; letter-spacing: .04em; color: #7fd8c0; }
+
+.wh-board { display: block; width: 100%; max-width: 560px; height: auto; margin: 0 auto; }
+.wh-col { fill: var(--wh-dim); font-family: var(--wh-mono); font-size: 12px; letter-spacing: .3em; text-anchor: middle; }
+.wh-term rect { fill: #071a17; stroke: #1f6e5c; stroke-width: 1.5; transition: stroke .15s ease, fill .15s ease; }
+.wh-term text { fill: #b9fbe9; font-family: var(--wh-mono); font-size: 22px; font-weight: 700; text-anchor: middle; }
+.wh-term .plug { fill: #0b2622; stroke: #2a8c75; stroke-width: 2; }
+.wh-term.linked rect { stroke: var(--cc); }
+.wh-term.linked .plug { fill: var(--cc); stroke: #fff6; }
+.wh-term.live { cursor: pointer; }
+.wh-term.live:hover rect, .wh-term.live:focus-visible rect { fill: #0c2b26; stroke: var(--wh-neon); }
+.wh-term:focus-visible { outline: none; }
+.wh-term.picked rect { stroke: var(--cc); stroke-width: 3; fill: #0f302a; }
+.wh-term.picked .plug { fill: var(--cc); animation: wh-blink .8s steps(2) infinite; }
+
+.wh-cable path { fill: none; stroke-linecap: round; }
+.wh-cable .shadow { stroke: #000; stroke-width: 11; opacity: .7; }
+.wh-cable .wire { stroke: var(--cc); stroke-width: 6; filter: drop-shadow(0 0 4px var(--cc)); }
+
+.wh-result { margin: 0; padding: 10px 14px; border: 1px solid; border-radius: 3px; font-size: 14px; font-weight: 700; letter-spacing: .08em; }
+.wh-result.ok { border-color: #1f6e5c; background: #062019; color: var(--wh-neon); }
+.wh-result.bad { border-color: #6e1f2a; background: #1e070b; color: #ff9aa5; }
+.wh-dm { margin: 0; font-size: 12px; color: #c8a86b; }
+
+.wh-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.minigame-dialog .wh-btn {
+  min-height: 44px;
+  padding: 8px 22px;
+  border: 1px solid var(--wh-neon);
+  border-radius: 3px;
+  background: #0b2f28;
+  color: var(--wh-neon);
+  font-family: var(--wh-mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.minigame-dialog .wh-btn:hover:not(:disabled) { background: #11463c; box-shadow: 0 0 14px #3cf2c455; }
+.minigame-dialog .wh-btn.ghost { border-color: #1f6e5c; background: transparent; color: #7fd8c0; }
+.minigame-dialog .wh-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+@keyframes wh-alarm { 0%, 40% { box-shadow: inset 0 0 60px #ff3b4f88, 0 0 0 1px var(--wh-red); } 100% { box-shadow: inset 0 0 40px #000, 0 0 0 1px #000; } }
+@keyframes wh-blink { to { opacity: .3; } }
+@media (max-width: 520px) {
+  .wh-console { padding: 12px; }
+  .wh-head { grid-template-columns: 1fr 1fr; }
+  .wh-target { grid-column: 1 / -1; grid-row: 1; }
+  .wh-alarms { justify-self: end; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wirehack-skin.alarm .wh-console, .wh-term.picked .plug { animation: none; }
+  .wh-timer i { transition: none; }
+}

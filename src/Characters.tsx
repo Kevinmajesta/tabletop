@@ -496,10 +496,11 @@ export default function Characters({
                       />
                     </label>
                     {!editing && uploadToken && (
-                      <label className="character-token-pick">
+                      <label className="character-token-pick file-pick">
                         Token di peta (opsional)
                         <span className="character-token-row">
                           {tokenPreview ? <img src={tokenPreview} alt="" /> : <span className="character-token-empty">?</span>}
+                          <span className="file-pick-btn">{tokenPreview ? "Ganti gambar…" : "Pilih gambar…"}</span>
                           <input
                             type="file"
                             accept="image/png,image/jpeg,image/webp,image/gif"
@@ -1905,8 +1906,9 @@ export default function Characters({
                   Pilih class, race, background, ability, equipment, dan spell.
                   Kalkulasi dasar divalidasi server.
                 </p>
-                <label>
+                <label className="file-pick">
                   Import pilihan JSON
+                  <span className="file-pick-btn">Pilih file JSON…</span>
                   <input
                     type="file"
                     accept="application/json,.json"

@@ -1,0 +1,53 @@
+/* Misteri Jam Dinding: muka jam gading berbingkai kuningan, petunjuk seperti catatan perkamen. */
+.wc-clocks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.wc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--mg-line);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #211a12, #17120d);
+  min-width: 0;
+}
+.wc-card.solved { border-color: #6f9a62; }
+.wc-card header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.wc-card h4 { margin: 0; font-family: var(--mg-serif); font-size: 19px; font-weight: 400; color: #f3e3bd; }
+.wc-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 999px; background: #24361f; color: #c9e6ae; font-size: 11px; }
+.wc-clue { font-family: var(--mg-serif); font-size: 14px; line-height: 1.55; color: #ddd0b4; }
+
+.wc-face { display: block; width: 100%; max-width: 210px; margin: 0 auto; }
+.wc-face .rim { fill: #8a6a3a; stroke: #d9b874; stroke-width: 2; }
+.wc-face .dial { fill: #efe3c6; stroke: #5b4527; stroke-width: 1.5; }
+.wc-face .tick { stroke: #7a6648; stroke-width: 1; }
+.wc-face .tick.major { stroke: #3a2b17; stroke-width: 2.4; }
+.wc-face text { fill: #2c2012; font-family: Georgia, "Times New Roman", serif; font-size: 15px; }
+.wc-face .hand { stroke: #1f1710; stroke-linecap: round; transition: transform .35s ease; }
+.wc-face .hand.hour { stroke-width: 6; }
+.wc-face .hand.minute { stroke-width: 3; stroke: #4a2a1a; }
+.wc-face .pin { fill: #b48a45; stroke: #1f1710; stroke-width: 1.5; }
+.wc-card.solved .wc-face .rim { fill: #5d7a4f; stroke: #a9d29a; }
+
+.wc-controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.wc-stepper { display: flex; flex-direction: column; gap: 4px; }
+.wc-stepper > span { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--mg-mute); text-align: center; }
+.wc-stepper > div { display: grid; grid-template-columns: 34px minmax(0, 1fr) 34px; align-items: center; border: 1px solid var(--mg-line); border-radius: 4px; background: #0f0c08; }
+.wc-stepper strong { font-size: 22px; font-weight: 600; text-align: center; font-variant-numeric: tabular-nums; color: var(--mg-ink); }
+.minigame-dialog .wc-stepper button {
+  min-height: 40px;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--mg-brass);
+}
+.minigame-dialog .wc-stepper button:hover:not(:disabled) { background: #ffffff0a; }
+.minigame-dialog .wc-stepper button:disabled { opacity: .35; }
+.wc-lock { width: 100%; }
+
+@media (max-width: 900px) { .wc-clocks { grid-template-columns: minmax(0, 1fr); } .wc-card { display: grid; grid-template-columns: minmax(0, 1fr) 180px; align-items: start; } .wc-card header, .wc-clue { grid-column: 1; } .wc-face { grid-column: 2; grid-row: 1 / span 3; } .wc-controls, .wc-lock { grid-column: 1; } }
+@media (max-width: 560px) { .wc-card { display: flex; } }
+@media (prefers-reduced-motion: reduce) { .wc-face .hand { transition: none; } }

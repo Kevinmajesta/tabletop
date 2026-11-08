@@ -10,6 +10,7 @@ import {
   Crown,
   Dice5,
   Grid2X2,
+  GripVertical,
   Hand,
   ImagePlus,
   Link2,
@@ -33,6 +34,11 @@ import "./characters.css";
 import "./theme.css";
 import "./start-templates/template-3.css"; // ganti ke template-1.css / template-2.css untuk tampilan lain
 import CoinFlip, { type CoinResult } from './CoinFlip';
+import IntroSplash from "./IntroSplash";
+import DieIcon from "./DieIcon";
+import "./table-polish.css";
+import "./weather.css";
+import "./table-motion.css";
 const AnimatedDiceScene = lazy(() => import("./DiceScene"));
 const NaturalRollEffect = lazy(() => import("./NaturalRollEffect"));
 const BoardTools = lazy(() => import("./BoardTools"));
@@ -118,6 +124,7 @@ function App() {
   const [connected, setConnected] = useState(false);
   const [name, setName] = useState("");
   const [tokenScreen, setTokenScreen] = useState<string[]>([]);
+  const [introReplay, setIntroReplay] = useState(0);
   const [joinCode, setJoinCode] = useState(getRoomId);
   const [mode] = useState<"create">("create");
   const [error, setError] = useState("");
@@ -216,12 +223,74 @@ function App() {
   } | null>(null);
   const [previewTokenId, setPreviewTokenId] = useState<string | null>(null);
   const [combatOrderOpen, setCombatOrderOpen] = useState(true);
+  // Panel urutan combat bisa diseret lewat judulnya. Posisinya diingat per browser.
+  const combatOrderRef = useRef<HTMLElement>(null);
+  const combatDrag = useRef<{ pointerId: number; offsetX: number; offsetY: number; startX: number; startY: number; moved: boolean } | null>(null);
+  const combatDragged = useRef(false);
+  const [combatOrderPos, setCombatOrderPos] = useState<{ x: number; y: number } | null>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("meja-combat-order-pos") || "null");
+      return saved && typeof saved.x === "number" && typeof saved.y === "number" ? saved : null;
+    } catch {
+      return null;
+    }
+  });
+  const clampCombatOrder = (x: number, y: number) => {
+    const panel = combatOrderRef.current;
+    const area = panel?.offsetParent as HTMLElement | null;
+    if (!panel || !area) return { x, y };
+    return {
+      x: Math.round(Math.max(0, Math.min(x, area.clientWidth - panel.offsetWidth))),
+      y: Math.round(Math.max(0, Math.min(y, area.clientHeight - panel.offsetHeight))),
+    };
+  };
+  useEffect(() => {
+    if (!combatOrderPos) return;
+    const keepInside = () => setCombatOrderPos((pos) => (pos ? clampCombatOrder(pos.x, pos.y) : pos));
+    window.addEventListener("resize", keepInside);
+    return () => window.removeEventListener("resize", keepInside);
+  }, [!!combatOrderPos]);
+  function startCombatDrag(event: React.PointerEvent<HTMLButtonElement>) {
+    if (event.button !== 0 || !combatOrderRef.current) return;
+    const rect = combatOrderRef.current.getBoundingClientRect();
+    combatDrag.current = { pointerId: event.pointerId, offsetX: event.clientX - rect.left, offsetY: event.clientY - rect.top, startX: event.clientX, startY: event.clientY, moved: false };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+  function moveCombatDrag(event: React.PointerEvent<HTMLButtonElement>) {
+    const drag = combatDrag.current;
+    const area = combatOrderRef.current?.offsetParent as HTMLElement | null;
+    if (!drag || drag.pointerId !== event.pointerId || !area) return;
+    if (!drag.moved && Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < 5) return;
+    drag.moved = true;
+    const box = area.getBoundingClientRect();
+    setCombatOrderPos(clampCombatOrder(event.clientX - box.left - drag.offsetX, event.clientY - box.top - drag.offsetY));
+  }
+  function endCombatDrag(event: React.PointerEvent<HTMLButtonElement>) {
+    const drag = combatDrag.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    combatDrag.current = null;
+    combatDragged.current = drag.moved;
+    if (drag.moved) {
+      setCombatOrderPos((pos) => {
+        try { if (pos) localStorage.setItem("meja-combat-order-pos", JSON.stringify(pos)); } catch { /* storage diblokir: posisi hanya bertahan sampai reload */ }
+        return pos;
+      });
+    }
+  }
   const activeScene = room?.scenes?.find((s) => s.id === room.activeSceneId);
 
   const combatants = activeScene?.combat.active
     ? activeScene.combat.ids.map((id) => activeScene.tokens.find((token) => token.id === id)).filter((token): token is Token => !!token)
     : [];
   const combatTurn = activeScene?.combat.turn ?? -1;
+  // Tirai transisi saat DM mengganti scene. Tidak muncul saat pertama kali masuk room.
+  const [sceneCurtain, setSceneCurtain] = useState<{ id: string; name: string } | null>(null);
+  const lastSceneId = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    const id = activeScene?.id;
+    if (id && lastSceneId.current && lastSceneId.current !== id) setSceneCurtain({ id, name: activeScene?.name || "" });
+    lastSceneId.current = id;
+  }, [activeScene?.id]);
   const nextCombatant = combatants.length > 1 ? combatants[(combatTurn + 1) % combatants.length] : undefined;
   const displayMap = activeScene?.map;
   const columns = activeScene?.grid.columns ?? 20;
@@ -273,6 +342,33 @@ function App() {
     };
     window.addEventListener("keydown", keyboard);
     return () => window.removeEventListener("keydown", keyboard);
+  }, [canEditSelected, selectedToken]);
+  // Delete / Backspace menghapus token yang dipilih. Tidak aktif saat mengetik atau saat ada dialog terbuka.
+  const [removedNotice, setRemovedNotice] = useState<{ name: string; at: number } | null>(null);
+  useEffect(() => {
+    if (!removedNotice) return;
+    const timer = window.setTimeout(() => setRemovedNotice(null), 7000);
+    return () => window.clearTimeout(timer);
+  }, [removedNotice]);
+  function removeSelectedToken() {
+    if (!selectedToken || !canEditSelected || !socketRef.current) return;
+    socketRef.current.emit("token:remove", selectedToken.id);
+    setSelected(null);
+    if (!selectedToken.minigame) setRemovedNotice({ name: selectedToken.name, at: Date.now() });
+  }
+  useEffect(() => {
+    const onDelete = (event: KeyboardEvent) => {
+      if (event.key !== "Delete" && event.key !== "Backspace") return;
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      if ((event.target as HTMLElement)?.closest("input,textarea,select,[contenteditable]")) return;
+      if (document.querySelector("dialog[open]")) return;
+      if (!selectedToken || !canEditSelected) return;
+      event.preventDefault();
+      if (selectedToken.minigame) { setError("Token minigame dihapus lewat menu Minigame, karena ronde permainannya ikut terhapus."); return; }
+      removeSelectedToken();
+    };
+    window.addEventListener("keydown", onDelete);
+    return () => window.removeEventListener("keydown", onDelete);
   }, [canEditSelected, selectedToken]);
 
   useEffect(() => {
@@ -729,6 +825,7 @@ function App() {
         <div className="game-start-background-party" aria-hidden="true">
           {tokenScreen.map((src, index) => <img key={src} src={src} alt="" className={`hero-background hero-background-${index + 1}`} />)}
         </div>
+        <IntroSplash portraits={tokenScreen} replay={introReplay} />
         <section className="game-start-card">
           <div className="game-start-heading">
             <div className="game-start-kicker">ONE SHOT</div>
@@ -746,6 +843,11 @@ function App() {
             <button className="game-start-reset" disabled={busy} onClick={() => void resetSession()}>
               RESET SESSION / CLAIM DM AGAIN
             </button>
+            {tokenScreen.length === 4 && (
+              <button type="button" className="intro-replay" onClick={() => setIntroReplay(n => n + 1)}>
+                LIHAT INTRO KARAKTER
+              </button>
+            )}
           </div>
           {error && <div className="form-error">{error}</div>}
         </section>
@@ -860,7 +962,7 @@ function App() {
           </button>
           <div className="rail-separator" />
           <button
-            className={mapTool === "select" ? "active" : ""}
+            className={`rail-mode${mapTool === "select" ? " active" : ""}`}
             aria-pressed={mapTool === "select"}
             title="Pilih dan geser token (V)"
             onClick={() => setMapTool("select")}
@@ -868,7 +970,7 @@ function App() {
             <MousePointer2 size={21} /><span className="rail-label">Pilih</span>
           </button>
           <button
-            className={mapTool === "pan" ? "active" : ""}
+            className={`rail-mode${mapTool === "pan" ? " active" : ""}`}
             aria-pressed={mapTool === "pan"}
             title="Geser peta (H)"
             onClick={() => setMapTool("pan")}
@@ -878,7 +980,7 @@ function App() {
           <div className="rail-caption">ALAT</div>
           <div id="player-tools-slot" />
           <button
-            className={gridVisible ? "active" : ""}
+            className={`rail-toggle${gridVisible ? " active" : ""}`}
             aria-pressed={gridVisible}
             title="Tampilkan atau sembunyikan grid (G)"
             onClick={() => setGridVisible((value) => !value)}
@@ -980,6 +1082,7 @@ function App() {
                     }}
                   />
                 )}
+                {activeScene?.weather && <div className={`weather weather-${activeScene.weather}`} aria-hidden="true"><i /><i /></div>}
                 {room?.tokens.map((token) => (
                   <button
                     key={token.id}
@@ -1033,6 +1136,7 @@ function App() {
                   >
                     {token.minigame ? <div className="minigame-token-mark" aria-hidden="true">{isDM ? gameCatalog[token.minigame].mark : '?'}</div> : <img src={token.image} alt={token.name} loading="lazy" decoding="async" />}
                     {isDM && !!token.maxHp && <div className="token-hp-bar" aria-label={`HP ${token.name}: ${token.hp ?? 0}/${token.maxHp}`}><i style={{ width: `${Math.max(0, Math.min(100, ((token.hp ?? 0) / token.maxHp) * 100))}%` }} /></div>}
+                    {isDM && token.ac !== undefined && <b className="token-ac" title={`AC ${token.ac}`} style={{ transform: `scale(${1 / zoom})` }}>{token.ac}</b>}
                     {token.dead && <svg className="token-dead-mark" viewBox="0 0 100 100" role="img" aria-label={`${token.name}: Dead`}><path d="M 18 18 L 82 82 M 82 18 L 18 82" /></svg>}
                     {!!token.conditions?.length && <div className="token-conditions" aria-label={`Kondisi ${token.name}: ${token.conditions.join(', ')}`}>{token.conditions.map((condition) => <b key={condition} title={conditionDescriptions[condition] || condition}>{condition[0]}</b>) }</div>}
                     <span style={{ transform: `translateX(-50%) scale(${1 / zoom})` }}>
@@ -1076,10 +1180,21 @@ function App() {
                 )}
               </div>
             )}
+            {sceneCurtain && (
+              <div
+                key={sceneCurtain.id}
+                className="scene-curtain"
+                role="status"
+                onAnimationEnd={(event) => { if (event.animationName === "scene-curtain") setSceneCurtain(null); }}
+              >
+                <span>Change Map</span>
+                {sceneCurtain.name && <strong>{sceneCurtain.name}</strong>}
+              </div>
+            )}
           </div>
-          {!!combatants.length && <section className={`combat-order ${combatOrderOpen ? '' : 'collapsed'}`} aria-label={`Urutan combat ronde ${activeScene?.combat.round}`}>
-            <button aria-expanded={combatOrderOpen} onClick={() => setCombatOrderOpen((open) => !open)}>RONDE {activeScene?.combat.round} <span>{combatOrderOpen ? '−' : '+'}</span></button>
-            {combatOrderOpen && <><ol>{combatants.map((token, index) => <li key={token.id} className={index === combatTurn ? 'current' : ''}>{index + 1}. {token.name}</li>)}</ol>{nextCombatant && <small>Berikutnya: {nextCombatant.name}</small>}</>}
+          {!!combatants.length && <section ref={combatOrderRef} className={`combat-order ${combatOrderOpen ? '' : 'collapsed'} ${combatOrderPos ? 'moved' : ''}`} style={combatOrderPos ? { left: combatOrderPos.x, top: combatOrderPos.y } : undefined} aria-label={`Urutan combat ronde ${activeScene?.combat.round}`}>
+            <button className="combat-order-handle" aria-expanded={combatOrderOpen} title="Seret untuk memindahkan, klik untuk menciutkan" onPointerDown={startCombatDrag} onPointerMove={moveCombatDrag} onPointerUp={endCombatDrag} onPointerCancel={endCombatDrag} onDoubleClick={() => { setCombatOrderPos(null); try { localStorage.removeItem("meja-combat-order-pos"); } catch { /* abaikan */ } }} onClick={() => { if (combatDragged.current) { combatDragged.current = false; return; } setCombatOrderOpen((open) => !open); }}><em className="combat-round-label"><GripVertical size={12} aria-hidden="true" />RONDE <b key={activeScene?.combat.round} className="combat-round-number">{activeScene?.combat.round}</b></em> <span>{combatOrderOpen ? '−' : '+'}</span></button>
+            {combatOrderOpen && <><ol className="combat-turn-track" style={{ ["--count" as string]: combatants.length, ["--turn" as string]: Math.max(combatTurn, 0) }}>{combatants.map((token, index) => <li key={token.id} className={index === combatTurn ? 'current' : ''}>{index + 1}. {token.name}</li>)}</ol>{nextCombatant && <small>Berikutnya: {nextCombatant.name}</small>}</>}
           </section>}
           {activeScene && (
             <Suspense fallback={null}>
@@ -1225,10 +1340,8 @@ function App() {
                 {canEditSelected && (
                   <button
                     className="remove-action"
-                    onClick={() => {
-                      socketRef.current?.emit("token:remove", selected);
-                      setSelected(null);
-                    }}
+                    title="Hapus token (Delete)"
+                    onClick={removeSelectedToken}
                   >
                     <Trash2 size={18} />
                     Hapus {selectedToken?.name}
@@ -1276,59 +1389,92 @@ function App() {
                   <X size={17} />
                 </button>
               </div>
-              <div className="dice-tray">
-                <span>{rolling ? "Menyiapkan lemparan…" : "Pilih dadu"}</span>
-                {[4, 6, 8, 10, 12, 20, 100].map((sides) => (
-                  <button
-                    key={sides}
-                    disabled={!connected || rolling}
-                    onClick={() => throwDice(sides)}
-                  >
-                    d{sides}
+              <div className="dice-tray dice-tray-v2">
+                <p className="dice-tray-status">{rolling ? "Menyiapkan lemparan…" : "Pilih dadu untuk dilempar"}</p>
+                <div className="dice-grid">
+                  {[4, 6, 8, 10, 12, 20, 100].map((sides) => (
+                    <button
+                      key={sides}
+                      type="button"
+                      className={`die-btn d${sides}`}
+                      disabled={!connected || rolling}
+                      onClick={() => throwDice(sides)}
+                      aria-label={`Lempar d${sides}`}
+                    >
+                      <DieIcon sides={sides} />
+                      <span>d{sides}</span>
+                    </button>
+                  ))}
+                  <button type="button" className="die-btn coin" disabled={!connected || rolling} onClick={() => throwDice('coin')} aria-label="Lempar koin">
+                    <DieIcon sides={0} />
+                    <span>Koin</span>
                   </button>
-                ))}
-                <button disabled={!connected || rolling} onClick={() => throwDice('coin')}>Koin flip</button>
-      <label className="dice-effects-setting dice-effects-inline">
-        <input
-          type="checkbox"
-          checked={diceEffects}
-          onChange={(e) => {
-            setDiceEffects(e.target.checked);
-            localStorage.setItem(
-              "meja-dice-animation",
-              e.target.checked ? "on" : "off",
-            );
-          }}
-        />
-        Animasi dadu
-      </label>
-                <label>
-                  Mode d20
-                  <select value={rollMode} onChange={(e) => setRollMode(e.target.value as typeof rollMode)}>
-                    <option value="normal">Normal</option>
-                    <option value="advantage">Advantage</option>
-                    <option value="disadvantage">Disadvantage</option>
-                  </select>
-                </label>
-                <label>
-                  Modifier{" "}
+                </div>
+                <div className="dice-option">
+                  <span>Mode d20</span>
+                  <div className="dice-mode" role="radiogroup" aria-label="Mode d20">
+                    {([["normal", "Normal"], ["advantage", "Advantage"], ["disadvantage", "Disadvantage"]] as const).map(([value, label]) => (
+                      <button key={value} type="button" role="radio" aria-checked={rollMode === value} onClick={() => setRollMode(value)}>{label}</button>
+                    ))}
+                  </div>
+                </div>
+                <div className="dice-option">
+                  <span>Modifier</span>
+                  <div className="dice-stepper">
+                    <button type="button" aria-label="Kurangi modifier" onClick={() => setModifier((m) => Math.max(-99, m - 1))}><Minus size={15} /></button>
+                    <input
+                      type="number"
+                      aria-label="Modifier"
+                      min={-99}
+                      max={99}
+                      value={modifier}
+                      onChange={(e) =>
+                        setModifier(
+                          Math.max(
+                            -99,
+                            Math.min(99, Number(e.target.value) || 0),
+                          ),
+                        )
+                      }
+                    />
+                    <button type="button" aria-label="Tambah modifier" onClick={() => setModifier((m) => Math.min(99, m + 1))}><Plus size={15} /></button>
+                  </div>
+                </div>
+                <label className="dice-effects-setting dice-effects-inline">
                   <input
-                    type="number"
-                    min={-99}
-                    max={99}
-                    value={modifier}
-                    onChange={(e) =>
-                      setModifier(
-                        Math.max(
-                          -99,
-                          Math.min(99, Number(e.target.value) || 0),
-                        ),
-                      )
-                    }
+                    type="checkbox"
+                    checked={diceEffects}
+                    onChange={(e) => {
+                      setDiceEffects(e.target.checked);
+                      localStorage.setItem(
+                        "meja-dice-animation",
+                        e.target.checked ? "on" : "off",
+                      );
+                    }}
                   />
+                  Animasi dadu 3D
                 </label>
                 {rollError && <p role="alert">{rollError}</p>}
               </div>
+            </div>
+          )}
+          {removedNotice && (
+            <div className="toast-removed" role="status" key={removedNotice.at}>
+              <span>Token <b>{removedNotice.name}</b> dihapus.</span>
+              {isDM && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    socketRef.current?.timeout(5000).emit("campaign:undo", (timeout: Error | null, result?: { error?: string }) => {
+                      if (timeout || result?.error) setError(result?.error || "Undo gagal.");
+                    });
+                    setRemovedNotice(null);
+                  }}
+                >
+                  Batalkan
+                </button>
+              )}
+              <button type="button" className="toast-close" aria-label="Tutup" onClick={() => setRemovedNotice(null)}><X size={14} /></button>
             </div>
           )}
           {error && (
@@ -1359,7 +1505,7 @@ function App() {
                 <span>{room?.messages.length || 0} PESAN</span>
               </div>
               <div className="messages">
-                <div className="chat-intro">
+                {!room?.messages.length && <div className="chat-intro">
                   <div className="chat-intro-icon">
                     <Sparkles size={21} />
                   </div>
@@ -1368,7 +1514,7 @@ function App() {
                     Setiap cerita punya awal. Sapa party-mu dan mulai
                     petualangan bersama.
                   </p>
-                </div>
+                </div>}
                 {room?.messages.filter((message) => !pendingRollIds.includes(message.id)).map((message) => (
                   <div className={`message ${message.kind}`} key={message.id}>
                     <div className="message-avatar">
