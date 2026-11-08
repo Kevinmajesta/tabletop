@@ -1248,7 +1248,7 @@ io.on("connection", (socket) => {
           error = declareGame(game, eligible);
         }
       } else {
-        const openParty = game.kind === 'crossword' || game.kind === 'ttspilihan' || game.kind === 'seating' || game.kind === 'wallclock';
+        const openParty = game.kind === 'crossword' || game.kind === 'ttspilihan' || game.kind === 'seating' || game.kind === 'wallclock' || game.kind === 'relicscale' || game.kind === 'journal' || game.kind === 'cryptex' || game.kind === 'whodunit' || game.kind === 'lockpick';
         if (['join', 'leave', 'remove-player'].includes(action.type) || (action.type === 'start' && !game.declaration && !openParty)) { respond({ error: 'GM harus deklarasikan peserta lewat token.' }); return; }
         error = gameAction(game, socket.data.playerId, socket.data.isDM, action, randomInt);
       }

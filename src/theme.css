@@ -635,6 +635,18 @@ button:focus-visible, input:focus-visible, select:focus-visible { outline-color:
 .character-workspace .character-abilities button small svg { opacity: .85; width: 14px; height: 14px; }
 
 /* DM-only HP bar on tokens, ambience volume row */
-.token-hp-bar{position:absolute;left:8%;right:8%;bottom:-6px;height:5px;z-index:2;background:#000a;border:1px solid #0009;border-radius:3px;overflow:hidden;pointer-events:none}
+.token-hp-bar{position:absolute;left:6%;right:6%;bottom:5%;height:6px;z-index:2;background:#000a;border:1px solid #0009;border-radius:3px;overflow:hidden;pointer-events:none}
 .token-hp-bar i{display:block;height:100%;background:linear-gradient(90deg,#c0605a,#d6ae70 50%,#6bcb77)}
 .ambience-volume{display:flex;align-items:center;gap:8px}.ambience-volume input[type=range]{flex:1;min-width:0}
+
+/* Laptop pendek: semua menu mengambang/panel boleh di-scroll, tidak terpotong.
+   Persen = tinggi area peta (containing block), bukan viewport, karena header ikut makan tinggi. */
+.app-shell .tabletop-popover { --pop-top: 185px; top: var(--pop-top); max-height: calc(100% - var(--pop-top) - 12px); overflow-y: auto; overscroll-behavior: contain; }
+.app-shell .tabletop-popover.dice-popover { --pop-top: 224px; }
+.app-shell .tabletop-popover .popover-heading { position: sticky; top: 0; z-index: 1; background: #1b2325; }
+.app-shell .tabletop-rail { overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; min-height: 0; }
+.app-shell .tabletop-rail button { flex: none; }
+.workspace .side-panel { overflow-y: auto; overscroll-behavior: contain; }
+.app-shell .minigames { max-height: calc(100% - 76px); overflow-y: auto; }
+.app-shell .scene-page-menu, .app-shell .board-tools-body, .app-shell .character-quick-panel { overflow-y: auto; overscroll-behavior: contain; }
+@media (max-height: 700px) { .app-shell .tabletop-popover, .app-shell .tabletop-popover.dice-popover { --pop-top: 12px; } }

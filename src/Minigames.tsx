@@ -6,6 +6,12 @@ import './minigames.css';
 import Crossword from './Crossword';
 import CoopPuzzle from './CoopPuzzle';
 import WallClock from './WallClock';
+import RelicScale from './RelicScale';
+import TornJournal from './TornJournal';
+import Cryptex from './Cryptex';
+import TileFloor from './TileFloor';
+import Whodunit from './Whodunit';
+import Lockpick from './Lockpick';
 
 export const gameNames = Object.fromEntries(Object.entries(gameCatalog).map(([kind, entry]) => [kind, entry.name]));
 const choices: Record<string, string> = { rock: 'Batu', paper: 'Kertas', scissors: 'Gunting' };
@@ -52,7 +58,7 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
     if (game?.tokenId === target.tokenId) onClose();
   }
   const disabled = !connected || busy;
-  const openParty = (game?.kind === 'crossword' || game?.kind === 'ttspilihan') || game?.kind === 'seating' || game?.kind === 'wallclock';
+  const openParty = (game?.kind === 'crossword' || game?.kind === 'ttspilihan') || game?.kind === 'seating' || game?.kind === 'wallclock' || game?.kind === 'relicscale' || game?.kind === 'journal' || game?.kind === 'cryptex' || game?.kind === 'whodunit' || game?.kind === 'lockpick';
   const name = (id: string) => members.find(member => member.id === id)?.name || 'Pemain';
   return <section className="minigames">{dm && <details ref={tokenMenu}>
       <summary>Token minigame · {games.length}</summary>
@@ -77,6 +83,12 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
         </fieldset>}
         {dm && <button disabled={disabled || (!openParty && game.players.length < (gameCatalog[game.kind].mode === 'duel' ? 2 : 1))} onClick={() => send({ type: 'start' })}>Mulai ronde</button>}
       </div>}
+      {game.kind === 'journal' && <TornJournal key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}
+      {game.kind === 'whodunit' && <Whodunit key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}
+      {game.kind === 'tilefloor' && game.players.length === 2 && <TileFloor key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
+      {game.kind === 'lockpick' && <Lockpick key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}
+      {game.kind === 'cryptex' && <Cryptex key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} dm={dm} />}
+      {game.kind === 'relicscale' && <RelicScale key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}
       {game.kind === 'wallclock' && <WallClock key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}
       {game.kind === 'cooprooms' && <CoopPuzzle game={game} disabled={disabled} send={send} dm={dm} members={members} />}
       {game.kind === 'quickmath' && <>

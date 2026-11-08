@@ -1,0 +1,120 @@
+/* Start-screen v5 (desktop): split hero. Four tall portrait cards left, title + entry on obsidian right.
+   Fits 100dvh so nothing is cut off on short laptop screens.
+   To revert: delete the `import "./start-screen.css"` line in main.tsx. */
+.game-start {
+  --gold-soft: #c9b88c;
+  height: 100dvh;
+  min-height: 0;
+  padding: 0 clamp(32px, 6vw, 110px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, .85fr);
+  align-items: center;
+  column-gap: clamp(40px, 6vw, 110px);
+  background: radial-gradient(ellipse 50% 70% at 75% 50%, #15201d 0%, transparent 70%), #080b0b;
+}
+.game-start .game-start-background-party {
+  grid-column: 1;
+  grid-row: 1;
+  position: static;
+  z-index: auto;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  gap: clamp(8px, 1vw, 16px);
+  height: min(78dvh, 640px);
+  pointer-events: none;
+}
+.game-start .hero-background {
+  position: static;
+  flex: 1 1 0;
+  min-width: 0;
+  width: 0;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  opacity: .8;
+  filter: grayscale(.6) sepia(.2) brightness(.7) contrast(1.05);
+  mask-image: none;
+  border: 1px solid #c9b88c44;
+  border-radius: 2px;
+}
+/* Gentle stagger so the row reads like a hand of cards, not a grid. */
+.game-start .hero-background-2 { transform: translateY(7%); }
+.game-start .hero-background-4 { transform: translateY(7%); }
+.game-start .hero-background-4 { object-position: 60% 18%; }
+.game-start .game-start-card {
+  grid-column: 2;
+  grid-row: 1;
+  width: 100%;
+  max-width: 400px;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+  text-align: left;
+}
+.game-start .game-start-kicker { display: block; color: var(--gold-soft); font-size: 10px; font-weight: 400; letter-spacing: 8px; opacity: .85; }
+.game-start .game-start-kicker::before, .game-start .game-start-kicker::after { display: none; }
+.game-start .game-start-card h1 {
+  margin: 18px 0 0;
+  color: #f1ece0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  font-size: clamp(40px, 4.6vw, 68px);
+  line-height: 1;
+  letter-spacing: 4px;
+}
+.game-start .game-start-card h1 em { color: var(--gold-soft); letter-spacing: 3px; }
+.game-start .game-start-heading > p {
+  margin: 0 0 clamp(20px, 4dvh, 40px);
+  padding-top: clamp(14px, 3dvh, 26px);
+  color: #8f9990;
+  font-size: 10px;
+  letter-spacing: 6px;
+  text-align: left;
+}
+.game-start .game-start-heading > p::before {
+  content: "";
+  display: block;
+  width: 64px;
+  height: 1px;
+  margin-bottom: clamp(14px, 3dvh, 24px);
+  background: var(--gold-soft);
+}
+.game-start .game-start-entry label { text-align: left; color: #8c958d; font-size: 10px; letter-spacing: 5px; }
+.game-start .game-start-entry input {
+  min-height: 44px;
+  color: #f1ece0;
+  font-family: Georgia, serif;
+  font-size: 18px;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #c9b88c55;
+  border-radius: 0;
+}
+.game-start .game-start-entry input::placeholder { color: #6c766e; font-style: italic; }
+.game-start .game-start-entry input:focus { border-bottom-color: var(--gold-soft); box-shadow: none; outline: 0; }
+.game-start .game-start-entry .game-start-button {
+  margin-top: clamp(18px, 4dvh, 32px);
+  min-height: 46px;
+  color: var(--gold-soft);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 6px;
+  background: transparent;
+  border: 1px solid #c9b88c88;
+  border-radius: 0;
+  transition: background .3s, color .3s;
+}
+.game-start .game-start-entry .game-start-button:hover:not(:disabled) { background: var(--gold-soft); color: #0a0f0e; }
+.game-start .game-start-entry .game-start-reset { margin: 20px 0 0; color: #6a746c; font-size: 9px; letter-spacing: 3px; text-align: left; text-decoration: none; }
+.game-start .game-start-entry .game-start-reset:hover { color: var(--gold-soft); }
+.game-start .game-start-card > .form-error { text-align: left; }
+
+/* One alignment (left) for the whole text column; drop theme.css's second centered rule. */
+.game-start .game-start-heading, .game-start .game-start-entry, .game-start .game-start-entry label { text-align: left; }
+.game-start .game-start-heading::before, .game-start .game-start-heading::after { display: none; }
+.game-start .game-start-heading > p { color: #a9b2aa; }
+.game-start .game-start-entry label { color: #a9b2aa; }
+.game-start .game-start-entry .game-start-reset { color: #8a948c; }

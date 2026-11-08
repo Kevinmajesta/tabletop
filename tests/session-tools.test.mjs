@@ -63,7 +63,40 @@ test('hit die, condition-adjusted rolls, NPC initiative and DM-only audio', { ti
     assert.equal(owner.state.ambience, null);
 
     // NPC initiative: player rejected; DM rolls every non-character token into combat order.
-    for (const id of ['n1', 'n2']) await ack(dm, 'tabletop:action', { sceneId, type: 'token:add', id, name: id });
+    for (const name of ['n1', 'n2']) {
+      const tf = new FormData();
+      tf.append('image', new Blob([new Uint8Array([137, 80, 78, 71])], { type: 'image/png' }), 't.png');
+      tf.append('name', name);
+      const r = await fetch(`${base}/api/rooms/${room.id}/upload/token`, { method: 'POST', headers: { 'x-player-id': 'dm', 'x-player-secret': 'secret-dm' }, body: tf });
+      assert.equal(r.status, 200);
+    }
+    await delay(100);
     assert.ok((await ack(owner, 'tabletop:action', { sceneId, type: 'combat:roll-npc' })).error);
+    assert.equal((await ack(dm, 'tabletop:action', { sceneId, type: 'combat:roll-npc' })).ok, true);
+    await delay(80);
+    const combat = dm.state.scenes.find(x => x.id === sceneId).combat;
+    assert.equal(combat.active, true);
+    assert.equal(combat.ids.length, 2);
+    const inits = combat.ids.map(id => dm.state.scenes.find(x => x.id === sceneId).tokens.find(t => t.id === id).initiative);
+    assert.ok(inits.every(n => n >= 1 && n <= 20) && inits[0] >= inits[1]);
+
+    // Conditions: a linked Poisoned character rolls ability checks at disadvantage, and manual advantage cancels it.
+    const lf = new FormData();
+    lf.append('image', new Blob([new Uint8Array([137, 80, 78, 71])], { type: 'image/png' }), 'c.png');
+    lf.append('name', 'Hero');
+    lf.append('characterId', mine().id);
+    assert.equal((await fetch(`${base}/api/rooms/${room.id}/upload/token`, { method: 'POST', headers: { 'x-player-id': 'owner', 'x-player-secret': 'secret-owner' }, body: lf })).status, 200);
+    await delay(100);
+    const hero = dm.state.scenes.find(x => x.id === sceneId).tokens.find(t => t.characterId === mine().id);
+    const upd = await ack(dm, 'tabletop:action', { sceneId, type: 'token:update', id: hero.id, conditions: ['Poisoned'], characterRevision: hero.characterRevision }); assert.ok(!upd?.error, JSON.stringify(upd));
+    await delay(100);
+    const lastRoll = () => owner.state.messages.filter(m => m.kind === 'roll').at(-1).text;
+    assert.equal((await ack(owner, 'dice:roll', { characterId: mine().id, kind: 'ability', key: 'str', mode: 'normal' })).ok, true);
+    await delay(300);
+    assert.match(lastRoll(), /^disadvantage:.*disadvantage dari kondisi/);
+    assert.equal((await ack(owner, 'dice:roll', { characterId: mine().id, kind: 'ability', key: 'str', mode: 'advantage' })).ok, true);
+    await delay(300);
+    assert.match(lastRoll(), /saling batal/);
+    assert.doesNotMatch(lastRoll(), /^(advantage|disadvantage):/);
   } finally { sockets.forEach(s => s.close()); server.kill(); }
 });

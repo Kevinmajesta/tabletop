@@ -60,7 +60,7 @@ export default function CoopPuzzle({ game, disabled, send, dm, members }: Props)
     {chairs && <section hidden={panel !== 'tts'}>
       <h3>Teka-teki silang</h3>
       <p><strong>Ekstraksi:</strong> ambil huruf pertama jawaban <mark>7M</mark>, <mark>5T</mark>, <mark>9T</mark>, <mark>15M</mark>, <mark>12T</mark>, sesuai urutan. Sampaikan kepada tim sandi.</p>
-      {coop.crossword ? <Crossword key={`${game.tokenId}-${game.round}`} game={coop.crossword} disabled={locked} send={action => send({ type: 'coop:crossword', id: action.id, answer: action.answer })} /> : <p>Menunggu papan TTS.</p>}
+      {coop.crossword ? <Crossword key={`${game.tokenId}-${game.round}`} game={coop.crossword} disabled={locked} send={action => send({ type: 'coop:crossword', ...action })} /> : <p>Menunggu papan TTS.</p>}
     </section>}
     {chairs && <section hidden={panel !== 'chairs'}>
       <h3>Susunan kursi{coop.seatDone ? ' · selesai' : ''}</h3>

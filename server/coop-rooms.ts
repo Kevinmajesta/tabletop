@@ -54,6 +54,9 @@ export function coopAction(game: Game, playerId: string, dm: boolean, action: Re
   const chairs = dm || c.teams[0].includes(playerId), cipher = dm || c.teams[1].includes(playerId);
   if (action.type === 'coop:crossword') {
     if (!chairs || !c.crossword) return fail;
+    if (typeof action.cell === 'number') {
+      return gameAction(c.crossword, playerId, false, { type: 'crossword:letter', cell: action.cell, letter: action.letter });
+    }
     if (c.crossword.crosswordSolved?.includes(String(action.id))) return null;
     return gameAction(c.crossword, playerId, false, { type: 'crossword:answer', id: action.id, answer: action.answer });
   }

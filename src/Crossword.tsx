@@ -9,7 +9,11 @@ export default function Crossword({ game, disabled, send }: { game: Game; disabl
   const inputs = useRef(new Map<number, HTMLInputElement>());
   const entry = entries.find(item => item.id === selected) || entries[0];
   const solved = new Set(entries.filter(item => game.crosswordSolved?.includes(item.id)).flatMap(item => item.cells));
-  useEffect(() => { setDraft(current => current.map((letter, i) => game.crosswordLetters?.[i] || letter)); }, [game.crosswordLetters]);
+  useEffect(() => {
+    if (game.crosswordLetters) {
+      setDraft(game.crosswordLetters);
+    }
+  }, [game.crosswordLetters]);
   const focus = (cell: number) => { inputs.current.get(cell)?.focus(); inputs.current.get(cell)?.select(); };
   function select(id: string) {
     setSelected(id);
@@ -35,8 +39,10 @@ export default function Crossword({ game, disabled, send }: { game: Game; disabl
                 onDoubleClick={() => setSelected(words.find(word => word.id !== entry?.id)?.id || words[0].id)}
                 onChange={event => {
                   if (!entry) return;
-                  const result = crosswordEdit(draft, entry, cell, event.target.value);
+                  const currentLetters = game.crosswordLetters?.map((l, i) => l || draft[i] || '') || draft;
+                  const result = crosswordEdit(currentLetters, entry, cell, event.target.value);
                   setDraft(result.letters);
+                  send({ type: 'crossword:letter', cell, letter: result.letters[cell] || '' });
                   if (result.letters[cell]) focus(result.next);
                   if (result.answer) submit(result.letters);
                 }}

@@ -31,6 +31,7 @@ import "./dice-animation.css";
 import "./tabletop.css";
 import "./characters.css";
 import "./theme.css";
+import "./start-templates/template-3.css"; // ganti ke template-1.css / template-2.css untuk tampilan lain
 import CoinFlip, { type CoinResult } from './CoinFlip';
 const AnimatedDiceScene = lazy(() => import("./DiceScene"));
 const NaturalRollEffect = lazy(() => import("./NaturalRollEffect"));

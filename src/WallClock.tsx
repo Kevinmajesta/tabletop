@@ -6,16 +6,22 @@ const clues = [
   'Jam Pengelana: angka jamnya adalah salah satu dari 7, 8, 9, atau 10. Jarum panjang menunjuk angka 2, 3, atau 4. Posisi jarum panjangnya berseberangan dengan jarum panjang Penjaga.',
   'Jam Penjaga Malam: angka jamnya genap dan merupakan salah satu dari 3, 4, 5, atau 6. Dari angka jam Pengelana, hitung dua langkah angka berlawanan arah jarum jam untuk menemukan angka jam Penjaga Malam. Jarum panjangnya menunjuk angka ganjil dan merupakan bayangan jarum panjang Pengelana pada cermin yang membelah lingkaran jam melalui angka 12 dan 6.'
 ];
+
+const parseTime = (str?: string): [number, number] => {
+  if (!str) return [12, 0];
+  const [h, m] = str.split(':').map(Number);
+  return [Number.isInteger(h) && h >= 1 && h <= 12 ? h : 12, Number.isInteger(m) && m >= 0 && m <= 59 ? m : 0];
+};
+
 export default function WallClock({ game, disabled, send }: { game: Game; disabled: boolean; send: (action: Record<string, unknown>) => void }) {
-  const [times, setTimes] = useState([[12, 0], [12, 0], [12, 0]]);
   return <section>
     <p>Di ruangan ini terdapat tiga jam dinding yang berhenti dan sebuah pintu yang terkunci. Untuk membuka pintu, tentukan waktu yang seharusnya ditunjukkan oleh setiap jam dengan menggabungkan ketiga petunjuk. Atur jarumnya, lalu tekan tombol Kunci pada setiap jam. Semua pemain boleh membantu.</p>
     <p>Gunakan format 12 jam: setelah pukul 12.59, waktu berlanjut ke pukul 01.00. Menit pada setiap jam harus merupakan kelipatan lima. Jarum pendek menunjukkan jam, sedangkan jarum panjang menunjukkan menit.</p>
     <p>“Angka jam” berarti angka yang dipilih pada kolom Jam, bukan posisi tepat jarum pendek. Contohnya, pukul 11.20 memiliki angka jam 11. “Berseberangan” berarti tepat di sisi seberang lingkaran, seperti angka 12 dan 6. Pencerminan melalui garis 12–6 menukar sisi kiri dan kanan, tanpa menukar bagian atas dan bawah.</p>
     {game.phase !== 'waiting' && <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
-      {times.map((draft, clock) => {
+      {[0, 1, 2].map(clock => {
         const solved = !!game.board[clock];
-        const [hour, minute] = solved ? game.board[clock].split(':').map(Number) : draft;
+        const [hour, minute] = solved ? parseTime(game.board[clock]) : parseTime(game.clockTimes?.[clock]);
         const locked = disabled || solved || game.phase !== 'open';
         return <fieldset key={clock} disabled={locked} style={{ minWidth: 0 }}>
           <legend>{['Jam Penjaga', 'Jam Pengelana', 'Jam Penjaga Malam'][clock]}{solved ? ' · terkunci' : ''}</legend>
@@ -31,8 +37,8 @@ export default function WallClock({ game, disabled, send }: { game: Game; disabl
             <circle cx="100" cy="100" r="5" fill="#e3c787" />
           </svg>
           <form onSubmit={event => { event.preventDefault(); if (!locked) send({ type: 'clock:set', clock, hour, minute }); }}>
-            <label>Jam<select value={hour} onChange={event => setTimes(current => current.map((time, index) => index === clock ? [Number(event.target.value), time[1]] : time))}>{Array.from({ length: 12 }, (_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}</select></label>
-            <label>Menit<select value={minute} onChange={event => setTimes(current => current.map((time, index) => index === clock ? [time[0], Number(event.target.value)] : time))}>{Array.from({ length: 60 }, (_, i) => <option key={i} value={i}>{String(i).padStart(2, '0')}</option>)}</select></label>
+            <label>Jam<select value={hour} onChange={event => send({ type: 'clock:adjust', clock, hour: Number(event.target.value), minute })}>{Array.from({ length: 12 }, (_, i) => <option key={i} value={i + 1}>{i + 1}</option>)}</select></label>
+            <label>Menit<select value={minute} onChange={event => send({ type: 'clock:adjust', clock, hour, minute: Number(event.target.value) })}>{Array.from({ length: 60 }, (_, i) => <option key={i} value={i}>{String(i).padStart(2, '0')}</option>)}</select></label>
             <button disabled={locked}>Kunci jam {clock + 1}</button>
           </form>
         </fieldset>;

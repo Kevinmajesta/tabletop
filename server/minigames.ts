@@ -3,6 +3,12 @@ export { gameCatalog, gameKinds } from './game-catalog.js';
 export type { GameKind } from './game-catalog.js';
 import { ttsPilihanEntries } from './tts-pilihan.js';
 import { coopAction, coopView, type CoopState } from './coop-rooms.js';
+import { newScale, weigh, scaleView, scaleRelics, type ScaleState } from './relic-scale.js';
+import { newJournal, checkJournal, journalView, type JournalState } from './torn-journal.js';
+import { newLock, validLock, score, marksOf, lockView, lockLength, lockTries, type LockState } from './lockpick.js';
+import { newWhodunit, checkWhodunit, whodunitReveal, suspects, type WhodunitState } from './whodunit.js';
+import { newTiles, tilesView, adjacent, isSafe, tileFall, armTimer, tileCols, tileRows, type TileState } from './tilefloor.js';
+import { newCryptex, checkCryptex, cryptexView, type CryptexState } from './cryptex.js';
 const bombOrders = [['red', 'blue', 'yellow'], ['yellow', 'red', 'blue'], ['blue', 'yellow', 'red'], ['green', 'red', 'black'], ['black', 'yellow', 'green'], ['black', 'green', 'yellow']];
 const bombKeypads = [['☾', '★', '☂', '♜'], ['☂', '♜', '☾', '★'], ['★', '☂', '♜', '☾']];
 const wireSymbols = ['BURUNG', 'MAHKOTA', 'MATA', 'PEDANG'];
@@ -70,7 +76,7 @@ function bombModules(randomInt: (max: number) => number): BombModule[] {
   ];
 }
 export type Game = {
-  coop?: CoopState;
+  coop?: CoopState; scale?: ScaleState; journal?: JournalState; cryptex?: CryptexState; whodunit?: WhodunitState; lock?: LockState; tiles?: TileState;
   tokenId: string; kind: GameKind; round: number; phase: 'waiting' | 'open' | 'finished';
   players: string[]; scores: Record<string, number>; choices: Record<string, string>;
   result: string;
@@ -82,6 +88,7 @@ export type Game = {
   bombModules?: BombModule[];
   cipherLayers?: CipherLayer[]; cipherStage?: number;
   crosswordColumns?: number; crosswordEntries?: CrosswordEntry[]; crosswordSolved?: string[]; crosswordLetters?: string[];
+  clockTimes?: string[];
   seatingNames?: string[]; seatingSeats?: string[]; seatingClues?: string[]; seatingSolution?: string[];
   drawingRound?: number; drawingChoices?: string[]; drawingWord?: string; drawingStrokes?: number[][][];
 };
@@ -96,7 +103,7 @@ export function closeMemoryMismatch(game: Game, now = Date.now()) {
   return true;
 }
 export function gameView(game: Game, playerId: string, dm: boolean): Game {
-  const { coop, answer, memoryBoard, memoryOpen, wires, bombModules, cipherLayers: layers, crosswordEntries: entries, seatingSolution, drawingChoices, drawingWord, ...view } = game;
+  const { coop, scale, journal, cryptex, whodunit, lock, tiles, answer, memoryBoard, memoryOpen, wires, bombModules, cipherLayers: layers, crosswordEntries: entries, seatingSolution, drawingChoices, drawingWord, ...view } = game;
   if (game.kind === 'cooprooms') return { ...view, coop: coopView(game, playerId, dm) };
   const memoryViewer = game.players.indexOf(playerId);
   const canSeeMemoryOpen = memoryViewer < 0 || memoryViewer === game.turn;
@@ -113,7 +120,7 @@ export function gameView(game: Game, playerId: string, dm: boolean): Game {
   const visibleLayers = layers
     ?.slice(0, Math.min((game.cipherStage || 0) + 1, layers.length))
     .map(({ answer: _answer, ...layer }) => game.kind === 'chaincipher' ? (({ method: _method, clue: _clue, ...cipher }) => cipher)(layer) : layer);
-  return { ...view, ...(game.phase === 'finished' && answer !== undefined ? { answer } : {}), ...(game.kind === 'memory' ? { memoryBoard: filteredMemoryBoard, memoryOpen: canSeeMemoryOpen ? memoryOpen : [] } : {}), ...(game.kind === 'bombdefuse' ? { bombModules: modules } : {}), ...(game.kind === 'reliccipher' || game.kind === 'chaincipher' ? { cipherLayers: visibleLayers } : {}), ...((game.kind === 'crossword' || game.kind === 'ttspilihan') ? { crosswordEntries: entries?.map(({ answer: _answer, ...entry }) => entry) } : {}), ...(game.kind === 'drawing' && (dm || playerId === game.players[0]) ? { drawingChoices, drawingWord } : {}), choices: game.phase === 'finished' ? { ...game.choices } : Object.fromEntries(Object.entries(game.choices).map(([id, choice]) => [id, id === playerId ? choice : 'locked'])) } as Game;
+  return { ...view, ...(game.phase === 'finished' && answer !== undefined ? { answer } : {}), ...(game.kind === 'memory' ? { memoryBoard: filteredMemoryBoard, memoryOpen: canSeeMemoryOpen ? memoryOpen : [] } : {}), ...(game.kind === 'bombdefuse' ? { bombModules: modules } : {}), ...(game.kind === 'reliccipher' || game.kind === 'chaincipher' ? { cipherLayers: visibleLayers } : {}), ...(game.kind === 'relicscale' && scale ? { scale: scaleView(scale, dm, game.phase === 'finished') } : {}), ...(game.kind === 'journal' && journal ? { journal: journalView(journal, dm, game.phase === 'finished') } : {}), ...(game.kind === 'cryptex' && cryptex ? { cryptex: cryptexView(cryptex, dm, game.phase === 'finished') } : {}), ...(game.kind === 'whodunit' && whodunit ? { whodunit } : {}), ...(game.kind === 'tilefloor' && tiles ? { tiles: tilesView(tiles, playerId === game.players[0] ? 'guide' : playerId === game.players[1] ? 'walker' : 'other', dm && !game.players.slice(0, 2).includes(playerId), game.phase === 'finished') } : {}), ...(game.kind === 'lockpick' && lock ? { lock: lockView(lock, dm, game.phase === 'finished') } : {}), ...((game.kind === 'crossword' || game.kind === 'ttspilihan') ? { crosswordEntries: entries?.map(({ answer: _answer, ...entry }) => entry) } : {}), ...(game.kind === 'drawing' && (dm || playerId === game.players[0]) ? { drawingChoices, drawingWord } : {}), choices: game.phase === 'finished' ? { ...game.choices } : Object.fromEntries(Object.entries(game.choices).map(([id, choice]) => [id, id === playerId ? choice : 'locked'])) } as Game;
 }
 export function declareGame(game: Game, participants: string[]): string | null {
   if (game.phase !== 'waiting') return 'Reset ronde sebelum deklarasi berikutnya.';
@@ -154,12 +161,14 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
   } else if (action.type === 'reset') {
     if (!dm) return 'Hanya GM boleh mengatur ronde.';
     Object.assign(game, { phase: 'waiting', choices: {}, result: '', board: Array(boardSize(game.kind)).fill(''), turn: 0, moveHistory: [], memoryOpen: [], memoryPairs: 0 });
-    delete game.question; delete game.answer; delete game.memoryBoard; delete game.memoryCloseAt; delete game.wires; delete game.bombModules; delete game.cipherLayers; delete game.cipherStage; delete game.crosswordEntries; delete game.crosswordSolved; delete game.crosswordLetters; delete game.seatingNames; delete game.seatingSeats; delete game.seatingClues; delete game.seatingSolution; delete game.drawingRound; delete game.drawingChoices; delete game.drawingWord; delete game.drawingStrokes;
+    delete game.question; delete game.answer; delete game.memoryBoard; delete game.memoryCloseAt; delete game.wires; delete game.bombModules; delete game.cipherLayers; delete game.cipherStage; delete game.crosswordEntries; delete game.crosswordSolved; delete game.crosswordLetters; delete game.clockTimes; delete game.seatingNames; delete game.seatingSeats; delete game.seatingClues; delete game.seatingSolution; delete game.scale; delete game.journal; delete game.cryptex; delete game.whodunit; delete game.lock; delete game.tiles; delete game.drawingRound; delete game.drawingChoices; delete game.drawingWord; delete game.drawingStrokes;
   } else if (action.type === 'start') {
     if (!dm) return 'Hanya GM boleh memulai ronde.';
-    const openParty = (game.kind === 'crossword' || game.kind === 'ttspilihan') || game.kind === 'seating' || game.kind === 'wallclock';
+    const openParty = (game.kind === 'crossword' || game.kind === 'ttspilihan') || game.kind === 'seating' || game.kind === 'wallclock' || game.kind === 'relicscale' || game.kind === 'journal' || game.kind === 'cryptex' || game.kind === 'whodunit' || game.kind === 'lockpick';
     if (game.phase !== 'waiting' || (!openParty && game.players.length < (gameCatalog[game.kind].mode === 'duel' ? 2 : 1))) return 'Peserta belum cukup atau ronde belum direset.';
-    if (game.kind === 'drawing') {
+    if (game.kind === 'wallclock') {
+      game.clockTimes = ['12:00', '12:00', '12:00'];
+    } else if (game.kind === 'drawing') {
       game.drawingRound = 0;
       game.drawingChoices = [...drawingWords[0]];
       game.drawingStrokes = [];
@@ -190,6 +199,23 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
         `${solution[7]} duduk di antara ${solution[6]} dan ${solution[8]}.`,
         `${solution[8]} duduk bersebelahan dengan ${solution[0]}.`,
       ];
+    } else if (game.kind === 'journal') {
+      if (!randomInt) return 'Pembuat acak tidak tersedia.';
+      game.journal = newJournal(randomInt);
+    } else if (game.kind === 'lockpick') {
+      if (!randomInt) return 'Pembuat acak tidak tersedia.';
+      game.lock = newLock(randomInt);
+    } else if (game.kind === 'whodunit') {
+      game.whodunit = newWhodunit();
+    } else if (game.kind === 'tilefloor') {
+      if (!randomInt) return 'Pembuat acak tidak tersedia.';
+      game.tiles = newTiles(randomInt);
+    } else if (game.kind === 'cryptex') {
+      if (!randomInt) return 'Pembuat acak tidak tersedia.';
+      game.cryptex = newCryptex(randomInt);
+    } else if (game.kind === 'relicscale') {
+      if (!randomInt) return 'Pembuat acak tidak tersedia.';
+      game.scale = newScale(randomInt);
     } else if (game.kind === 'quickmath') {
       if (!randomInt) return 'Pembuat soal tidak tersedia.';
       game.turn = 0;
@@ -259,10 +285,39 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
       game.scores[playerId] = (game.scores[playerId] || 0) + 1;
       game.phase = 'finished';
     }
+  } else if (action.type === 'crossword:letter') {
+    if ((game.kind !== 'crossword' && game.kind !== 'ttspilihan') || game.phase !== 'open') return fail;
+    if (typeof action.cell !== 'number' || !Number.isInteger(action.cell) || action.cell < 0 || action.cell >= (game.crosswordLetters?.length || 0)) return fail;
+    if (typeof action.letter !== 'string' || action.letter.length > 1) return fail;
+    const cell = action.cell as number;
+    const upper = action.letter.toUpperCase().replace(/[^A-Z]/g, '');
+    game.crosswordLetters ||= Array(game.crosswordColumns === 15 ? 225 : 20).fill('');
+    game.crosswordLetters[cell] = upper;
+    const matchingEntries = game.crosswordEntries?.filter(item => item.cells.includes(cell)) || [];
+    for (const entry of matchingEntries) {
+      if (entry.answer && entry.cells.every(c => game.crosswordLetters![c]) && entry.cells.map(c => game.crosswordLetters![c]).join('') === entry.answer) {
+        game.crosswordSolved ||= [];
+        if (!game.crosswordSolved.includes(entry.id)) {
+          game.crosswordSolved.push(entry.id);
+        }
+      }
+    }
+    if (game.crosswordSolved && game.crosswordEntries && game.crosswordSolved.length === game.crosswordEntries.length) {
+      game.result = playerId;
+      game.scores[playerId] = (game.scores[playerId] || 0) + 1;
+      game.phase = 'finished';
+    }
+  } else if (action.type === 'clock:adjust') {
+    if (game.kind !== 'wallclock' || game.phase !== 'open' || typeof action.clock !== 'number' || !Number.isInteger(action.clock) || action.clock < 0 || action.clock > 2 || typeof action.hour !== 'number' || !Number.isInteger(action.hour) || action.hour < 1 || action.hour > 12 || typeof action.minute !== 'number' || !Number.isInteger(action.minute) || action.minute < 0 || action.minute > 59) return fail;
+    if (game.board[action.clock]) return 'Jam ini sudah terkunci.';
+    game.clockTimes ||= ['12:00', '12:00', '12:00'];
+    game.clockTimes[action.clock] = `${action.hour}:${String(action.minute).padStart(2, '0')}`;
   } else if (action.type === 'clock:set') {
     if (game.kind !== 'wallclock' || game.phase !== 'open' || typeof action.clock !== 'number' || !Number.isInteger(action.clock) || action.clock < 0 || action.clock > 2 || typeof action.hour !== 'number' || !Number.isInteger(action.hour) || action.hour < 1 || action.hour > 12 || typeof action.minute !== 'number' || !Number.isInteger(action.minute) || action.minute < 0 || action.minute > 59) return fail;
     if (game.board[action.clock]) return 'Jam ini sudah terkunci.';
     const time = `${action.hour}:${String(action.minute).padStart(2, '0')}`;
+    game.clockTimes ||= ['12:00', '12:00', '12:00'];
+    game.clockTimes[action.clock] = time;
     if (time !== ['2:45', '8:15', '6:45'][action.clock]) return 'Jarum belum menunjukkan waktu yang tepat.';
     game.board[action.clock] = time;
     if (game.board.every(Boolean)) { game.phase = 'finished'; game.result = playerId; }
@@ -274,6 +329,120 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
       game.result = playerId;
       game.scores[playerId] = (game.scores[playerId] || 0) + 1;
       game.phase = 'finished';
+    }
+  } else if (action.type === 'journal:order') {
+    if (game.kind !== 'journal' || game.phase !== 'open' || !game.journal) return fail;
+    if (!Array.isArray(action.order) || action.order.some(id => typeof id !== 'string')) return fail;
+    game.journal.order = action.order as string[];
+  } else if (action.type === 'journal:submit') {
+    if (game.kind !== 'journal' || game.phase !== 'open' || !game.journal) return fail;
+    const verdict = checkJournal(game.journal, action.order);
+    if (verdict === 'invalid') return 'Susun kesepuluh halaman, masing-masing sekali.';
+    if (verdict === 'right') {
+      game.result = playerId;
+      game.scores[playerId] = (game.scores[playerId] || 0) + 1;
+      game.phase = 'finished';
+    } else {
+      // Not an error return: errors skip save/broadcast. The counter lets every client show the miss.
+      game.journal.attempts++;
+      game.result = 'wrong';
+    }
+  } else if (action.type === 'lock:draft') {
+    if (game.kind !== 'lockpick' || game.phase !== 'open' || !game.lock || !validLock(action.draft)) return fail;
+    game.lock.draft = action.draft;
+  } else if (action.type === 'lock:try') {
+    if (game.kind !== 'lockpick' || game.phase !== 'open' || !game.lock) return fail;
+    const guess = game.lock.draft;
+    if (guess.length !== lockLength) return `Isi ${lockLength} simbol dulu.`;
+    const { exact, near } = score(game.lock.code, guess);
+    game.lock.history.push({ guess: [...guess], exact, near, marks: marksOf(game.lock.code, guess) });
+    if (exact === lockLength) {
+      game.result = playerId;
+      game.scores[playerId] = (game.scores[playerId] || 0) + 1;
+      game.phase = 'finished';
+    } else if (game.lock.history.length >= lockTries) {
+      // Bukan return error: error melewati save/broadcast, padahal reset harus sampai ke semua klien.
+      if (!randomInt) return 'Pembuat acak tidak tersedia.';
+      game.lock = newLock(randomInt, game.lock.attempts + 1);
+      game.result = 'wrong';
+    } else {
+      game.lock.draft = [];
+      game.result = '';
+    }
+  } else if (action.type === 'tile:step') {
+    const t = game.tiles;
+    if (game.kind !== 'tilefloor' || game.phase !== 'open' || !t || playerId !== game.players[1] || typeof action.cell !== 'number' || !Number.isInteger(action.cell) || action.cell < 0 || action.cell >= tileCols * tileRows || !adjacent(t.pos, action.cell)) return fail;
+    if (!randomInt) return 'Pembuat acak tidak tersedia.';
+    // Bukan return error di cabang jatuh: error melewati save/broadcast, padahal jatuhnya Pejalan harus terlihat semua klien.
+    if (Date.now() > t.deadline + 1500) tileFall(game, t, randomInt); // melangkah setelah waktu habis (toleransi 1,5 dtk untuk latensi)
+    else {
+      t.steps++;
+      if (isSafe(t, action.cell)) {
+        t.pos = action.cell; game.result = ''; armTimer(t);
+        if (!t.visited.includes(action.cell)) t.visited.push(action.cell);
+        if (Math.floor(action.cell / tileCols) === 0) { game.phase = 'finished'; game.result = 'win'; for (const id of game.players) game.scores[id] = (game.scores[id] || 0) + 1; }
+      } else tileFall(game, t, randomInt, t.faces[action.cell]!);
+    }
+  } else if (action.type === 'tile:timeout') {
+    const t = game.tiles;
+    if (game.kind !== 'tilefloor' || game.phase !== 'open' || !t || (!dm && !game.players.includes(playerId))) return fail;
+    if (!randomInt) return 'Pembuat acak tidak tersedia.';
+    // Server yang menilai waktunya; kedua pemain boleh melapor, laporan terlalu awal/ganda diabaikan tanpa error.
+    if (Date.now() >= t.deadline - 300) tileFall(game, t, randomInt);
+  } else if (action.type === 'whodunit:draft') {
+    if (game.kind !== 'whodunit' || game.phase !== 'open' || !game.whodunit) return fail;
+    const c = action.culprit, h = action.honest;
+    if ((c !== null && (!Number.isInteger(c) || (c as number) < 0 || (c as number) >= suspects.length)) || !Array.isArray(h) || h.length > suspects.length || !h.every(n => Number.isInteger(n) && n >= 0 && n < suspects.length) || new Set(h).size !== h.length) return fail;
+    game.whodunit.draftCulprit = c as number | null;
+    game.whodunit.draftHonest = h as number[];
+  } else if (action.type === 'whodunit:submit') {
+    if (game.kind !== 'whodunit' || game.phase !== 'open' || !game.whodunit) return fail;
+    if (checkWhodunit(game.whodunit.draftCulprit, game.whodunit.draftHonest)) {
+      game.whodunit.reveal = whodunitReveal;
+      game.result = playerId;
+      game.scores[playerId] = (game.scores[playerId] || 0) + 1;
+      game.phase = 'finished';
+    } else {
+      game.whodunit.attempts++;
+      game.result = 'wrong';
+    }
+  } else if (action.type === 'cryptex:draft') {
+    if (game.kind !== 'cryptex' || game.phase !== 'open' || !game.cryptex) return fail;
+    if (typeof action.guess !== 'string' || action.guess.length > 40) return fail;
+    game.cryptex.draft = action.guess.toUpperCase().replace(/[^A-Z0-9 ]/g, '');
+  } else if (action.type === 'cryptex:guess') {
+    if (game.kind !== 'cryptex' || game.phase !== 'open' || !game.cryptex) return fail;
+    if (typeof action.guess !== 'string' || !action.guess.trim() || action.guess.length > 100) return fail;
+    if (checkCryptex(game.cryptex, action.guess)) {
+      game.result = playerId;
+      game.scores[playerId] = (game.scores[playerId] || 0) + 1;
+      game.phase = 'finished';
+    } else {
+      game.cryptex.attempts++;
+      game.result = 'wrong';
+    }
+  } else if (action.type === 'scale:place') {
+    if (game.kind !== 'relicscale' || game.phase !== 'open' || !game.scale) return fail;
+    if (!Array.isArray(action.left) || !Array.isArray(action.right)) return fail;
+    game.scale.leftPan = action.left.filter(n => Number.isInteger(n));
+    game.scale.rightPan = action.right.filter(n => Number.isInteger(n));
+  } else if (action.type === 'scale:weigh') {
+    if (game.kind !== 'relicscale' || game.phase !== 'open' || !game.scale) return fail;
+    const error = weigh(game.scale, action.left, action.right);
+    if (!error && game.result === 'wrong') game.result = '';
+    return error;
+  } else if (action.type === 'scale:pick') {
+    if (game.kind !== 'relicscale' || game.phase !== 'open' || !game.scale || typeof action.relic !== 'number' || !Number.isInteger(action.relic) || action.relic < 0 || action.relic >= scaleRelics) return fail;
+    if (action.relic === game.scale.fake) {
+      game.result = playerId;
+      game.scores[playerId] = (game.scores[playerId] || 0) + 1;
+      game.phase = 'finished';
+    } else {
+      if (!randomInt) return 'Pembuat acak tidak tersedia.';
+      // A wrong guess re-randomizes the fake so the answer can't be found by elimination across attempts.
+      // Not an error return: errors skip save/broadcast, and the reset must reach every client.
+      game.scale = newScale(randomInt, game.scale.attempts + 1);
+      game.result = 'wrong';
     }
   } else if (action.type === 'cipher:answer') {
     if ((game.kind !== 'reliccipher' && game.kind !== 'chaincipher') || game.phase !== 'open' || (!dm && !game.players.includes(playerId)) || typeof action.answer !== 'string' || action.answer.length > 120) return fail;
