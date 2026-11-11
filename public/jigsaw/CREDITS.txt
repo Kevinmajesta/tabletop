@@ -1,0 +1,10 @@
+Gambar bawaan Puzzle Gambar
+
+bird-houses.jpg
+  Judul   : Bird Houses on Tall Poles
+  Pembuat : Lisafern
+  Sumber  : https://commons.wikimedia.org/wiki/File:Bird_Houses_on_Tall_Poles.jpg
+  Lisensi : CC0 1.0 (domain publik, bebas dipakai tanpa syarat)
+  Catatan : diperkecil menjadi lebar 2400 px.
+
+Gambar "Pasar Kota di Malam Hari" memakai peta kampanye sendiri: /maps/town-market-night.jpg

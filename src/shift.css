@@ -1,0 +1,45 @@
+/* Dungeon yang Berputar: info ruangan + lilin di kiri, papan petak dengan tuas di kanan. */
+.minigame-dialog:has(.shift-skin) { width: min(1040px, calc(100vw - 32px)); }
+
+.sh-layout { display: grid; grid-template-columns: minmax(220px, .7fr) minmax(0, 1.3fr); gap: 16px; align-items: start; }
+.sh-side { display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid #3a3124; border-radius: 10px; background: linear-gradient(180deg, #1e1913, #15110c); }
+.sh-rooms { display: flex; gap: 6px; }
+.sh-rooms span { width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid #3a3124; border-radius: 50%; font-family: Georgia, "Times New Roman", serif; font-size: 13px; color: #6f6553; }
+.sh-rooms span.current { border-color: #cfa95f; color: #cfa95f; }
+.sh-rooms span.done { border-color: #cfa95f; background: #cfa95f; color: #1a140c; }
+.sh-side h3 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 22px; font-weight: 400; color: #f6e2a8; }
+.mg-skin .sh-story { font-size: 13.5px; line-height: 1.55; font-style: italic; color: #cbbd9f; }
+.sh-candles small { display: block; margin-bottom: 18px; font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #a99c84; }
+.sh-candles div { display: flex; gap: 10px; }
+.sh-candles i { position: relative; width: 10px; height: 30px; border-radius: 3px 3px 2px 2px; background: linear-gradient(180deg, #3a3124, #241c13); }
+.sh-candles i.lit { background: linear-gradient(180deg, #f3e7cc, #d9c08f); }
+.sh-candles i.lit::before { content: ""; position: absolute; left: 50%; top: -14px; width: 8px; height: 12px; margin-left: -4px; border-radius: 50% 50% 40% 40%; background: radial-gradient(ellipse at 50% 70%, #fff2c2, #ffae42 55%, #ff6a1a); box-shadow: 0 0 10px #ffae42; animation: sh-flicker 1.4s ease-in-out infinite alternate; }
+
+.sh-board-wrap { display: flex; flex-direction: column; gap: 8px; }
+.sh-board { width: 100%; max-width: 520px; height: auto; margin: 0 auto; display: block; user-select: none; }
+.sh-frame { fill: #0d0b08; stroke: #5c4a2e; stroke-width: 2; }
+.sh-floor { fill: #1b1611; stroke: #2e261b; stroke-width: 1; }
+.sh-path { fill: #4a3b26; }
+.sh-tile { cursor: default; }
+.sh-tile.near .sh-floor { fill: #2a2117; stroke: #cfa95f55; }
+.sh-tile.near .sh-path { fill: #b7955a; }
+.sh-tile.near { cursor: pointer; }
+.sh-tile.near:hover .sh-floor { fill: #3a2c18; }
+.sh-tile.flash .sh-floor { animation: sh-flash .45s ease-out; }
+.sh-chest rect:first-child { fill: #8a5a24; stroke: #f6e2a8; stroke-width: 1.5; }
+.sh-chest path { stroke: #f6e2a8; stroke-width: 1.5; fill: none; }
+.sh-chest .sh-lock { fill: #f6e2a8; }
+.sh-party path { fill: #cfa95f; stroke: #fff4d6; stroke-width: 1.5; }
+.sh-party-glow { fill: #f6e2a833; animation: sh-pulse 1.8s ease-in-out infinite; }
+.sh-lever { cursor: pointer; }
+.sh-lever circle { fill: #241c13; stroke: #cfa95f; stroke-width: 1.5; transition: fill .12s ease; }
+.sh-lever text { fill: #f6e2a8; font-size: 16px; font-weight: 700; pointer-events: none; }
+.sh-lever:hover circle { fill: #4a3a1a; }
+.sh-lever.off { cursor: default; opacity: .35; }
+.sh-lever.off:hover circle { fill: #241c13; }
+
+@keyframes sh-flicker { from { transform: scale(1, 1); } to { transform: scale(.85, 1.12); } }
+@keyframes sh-pulse { 50% { r: 21; fill: #f6e2a822; } }
+@keyframes sh-flash { from { fill: #6b5428; } }
+@media (prefers-reduced-motion: reduce) { .sh-candles i.lit::before, .sh-party-glow, .sh-tile.flash .sh-floor { animation: none; } }
+@media (max-width: 760px) { .sh-layout { grid-template-columns: 1fr; } }

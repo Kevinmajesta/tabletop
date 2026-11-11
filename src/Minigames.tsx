@@ -16,6 +16,13 @@ import Ritual from './Ritual';
 import QuickMath from './QuickMath';
 import MirrorRoom from './MirrorRoom';
 import WireHack from './WireHack';
+import TavernBill from './TavernBill';
+import Alchemy from './Alchemy';
+import Potion from './Potion';
+import Compass from './Compass';
+import Runes from './Runes';
+import Shift from './Shift';
+import Jigsaw from './Jigsaw';
 
 export const gameNames = Object.fromEntries(Object.entries(gameCatalog).map(([kind, entry]) => [kind, entry.name]));
 const choices: Record<string, string> = { rock: 'Batu', paper: 'Kertas', scissors: 'Gunting' };
@@ -27,7 +34,10 @@ function DrawingBoard({ strokes = [], enabled, send }: { strokes?: number[][][];
     {[...strokes, current].filter(points => points.length > 1).map((points, index) => <polyline key={index} points={points.map(([x, y]) => `${x * 100},${y * 70}`).join(' ')} />)}
   </svg>;
 }
-export default function Minigames({ games, socket, dm, playerId, members, connected, openToken, onClose, onOpen }: { games: Game[]; socket: Socket | null; dm: boolean; playerId: string; members: { id: string; name: string; online: boolean; dm: boolean }[]; connected: boolean; openToken: string | null; onClose: () => void; onOpen: (id: string) => void }) {
+// Aksi cepat yang dikirim tanpa menunggu jawaban aksi sebelumnya (lihat send).
+const liveAction = /^(jigsaw:|runes:draft$|alch:draft$|lock:draft$|potion:place$|compass:(step|undo)$|shift:(walk|pull)$)/;
+
+export default function Minigames({ games, socket, dm, playerId, members, connected, openToken, onClose, onOpen, uploadPuzzle }: { games: Game[]; socket: Socket | null; dm: boolean; playerId: string; members: { id: string; name: string; online: boolean; dm: boolean }[]; connected: boolean; openToken: string | null; onClose: () => void; onOpen: (id: string) => void; uploadPuzzle?: (file: File) => Promise<string> }) {
   const [participants, setParticipants] = useState<string[]>([]);
   const [response, setResponse] = useState('');
   const seenDeclarations = useRef(new Map<string, number>());
@@ -50,7 +60,16 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
   }, [game?.tokenId]);
   useEffect(() => { setResponse(''); setError(''); }, [game?.tokenId, game?.round, game?.phase, game?.turn, game?.cipherStage, game?.drawingRound]);
   function send(action: Record<string, unknown>) {
-    if (!socket || !connected || busy) return;
+    if (!socket || !connected) return;
+    // Aksi cepat beruntun (seret keping, ketik rune, langkah jalur) tidak boleh dibuang saat aksi sebelumnya
+    // belum dijawab server. socket.io menjaga urutannya, jadi aksi ini dikirim langsung tanpa status sibuk.
+    if (typeof action.type === 'string' && liveAction.test(action.type)) {
+      socket.timeout(5000).emit('minigame:action', { tokenId: game?.tokenId, ...action }, (timeout: Error | null, result?: { error?: string }) => {
+        setError(timeout ? 'Koneksi terputus. Periksa status ronde sebelum mencoba lagi.' : result?.error || '');
+      });
+      return;
+    }
+    if (busy) return;
     setBusy(true); setError('');
     socket.timeout(5000).emit('minigame:action', { tokenId: game?.tokenId, ...action }, (timeout: Error | null, result?: { error?: string }) => {
       setBusy(false); setError(timeout ? 'Koneksi terputus. Periksa status ronde sebelum mencoba lagi.' : result?.error || '');
@@ -62,7 +81,7 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
     if (game?.tokenId === target.tokenId) onClose();
   }
   const disabled = !connected || busy;
-  const openParty = (game?.kind === 'crossword' || game?.kind === 'ttspilihan') || game?.kind === 'seating' || game?.kind === 'wallclock' || game?.kind === 'relicscale' || game?.kind === 'journal' || game?.kind === 'cryptex' || game?.kind === 'whodunit' || game?.kind === 'lockpick';
+  const openParty = (game?.kind === 'crossword' || game?.kind === 'ttspilihan') || game?.kind === 'seating' || game?.kind === 'wallclock' || game?.kind === 'relicscale' || game?.kind === 'journal' || game?.kind === 'cryptex' || game?.kind === 'whodunit' || game?.kind === 'lockpick' || game?.kind === 'tavern' || game?.kind === 'alchemy' || game?.kind === 'potion' || game?.kind === 'compass' || game?.kind === 'runes' || game?.kind === 'shift' || game?.kind === 'jigsaw';
   const name = (id: string) => members.find(member => member.id === id)?.name || 'Pemain';
   return <section className="minigames">{dm && <details ref={tokenMenu}>
       <summary>Minigame{games.length ? ` · ${games.length} di peta` : ''}</summary>
@@ -106,6 +125,13 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
       {game.kind === 'whodunit' && <Whodunit key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}
       {game.kind === 'tilefloor' && game.players.length === 2 && <TileFloor key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
       {game.kind === 'wirehack' && <WireHack key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
+      {game.kind === 'jigsaw' && <Jigsaw key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} upload={uploadPuzzle} />}
+      {game.kind === 'runes' && <Runes key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
+      {game.kind === 'shift' && <Shift key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
+      {game.kind === 'compass' && <Compass key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
+      {game.kind === 'potion' && <Potion key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
+      {game.kind === 'alchemy' && <Alchemy key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
+      {game.kind === 'tavern' && <TavernBill key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
       {game.kind === 'mirrors' && <MirrorRoom key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} />}
       {game.kind === 'ritual' && <Ritual key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
       {game.kind === 'lockpick' && <Lockpick key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}

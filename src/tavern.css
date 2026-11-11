@@ -1,0 +1,125 @@
+/* Tagihan Sang Pengelana: menu perkamen di kiri, nota-nota tagihan di kanan, peti berkunci di atas. */
+.minigame-dialog:has(.tavern-skin) { width: min(1100px, calc(100vw - 32px)); }
+
+.tv-chest {
+  display: flex; align-items: center; gap: 18px; padding: 14px 18px;
+  border: 1px solid #5c4a2e; border-radius: 10px;
+  background: linear-gradient(180deg, #2a2016, #1a140e);
+  box-shadow: inset 0 1px 0 #ffffff0d;
+}
+.tv-chest-icon { flex: none; width: 48px; height: 48px; display: grid; place-items: center; border: 1px solid #cfa95f66; border-radius: 50%; color: #cfa95f; background: #120e0a; }
+.tv-chest.open .tv-chest-icon { color: #1a140c; background: #cfa95f; border-color: #cfa95f; box-shadow: 0 0 24px #cfa95f66; animation: tv-glow 2s ease-in-out infinite; }
+.tv-chest.refused .tv-chest-icon { color: #f0a596; border-color: #b0544a; }
+.tv-chest-rows { flex: 1; display: flex; flex-wrap: wrap; gap: 8px; }
+.tv-chest-rows span {
+  min-width: 92px; padding: 7px 12px; text-align: center;
+  border: 1px solid #3a3124; border-radius: 6px; background: #0f0c08;
+  font-family: Georgia, "Times New Roman", serif; font-size: 20px; letter-spacing: .14em; color: #6f6553;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.tv-chest-rows span.done { border-color: #cfa95f; color: #f6e2a8; box-shadow: inset 0 0 12px #cfa95f22; animation: tv-pop .4s cubic-bezier(.3, 1.5, .5, 1) both; }
+.tv-chances { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.tv-chances small { font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #a99c84; }
+.tv-chances div { display: flex; gap: 6px; }
+.tv-chances i { width: 14px; height: 14px; border-radius: 50%; border: 1px solid #5c4a2e; background: #120e0a; }
+.tv-chances i.on { border-color: #e8cf96; background: radial-gradient(circle at 35% 35%, #fff0c4, #cfa95f 60%, #8a6a2f); }
+
+.tv-reward { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border: 1px solid #cfa95f; border-radius: 10px; background: radial-gradient(ellipse at 0% 50%, #4a3a1a, #1c160e 70%); color: #f6e2a8; animation: tv-pop .5s cubic-bezier(.3, 1.4, .5, 1) both; }
+.tv-reward strong { font-family: Georgia, "Times New Roman", serif; font-size: 17px; font-weight: 400; }
+.mg-skin .tv-reward p { margin-top: 4px; font-family: Georgia, "Times New Roman", serif; font-size: 16px; font-style: italic; line-height: 1.5; color: #f3e9d2; }
+.tv-refused { padding: 12px 16px; border: 1px solid #b0544a; border-radius: 10px; background: #2a1310; color: #f6c3b6; font-size: 14px; }
+
+.tv-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 18px; align-items: start; }
+
+/* Menu perkamen */
+.tv-menu {
+  position: relative; padding: 22px 24px 20px; border-radius: 4px;
+  background:
+    radial-gradient(ellipse at 20% 10%, #fff8e4 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 90%, #d9c08f 0%, transparent 55%),
+    linear-gradient(180deg, #efe0bd, #e2cc9c);
+  color: #3a2a17;
+  box-shadow: 0 10px 30px #0009, inset 0 0 40px #a07b4255, inset 0 0 0 1px #b8975e;
+}
+.tv-menu header { text-align: center; margin-bottom: 8px; }
+.tv-menu header small { font-size: 10px; font-weight: 700; letter-spacing: .3em; text-transform: uppercase; color: #8a6a3a; }
+.tv-menu h3 { margin: 2px 0 0; font-family: Georgia, "Times New Roman", serif; font-size: 26px; font-weight: 400; color: #4a2e14; }
+.tv-flourish { display: block; margin-top: 2px; color: #a07b42; font-size: 12px; }
+.tv-menu h4 { margin: 14px 0 6px; padding-bottom: 4px; border-bottom: 1px solid #b8975e88; font-family: Georgia, "Times New Roman", serif; font-size: 14px; font-weight: 400; font-style: italic; letter-spacing: .06em; color: #6b4520; }
+.tv-menu ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; }
+.tv-menu li { display: flex; align-items: baseline; gap: 6px; }
+.tv-item { display: flex; flex-direction: column; min-width: 0; }
+.tv-item b { font-family: Georgia, "Times New Roman", serif; font-size: 15px; font-weight: 400; color: #2e1f0f; }
+.tv-item em { font-size: 11px; color: #7d6340; }
+.tv-dots { flex: 1; min-width: 12px; border-bottom: 1.5px dotted #a07b4288; transform: translateY(-4px); align-self: flex-start; margin-top: 12px; }
+.tv-price { flex: none; font-family: Georgia, "Times New Roman", serif; font-size: 15px; color: #6b2e14; font-variant-numeric: tabular-nums lining-nums; }
+.tv-menu footer { margin-top: 6px; }
+.tv-menu ol { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 12.5px; line-height: 1.45; color: #4a3520; }
+.mg-skin .tv-rate { margin-top: 10px; text-align: center; font-size: 11px; font-weight: 700; letter-spacing: .16em; color: #8a6a3a; }
+
+/* Nota */
+.tv-notes { display: flex; flex-direction: column; gap: 12px; }
+.tv-note {
+  position: relative; padding: 14px 16px 14px; border-radius: 3px;
+  background: linear-gradient(180deg, #f3e7cc, #e6d4ad);
+  color: #3a2a17;
+  box-shadow: 0 6px 18px #0008, inset 0 0 0 1px #c4a46e;
+}
+.tv-note:nth-child(1) { transform: rotate(-.5deg); }
+.tv-note:nth-child(2) { transform: rotate(.4deg); }
+.tv-note:nth-child(3) { transform: rotate(-.3deg); }
+.tv-note header { display: flex; justify-content: space-between; font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #8a6a3a; }
+.tv-note-day { color: #8a3a1a; }
+.tv-note h4 { margin: 4px 0 6px; font-family: Georgia, "Times New Roman", serif; font-size: 18px; font-weight: 400; color: #2e1f0f; }
+.mg-skin .tv-note p { font-size: 13.5px; line-height: 1.55; color: #3a2a17; }
+.mg-skin .tv-note .tv-ask { margin-top: 6px; font-family: Georgia, "Times New Roman", serif; font-size: 15px; font-style: italic; color: #6b2e14; }
+.tv-sign { display: block; margin-top: 6px; text-align: right; font-family: Georgia, "Times New Roman", serif; font-size: 12px; font-style: italic; color: #7d6340; }
+.tv-answer { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.mg-skin .tv-answer input {
+  width: 120px; height: 36px; padding: 0 10px; border: 1px solid #a07b42; border-radius: 4px;
+  background: #fffaf0; color: #2e1f0f; font-family: Georgia, "Times New Roman", serif; font-size: 18px;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.mg-skin .tv-answer input:focus { outline: 2px solid #8a5a1a55; border-color: #6b4520; }
+.tv-unit { font-size: 13px; font-weight: 700; color: #7d6340; }
+.mg-skin .tv-answer button {
+  margin-left: auto; height: 36px; padding: 0 16px; border: 1px solid #4a2e14; border-radius: 4px;
+  background: #4a2e14; color: #f6e6c0; font-size: 13px; font-weight: 700; letter-spacing: .04em;
+}
+.mg-skin .tv-answer button:disabled { opacity: .45; }
+.tv-paid { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; padding: 5px 12px; border: 2px solid #2f6a3a; border-radius: 4px; color: #2f6a3a; font-size: 13px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; transform: rotate(-2deg); animation: tv-stamp .35s cubic-bezier(.3, 1.6, .5, 1) both; }
+.tv-note.solved { opacity: .82; }
+.tv-dm-answer { margin-top: 8px; padding: 4px 8px; border-radius: 4px; background: #4a2e1418; font-size: 12px; font-weight: 700; color: #6b2e14; }
+
+.tv-log { display: grid; gap: 4px; padding: 10px 12px; border: 1px solid #3a3124; border-radius: 8px; background: #120e0a; font-size: 13px; color: #a99c84; }
+.tv-log div { display: flex; flex-wrap: wrap; gap: 5px; align-items: baseline; }
+.tv-log span { color: #ece2cc; font-weight: 600; }
+.tv-log b { color: #e3cf9f; font-variant-numeric: tabular-nums; }
+.tv-log em { margin-left: auto; font-style: normal; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.tv-log .ok em { color: #9fd0a0; }
+.tv-log .bad em { color: #f0a596; }
+
+.tv-dm { display: grid; gap: 6px; padding: 12px; border: 1px dashed #5c4a2e; border-radius: 8px; }
+.tv-dm label { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #cfa95f; }
+.mg-skin .tv-dm textarea { padding: 8px 10px; border: 1px solid #3a3124; border-radius: 6px; background: #0f0c08; color: #ece2cc; font: inherit; font-size: 13px; resize: vertical; }
+.mg-skin .tv-dm button { justify-self: end; height: 32px; padding: 0 14px; border: 1px solid #cfa95f; border-radius: 4px; background: none; color: #cfa95f; font-size: 12px; font-weight: 700; }
+.mg-skin .tv-dm button:disabled { opacity: .4; }
+
+@keyframes tv-pop { from { transform: scale(.9); opacity: 0; } }
+@keyframes tv-stamp { from { transform: rotate(-2deg) scale(1.6); opacity: 0; } }
+@keyframes tv-glow { 50% { box-shadow: 0 0 36px #cfa95faa; } }
+@media (prefers-reduced-motion: reduce) { .tv-chest-rows span.done, .tv-paid, .tv-reward, .tv-chest.open .tv-chest-icon { animation: none; } }
+@media (max-width: 760px) {
+  .tv-layout { grid-template-columns: 1fr; }
+  .tv-chest { flex-wrap: wrap; gap: 12px; }
+  .tv-chest-rows span { min-width: 76px; font-size: 17px; }
+  .tv-menu { padding: 18px 16px; }
+}
+
+/* Gaya global form/header di dialog minigame menimpa tata letak; dipertegas di sini. */
+.minigame-dialog .tavern-skin .tv-menu header { display: block; padding: 0; border: 0; background: none; }
+.minigame-dialog .tavern-skin .tv-note header { display: flex; padding: 0; border: 0; background: none; }
+.minigame-dialog .tavern-skin form.tv-answer { display: flex; flex-direction: row; flex-wrap: nowrap; align-items: center; gap: 8px; margin: 10px 0 0; padding: 0; border: 0; background: none; }
+.minigame-dialog .tavern-skin .tv-menu ol { list-style: decimal; }
+.minigame-dialog .tavern-skin .tv-menu ol li::marker { color: #8a6a3a; font-weight: 700; }
+.minigame-dialog .tavern-skin .tv-menu ol li { display: list-item; list-style: decimal; padding-left: 2px; }

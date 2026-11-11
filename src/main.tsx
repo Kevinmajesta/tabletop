@@ -35,7 +35,6 @@ import "./characters.css";
 import "./theme.css";
 import "./start-templates/template-3.css"; // ganti ke template-1.css / template-2.css untuk tampilan lain
 import CoinFlip, { type CoinResult } from './CoinFlip';
-import IntroSplash from "./IntroSplash";
 import DieIcon from "./DieIcon";
 import RollCard from "./RollCard";
 import RuleSearch from "./RuleSearch";
@@ -130,7 +129,6 @@ function App() {
   const [connected, setConnected] = useState(false);
   const [name, setName] = useState("");
   const [tokenScreen, setTokenScreen] = useState<string[]>([]);
-  const [introReplay, setIntroReplay] = useState(0);
   const [joinCode, setJoinCode] = useState(getRoomId);
   const [mode] = useState<"create">("create");
   const [error, setError] = useState("");
@@ -651,6 +649,22 @@ function App() {
     }
   }
 
+  // Gambar untuk Puzzle Gambar: diunggah GM dari dalam minigame, server hanya menyimpan dan mengembalikan alamatnya.
+  async function uploadPuzzleImage(file: File): Promise<string> {
+    if (!identity) throw new Error("Masuk ke ruang dulu.");
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) throw new Error("Gunakan gambar PNG, JPG, atau WebP.");
+    const form = new FormData();
+    form.append("image", file);
+    const response = await fetch(`/api/rooms/${roomId}/upload/puzzle`, {
+      method: "POST",
+      headers: { "x-player-id": identity.playerId, "x-player-secret": identity.playerSecret, "x-dm-key": identity.dmKey || "" },
+      body: form,
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || typeof result.url !== "string") throw new Error(result.error || "Upload gagal.");
+    return result.url;
+  }
+
   async function upload(kind: "map" | "token" | "handout", file?: File, extra?: { name?: string; characterId?: string }) {
     if (!file || !identity) return;
     if (
@@ -846,7 +860,6 @@ function App() {
         <div className="game-start-background-party" aria-hidden="true">
           {tokenScreen.map((src, index) => <img key={src} src={src} alt="" className={`hero-background hero-background-${index + 1}`} />)}
         </div>
-        <IntroSplash portraits={tokenScreen} replay={introReplay} />
         <section className="game-start-card">
           <div className="game-start-heading">
             <div className="game-start-kicker">ONE SHOT</div>
@@ -864,11 +877,6 @@ function App() {
             <button className="game-start-reset" disabled={busy} onClick={() => void resetSession()}>
               RESET SESSION / CLAIM DM AGAIN
             </button>
-            {tokenScreen.length === 4 && (
-              <button type="button" className="intro-replay" onClick={() => setIntroReplay(n => n + 1)}>
-                LIHAT INTRO KARAKTER
-              </button>
-            )}
           </div>
           {error && <div className="form-error">{error}</div>}
         </section>
@@ -944,7 +952,7 @@ function App() {
       )}
       {activeScene && (
         <Suspense fallback={null}>
-          <Minigames games={room?.minigames || []} socket={socketRef.current} dm={isDM} playerId={identity.playerId} members={room?.members || []} connected={connected} openToken={openMinigame} onClose={() => setOpenMinigame(null)} onOpen={setOpenMinigame} />
+          <Minigames games={room?.minigames || []} socket={socketRef.current} dm={isDM} playerId={identity.playerId} members={room?.members || []} connected={connected} openToken={openMinigame} onClose={() => setOpenMinigame(null)} onOpen={setOpenMinigame} uploadPuzzle={uploadPuzzleImage} />
         </Suspense>
       )}
       </div>

@@ -1,0 +1,146 @@
+/* Segel Sang Alkemis: segel kuningan di atas, gulungan petunjuk + slot di tengah, tabel periodik bergaya ukiran di bawah. */
+.minigame-dialog:has(.alchemy-skin) { width: min(1120px, calc(100vw - 32px)); }
+
+.alchemy-skin {
+  --c-alkali: #c9694f; --c-alkaline: #d0954a; --c-transition: #b7a07a; --c-post: #8fa3a8; --c-metalloid: #8bb07a;
+  --c-nonmetal: #6fb5a3; --c-halogen: #d4c25a; --c-noble: #8a8ad8; --c-lanthanide: #c487b7; --c-actinide: #b2708f;
+  --c-solid: #b7a07a; --c-liquid: #5fa8d8; --c-gas: #a7c7e8; --c-unknown: #6f6553;
+}
+.alchemy-skin .cat-alkali { --c: var(--c-alkali); } .alchemy-skin .cat-alkaline { --c: var(--c-alkaline); }
+.alchemy-skin .cat-transition { --c: var(--c-transition); } .alchemy-skin .cat-post { --c: var(--c-post); }
+.alchemy-skin .cat-metalloid { --c: var(--c-metalloid); } .alchemy-skin .cat-nonmetal { --c: var(--c-nonmetal); }
+.alchemy-skin .cat-halogen { --c: var(--c-halogen); } .alchemy-skin .cat-noble { --c: var(--c-noble); }
+.alchemy-skin .cat-lanthanide { --c: var(--c-lanthanide); } .alchemy-skin .cat-actinide { --c: var(--c-actinide); }
+.alchemy-skin .by-state .st-solid, .alchemy-skin .al-legend .st-solid { --c: var(--c-solid); }
+.alchemy-skin .by-state .st-liquid, .alchemy-skin .al-legend .st-liquid { --c: var(--c-liquid); }
+.alchemy-skin .by-state .st-gas, .alchemy-skin .al-legend .st-gas { --c: var(--c-gas); }
+.alchemy-skin .by-state .st-unknown, .alchemy-skin .al-legend .st-unknown { --c: var(--c-unknown); }
+
+/* Segel dan sisa ramuan */
+.al-top { display: flex; align-items: stretch; gap: 14px; }
+.al-seals { flex: 1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.al-seal {
+  display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 8px;
+  border: 1px solid #3a3124; border-radius: 10px; background: #120e0a; color: #6f6553; text-align: center;
+}
+.al-seal-mark { width: 28px; height: 28px; display: grid; place-items: center; border: 1px solid currentColor; border-radius: 50%; font-family: Georgia, "Times New Roman", serif; font-size: 12px; }
+.al-seal strong { font-family: Georgia, "Times New Roman", serif; font-size: 20px; font-weight: 400; letter-spacing: .18em; }
+.al-seal small { font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.al-seal.current { border-color: #cfa95f88; color: #cfa95f; box-shadow: inset 0 0 18px #cfa95f18; }
+.al-seal.open { border-color: #cfa95f; color: #f6e2a8; background: radial-gradient(ellipse at 50% 0%, #3a2c14, #15100a 70%); animation: al-pop .45s cubic-bezier(.3, 1.5, .5, 1) both; }
+.al-seal.open .al-seal-mark { background: #cfa95f; color: #1a140c; border-color: #cfa95f; }
+.al-vials { flex: none; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; gap: 8px; padding: 0 4px; }
+.al-vials small { font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #a99c84; }
+.al-vials div { display: flex; gap: 7px; }
+.al-vials i { position: relative; width: 12px; height: 22px; border: 1px solid #5c4a2e; border-radius: 3px 3px 6px 6px; background: #120e0a; overflow: hidden; }
+.al-vials i::before { content: ""; position: absolute; top: -4px; left: 2px; right: 2px; height: 4px; background: #5c4a2e; }
+.al-vials i.full::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 70%; background: linear-gradient(180deg, #9be0c4, #2f8f74); box-shadow: 0 0 8px #5fd0a8; }
+
+.al-won { display: flex; gap: 12px; align-items: flex-start; padding: 16px 18px; border: 1px solid #cfa95f; border-radius: 10px; background: radial-gradient(ellipse at 0% 50%, #4a3a1a, #1c160e 70%); color: #f6e2a8; animation: al-pop .5s cubic-bezier(.3, 1.4, .5, 1) both; }
+.al-phrase { font-family: Georgia, "Times New Roman", serif; font-size: 28px; letter-spacing: .24em; color: #ffe6a8; text-shadow: 0 0 18px #cfa95f88; }
+.mg-skin .al-won p { margin-top: 6px; font-family: Georgia, "Times New Roman", serif; font-size: 15px; font-style: italic; line-height: 1.5; color: #f3e9d2; }
+.al-lost { padding: 12px 16px; border: 1px solid #b0544a; border-radius: 10px; background: #2a1310; color: #f6c3b6; font-size: 14px; }
+
+/* Gulungan petunjuk dan slot */
+.al-work { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 14px; align-items: stretch; }
+.al-clues {
+  padding: 16px 18px; border-radius: 4px; color: #3a2a17;
+  background: radial-gradient(ellipse at 20% 10%, #fff8e4 0%, transparent 60%), linear-gradient(180deg, #efe0bd, #e2cc9c);
+  box-shadow: 0 8px 24px #0008, inset 0 0 30px #a07b4244, inset 0 0 0 1px #b8975e;
+}
+.minigame-dialog .alchemy-skin .al-clues header { display: flex; align-items: center; gap: 7px; padding: 0; border: 0; background: none; font-family: Georgia, "Times New Roman", serif; font-size: 17px; color: #4a2e14; }
+.mg-skin .al-intro { margin: 8px 0 10px; font-size: 13px; line-height: 1.5; font-style: italic; color: #5a4128; }
+.al-clues ol { margin: 0; padding-left: 20px; display: grid; gap: 7px; }
+.minigame-dialog .alchemy-skin .al-clues ol li { display: list-item; list-style: decimal; font-size: 14px; line-height: 1.5; color: #2e1f0f; }
+.minigame-dialog .alchemy-skin .al-clues ol li::marker { color: #8a6a3a; font-weight: 700; }
+.minigame-dialog .alchemy-skin .al-clues ol.al-arrows li { font-family: Georgia, "Times New Roman", serif; font-size: 22px; letter-spacing: .12em; white-space: pre; color: #4a2e14; }
+.al-dm-answer { margin-top: 10px; padding: 5px 9px; border-radius: 4px; background: #4a2e1418; font-size: 12px; font-weight: 700; color: #6b2e14; }
+
+.al-slots-panel { display: flex; flex-direction: column; justify-content: center; gap: 12px; padding: 16px; border: 1px solid #3a3124; border-radius: 10px; background: linear-gradient(180deg, #1e1913, #15110c); }
+.al-slots { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.minigame-dialog .alchemy-skin .al-slot {
+  position: relative; width: 78px; height: 88px; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 1.5px dashed #5c4a2e; border-radius: 8px; background: #0f0c08; color: #5c4a2e; cursor: default;
+}
+.al-slot > span { font-family: Georgia, "Times New Roman", serif; font-size: 22px; }
+.minigame-dialog .alchemy-skin .al-slot.filled { border: 1.5px solid var(--c); background: color-mix(in srgb, var(--c) 22%, #0f0c08); color: #f6ecd6; cursor: pointer; animation: al-pop .25s ease-out both; }
+.al-slot small { position: absolute; top: 5px; left: 7px; font-size: 10px; color: #cbbd9f; font-variant-numeric: tabular-nums; }
+.al-slot b { font-family: Georgia, "Times New Roman", serif; font-size: 30px; font-weight: 400; line-height: 1; }
+.al-slot em { margin-top: 4px; font-size: 9.5px; font-style: normal; color: #cbbd9f; max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.al-word { text-align: center; font-family: Georgia, "Times New Roman", serif; font-size: 20px; letter-spacing: .3em; color: #e3cf9f; min-height: 28px; }
+.al-slot-actions { display: flex; justify-content: center; gap: 8px; }
+.minigame-dialog .alchemy-skin .al-primary, .minigame-dialog .alchemy-skin .al-ghost {
+  display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 16px; border-radius: 6px; font-size: 13px; font-weight: 700;
+}
+.minigame-dialog .alchemy-skin .al-primary { border: 1px solid #cfa95f; background: #cfa95f; color: #1a140c; }
+.minigame-dialog .alchemy-skin .al-ghost { border: 1px solid #3a3124; background: none; color: #a99c84; }
+.minigame-dialog .alchemy-skin .al-primary:disabled, .minigame-dialog .alchemy-skin .al-ghost:disabled { opacity: .4; }
+
+/* Tabel periodik */
+.al-table-wrap { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid #3a3124; border-radius: 10px; background: #100d09; }
+.al-table-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.al-table-bar > span { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #cfa95f; }
+.al-toggle { display: inline-flex; padding: 3px; border: 1px solid #3a3124; border-radius: 999px; }
+.minigame-dialog .alchemy-skin .al-toggle button { height: 24px; padding: 0 12px; border: 0; border-radius: 999px; background: none; color: #a99c84; font-size: 11.5px; font-weight: 700; }
+.minigame-dialog .alchemy-skin .al-toggle button[aria-checked="true"] { background: #cfa95f; color: #1a140c; }
+.al-scroll { overflow-x: auto; scrollbar-width: thin; scrollbar-color: #3a3124 transparent; }
+.al-table { display: grid; grid-template-columns: 18px repeat(18, minmax(40px, 1fr)); grid-template-rows: 16px repeat(7, 46px) 10px repeat(2, 46px); gap: 3px; min-width: 820px; }
+.al-gnum, .al-pnum { display: grid; place-items: center; font-size: 9.5px; font-weight: 700; color: #6f6553; }
+.al-fmark { display: grid; place-items: center; border: 1px dashed #3a3124; border-radius: 4px; font-size: 8.5px; color: #6f6553; }
+.minigame-dialog .alchemy-skin .al-cell {
+  position: relative; min-width: 0; padding: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--c) 55%, transparent); border-radius: 4px;
+  background: color-mix(in srgb, var(--c) 16%, #120e0a); color: #f3e9d2; cursor: pointer;
+  transition: transform .12s ease, background .12s ease, box-shadow .12s ease;
+}
+.al-cell small { position: absolute; top: 2px; left: 4px; font-size: 8.5px; color: color-mix(in srgb, var(--c) 70%, #fff); font-variant-numeric: tabular-nums; }
+.al-cell b { margin-top: 6px; font-family: Georgia, "Times New Roman", serif; font-size: 17px; font-weight: 400; line-height: 1; }
+.minigame-dialog .alchemy-skin .al-cell:hover { background: color-mix(in srgb, var(--c) 34%, #120e0a); transform: translateY(-1px); z-index: 1; }
+.minigame-dialog .alchemy-skin .al-cell.picked { background: var(--c); color: #120e0a; box-shadow: 0 0 0 2px #f6e2a8, 0 0 16px color-mix(in srgb, var(--c) 70%, transparent); z-index: 2; }
+.al-cell.picked small { color: #120e0a; }
+.al-cell.in-draft::after { content: ""; position: absolute; top: 3px; right: 3px; width: 6px; height: 6px; border-radius: 50%; background: #f6e2a8; box-shadow: 0 0 6px #f6e2a8; }
+
+.al-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 11px; color: #a99c84; }
+.al-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.al-legend i { width: 10px; height: 10px; border-radius: 2px; background: var(--c); }
+.al-info { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 10px 12px; border: 1px solid #3a3124; border-radius: 8px; background: #17130e; animation: al-fade .15s ease-out both; }
+.al-info-tile { position: relative; width: 58px; height: 62px; flex: none; display: grid; place-items: center; border: 1.5px solid var(--c); border-radius: 6px; background: color-mix(in srgb, var(--c) 24%, #120e0a); }
+.al-info-tile small { position: absolute; top: 3px; left: 5px; font-size: 10px; color: #cbbd9f; }
+.al-info-tile b { font-family: Georgia, "Times New Roman", serif; font-size: 26px; font-weight: 400; color: #f6ecd6; }
+.al-info dl { flex: 1; display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0; }
+.al-info dt { font-size: 9.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #6f6553; }
+.al-info dd { margin: 1px 0 0; font-size: 13.5px; color: #ece2cc; }
+.mg-skin .al-hint { font-size: 12px; color: #6f6553; }
+
+.al-log { display: grid; gap: 4px; padding: 10px 12px; border: 1px solid #3a3124; border-radius: 8px; background: #120e0a; font-size: 13px; color: #a99c84; }
+.al-log div { display: flex; flex-wrap: wrap; gap: 5px; align-items: baseline; }
+.al-log span { color: #ece2cc; font-weight: 600; }
+.al-log b { color: #e3cf9f; }
+.al-log em { margin-left: auto; font-style: normal; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.al-log .ok em { color: #9fd0a0; }
+.al-log .bad em { color: #f0a596; }
+
+.al-dm { display: grid; gap: 6px; padding: 12px; border: 1px dashed #5c4a2e; border-radius: 8px; }
+.al-dm label { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #cfa95f; }
+.mg-skin .al-dm textarea { padding: 8px 10px; border: 1px solid #3a3124; border-radius: 6px; background: #0f0c08; color: #ece2cc; font: inherit; font-size: 13px; resize: vertical; }
+.mg-skin .al-dm button { justify-self: end; height: 32px; padding: 0 14px; border: 1px solid #cfa95f; border-radius: 4px; background: none; color: #cfa95f; font-size: 12px; font-weight: 700; }
+.mg-skin .al-dm button:disabled { opacity: .4; }
+
+@keyframes al-pop { from { transform: scale(.92); opacity: 0; } }
+@keyframes al-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .al-seal.open, .al-won, .al-slot.filled, .al-info { animation: none; } }
+@media (max-width: 760px) {
+  .al-top { flex-direction: column; }
+  .al-vials { align-items: flex-start; }
+  .al-work { grid-template-columns: 1fr; }
+  .al-seal strong { font-size: 15px; letter-spacing: .1em; }
+  .minigame-dialog .alchemy-skin .al-slot { width: 66px; height: 78px; }
+}
+.minigame-dialog .alchemy-skin .al-clues header { justify-content: flex-start; }
+.al-clues ol.al-arrows { padding-left: 34px; }
+.al-word.empty { font-family: inherit; font-size: 12px; font-style: italic; letter-spacing: .02em; color: #6f6553; }
+.mg-skin .al-table-wrap .al-hint::after { content: " Geser tabel ke samping untuk melihat semua unsur."; }
+@media (min-width: 900px) { .mg-skin .al-table-wrap .al-hint::after { content: none; } }
+.al-tries { flex: none; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; gap: 2px; padding: 0 6px; }
+.al-tries small { font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #a99c84; }
+.al-tries strong { font-family: Georgia, "Times New Roman", serif; font-size: 28px; font-weight: 400; color: #e3cf9f; font-variant-numeric: tabular-nums lining-nums; }

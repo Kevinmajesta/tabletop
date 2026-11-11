@@ -1,0 +1,46 @@
+/* Jalur Sang Alkemis: kartu kompas + panel jalur di atas, labirin tabel periodik di bawah. */
+.minigame-dialog:has(.compass-skin) { width: min(1120px, calc(100vw - 32px)); }
+
+.cp-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: stretch; }
+.cp-card ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 4px; }
+.minigame-dialog .compass-skin .cp-card li { display: grid; grid-template-columns: 12px 1fr auto; align-items: center; gap: 10px; padding: 4px 8px; border-radius: 5px; font-size: 13.5px; color: #2e1f0f; }
+.cp-card li i { width: 12px; height: 12px; border-radius: 3px; background: var(--c); box-shadow: inset 0 0 0 1px #0003; }
+.cp-card li b { font-family: Georgia, "Times New Roman", serif; font-size: 19px; font-weight: 400; letter-spacing: .1em; color: #4a2e14; white-space: pre; }
+.minigame-dialog .compass-skin .cp-card li.here { background: #4a2e141c; box-shadow: inset 0 0 0 1px #a07b42; }
+
+.cp-panel { display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid #3a3124; border-radius: 10px; background: linear-gradient(180deg, #1e1913, #15110c); }
+.cp-ends { display: flex; align-items: center; gap: 10px; }
+.cp-ends > div:not(.cp-line) { display: flex; flex-direction: column; align-items: center; min-width: 74px; padding: 8px; border: 1px solid #5c4a2e; border-radius: 8px; background: #0f0c08; }
+.cp-ends small, .cp-now small { font-size: 9.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #a99c84; }
+.cp-ends b { font-family: Georgia, "Times New Roman", serif; font-size: 26px; font-weight: 400; color: #f6e2a8; }
+.cp-ends span { font-size: 11px; color: #a99c84; }
+.cp-ends > div.reached { border-color: #cfa95f; box-shadow: 0 0 18px #cfa95f55; }
+.cp-line { flex: 1; height: 2px; background: repeating-linear-gradient(90deg, #cfa95f88 0 6px, transparent 6px 12px); }
+.cp-now { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
+.cp-now strong { font-family: Georgia, "Times New Roman", serif; font-size: 17px; font-weight: 400; color: #ece2cc; }
+.cp-now span { margin-left: auto; font-size: 12px; color: #a99c84; font-variant-numeric: tabular-nums; }
+.cp-trail { display: flex; flex-wrap: wrap; gap: 4px; min-height: 28px; max-height: 92px; overflow-y: auto; }
+.cp-trail span { padding: 3px 7px; border: 1px solid var(--c); border-radius: 4px; background: color-mix(in srgb, var(--c) 18%, #0f0c08); font-family: Georgia, "Times New Roman", serif; font-size: 13px; color: #f6ecd6; }
+
+/* Jalur di atas tabel */
+.minigame-dialog .compass-skin .al-cell.cp-on { background: color-mix(in srgb, var(--c) 55%, #120e0a); border-color: #f6e2a8aa; }
+.minigame-dialog .compass-skin .al-cell.cp-here { background: #f6e2a8; color: #120e0a; box-shadow: 0 0 0 2px #f6e2a8, 0 0 20px #f6e2a8aa; z-index: 3; animation: cp-pulse 1.6s ease-in-out infinite; }
+.minigame-dialog .compass-skin .al-cell.cp-here small { color: #120e0a; }
+.minigame-dialog .compass-skin .al-cell.cp-next { border: 1.5px dashed #f6e2a8; z-index: 2; }
+.minigame-dialog .compass-skin .al-cell.cp-start:not(.cp-here)::before,
+.minigame-dialog .compass-skin .al-cell.cp-goal::before {
+  position: absolute; bottom: 2px; right: 3px; font-size: 8px; font-weight: 800; letter-spacing: .06em; color: #f6e2a8;
+}
+.minigame-dialog .compass-skin .al-cell.cp-start:not(.cp-here)::before { content: "MULAI"; }
+.minigame-dialog .compass-skin .al-cell.cp-goal::before { content: "TUJUAN"; }
+.minigame-dialog .compass-skin .al-cell.cp-goal { box-shadow: 0 0 0 2px #cfa95f, 0 0 14px #cfa95f66; }
+.minigame-dialog .compass-skin .al-cell.cp-dm { outline: 1px dotted #9fd0a0; outline-offset: -4px; }
+.cp-step { position: absolute; top: 2px; right: 3px; min-width: 13px; height: 13px; padding: 0 2px; border-radius: 7px; background: #120e0acc; color: #f6e2a8; font-size: 8.5px; font-style: normal; font-weight: 800; line-height: 13px; text-align: center; }
+.cp-here .cp-step { background: #120e0a; }
+
+@keyframes cp-pulse { 50% { box-shadow: 0 0 0 2px #f6e2a8, 0 0 30px #f6e2a8; } }
+@media (prefers-reduced-motion: reduce) { .minigame-dialog .compass-skin .al-cell.cp-here { animation: none; } }
+@media (max-width: 760px) { .cp-layout { grid-template-columns: 1fr; } }
+.cp-layout > * { min-width: 0; }
+.minigame-dialog .compass-skin .cp-card li { grid-template-columns: 12px minmax(0, 1fr) auto; }
+@media (max-width: 760px) { .cp-card li b { font-size: 16px; } }

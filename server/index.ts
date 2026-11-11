@@ -87,6 +87,8 @@ try {
     const removed = new Set((room.minigames || []).filter(game => !gameKinds.includes(game.kind)).map(game => game.tokenId));
     if (removed.size) removedLegacyGames = true;
     room.minigames = (room.minigames || []).filter(game => gameKinds.includes(game.kind));
+    // Puzzle jigsaw versi lama (berpapan) punya bentuk data berbeda: kembalikan ke menunggu supaya dimulai ulang.
+    for (const game of room.minigames) if (game.kind === 'jigsaw' && game.jigsaw && !game.jigsaw.config) { delete game.jigsaw; game.phase = 'waiting'; }
     room.tokens = (room.tokens || []).filter(token => !removed.has(token.id));
     for (const scene of room.scenes || []) scene.tokens = scene.tokens.filter(token => !removed.has(token.id));
   }
@@ -406,6 +408,10 @@ io.on("connection", (socket) => {
     }
     if (room.map) references.add(room.map);
     if (room.shownImage) references.add(room.shownImage);
+    for (const game of room.minigames || []) {
+      if (game.jigsaw?.config.image) references.add(game.jigsaw.config.image);
+      if (game.jigsawSetup?.image) references.add(game.jigsawSetup.image);
+    }
     try {
       const images = [];
       let total = 0;
@@ -1257,7 +1263,8 @@ io.on("connection", (socket) => {
     const respond = (result: { error?: string; ok?: boolean }) => { if (typeof reply === 'function') reply(result); };
     const room = rooms[socket.data.roomId];
     if (!room || !payload || typeof payload !== 'object') { respond({ error: 'Ruang tidak tersedia.' }); return; }
-    if (!admitted(`minigame:${socket.id}`, 120)) { respond({ error: 'Terlalu banyak aksi. Tunggu sebentar.' }); return; }
+    const isJigsaw = typeof (payload as Record<string, unknown>).type === 'string' && String((payload as Record<string, unknown>).type).startsWith('jigsaw:');
+    if (!admitted(`${isJigsaw ? 'jigsaw' : 'minigame'}:${socket.id}`, isJigsaw ? 600 : 120)) { respond({ error: 'Terlalu banyak aksi. Tunggu sebentar.' }); return; }
     const action = payload as Record<string, unknown>;
     if (typeof action.type !== 'string') { respond({ error: 'Aksi permainan tidak valid.' }); return; }
     const scene = sceneFor(room, socket.data.isDM);
@@ -1295,7 +1302,7 @@ io.on("connection", (socket) => {
           error = declareGame(game, party);
         }
       } else {
-        const openParty = game.kind === 'crossword' || game.kind === 'ttspilihan' || game.kind === 'seating' || game.kind === 'wallclock' || game.kind === 'relicscale' || game.kind === 'journal' || game.kind === 'cryptex' || game.kind === 'whodunit' || game.kind === 'lockpick';
+        const openParty = game.kind === 'crossword' || game.kind === 'ttspilihan' || game.kind === 'seating' || game.kind === 'wallclock' || game.kind === 'relicscale' || game.kind === 'journal' || game.kind === 'cryptex' || game.kind === 'whodunit' || game.kind === 'lockpick' || game.kind === 'tavern' || game.kind === 'alchemy' || game.kind === 'potion' || game.kind === 'compass' || game.kind === 'runes' || game.kind === 'shift' || game.kind === 'jigsaw';
         if (['join', 'leave', 'remove-player'].includes(action.type) || (action.type === 'start' && !game.declaration && !openParty)) { respond({ error: 'GM harus deklarasikan peserta lewat token.' }); return; }
         error = gameAction(game, socket.data.playerId, socket.data.isDM, action, randomInt);
       }
@@ -1754,7 +1761,7 @@ app.post(
       typeof secret !== "string" ||
       !secret ||
       room.members[player].secret !== secret ||
-      !["map", "token", "handout"].includes(kind) ||
+      !["map", "token", "handout", "puzzle"].includes(kind) ||
       (kind !== "token" && room.members[player].name.toLowerCase() !== "dm" && req.headers["x-dm-key"] !== room.dmKey)
     ) {
       res.status(403).json({ error: "Upload ditolak." });
@@ -1792,7 +1799,7 @@ app.post(
     if (
       !room ||
       !authorized ||
-      !["map", "token", "handout"].includes(kind) ||
+      !["map", "token", "handout", "puzzle"].includes(kind) ||
       (kind !== "token" && !dm) ||
       !req.file
     ) {
@@ -1806,6 +1813,11 @@ app.post(
       return;
     }
     const url = `/uploads/${req.file.filename}`;
+    // Gambar puzzle jigsaw: cukup disimpan; GM memakainya lewat pengaturan minigame.
+    if (kind === "puzzle") {
+      res.json({ ok: true, url });
+      return;
+    }
     const scene = sceneFor(room, dm);
     if (kind === "token" && scene.tokens.length >= 100) {
       unlinkSync(req.file.path);
