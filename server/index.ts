@@ -28,6 +28,7 @@ import {
 import { monsters, monsterTokens } from "./monsters.js";
 import {
   catalogFor,
+  equipItem,
   validateBuild,
   startingCurrency,
   coinDenominations,
@@ -895,6 +896,18 @@ io.on("connection", (socket) => {
                 Math.min(resource.max, value),
               );
           }
+        }
+        character!.revision++;
+      } else if (p.type === "equip") {
+        if (p.revision !== character!.revision) {
+          respond({ error: "Karakter berubah. Coba lagi dengan data terbaru." });
+          return;
+        }
+        try {
+          equipItem(character!, p.item, p.on);
+        } catch (error) {
+          respond({ error: error instanceof Error ? error.message : "Gagal mengubah equipment." });
+          return;
         }
         character!.revision++;
       } else if (p.type === "link") {

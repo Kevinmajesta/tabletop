@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import SpeciesCard from "./SpeciesCard";
 import ActionEconomy, { Requirement } from "./ActionEconomy";
 import SpellBook from "./SpellBook";
+import OptionPicker from "./OptionPicker";
 import CurrencyWallet from "./CurrencyWallet";
 import { choiceLabel } from "./character-labels";
 import "./species-guide.css";
@@ -32,6 +33,8 @@ import {
   spellLimits,
   standardArray,
   validateBuild,
+  equippedWeapons,
+  visibleAttacks,
   type BuildInput,
   type Ability,
   type Character,
@@ -39,16 +42,34 @@ import {
 } from "../server/characters";
 import type { BoardToken } from "../server/tabletop";
 import "./characters.css";
+import "./builder.css";
 import { resources } from "../server/resources";
 
 const steps = [
-  "Identitas",
-  "Ability",
-  "Proficiency",
+  "Class",
+  "Background",
+  "Species",
+  "Ability Scores",
   "Equipment",
-  "Spell",
-  "Tinjau",
+  "Spells",
+  "Detail",
+  "Review",
 ];
+const REVIEW_STEP = steps.length - 1;
+// Setiap grup pilihan ditampilkan di langkah asalnya (class, background, species, ...).
+function stepForGroup(g: ChoiceGroup) {
+  if (g.kind === "ability" || g.key.startsWith("level4.")) return 3;
+  if (g.kind === "equipment") return 4;
+  if (g.kind === "spell") return 5;
+  if (/^(background\.|origin\.)/.test(g.key)) return 1;
+  if (/^(race\.|subrace\.|human\.|trait\.|motm\.|character\.languages)/.test(g.key)) return 2;
+  return 0;
+}
+// Pilihan milik class (dibuang saat ganti class); sisanya (background/species) dipertahankan.
+const classChoice = (key: string) => /^(class\.|subclass\.|feature\.|invocation\.|level4\.)/.test(key);
+const backgroundChoice = (key: string) => /^(background\.|origin\.)/.test(key);
+const keepChoices = (choices: Record<string, string[]>, drop: (key: string) => boolean) =>
+  Object.fromEntries(Object.entries(choices).filter(([key]) => !drop(key)));
 export default function Characters({
   initialOpen = false,
   requestedCharacter,
@@ -232,7 +253,56 @@ export default function Characters({
           : previous;
     setBuild({ ...build, choices: { ...build.choices, [group.key]: values } });
   }
+  // Pilihan yang opsinya cuma satu (mis. skill tetap dari background) langsung diisi otomatis.
+  useEffect(() => {
+    if (!build) return;
+    const add: Record<string, string[]> = {};
+    for (const g of buildGroups(build)) {
+      // Hanya pilihan tetap dari background/species; grup yang opsinya bergantung pilihan lain (mis. expertise) tidak diisi diam-diam.
+      if (!/^(background\.|race\.|subrace\.|trait\.)/.test(g.key)) continue;
+      if (!g.options.length || g.options.length !== g.count) continue;
+      const current = (build.choices[g.key] || []).filter((id) => g.options.some((o) => o.id === id));
+      if (current.length < g.count) add[g.key] = g.options.map((o) => o.id);
+    }
+    if (!Object.keys(add).length) return;
+    // Skill/bahasa tetap yang baru masuk dilepas dari grup lain (mis. skill class yang sama), supaya slotnya bisa diganti.
+    const groupsNow = buildGroups(build);
+    const kindOf = (key: string) => groupsNow.find((g) => g.key === key)?.kind;
+    const choices = { ...build.choices, ...add };
+    for (const [key, ids] of Object.entries(add)) {
+      const kind = kindOf(key);
+      if (kind !== "skill" && kind !== "language") continue;
+      for (const g of groupsNow) {
+        if (g.key === key || g.kind !== kind || add[g.key]) continue;
+        const kept = (choices[g.key] || []).filter((id) => !ids.includes(id));
+        if (kept.length !== (choices[g.key] || []).length) choices[g.key] = kept;
+      }
+    }
+    setBuild({ ...build, choices });
+  }, [build]);
+  // Skill/bahasa tidak boleh ganda: kumpulkan yang sudah dipegang grup lain beserta asalnya.
+  const exclusive = (g: ChoiceGroup) => (g.kind === "skill" || g.kind === "language" || g.key === "origin.skills" || g.key === "human.skilled" ? (g.kind === "language" ? "language" : "skill") : "");
+  function takenElsewhere(group: ChoiceGroup) {
+    const kind = exclusive(group);
+    const taken = new Map<string, string>();
+    if (!kind || !build) return taken;
+    for (const g of groups) {
+      if (g.key === group.key || exclusive(g) !== kind) continue;
+      const ids = g.options.length === g.count ? g.options.map((o) => o.id) : (build.choices[g.key] || []).filter((id) => g.options.some((o) => o.id === id));
+      const source =
+        g.key.startsWith("background.") ? "Background"
+        : g.key.startsWith("origin.") ? "Origin feat"
+        : g.key.startsWith("subclass.") ? "Subclass"
+        : g.key.startsWith("class.") ? "Class"
+        : /^(race\.|subrace\.|human\.|trait\.|motm\.)/.test(g.key) ? "Species"
+        : g.key === "character.languages" ? "Bahasa karakter"
+        : g.name.length > 32 ? `${g.name.slice(0, 30)}…` : g.name;
+      for (const id of ids) if (!taken.has(id)) taken.set(id, source);
+    }
+    return taken;
+  }
   function groupUI(group: ChoiceGroup) {
+    const taken = takenElsewhere(group);
     return (
       <fieldset key={group.key}>
         <legend id={`character-choice-${group.key}`} tabIndex={-1}>
@@ -242,26 +312,84 @@ export default function Characters({
           </small>
         </legend>
         <div className="character-options">
-          {group.options.map((option) => (
-            <label key={option.id}>
-              <input
-                type="checkbox"
-                checked={
-                  build?.choices[group.key]?.includes(option.id) || false
-                }
-                onChange={() => choose(group, option.id)}
-              />
-              <span>{choiceLabel(option)}</span>
-            </label>
-          ))}
+          {group.options.map((option) => {
+            const checked = build?.choices[group.key]?.includes(option.id) || false;
+            const from = taken.get(option.id);
+            return (
+              <label key={option.id} className={from ? (checked ? "option-conflict" : "option-taken") : ""}>
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  disabled={!!from && !checked}
+                  onChange={() => choose(group, option.id)}
+                />
+                <span>
+                  {choiceLabel(option)}
+                  {from && <small className="option-from">{checked ? `Ganda dengan ${from} — ganti` : `Sudah dari ${from}`}</small>}
+                </span>
+              </label>
+            );
+          })}
         </div>
       </fieldset>
     );
+  }
+  // Detail class ala builder: info dasar + progresi fitur per level (level yang sudah dicapai ditandai).
+  function classDetail(id: string) {
+    const k = catalog.classes.find((c) => c.index === id) as
+      | (typeof catalog.classes[number] & { primary_ability?: { desc?: string }; saving_throws?: { name: string }[]; proficiency_choices?: { desc?: string }[]; proficiencies?: { name: string }[] })
+      | undefined;
+    if (!k) return null;
+    const features = (catalog.features as { index: string; name: string; level?: number; desc?: string[] }[]).filter((f) => f.index.startsWith(`xphb:${id}:`));
+    const level = id === build?.classId ? build?.level || 1 : 1;
+    return (
+      <>
+        <dl className="builder-facts">
+          <div><dt>Hit die</dt><dd>d{k.hit_die}</dd></div>
+          <div><dt>Ability utama</dt><dd>{k.primary_ability?.desc || "—"}</dd></div>
+          <div><dt>Saving throw</dt><dd>{k.saving_throws?.map((s) => s.name).join(", ") || "—"}</dd></div>
+          <div><dt>Skill</dt><dd>{k.proficiency_choices?.[0]?.desc || "—"}</dd></div>
+        </dl>
+        {!!k.proficiencies?.length && <p className="builder-muted">Proficiency: {k.proficiencies.map((p) => p.name).join(", ")}</p>}
+        <h4>Progresi class</h4>
+        <ol className="builder-progression">
+          {Array.from({ length: 20 }, (_, i) => i + 1).map((lv) => {
+            const rows = features.filter((f) => f.level === lv);
+            if (!rows.length) return null;
+            return (
+              <li key={lv} className={lv <= level ? "reached" : ""}>
+                <details>
+                  <summary><b>Lv {lv}</b> {rows.map((f) => f.name).join(" · ")}</summary>
+                  {rows.map((f) => (
+                    <div key={f.index}>
+                      <h5>{f.name}</h5>
+                      <p className="builder-text">{f.desc?.join("\n")}</p>
+                    </div>
+                  ))}
+                </details>
+              </li>
+            );
+          })}
+        </ol>
+      </>
+    );
+  }
+  function stepForIssue(issue: { section: string; groupKey?: string }) {
+    const group = groups.find((g) => g.key === issue.groupKey);
+    if (group) return stepForGroup(group);
+    if (issue.groupKey && ["cantrips", "spells", "prepared"].includes(issue.groupKey)) return 5;
+    if (issue.groupKey?.startsWith("asi.")) return 3;
+    return ({ identity: 0, ability: 3, proficiency: 0, equipment: 4, spell: 5 } as Record<string, number>)[issue.section] ?? 0;
   }
   const preview = build ? deriveSheet(build) : null;
   const limits = build ? spellLimits(build) : null;
   const validationResult = build ? validateBuild(build) : null;
   const validation = validationResult?.errors || [];
+  const issueSteps = new Set((validationResult?.issues || []).map(stepForIssue));
+  if (build && !build.name.trim()) issueSteps.add(6);
+  if (build && !build.classId) issueSteps.add(0);
+  if (build && !build.background) issueSteps.add(1);
+  if (build && !build.race) issueSteps.add(2);
   return (
     <>
       <button
@@ -284,117 +412,149 @@ export default function Characters({
           >
             {quickOpen ? "Tutup quick sheet" : "Quick sheet"}
           </button>
-          {quickOpen && (
+          {quickOpen && (() => {
+            const sign = (n: number) => `${n >= 0 ? "+" : ""}${n}`;
+            const avatar = tokens.find((t) => t.characterId === character.id)?.image;
+            const hpPct = Math.max(0, Math.min(100, (character.hp / Math.max(1, character.sheet.hp)) * 100));
+            const slots = Object.entries(character.sheet.slotsByLevel || {}).filter(([, max]) => max > 0);
+            const extra = resources(character.build, character.sheet).filter((resource) => resource.id !== "hit-dice");
+            const off = !connected || busy;
+            return (
             <div className="character-quick-panel" ref={quickPanel} onPointerUp={saveQuick}>
               {error && <p className="character-error" role="alert">{error}</p>}
-              <div className="quick-sheet-heading" onPointerDown={dragQuick} title="Tarik untuk memindahkan">
+              <div className="quick-sheet-heading qs-head" onPointerDown={dragQuick} title="Tarik untuk memindahkan">
+                <span className="qs-avatar">{avatar ? <img src={avatar} alt="" /> : character.sheet.name.slice(0, 1).toUpperCase()}</span>
                 <div>
                   <strong>{character.sheet.name}</strong>
-                  <span>Level {character.sheet.level} {character.sheet.className}</span>
+                  <span>Lv {character.sheet.level} {character.sheet.className}{character.sheet.subclassName ? ` · ${character.sheet.subclassName}` : ""}</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setOpen(true);
-                    setError("");
-                  }}
-                >
-                  Buka penuh
+                <button type="button" onClick={() => { setOpen(true); setError(""); }} title="Buka sheet penuh">
+                  <BookOpen size={14} /> Penuh
                 </button>
               </div>
-              <div className="quick-vitals">
-                <div><span>HP</span><strong>{character.hp}/{character.sheet.hp}</strong></div>
-                <div><span>Temp</span><strong>{character.tempHp}</strong></div>
-                <div><span>AC</span><strong>{character.sheet.ac}</strong></div>
-                <div><span>Speed</span><strong>{character.sheet.speed}</strong></div>
-              </div>
-              {!!character.conditions.length && (
-                <div className="quick-status-list" aria-label="Conditions aktif">
-                  {character.conditions.map((condition) => <span key={condition}>{condition}</span>)}
+
+              <div className="qs-hp">
+                <div className="qs-hp-top">
+                  <span>HP</span>
+                  <strong>{character.hp}<small>/{character.sheet.hp}</small></strong>
+                  {!!character.tempHp && <em>+{character.tempHp} temp</em>}
                 </div>
-              )}
-              {character.concentration && (
-                <p className="quick-concentration">
-                  Concentration: {catalog.spells.find((spell) => spell.index === character.concentration)?.name || character.concentration}
-                </p>
-              )}
-              <div className="quick-health">
-                <input
-                  aria-label="Jumlah damage atau heal"
-                  type="number"
-                  min={1}
-                  max={9999}
-                  value={healthAmount}
-                  onChange={(event) => setHealthAmount(event.target.valueAsNumber)}
-                />
-                {(["damage", "heal"] as const).map((kind) => (
-                  <button
-                    key={kind}
-                    disabled={!connected || busy || !Number.isInteger(healthAmount) || healthAmount < 1 || healthAmount > 9999}
-                    onClick={() => request({ type: "health", kind, amount: healthAmount, id: character.id, revision: character.revision })}
-                  >
-                    {kind === "damage" ? "Damage" : "Heal"}
-                  </button>
-                ))}
-              </div>
-              <section className="quick-section">
-                <h3>Combat</h3>
-                <button disabled={!connected || busy} onClick={() => roll("initiative")}>
-                  Initiative <strong>{character.sheet.initiative >= 0 ? "+" : ""}{character.sheet.initiative}</strong>
-                </button>
-                {character.sheet.attacks.slice(0, 5).map((attack) => (
-                  <div className="quick-attack" key={attack.id}>
-                    <span>{attack.name}<Requirement label="Serangan · lihat syarat" text="Roll serangan bukan satu aksi tersendiri. Ikuti Attack action atau fitur yang mengizinkan serangan ini." /></span>
-                    <button disabled={!connected || busy} onClick={() => roll("attack", attack.id)}>Hit {attack.bonus >= 0 ? "+" : ""}{attack.bonus}</button>
-                    <button disabled={!connected || busy} onClick={() => roll("damage", attack.id)}>Dmg {attack.damage}</button>
-                  </div>
-                ))}
-              </section>
-              <section className="quick-section">
-                <h3>Saves</h3>
-                <div className="quick-button-grid">
-                  {character.sheet.saves.map((save) => (
-                    <button key={save.id} disabled={!connected || busy} onClick={() => roll("save", save.id)}>
-                      {save.id.toUpperCase()} <strong>{save.bonus >= 0 ? "+" : ""}{save.bonus}</strong>
+                <div className="qs-hp-bar"><i style={{ width: `${hpPct}%` }} className={hpPct <= 25 ? "low" : hpPct <= 50 ? "mid" : ""} /></div>
+                <div className="qs-hp-actions">
+                  <input aria-label="Jumlah damage atau heal" type="number" min={1} max={9999} value={healthAmount} onChange={(event) => setHealthAmount(event.target.valueAsNumber)} />
+                  {(["damage", "heal"] as const).map((kind) => (
+                    <button
+                      key={kind}
+                      className={`qs-${kind}`}
+                      disabled={off || !Number.isInteger(healthAmount) || healthAmount < 1 || healthAmount > 9999}
+                      onClick={() => request({ type: "health", kind, amount: healthAmount, id: character.id, revision: character.revision })}
+                    >
+                      {kind === "damage" ? "Damage" : "Heal"}
                     </button>
                   ))}
                 </div>
-              </section>
-              {(Object.values(character.sheet.slotsByLevel || {}).some((count) => count > 0) || resources(character.build, character.sheet).some((resource) => resource.id !== "hit-dice")) && (
-                <section className="quick-section">
-                  <h3>Resources</h3>
-                  {Object.entries(character.sheet.slotsByLevel || {}).filter(([, max]) => max > 0).map(([level, max]) => {
+              </div>
+
+              <div className="qs-vitals">
+                <div><span>AC</span><strong>{character.sheet.ac}</strong></div>
+                <button disabled={off} onClick={() => roll("initiative")} title="Roll initiative"><span>Init</span><strong>{sign(character.sheet.initiative)}</strong></button>
+                <div><span>Speed</span><strong>{character.sheet.speed}</strong></div>
+                <div><span>Prof</span><strong>+{character.sheet.proficiency}</strong></div>
+              </div>
+
+              <div className="qs-mode" role="radiogroup" aria-label="Mode d20">
+                {([["disadvantage", "Disadv"], ["normal", "Normal"], ["advantage", "Adv"]] as const).map(([mode, label]) => (
+                  <button key={mode} type="button" role="radio" aria-checked={rollMode === mode} onClick={() => setRollMode(mode)}>{label}</button>
+                ))}
+              </div>
+
+              {(!!character.conditions.length || character.concentration) && (
+                <div className="quick-status-list" aria-label="Status aktif">
+                  {character.conditions.map((condition) => <span key={condition}>{condition}</span>)}
+                  {character.concentration && (
+                    <span className="qs-conc">◎ {catalog.spells.find((spell) => spell.index === character.concentration)?.name || character.concentration}</span>
+                  )}
+                </div>
+              )}
+
+              <div className="qs-abilities">
+                {abilities.map((a) => {
+                  const save = character.sheet.saves.find((s) => s.id === a);
+                  return (
+                    <div key={a}>
+                      <button disabled={off} onClick={() => roll("ability", a)} title={`${a.toUpperCase()} check`}>
+                        <span>{a.toUpperCase()}</span>
+                        <strong>{sign(character.sheet.modifiers[a])}</strong>
+                      </button>
+                      <button className={save?.proficient ? "prof" : ""} disabled={off} onClick={() => roll("save", a)} title={`${a.toUpperCase()} saving throw`}>
+                        Save {sign(save?.bonus ?? 0)}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {(!!visibleAttacks(character).length || character.sheet.spellAbility) && (
+                <section className="qs-section">
+                  <h3>Serangan</h3>
+                  {visibleAttacks(character).slice(0, 6).map((attack) => (
+                    <div className="qs-attack" key={attack.id}>
+                      <span title={attack.name}>{attack.name}<Requirement label="?" text="Roll serangan bukan satu aksi tersendiri. Ikuti Attack action atau fitur yang mengizinkan serangan ini." /></span>
+                      <button disabled={off} onClick={() => roll("attack", attack.id)}>{sign(attack.bonus)}</button>
+                      <button disabled={off} onClick={() => roll("damage", attack.id)}>{attack.damage}</button>
+                    </div>
+                  ))}
+                  {character.sheet.spellAbility && (
+                    <div className="qs-attack">
+                      <span>Spell · DC {character.sheet.spellDC}</span>
+                      <button disabled={off} onClick={() => roll("spell")}>+{character.sheet.spellAttack}</button>
+                      <span />
+                    </div>
+                  )}
+                </section>
+              )}
+
+              {(!!slots.length || !!extra.length) && (
+                <section className="qs-section">
+                  <h3>Resource</h3>
+                  {slots.map(([level, max]) => {
                     const used = character.spellSlotsUsed?.[level] || 0;
-                    return <div className="quick-resource" key={level}><span>Slot L{level}</span><strong>{max - used}/{max}</strong></div>;
+                    return (
+                      <div className="qs-resource" key={level}>
+                        <span>{character.build.classId === "warlock" ? "Pact" : "Slot"} Lv {level}</span>
+                        <span className="qs-pips">{Array.from({ length: max }, (_, i) => <i key={i} className={i < max - used ? "on" : ""} />)}</span>
+                        <b>{max - used}/{max}</b>
+                      </div>
+                    );
                   })}
-                  {resources(character.build, character.sheet).filter((resource) => resource.id !== "hit-dice").map((resource) => {
+                  {extra.map((resource) => {
                     const used = character.resourcesUsed?.[resource.id] || 0;
-                    return <div className="quick-resource" key={resource.id}><span>{resource.name}</span><strong>{resource.max - used}/{resource.max}</strong></div>;
+                    return (
+                      <div className="qs-resource" key={resource.id}>
+                        <span>{resource.name}</span>
+                        {resource.max <= 10 ? <span className="qs-pips">{Array.from({ length: resource.max }, (_, i) => <i key={i} className={i < resource.max - used ? "on" : ""} />)}</span> : <span />}
+                        <b>{resource.max - used}/{resource.max}</b>
+                      </div>
+                    );
                   })}
                 </section>
               )}
-              <details className="quick-section quick-checks">
-                <summary>Semua stat & skill</summary>
-                <h3>Ability checks</h3>
-                <div className="quick-button-grid">
-                  {abilities.map((ability) => (
-                    <button key={ability} disabled={!connected || busy} onClick={() => roll("ability", ability)}>
-                      {ability.toUpperCase()} <strong>{character.sheet.modifiers[ability] >= 0 ? "+" : ""}{character.sheet.modifiers[ability]}</strong>
-                    </button>
-                  ))}
-                </div>
-                <h3>Skills</h3>
-                <div className="character-quick-rolls">
+
+              <details className="qs-section qs-skills">
+                <summary>Skills <small>Passive Perception {character.sheet.passivePerception}</small></summary>
+                <div>
                   {character.sheet.skills.map((skill) => (
-                    <button key={skill.id} disabled={!connected || busy} onClick={() => roll("skill", skill.id)}>
-                      <span>{skill.name}{skill.expertise ? " ★" : skill.proficient ? " •" : ""}</span>
-                      <strong>{skill.bonus >= 0 ? "+" : ""}{skill.bonus}</strong>
+                    <button key={skill.id} disabled={off} onClick={() => roll("skill", skill.id)}>
+                      <i className={skill.expertise ? "expertise" : skill.proficient ? "proficient" : ""} />
+                      <span>{skill.name}</span>
+                      <b>{sign(skill.bonus)}</b>
                     </button>
                   ))}
                 </div>
               </details>
             </div>
-          )}
+            );
+          })()}
         </aside>
       )}
       <dialog
@@ -425,7 +585,7 @@ export default function Characters({
             <button
               disabled={!connected || busy}
               onClick={() => {
-                setBuild(emptyBuild());
+                setBuild({ ...emptyBuild(), classId: "", race: "", background: "" });
                 setTokenFile(null);
                 setEditing(null);
                 setStep(0);
@@ -469,7 +629,7 @@ export default function Characters({
               <p role="status">Koneksi terputus. Tunggu tersambung kembali.</p>
             )}
             {build && (
-              <>
+              <div className="builder-shell">
                 <nav
                   className="character-steps"
                   aria-label="Langkah pembuatan karakter"
@@ -478,25 +638,183 @@ export default function Characters({
                     <button
                       key={title}
                       aria-current={i === step ? "step" : undefined}
-                      className={i < step ? "done" : ""}
+                      className={i < step ? (issueSteps.has(i) ? "todo" : "done") : ""}
                       onClick={() => setStep(i)}
                     >
-                      <b>{i < step ? "✓" : i + 1}</b>
+                      <b>{i < step ? (issueSteps.has(i) ? "!" : "✓") : i + 1}</b>
                       <span>{title}</span>
                     </button>
                   ))}
                 </nav>
+                <div className="builder-scroll">
                 {step === 0 && (
+                  <div className="builder-step">
+                    <div className="builder-intro">
+                      <p>Pilih class dari daftar, baca progresinya, lalu tekan <b>Pilih</b>. Pilihan class (skill, expertise, fighting style, dll.) muncul di bawah.</p>
+                      <label className="builder-level">
+                        Level karakter
+                        <select
+                          value={build.level || 1}
+                          onChange={(e) =>
+                            setBuild({
+                              ...build,
+                              level: Number(e.target.value),
+                              subclassId: Number(e.target.value) < 3 ? "" : build.subclassId,
+                              asi: Number(e.target.value) < 4 ? {} : build.asi,
+                              cantrips: [],
+                              spells: [],
+                              prepared: [],
+                            })
+                          }
+                        >
+                          {Array.from({ length: 20 }, (_, index) => index + 1).map((level) => (
+                            <option key={level} value={level}>{level}</option>
+                          ))}
+                        </select>
+                      </label>
+                    </div>
+                    <OptionPicker
+                      label="Class"
+                      items={catalog.classes.map((c) => ({
+                        id: c.index,
+                        name: c.name,
+                        sub: `d${c.hit_die} · ${(c as { primary_ability?: { desc?: string } }).primary_ability?.desc || ""}`,
+                      }))}
+                      selected={build.classId}
+                      onSelect={(id) =>
+                        id !== build.classId &&
+                        setBuild({
+                          ...build,
+                          classId: id,
+                          subclassId: "",
+                          choices: keepChoices(build.choices, classChoice),
+                          cantrips: [],
+                          spells: [],
+                          prepared: [],
+                          armor: "",
+                          shield: false,
+                        })
+                      }
+                      detail={classDetail}
+                      onClear={() => setBuild({ ...build, classId: "", subclassId: "", choices: keepChoices(build.choices, classChoice), cantrips: [], spells: [], prepared: [], armor: "", shield: false })}
+                    />
+                    {(build.level || 1) >= 3 && (
+                      <section className="builder-section">
+                        <h3 id="character-choice-subclass" tabIndex={-1}>Subclass</h3>
+                        <OptionPicker
+                          label="Subclass"
+                          searchable={false}
+                          items={catalog.subclasses
+                            .filter((s) => s.class?.index === build.classId)
+                            .map((s) => ({ id: s.index, name: s.name, sub: (s as { summary?: string }).summary }))}
+                          selected={build.subclassId || ""}
+                          onSelect={(id) => setBuild({ ...build, subclassId: id, choices: keepChoices(build.choices, (key) => key.startsWith("subclass.")) })}
+                          onClear={() => setBuild({ ...build, subclassId: "", choices: keepChoices(build.choices, (key) => key.startsWith("subclass.")) })}
+                          detail={(id) => (
+                            <p className="builder-text">
+                              {(catalog.subclasses.find((s) => s.index === id) as { description?: string } | undefined)?.description}
+                            </p>
+                          )}
+                        />
+                      </section>
+                    )}
+                    {groups.filter((g) => stepForGroup(g) === 0).map(groupUI)}
+                  </div>
+                )}
+                {step === 1 && (
+                  <div className="builder-step">
+                    <div className="builder-intro">
+                      <p>Background memberi bonus ability, origin feat, skill, tool, dan equipment. Bonus ability diatur di langkah Ability Scores.</p>
+                    </div>
+                    <OptionPicker
+                      label="Background"
+                      items={catalog.backgrounds
+                        .filter((b) => b.available)
+                        .map((b) => ({ id: b.id, name: b.name, sub: b.source }))}
+                      selected={build.background}
+                      onSelect={(id) =>
+                        id !== build.background &&
+                        setBuild({ ...build, background: id, choices: keepChoices(build.choices, backgroundChoice) })
+                      }
+                      onClear={() => setBuild({ ...build, background: "", backgroundName: "", choices: keepChoices(build.choices, backgroundChoice) })}
+                      detail={(id) => {
+                        const b = catalog.backgrounds.find((x) => x.id === id);
+                        return (
+                          <>
+                            <p className="builder-text">{b?.desc}</p>
+                            {b?.feature && (
+                              <>
+                                <h4>{b.feature}</h4>
+                                <p className="builder-text">{b.featureDesc}</p>
+                              </>
+                            )}
+                          </>
+                        );
+                      }}
+                    />
+                    {build.background === "custom" && (
+                      <label>
+                        Nama custom background
+                        <input
+                          value={build.backgroundName}
+                          maxLength={60}
+                          onChange={(e) => setBuild({ ...build, backgroundName: e.target.value })}
+                        />
+                      </label>
+                    )}
+                    {groups.filter((g) => stepForGroup(g) === 1).map(groupUI)}
+                  </div>
+                )}
+                {step === 2 && (
+                  <div className="builder-step">
+                    <OptionPicker
+                      label="Species"
+                      toolbar={
+                        <label className="option-picker-book">
+                          Buku
+                          <select value={speciesBook} onChange={(e) => setSpeciesBook(e.target.value)}>
+                            <option value="phb-2024">Player’s Handbook 2024</option>
+                            <option value="motm">Monsters of the Multiverse (2022)</option>
+                          </select>
+                        </label>
+                      }
+                      items={speciesForSource(catalog, speciesBook).map((r) => ({
+                        id: r.index,
+                        name: r.name,
+                        sub: `${(r as { size?: string }).size || ""} · ${(r as { speed?: number }).speed || 30} ft`,
+                      }))}
+                      selected={speciesSource(build.race) === speciesBook ? build.race : ""}
+                      onSelect={(id) => setBuild(selectSpecies(build, id, catalog))}
+                      onClear={() => setBuild({ ...build, race: "", subrace: "", choices: keepChoices(build.choices, (key) => /^(race\.|subrace\.|human\.|trait\.|motm\.)/.test(key)) })}
+                      detail={(id) =>
+                        id === build.race ? (
+                          <SpeciesCard build={build} sheet={preview || undefined} />
+                        ) : (
+                          <SpeciesCard build={selectSpecies(build, id, catalog)} eyebrow="PRATINJAU SPECIES" />
+                        )
+                      }
+                    />
+                    {!!catalog.races.find((r) => r.index === build.race)?.subraces?.length && (
+                      <label>
+                        Subrace
+                        <select value={build.subrace} onChange={(e) => setBuild({ ...build, subrace: e.target.value })}>
+                          <option value="">Pilih subrace</option>
+                          {catalog.races
+                            .find((r) => r.index === build.race)
+                            ?.subraces?.map((r) => (
+                              <option key={r.index} value={r.index}>{r.name}</option>
+                            ))}
+                        </select>
+                      </label>
+                    )}
+                    {groups.filter((g) => stepForGroup(g) === 2).map(groupUI)}
+                  </div>
+                )}
+                {step === 6 && (
                   <div className="character-form">
                     <label>
                       Nama karakter
-                      <input
-                        maxLength={60}
-                        value={build.name}
-                        onChange={(e) =>
-                          setBuild({ ...build, name: e.target.value })
-                        }
-                      />
+                      <input maxLength={60} value={build.name} onChange={(e) => setBuild({ ...build, name: e.target.value })} />
                     </label>
                     {!editing && uploadToken && (
                       <label className="character-token-pick file-pick">
@@ -518,208 +836,12 @@ export default function Characters({
                       </label>
                     )}
                     <label>
-                      Class
-                      <select
-                        value={build.classId}
-                        onChange={(e) =>
-                          setBuild({
-                            ...build,
-                            classId: e.target.value,
-                            subclassId: "",
-                            choices: {},
-                            cantrips: [],
-                            spells: [],
-                            prepared: [],
-                            armor: "",
-                            shield: false,
-                          })
-                        }
-                      >
-                        {catalog.classes.map((c) => (
-                          <option key={c.index} value={c.index}>
-                            {c.name}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    <label>
-                      Level
-                      <select
-                        value={build.level || 1}
-                        onChange={(e) =>
-                          setBuild({
-                            ...build,
-                            level: Number(e.target.value),
-                            subclassId:
-                              Number(e.target.value) < 3
-                                ? ""
-                                : build.subclassId,
-                            asi: Number(e.target.value) < 4 ? {} : build.asi,
-                            cantrips: [],
-                            spells: [],
-                            prepared: [],
-                          })
-                        }
-                      >
-                        {Array.from({ length: 20 }, (_, index) => index + 1).map((level) => (
-                          <option key={level} value={level}>
-                            {level}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    {(build.level || 1) >= 3 && (
-                      <label>
-                        Subclass
-                        <select
-                          value={build.subclassId || ""}
-                          onChange={(e) =>
-                            setBuild({ ...build, subclassId: e.target.value })
-                          }
-                        >
-                          <option value="">Pilih subclass</option>
-                          {catalog.subclasses
-                            .filter((s) => s.class?.index === build.classId)
-                            .map((s) => (
-                              <option key={s.index} value={s.index}>
-                                {s.name}
-                              </option>
-                            ))}
-                        </select>
-                      </label>
-                    )}
-                    <p>
-                      Hit die d
-                      {
-                        catalog.classes.find((c) => c.index === build.classId)
-                          ?.hit_die
-                      }
-                      . Subclass dipilih mulai level 3. Empat pilihan Player's
-                      Handbook 2024 per class.
-                    </p>
-                    <label>
-                      Buku species
-                      <select value={speciesBook} onChange={e=>setSpeciesBook(e.target.value)}>
-                        <option value="phb-2024">Player’s Handbook 2024</option>
-                        <option value="motm">Monsters of the Multiverse (2022)</option>
-                      </select>
-                    </label>
-                    <p className="species-filter-note">Filter buku hanya mengubah daftar pilihan, bukan species karaktermu.</p>
-                    <label>
-                      Species
-                      <select
-                        value={speciesSource(build.race)===speciesBook?build.race:''}
-                        onChange={e=>setBuild(selectSpecies(build,e.target.value,catalog))}
-                      >
-                        <option value="" disabled>Pilih species dari buku ini</option>
-                        {speciesForSource(catalog, speciesBook).map((r) => (
-                          <option key={r.index} value={r.index}>
-                            {r.name}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                    {!!catalog.races.find((r) => r.index === build.race)
-                      ?.subraces?.length && (
-                      <label>
-                        Subrace
-                        <select
-                          value={build.subrace}
-                          onChange={(e) =>
-                            setBuild({ ...build, subrace: e.target.value })
-                          }
-                        >
-                          <option value="">Pilih subrace</option>
-                          {catalog.races
-                            .find((r) => r.index === build.race)
-                            ?.subraces?.map((r) => (
-                              <option key={r.index} value={r.index}>
-                                {r.name}
-                              </option>
-                            ))}
-                        </select>
-                      </label>
-                    )}
-                    {preview && <SpeciesCard build={build} sheet={preview} />}
-                    <label>
-                      Background
-                      <select
-                        value={build.background}
-                        onChange={(e) =>
-                          setBuild({
-                            ...build,
-                            background: e.target.value,
-                            choices: {},
-                          })
-                        }
-                      >
-                        {catalog.backgrounds
-                          .filter((b) => b.available)
-                          .map((b) => (
-                            <option key={b.id} value={b.id}>
-                              {b.name} · {b.source}
-                            </option>
-                          ))}
-                      </select>
-                    </label>
-                    {build.background === "custom" ? (
-                      <label>
-                        Nama custom background
-                        <input
-                          value={build.backgroundName}
-                          maxLength={60}
-                          onChange={(e) =>
-                            setBuild({
-                              ...build,
-                              backgroundName: e.target.value,
-                            })
-                          }
-                        />
-                      </label>
-                    ) : (
-                      <details>
-                        <summary>Background dan sumber</summary>
-                        <p>
-                          {
-                            catalog.backgrounds.find(
-                              (b) => b.id === build.background,
-                            )?.desc
-                          }
-                        </p>
-                        <strong>
-                          {
-                            catalog.backgrounds.find(
-                              (b) => b.id === build.background,
-                            )?.feature
-                          }
-                        </strong>
-                        <p>
-                          {
-                            catalog.backgrounds.find(
-                              (b) => b.id === build.background,
-                            )?.featureDesc
-                          }
-                        </p>
-                      </details>
-                    )}
-                    <p className="character-note">
-                      {catalog.backgrounds.filter((b) => b.available).length}{" "}
-                      background D&D 2024. Bonus ability, origin feat, skill,
-                      tool, dan equipment mengikuti background pilihan.
-                    </p>
-                    <label>
                       Catatan / biografi
-                      <textarea
-                        maxLength={4000}
-                        value={build.notes}
-                        onChange={(e) =>
-                          setBuild({ ...build, notes: e.target.value })
-                        }
-                      />
+                      <textarea maxLength={4000} value={build.notes} onChange={(e) => setBuild({ ...build, notes: e.target.value })} />
                     </label>
                   </div>
                 )}
-                {step === 1 && (
+                {step === 3 && (
                   <>
                     <label>
                       Metode ability score
@@ -805,7 +927,7 @@ export default function Characters({
                         </label>
                       ))}
                     </div>
-                    {groups.filter((g) => g.kind === "ability").map(groupUI)}
+                    {groups.filter((g) => stepForGroup(g) === 3).map(groupUI)}
                     {(build.level || 1) >= 4 && (
                       <fieldset>
                         <legend id="character-choice-asi.4" tabIndex={-1}>Peningkatan level 4</legend>
@@ -854,8 +976,8 @@ export default function Characters({
                               >
                                 <option value="">Pilih ability</option>
                                 {abilities.map((a) => (
-                                  <option key={a} value={a}>
-                                    {a.toUpperCase()}
+                                  <option key={a} value={a} disabled={a !== build.asi?.["4"]?.[i] && finalScores(build)[a] >= 20}>
+                                    {a.toUpperCase()} ({finalScores(build)[a]})
                                   </option>
                                 ))}
                               </select>
@@ -885,7 +1007,7 @@ export default function Characters({
                               setBuild({ ...build, asi: { ...build.asi, [level]: selected as Ability[] } });
                             }}>
                               <option value="">Pilih ability</option>
-                              {abilities.map(ability => <option key={ability} value={ability}>{ability.toUpperCase()}</option>)}
+                              {abilities.map(ability => <option key={ability} value={ability} disabled={ability !== build.asi?.[level]?.[index] && finalScores(build)[ability] >= 20}>{ability.toUpperCase()} ({finalScores(build)[ability]})</option>)}
                             </select>
                           </label>
                         ))}
@@ -893,24 +1015,9 @@ export default function Characters({
                     ))}
                   </>
                 )}
-                {step === 2 && (
+                {step === 4 && (
                   <>
-                    {groups
-                      .filter(
-                        (g) =>
-                          !["equipment", "ability", "spell"].includes(g.kind),
-                      )
-                      .map(groupUI)}
-                    <p className="character-note">
-                      Proficiency yang sama tidak ditumpuk. Background tools dan
-                      fitur berbasis narasi dicatat pada sheet; tindakan khusus
-                      diputuskan DM.
-                    </p>
-                  </>
-                )}
-                {step === 3 && (
-                  <>
-                    {groups.filter((g) => g.kind === "equipment").map(groupUI)}
+                    {groups.filter((g) => stepForGroup(g) === 4).map(groupUI)}
                     <label>
                       Armor dipakai
                       <select
@@ -955,7 +1062,7 @@ export default function Characters({
                     </p>
                   </>
                 )}
-                {step === 4 && (
+                {step === 5 && (
                   <>
                     {limits && !limits.cantrips && !limits.spells && (
                       <p>
@@ -1041,10 +1148,10 @@ export default function Characters({
                         );
                       },
                     )}
-                    {groups.filter((g) => g.kind === "spell").map(groupUI)}
+                    {groups.filter((g) => stepForGroup(g) === 5).map(groupUI)}
                   </>
                 )}
-                {step === 5 && (
+                {step === REVIEW_STEP && (
                   <>
                     <div className="character-stats">
                       <div>
@@ -1081,7 +1188,7 @@ export default function Characters({
                     ))}
                   </>
                 )}
-                {(step === 5 || validationOpen) && !!validation.length && (
+                {(step === REVIEW_STEP || validationOpen) && !!validation.length && (
                   <div className="character-error" role="region" aria-label="Pilihan belum lengkap" aria-live="polite">
                     <strong>Pilihan belum lengkap</strong>
                     <ul>
@@ -1093,7 +1200,7 @@ export default function Characters({
                             {issue?.groupKey && (
                               <button type="button" aria-label={`Perbaiki: ${message}`} onClick={() => {
                                 setValidationOpen(true);
-                                setStep(({ identity: 0, ability: 1, proficiency: 2, equipment: 3, spell: 4 })[issue.section]);
+                                setStep(stepForIssue(issue));
                                 setValidationTarget(`character-choice-${issue.groupKey}`);
                               }}>Perbaiki</button>
                             )}
@@ -1103,6 +1210,7 @@ export default function Characters({
                     </ul>
                   </div>
                 )}
+                </div>
                 <footer className="character-builder-footer">
                   <button
                     disabled={step === 0}
@@ -1111,7 +1219,7 @@ export default function Characters({
                     <ChevronLeft size={17} />
                     Kembali
                   </button>
-                  {step < 5 ? (
+                  {step < REVIEW_STEP ? (
                     <button onClick={() => setStep((v) => v + 1)}>
                       Lanjut
                       <ChevronRight size={17} />
@@ -1140,117 +1248,157 @@ export default function Characters({
                     </button>
                   )}
                 </footer>
-              </>
+              </div>
             )}
-            {!build && character && (
-              <>
-                <div className="character-sheet-heading">
-                  <div className="sheet-identity">
+            {!build && character && (() => {
+              const sign = (n: number) => `${n >= 0 ? "+" : ""}${n}`;
+              const skillBonus = (id: string) => character.sheet.skills.find((s) => s.id === id)?.bonus ?? 0;
+              const avatar = tokens.find((t) => t.characterId === character.id)?.image;
+              const hitDiceLeft = character.sheet.level - (character.resourcesUsed?.["hit-dice"] || 0);
+              return (
+              <div className="sheet2">
+                <header className="sheet2-head">
+                  <div className="sheet2-avatar">
+                    {avatar ? <img src={avatar} alt="" /> : <span>{character.sheet.name.slice(0, 1).toUpperCase()}</span>}
+                  </div>
+                  <div className="sheet2-identity">
                     <h2>{character.sheet.name}</h2>
                     <span>
-                      Level {character.sheet.level} ·{" "}
-                      {character.sheet.subclassName ||
-                        character.sheet.className}{" "}
-                      · Proficiency +{character.sheet.proficiency}
+                      {character.sheet.raceName} · {character.sheet.className}{character.sheet.subclassName ? ` (${character.sheet.subclassName})` : ""} · Level {character.sheet.level}
                     </span>
+                    <small>Background: {character.sheet.backgroundName}</small>
                   </div>
-                  <p>
-                    {character.sheet.raceName} · {character.sheet.className} ·{" "}
-                    {character.sheet.backgroundName}
-                  </p>
-                  <button
-                    disabled={busy}
-                    onClick={() => {
-                      setBuild(structuredClone(character.build));
-                      setEditing({
-                        id: character.id,
-                        revision: character.revision,
-                      });
-                      setStep(0);
-                    }}
-                  >
-                    Edit pilihan
-                  </button>
-                  <button
-                    onClick={() => {
-                      const blob = new Blob(
-                        [
-                          JSON.stringify(
-                            {
-                              version: 1,
-                              ruleset: character.ruleset,
-                              build: character.build,
-                            },
-                            null,
-                            2,
-                          ),
-                        ],
-                        { type: "application/json" },
-                      );
-                      const url = URL.createObjectURL(blob);
-                      const a = document.createElement("a");
-                      a.href = url;
-                      a.download = `${character.sheet.name.replace(/[^a-z0-9]/gi, "-")}.json`;
-                      a.click();
-                      URL.revokeObjectURL(url);
-                    }}
-                  >
-                    Export JSON
-                  </button>
-                </div>
-                <div className="character-stats">
-                  <div>
-                    <span>HP</span>
-                    <strong>
-                      {character.hp}/{character.sheet.hp}
-                    </strong>
-                  </div>
-                  <div>
-                    <span>AC</span>
-                    <strong>{character.sheet.ac}</strong>
-                  </div>
-                  <div>
-                    <span>Speed</span>
-                    <strong>{character.sheet.speed} ft</strong>
-                    {Object.entries(character.sheet.movement||{}).map(([mode,speed])=><small key={mode}>{mode} {speed} ft </small>)}
-                  </div>
-                  <div>
-                    <span>Passive perception</span>
-                    <strong>{character.sheet.passivePerception}</strong>
-                  </div>
-                </div>
-                <div className="character-abilities">
-                  {abilities.map((a) => (
+                  <div className="sheet2-head-actions">
+                    <label className="sheet2-rollmode" title="Mode d20 untuk semua roll dari sheet">
+                      d20
+                      <select value={rollMode} onChange={(e) => setRollMode(e.target.value as typeof rollMode)}>
+                        <option value="normal">Normal</option>
+                        <option value="advantage">Advantage</option>
+                        <option value="disadvantage">Disadvantage</option>
+                      </select>
+                    </label>
                     <button
-                      key={a}
-                      disabled={!connected || busy}
-                      onClick={() => roll("ability", a)}
+                      disabled={busy}
+                      onClick={() => {
+                        setBuild(structuredClone(character.build));
+                        setEditing({ id: character.id, revision: character.revision });
+                        setStep(0);
+                      }}
                     >
-                      <span>{a.toUpperCase()}</span>
-                      <strong>{character.sheet.scores[a]}</strong>
-                      <small>
-                        {character.sheet.modifiers[a] >= 0 ? "+" : ""}
-                        {character.sheet.modifiers[a]} <Dice5 size={13} />
-                      </small>
+                      Edit pilihan
                     </button>
-                  ))}
+                    <button
+                      onClick={() => {
+                        const blob = new Blob([JSON.stringify({ version: 1, ruleset: character.ruleset, build: character.build }, null, 2)], { type: "application/json" });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = `${character.sheet.name.replace(/[^a-z0-9]/gi, "-")}.json`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      }}
+                    >
+                      Export JSON
+                    </button>
+                  </div>
+                </header>
+                <div className="sheet2-vitals">
+                  <div className="sheet2-vital"><span>Proficiency</span><strong>+{character.sheet.proficiency}</strong></div>
+                  <div className="sheet2-vital sheet2-ac"><span>Armor Class</span><strong>{character.sheet.ac}</strong></div>
+                  <button className="sheet2-vital" disabled={!connected || busy} onClick={() => roll("initiative")} title="Roll initiative (tersimpan di tracker)">
+                    <span>Initiative</span><strong>{sign(character.sheet.initiative)}</strong><Dice5 size={13} />
+                  </button>
+                  <div className="sheet2-vital">
+                    <span>Speed</span><strong>{character.sheet.speed} ft</strong>
+                    {Object.entries(character.sheet.movement || {}).map(([mode, speed]) => <small key={mode}>{({ swim: "Renang", climb: "Panjat", fly: "Terbang" } as Record<string, string>)[mode] || mode} {speed} ft</small>)}
+                  </div>
+                  <div className="sheet2-vital"><span>Hit Dice</span><strong>{hitDiceLeft}/{character.sheet.level}</strong></div>
+                  <div className="sheet2-hp">
+                    <div className="sheet2-hp-numbers">
+                      <div><span>HP</span><strong>{character.hp}<small>/{character.sheet.hp}</small></strong></div>
+                      <div><span>Temp</span><strong>{character.tempHp}</strong></div>
+                    </div>
+                    <div className="sheet2-hp-bar"><i style={{ width: `${Math.max(0, Math.min(100, (character.hp / Math.max(1, character.sheet.hp)) * 100))}%` }} /></div>
+                    <div className="sheet2-hp-actions">
+                      <input aria-label="Jumlah damage atau heal" type="number" min={1} max={9999} value={healthAmount} onChange={(e) => setHealthAmount(e.target.valueAsNumber)} />
+                      {(["damage", "heal"] as const).map((kind) => (
+                        <button
+                          key={kind}
+                          className={`sheet2-${kind}`}
+                          disabled={!connected || busy || !Number.isInteger(healthAmount) || healthAmount < 1 || healthAmount > 9999}
+                          onClick={() => request({ type: "health", kind, amount: healthAmount, id: character.id, revision: character.revision })}
+                        >
+                          {kind === "damage" ? "Damage" : "Heal"}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <nav
-                  className="sheet-navigation"
-                  aria-label="Bagian character sheet"
-                >
+                {character.concentrationSaveDC && (
+                  <p role="status" className="character-error">
+                    Concentration: lakukan CON save DC {character.concentrationSaveDC}. Jika gagal, akhiri concentration di tab Spells.
+                  </p>
+                )}
+                <div className="sheet2-abilities">
+                  {abilities.map((a) => {
+                    const save = character.sheet.saves.find((s) => s.id === a);
+                    return (
+                      <div className="sheet2-ability" key={a}>
+                        <button disabled={!connected || busy} onClick={() => roll("ability", a)} title={`Roll ${a.toUpperCase()} check`}>
+                          <span>{({ str: "Strength", dex: "Dexterity", con: "Constitution", int: "Intelligence", wis: "Wisdom", cha: "Charisma" } as Record<string, string>)[a]}</span>
+                          <strong>{sign(character.sheet.modifiers[a])}</strong>
+                          <small>{character.sheet.scores[a]}</small>
+                        </button>
+                        <button className={`sheet2-save${save?.proficient ? " proficient" : ""}`} disabled={!connected || busy} onClick={() => roll("save", a)} title={`Roll ${a.toUpperCase()} saving throw`}>
+                          <i aria-label={save?.proficient ? "Proficient" : "Tidak proficient"} />Save <b>{sign(save?.bonus ?? 0)}</b>
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="sheet2-body">
+                  <div className="sheet2-side">
+                    <section>
+                      <h3>Skills</h3>
+                      <ul className="sheet2-skills">
+                        {character.sheet.skills.map((s) => {
+                          const ability = (catalog.skills.find((k) => k.index === s.id) as { ability_score?: { name?: string } } | undefined)?.ability_score?.name;
+                          return (
+                            <li key={s.id}>
+                              <button disabled={!connected || busy} onClick={() => roll("skill", s.id)}>
+                                <i className={s.expertise ? "expertise" : s.proficient ? "proficient" : ""} aria-label={s.expertise ? "Expertise" : s.proficient ? "Proficient" : "Tidak proficient"} />
+                                <span>{s.name}</span>
+                                <small>{ability}</small>
+                                <b>{sign(s.bonus)}</b>
+                              </button>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </section>
+                    <section className="sheet2-passives">
+                      <h3>Passive</h3>
+                      <div><span>Perception</span><b>{character.sheet.passivePerception}</b></div>
+                      <div><span>Insight</span><b>{10 + skillBonus("insight")}</b></div>
+                      <div><span>Investigation</span><b>{10 + skillBonus("investigation")}</b></div>
+                    </section>
+                    <section className="sheet2-profs">
+                      <h3>Proficiency & bahasa</h3>
+                      <p><b>Bahasa:</b> {character.sheet.languages.join(", ") || "—"}</p>
+                      <p><b>Lainnya:</b> {character.sheet.toolsNotes || character.sheet.proficiencies.join(", ") || "—"}</p>
+                    </section>
+                  </div>
+                  <div className="sheet2-main">
+                <nav className="sheet-navigation" aria-label="Bagian character sheet">
                   {[
                     ["combat", "Combat"],
-                    ["resources", "HP & Rest"],
-                    ["spells", "Spell"],
-                    ["features", "Fitur"],
-                    ["equipment", "Equipment"],
+                    ["spells", "Spells"],
+                    ["equipment", "Inventory"],
+                    ["features", "Features"],
+                    ["resources", "Rest & Resource"],
+                    ["notes", "Notes"],
                   ].map(([id, label]) => (
-                    <button
-                      key={id}
-                      aria-pressed={sheetTab === id}
-                      onClick={() => setSheetTab(id)}
-                    >
+                    <button key={id} aria-pressed={sheetTab === id} onClick={() => setSheetTab(id)}>
                       {label}
                     </button>
                   ))}
@@ -1260,50 +1408,6 @@ export default function Characters({
                   className="sheet-section"
                 >
                   <h3>HP, death saves & spell slots</h3>
-                  <div className="sheet-health-actions">
-                    <label>
-                      Jumlah damage / heal
-                      <input
-                        type="number"
-                        min={1}
-                        max={9999}
-                        value={healthAmount}
-                        onChange={(e) =>
-                          setHealthAmount(e.target.valueAsNumber)
-                        }
-                      />
-                    </label>
-                    {(["damage", "heal"] as const).map((kind) => (
-                      <button
-                        key={kind}
-                        disabled={
-                          !connected ||
-                          busy ||
-                          !Number.isInteger(healthAmount) ||
-                          healthAmount < 1 ||
-                          healthAmount > 9999
-                        }
-                        onClick={() =>
-                          request({
-                            type: "health",
-                            kind,
-                            amount: healthAmount,
-                            id: character.id,
-                            revision: character.revision,
-                          })
-                        }
-                      >
-                        {kind === "damage" ? "Damage" : "Heal"}
-                      </button>
-                    ))}
-                  </div>
-                  {character.concentrationSaveDC && (
-                    <p role="status" className="character-error">
-                      Concentration: lakukan CON save DC{" "}
-                      {character.concentrationSaveDC}. Jika gagal, akhiri
-                      concentration pada bagian Spell.
-                    </p>
-                  )}
                   <div className="character-form character-resources">
                     {(
                       [
@@ -1485,19 +1589,6 @@ export default function Characters({
                   className="sheet-section"
                 >
                   <label>
-                    Mode D20
-                    <select
-                      value={rollMode}
-                      onChange={(e) =>
-                        setRollMode(e.target.value as typeof rollMode)
-                      }
-                    >
-                      <option value="normal">Normal</option>
-                      <option value="advantage">Advantage</option>
-                      <option value="disadvantage">Disadvantage</option>
-                    </select>
-                  </label>
-                  <label>
                     <input
                       type="checkbox"
                       checked={critical}
@@ -1505,50 +1596,15 @@ export default function Characters({
                     />
                     Critical damage (dua kali damage dice)
                   </label>
-                  <h3>Saving throws</h3>
-                  <div className="character-rolls">
-                    {character.sheet.saves.map((s) => (
-                      <button
-                        key={s.id}
-                        disabled={!connected || busy}
-                        onClick={() => roll("save", s.id)}
-                      >
-                        {s.id.toUpperCase()} {s.proficient ? "•" : ""}
-                        <strong>
-                          {s.bonus >= 0 ? "+" : ""}
-                          {s.bonus}
-                        </strong>
-                      </button>
-                    ))}
-                  </div>
-                  <h3>Skills</h3>
-                  <div className="character-rolls">
-                    {character.sheet.skills.map((s) => (
-                      <button
-                        key={s.id}
-                        disabled={!connected || busy}
-                        onClick={() => roll("skill", s.id)}
-                      >
-                        {s.name}{" "}
-                        {s.expertise ? "(expertise)" : s.proficient ? "•" : ""}
-                        <strong>
-                          {s.bonus >= 0 ? "+" : ""}
-                          {s.bonus}
-                        </strong>
-                      </button>
-                    ))}
-                  </div>
-                  <button
-                    disabled={!connected || busy}
-                    onClick={() => roll("initiative")}
-                  >
-                    Roll & simpan initiative (
-                    {character.sheet.initiative >= 0 ? "+" : ""}
-                    {character.sheet.initiative})
-                  </button>
                   <h3>Serangan</h3>
                   <p className="sheet-empty-note">Umumnya lewat Aksi (Attack). Aksi Bonus atau Reaksi hanya jika fitur/pemicu mengizinkan; tombol roll tidak menghabiskan aksi otomatis. Waktu spell ada di tab Spell.</p>
-                  {character.sheet.attacks.map((a) => (
+                  {visibleAttacks(character).length < character.sheet.attacks.length && (
+                    <p className="sheet-empty-note equip-hint">
+                      {character.sheet.attacks.length - visibleAttacks(character).length} senjata tidak dipakai disembunyikan. Pakai lewat tab{" "}
+                      <button type="button" className="link-button" onClick={() => setSheetTab("equipment")}>Inventory</button>.
+                    </p>
+                  )}
+                  {visibleAttacks(character).map((a) => (
                     <div className="character-attack" key={a.id}>
                       <strong>{a.name}<Requirement label="Serangan · lihat syarat" text="Attack action dapat mencakup beberapa serangan. Serangan sebagai Aksi Bonus atau Reaksi memerlukan fitur atau pemicu yang sesuai." /></strong>
                       <button
@@ -1593,9 +1649,9 @@ export default function Characters({
                   hidden={sheetTab !== "equipment"}
                   className="sheet-section"
                 >
-                  <CurrencyWallet key={`${character.id}:${character.revision}`} currency={character.currency} disabled={!connected || busy} onSave={currency => request({ type: "currency", id: character.id, revision: character.revision, currency })} />
-                  <h3>Equipment & bahasa</h3>
-                  <ul>
+                  <h3>Inventory</h3>
+                  <p className="sheet-empty-note">Nyalakan saklar <b>Dipakai</b> pada senjata yang sedang dipegang — hanya itu yang muncul di Combat. Armor & shield yang dipakai langsung mengubah AC.</p>
+                  <ul className="inventory-list">
                     {character.sheet.equipment.filter(e => !['cp', 'sp', 'ep', 'gp', 'pp'].includes(e.id)).map((e) => {
                       const equipment = catalog.equipment.find(
                         (item) => item.index === e.id,
@@ -1605,7 +1661,27 @@ export default function Characters({
                         : `${e.count} × ${e.name}`;
                       return (
                         <li className="shareable-row" key={e.id}>
-                          <span>{e.count} × {e.name}</span>
+                          <span>{e.count} × {e.name}{equipment?.damage ? <small> · {equipment.damage.damage_dice} {equipment.weapon_range === "Ranged" ? "ranged" : "melee"}</small> : equipment?.armor_class ? <small> · AC {equipment.armor_category === "Shield" ? "+2" : equipment.armor_class.base}</small> : null}</span>
+                          {(equipment?.damage || equipment?.armor_class) && (() => {
+                            const on = equipment.damage
+                              ? equippedWeapons(character).includes(e.id)
+                              : equipment.armor_category === "Shield"
+                                ? character.build.shield
+                                : character.build.armor === e.id;
+                            return (
+                              <button
+                                type="button"
+                                role="switch"
+                                aria-checked={on}
+                                className="equip-switch"
+                                disabled={!connected || busy}
+                                title={on ? "Lepas" : "Pakai"}
+                                onClick={() => request({ type: "equip", id: character.id, revision: character.revision, item: e.id, on: !on })}
+                              >
+                                <i />{on ? "Dipakai" : "Tidak dipakai"}
+                              </button>
+                            );
+                          })()}
                           <button
                             type="button"
                             title="Kirim penjelasan ke chat"
@@ -1620,6 +1696,7 @@ export default function Characters({
                     })}
                   </ul>
                   <p>{character.sheet.equipmentNotes}</p>
+                  <CurrencyWallet key={`${character.id}:${character.revision}`} currency={character.currency} disabled={!connected || busy} onSave={currency => request({ type: "currency", id: character.id, revision: character.revision, currency })} />
                   <p>
                     Tools:{" "}
                     {character.sheet.toolsNotes ||
@@ -1665,12 +1742,13 @@ export default function Characters({
                         </button>
                       </div>
                     ))}
-                  <p>{character.build.notes}</p>
                 </section>
                 <section
-                  hidden={sheetTab !== "equipment"}
+                  hidden={sheetTab !== "notes"}
                   className="sheet-section"
                 >
+                  <h3>Catatan / biografi</h3>
+                  <p className="sheet2-notes">{character.build.notes || "Belum ada catatan. Tambahkan lewat Edit pilihan → Detail."}</p>
                   <h3>Hubungkan token</h3>
                   <p>HP token terhubung mengikuti sheet di semua scene.</p>
                   {tokens
@@ -1699,8 +1777,11 @@ export default function Characters({
                       </button>
                     ))}
                 </section>
-              </>
-            )}
+                  </div>
+                </div>
+              </div>
+              );
+            })()}
             {!build && !character && (
               <div className="character-empty">
                 <BookOpen size={40} />
@@ -1731,7 +1812,7 @@ export default function Characters({
                         if (!result.build) throw new Error("Data tidak valid.");
                         setBuild(result.build);
                         setEditing(null);
-                        setStep(5);
+                        setStep(REVIEW_STEP);
                       } catch (error) {
                         setError(
                           error instanceof Error

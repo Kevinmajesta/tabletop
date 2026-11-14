@@ -3,13 +3,13 @@ import { revisedCatalog as catalog } from '../server/characters';
 import { speciesGuide } from '../server/catalog/species-guide';
 import { speciesSource } from '../server/catalog/motm';
 
-export default function SpeciesCard({ build, sheet }: { build: BuildInput; sheet?: Sheet }) {
+export default function SpeciesCard({ build, sheet, eyebrow = "SPECIES TERPILIH" }: { build: BuildInput; sheet?: Sheet; eyebrow?: string }) {
   const guide = speciesGuide(build, catalog);
   const movementNames: Record<string, string> = { swim: 'Renang', climb: 'Panjat', fly: 'Terbang' };
   return (
     <section className="species-guide" aria-label={`Tentang ${guide.name}`}>
       <div className="species-guide-heading">
-        <div><span className="species-guide-eyebrow">SPECIES TERPILIH</span><h3>{guide.name}</h3></div>
+        <div><span className="species-guide-eyebrow">{eyebrow}</span><h3>{guide.name}</h3></div>
         <span className="species-guide-book">{speciesSource(build.race) === 'motm' ? 'MotM 2022' : 'PHB 2024'}</span>
       </div>
       <p className="species-guide-overview">{guide.overview}</p>

@@ -20,7 +20,7 @@ export default function NaturalRollEffect({ sides, values, rollId }: { sides: nu
   if (sides !== 20 || (!twenty && !one)) return null;
   const id = rollId || values.join(',');
   return <div key={id} className="natural-roll-effects" role="status" aria-live="polite">
-    {twenty && <div className="natural-roll natural-twenty"><RollGif gifs={twentyGifs} id={id}/><div className="natural-splash-title"><strong>Natural 20</strong><p>Angka tertinggi!</p></div></div>}
-    {one && <div className="natural-roll natural-one"><RollGif gifs={oneGifs} id={id}/><div className="natural-splash-title"><strong>Natural 1</strong><p>Angka terendah!</p></div></div>}
+    {twenty && <div className="natural-roll natural-twenty"><RollGif gifs={twentyGifs} id={id}/><div className="natural-splash-title"><strong>Natural 20</strong></div></div>}
+    {one && <div className="natural-roll natural-one"><RollGif gifs={oneGifs} id={id}/><div className="natural-splash-title"><strong>Natural 1</strong></div></div>}
   </div>;
 }

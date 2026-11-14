@@ -223,6 +223,8 @@ export type Character = {
   deathSuccess: number;
   deathFailure: number;
   conditions: string[];
+  // Senjata yang sedang dipegang/dipakai. Tidak ada = semua senjata dianggap dipakai (karakter lama).
+  equipped?: string[];
 };
 export type Sheet = {
   name: string;
@@ -1783,8 +1785,11 @@ export function validateBuild(input: unknown): {
     const boonBonus = asiLevels(build).filter(at => epicBoons.some(f => f.index === featFor(build, at)) && build.choices[`level${at}.ability`]?.includes(a)).length;
     const capstone = levelFor(build) === 20 && ((build.classId === "barbarian" && ["str", "con"].includes(a)) || (build.classId === "monk" && ["dex", "wis"].includes(a))) ? 4 : 0;
     return finalScores(build)[a] > Math.min(30, 20 + boonBonus + capstone);
-  }))
-    errors.push("Ability setelah peningkatan maksimal 20.");
+  })) {
+    const message = "Ability setelah peningkatan maksimal 20. Pindahkan sebagian peningkatan ke ability lain.";
+    errors.push(message);
+    issues.push({ message, section: "ability", groupKey: `asi.${asiLevels(build).at(-1) ?? 4}` });
+  }
   if (
     build.ruleset === "srd-2024" &&
     levelFor(build) >= 4 &&
@@ -1947,7 +1952,7 @@ export function validateBuild(input: unknown): {
     const allowed = Math.max(0, 2 * (levelFor(build) - 2 * (wizardRank - 1)));
     const picked = build.spells.filter(id => (catalog.spells.find(s => s.index === id)?.level || 0) >= wizardRank).length;
     // Wizard baru dapat slot level N di level karakter 2N-1, jadi hanya spell yang dipelajari sejak itu boleh level N ke atas.
-    const message = `Spellbook: di level ${levelFor(build)}, spell level ${wizardRank}+ maksimal ${allowed} (kamu memilih ${picked}). Ganti sisanya dengan spell level lebih rendah. Spell bonus Savant tidak dihitung.`;
+    const message = `Spellbook (progresi Wizard): di level ${levelFor(build)}, spell level ${wizardRank}+ maksimal ${allowed} (kamu memilih ${picked}). Ganti sisanya dengan spell level lebih rendah. Spell bonus Savant tidak dihitung.`;
     errors.push(message);
     issues.push({ message, section: "spell", groupKey: "spells" });
   }
@@ -2545,4 +2550,35 @@ export function deriveSheet(build: BuildInput): Sheet {
     equipmentNotes: bg?.equipmentText || "",
     toolsNotes: bg?.toolsText || "",
   };
+}
+
+// ---- Equip / lepas barang (seperti saklar di inventory VTT) ----
+export function isWeapon(build: Pick<BuildInput, "ruleset">, id: string) {
+  return !!catalogFor(build).equipment.find((e) => e.index === id)?.damage;
+}
+export function equippedWeapons(character: Pick<Character, "build" | "sheet" | "equipped">) {
+  const weapons = character.sheet.equipment.filter((e) => isWeapon(character.build, e.id)).map((e) => e.id);
+  return character.equipped ? character.equipped.filter((id) => weapons.includes(id)) : weapons;
+}
+// Serangan yang tampil: senjata yang dipakai saja; unarmed, spell, dan serangan bawaan selalu tampil.
+export function visibleAttacks(character: Pick<Character, "build" | "sheet" | "equipped">) {
+  const on = equippedWeapons(character);
+  return character.sheet.attacks.filter((a) => !isWeapon(character.build, a.id) || on.includes(a.id));
+}
+export function equipItem(character: Character, item: unknown, on: unknown) {
+  if (typeof item !== "string" || typeof on !== "boolean") throw new Error("Data equip tidak valid.");
+  if (!character.sheet.equipment.some((e) => e.id === item)) throw new Error("Barang tidak ada di inventory.");
+  const gear = catalogFor(character.build).equipment.find((e) => e.index === item);
+  if (gear?.armor_class) {
+    const build: BuildInput =
+      gear.armor_category === "Shield"
+        ? { ...character.build, shield: on }
+        : { ...character.build, armor: on ? item : character.build.armor === item ? "" : character.build.armor };
+    character.build = build;
+    character.sheet = deriveSheet(build);
+    return;
+  }
+  if (!gear?.damage) throw new Error("Barang ini tidak bisa dipakai atau dilepas.");
+  const current = equippedWeapons(character);
+  character.equipped = on ? [...new Set([...current, item])] : current.filter((id) => id !== item);
 }
