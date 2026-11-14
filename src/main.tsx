@@ -21,6 +21,7 @@ import {
   Minus,
   MousePointer2,
   Package,
+  Image as ImageIcon,
   Plus,
   RotateCcw,
   RotateCw,
@@ -189,6 +190,8 @@ function App() {
     void fetch('/api/token-screen').then(response => response.ok ? response.json() : null).then(data => setTokenScreen(data?.portraits || []));
   }, []);
   const [charactersLoaded, setCharactersLoaded] = useState(false);
+  // Ganti gambar token: untuk monster, default diterapkan ke semua monster sejenis.
+  const [imageForAll, setImageForAll] = useState(true);
   // Token monster yang stat block-nya sedang dibuka DM.
   const [monsterSheet, setMonsterSheet] = useState<string | null>(null);
   const [requestedCharacter, setRequestedCharacter] = useState<{
@@ -752,7 +755,7 @@ function App() {
     return result.url;
   }
 
-  async function upload(kind: "map" | "token" | "handout", file?: File, extra?: { name?: string; characterId?: string; place?: boolean }) {
+  async function upload(kind: "map" | "token" | "handout", file?: File, extra?: { name?: string; characterId?: string; place?: boolean; replaceToken?: string; applyAll?: boolean }) {
     if (!file || !identity) return;
     if (
       !["image/png", "image/jpeg", "image/webp", "image/gif"].includes(
@@ -780,6 +783,9 @@ function App() {
       if (extra?.characterId) form.append("characterId", extra.characterId);
       // place=false: hanya simpan ke Gudang Token tanpa menaruhnya di peta.
       if (extra?.place === false) form.append("place", "0");
+      // Ganti gambar token yang sudah ada (opsional: semua monster sejenis).
+      if (extra?.replaceToken) form.append("replaceToken", extra.replaceToken);
+      if (extra?.applyAll) form.append("applyAll", "1");
       const response = await fetch(`/api/rooms/${roomId}/upload/${kind}`, {
         method: "POST",
         headers: {
@@ -1763,6 +1769,34 @@ function App() {
                 <button className="lib-save" disabled={!connected} title="Simpan token ini ke Gudang supaya bisa dipakai lagi di peta lain" onClick={() => libraryCall("library:save", selectedToken.id, "Token gagal disimpan ke gudang.")}>
                   <Package size={14} /> Simpan ke Gudang
                 </button>
+              )}
+              {!selectedToken.minigame && group.length < 2 && (
+                <div className="token-image-control">
+                  <label className={`token-image-pick${!connected || uploading ? " disabled" : ""}`} title="Unggah gambar baru untuk token ini">
+                    <ImageIcon size={14} /> Ganti gambar…
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/gif"
+                      disabled={!connected || uploading}
+                      onChange={(event) => {
+                        const file = event.currentTarget.files?.[0];
+                        event.currentTarget.value = "";
+                        if (file) void upload("token", file, { name: selectedToken.name.replace(/\s+\d+$/, ""), replaceToken: selectedToken.id, applyAll: isDM && !!selectedToken.monster && imageForAll });
+                      }}
+                    />
+                  </label>
+                  {isDM && selectedToken.monster && (
+                    <>
+                      <label className="token-image-all">
+                        <input type="checkbox" checked={imageForAll} onChange={(e) => setImageForAll(e.target.checked)} />
+                        Semua {selectedToken.name.replace(/\s+\d+$/, "")} (juga yang ditaruh nanti)
+                      </label>
+                      <button type="button" className="token-image-reset" disabled={!connected} onClick={() => socketRef.current?.timeout(5000).emit("tabletop:action", { type: "token:image-reset", sceneId: activeScene?.id, id: selectedToken.id, all: imageForAll }, (timeout: Error | null, result?: { error?: string }) => { if (timeout || result?.error) setError(result?.error || "Gambar gagal dikembalikan."); })}>
+                        Gambar bawaan
+                      </button>
+                    </>
+                  )}
+                </div>
               )}
               <label htmlFor="token-size">Ukuran {selectedToken.name}</label>
               <div>

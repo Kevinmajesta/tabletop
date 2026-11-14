@@ -113,3 +113,6 @@
 .bestiary-place-btn { margin-left: auto; min-height: 40px; padding: 0 18px; border: 0; border-radius: 10px; background: #dfbb80 !important; color: #17201f !important; font-weight: 700 !important; }
 .bestiary-place-btn:disabled { opacity: .5; }
 .ms-body button:disabled { cursor: default; opacity: .75; }
+.monster-quick .bestiary-open { width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; margin-top: 8px; border: 1px solid #dfbb8070; border-radius: 10px; background: #dfbb801a; color: #f4ead8; font-weight: 700; cursor: pointer; }
+.monster-quick .bestiary-open:hover { background: #dfbb8033; }
+.monster-quick .bestiary-open small { font-weight: 400; color: #a6afad; }

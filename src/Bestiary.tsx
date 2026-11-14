@@ -115,7 +115,7 @@ export default function Bestiary({
             onKeyDown={(e) => { if (e.key === "ArrowDown") { e.preventDefault(); step(1); } if (e.key === "ArrowUp") { e.preventDefault(); step(-1); } }}>
             {shown.map((e) => {
               const letter = sort === "name" ? e.name[0].toUpperCase() : `CR ${e.cr}`;
-              const header = letter !== lastLetter ? <li className="bestiary-letter" aria-hidden="true">{letter}</li> : null;
+              const header = letter !== lastLetter ? <li key={`h:${letter}:${e.key}`} className="bestiary-letter" aria-hidden="true">{letter}</li> : null;
               lastLetter = letter;
               return [
                 header,

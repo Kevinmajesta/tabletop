@@ -25,7 +25,7 @@ import {
   type BoardToken,
   type Mark,
 } from "./tabletop.js";
-import { monsters, monsterTokens } from "./monsters.js";
+import { monsters, monsterTokens, monsterImage } from "./monsters.js";
 import { bestiaryMonsters } from "./bestiary.js";
 import {
   catalogFor,
@@ -111,6 +111,8 @@ type Room = {
   } | null;
   characters?: Character[];
   library?: LibraryItem[];
+  // Gambar pilihan DM per jenis monster: token monster itu yang ditaruh berikutnya memakai gambar ini.
+  monsterImages?: Record<string, string>;
   minigames?: Game[];
   portraits?: string[];
 };
@@ -1166,6 +1168,7 @@ io.on("connection", (socket) => {
           return;
         }
         const at = point(p.at) ?? { x: 50, y: 50 };
+        const custom = room.monsterImages?.[monster.key];
         scene.tokens.push(
           ...monsterTokens(
             monster,
@@ -1175,8 +1178,21 @@ io.on("connection", (socket) => {
             socket.data.playerId,
             p.hidden === true,
             randomUUID,
-          ),
+          ).map((t) => (custom ? { ...t, image: custom } : t)),
         );
+      } else if (p.type === "token:image-reset") {
+        // Kembalikan gambar bawaan monster (opsional untuk semua token jenis itu + monster berikutnya).
+        const token = scene.tokens.find((t) => t.id === p.id);
+        const base = token?.monster && (monsters.find((m) => m.key === token.monster) ?? bestiaryMonsters.find((m) => m.key === token.monster));
+        if (!dm || !token || !base) {
+          fail("Hanya DM bisa mengembalikan gambar bawaan monster.");
+          return;
+        }
+        const image = monsterImage(base);
+        for (const s of room.scenes || [])
+          for (const t of s.tokens)
+            if (t.id === token.id || (p.all === true && t.monster === token.monster)) t.image = image;
+        if (p.all === true && room.monsterImages) delete room.monsterImages[token.monster!];
       } else if (p.type === "token:update") {
         const token = scene.tokens.find((t) => t.id === p.id);
         if (!token || (!dm && token.ownerId !== socket.data.playerId)) {
@@ -2871,7 +2887,7 @@ app.post(
     }
     const scene = sceneFor(room, dm, playerId);
     if (
-      ((kind === "token" && req.body.place !== "0") || kind === "prop") &&
+      ((kind === "token" && req.body.place !== "0" && !req.body.replaceToken) || kind === "prop") &&
       scene.tokens.length >= 100
     ) {
       unlinkSync(req.file.path);
@@ -2917,6 +2933,21 @@ app.post(
         void unlink(path.join(uploadDir, path.basename(previous))).catch(
           (error) => console.error("Gagal menghapus peta lama:", error),
         );
+    } else if (typeof req.body.replaceToken === "string" && req.body.replaceToken) {
+      // Ganti gambar token yang sudah ada (DM: token apa pun; pemain: token miliknya).
+      const target = scene.tokens.find((t) => t.id === req.body.replaceToken);
+      if (!target || target.minigame || (!dm && target.ownerId !== playerId)) {
+        unlinkSync(req.file.path);
+        res.status(403).json({ error: "Gambar token ini tidak bisa diganti." });
+        return;
+      }
+      addToLibrary(room, { name: clean(req.body.name, 32) || target.name, image: url, ownerId: playerId });
+      // Monster: opsional terapkan ke semua token jenis yang sama + monster berikutnya.
+      const all = dm && req.body.applyAll === "1" && target.monster;
+      for (const s of room.scenes || [])
+        for (const t of s.tokens)
+          if (t.id === target.id || (all && t.monster === target.monster)) t.image = url;
+      if (all) (room.monsterImages ||= {})[target.monster!] = url;
     } else {
       // Optional characterId links the new token to the uploader's own sheet in one step.
       const linked = room.characters?.find(

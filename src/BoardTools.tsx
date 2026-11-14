@@ -22,6 +22,7 @@ import {
   UserRound,
   Trash2,
   ChevronDown,
+  BookOpen,
 } from "lucide-react";
 import {
   conditions,
@@ -967,7 +968,7 @@ export default function BoardTools({
                       Taruh {monsterCount} {pickedMonster?.name} di peta
                     </button>
                     <p className="dm-hint">Token muncul di tengah peta. Initiative monster dilempar dengan bonusnya saat combat dimulai. Pilih token lalu buka <b>Stat block</b> untuk roll serangan. Sumber gambar: public/monsters/CREDITS.txt.</p>
-                    {bestiaryOpen && (
+                    {bestiaryOpen && createPortal(
                       <Suspense fallback={null}>
                         <Bestiary
                           connected={connected}
@@ -975,7 +976,8 @@ export default function BoardTools({
                           onPlace={(monster, count, hidden) => action({ type: "token:monster", monster, count, hidden })}
                           onRoll={(expression, mode, label) => socket?.emit("dice:roll", { expression, mode, label })}
                         />
-                      </Suspense>
+                      </Suspense>,
+                      document.body,
                     )}
                   </section>
                 )}
