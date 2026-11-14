@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, rmSync, existsSync } from 'node:fs';
+import { mkdtempSync, rmSync, existsSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -13,9 +13,14 @@ test('daftar monster lengkap dan token bernomor berlanjut', () => {
   assert.ok(monsters.length >= 15);
   for (const m of monsters) {
     assert.ok(m.ac > 0 && m.hp > 0, m.name);
-    assert.equal(monsterImage(m), `/monsters/${m.key}.svg`);
-    assert.ok(existsSync(new URL(`../public/monsters/${m.key}.svg`, import.meta.url)), `token ${m.name} ada`);
+    assert.match(monsterImage(m), new RegExp(`^/monsters/${m.key}\\.(svg|webp)$`));
+    assert.ok(existsSync(new URL(`../public${monsterImage(m)}`, import.meta.url)), `token ${m.name} ada`);
   }
+  // Token bergambar wajib tercatat sumber & lisensinya.
+  const credits = readFileSync(new URL('../public/monsters/CREDITS.txt', import.meta.url), 'utf8');
+  for (const m of monsters.filter(m => monsterImage(m).endsWith('.webp'))) assert.ok(credits.includes(`${m.name}: "`), `kredit ${m.name}`);
+  // Token lama di peta masih menunjuk .svg — file lamanya tetap ada.
+  for (const key of ['goblin', 'skeleton', 'zombie', 'wolf']) assert.ok(existsSync(new URL(`../public/monsters/${key}.svg`, import.meta.url)));
   const goblin = monsters.find(m => m.key === 'goblin');
   let n = 0;
   const first = monsterTokens(goblin, 2, [], { x: 50, y: 50 }, 'dm', false, () => `id${n++}`);
@@ -80,4 +85,38 @@ test('server: suasana scene, monster cepat, AC rahasia, initiative dengan bonus'
   assert.deepEqual(await act(dm, { type: 'token:update', id: goblins[0].id, ac: 17 }), { ok: true });
   await settle();
   assert.equal(sceneOf(dm).tokens.find(tk => tk.id === goblins[0].id).ac, 17);
+});
+
+test('setiap monster punya stat block SRD lengkap dengan serangan yang bisa di-roll', async () => {
+  const { monsterStats } = await import('../dist-server/monsters.js');
+  const dice = /^\d{1,2}d(4|6|8|10|12|20|100)([+-]\d{1,3})?$/;
+  for (const m of monsters) {
+    const s = monsterStats(m.key);
+    assert.ok(s, `stat block ${m.key}`);
+    assert.equal(m.ac, s.ac); assert.equal(m.hp, s.hp);
+    assert.equal(m.init, Math.floor((s.abilities.dex - 10) / 2));
+    assert.ok(s.actions.length, `${m.key} punya action`);
+    for (const a of s.actions) for (const d of a.damage || []) assert.match(d.dice, /^\d+d\d+([+-]\d+)?$/, `${m.key} ${a.name}`);
+    assert.ok(s.actions.some(a => a.attack != null && (a.damage || []).some(d => dice.test(d.dice))) || s.actions.some(a => a.dc), `${m.key} ada serangan`);
+  }
+  const goblin = monsterStats('goblin');
+  assert.deepEqual(goblin.actions.map(a => [a.name, a.attack, a.damage[0].dice]), [['Scimitar', 4, '1d6+2'], ['Shortbow', 4, '1d6+2']]);
+});
+
+test('Monster Manual 2024 (5etools) terimpor bersih, kura-kura homebrew & dryad tersedia', async () => {
+  const { bestiaryMonsters, bestiaryStats } = await import('../dist-server/bestiary.js');
+  const { monsterImage, monsterStats } = await import('../dist-server/monsters.js');
+  assert.ok(bestiaryMonsters.length >= 500);
+  for (const m of bestiaryMonsters) {
+    const s = bestiaryStats(m.key);
+    assert.ok(m.key.startsWith('xmm:') && s.ac > 0 && s.hp > 0 && Number.isInteger(s.init), m.key);
+    assert.doesNotMatch(JSON.stringify(s), /\{@/, `${m.key} masih ada tag 5etools`);
+    assert.equal(monsterImage(m), '/monsters/plain.svg');
+  }
+  const dragon = bestiaryStats('xmm:adult-red-dragon');
+  assert.equal(dragon.init, 12);
+  assert.ok(dragon.actions.some(a => a.name === 'Fire Breath' && a.usage === 'Recharge 5–6' && a.dc.value === 21));
+  const turtle = monsterStats('giant-snapping-turtle');
+  assert.ok(turtle.hp > 100 && turtle.source === 'homebrew');
+  assert.ok(monsterStats('dryad').actions.length);
 });

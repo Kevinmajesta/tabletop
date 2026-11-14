@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Socket } from "socket.io-client";
 import {
@@ -30,7 +30,9 @@ import {
   type Point,
   type Mark,
 } from "../server/tabletop";
-import { monsters } from "../server/monsters";
+import { monsters, type Monster } from "../server/monsters";
+import "./monster-sheet.css";
+const Bestiary = lazy(() => import("./Bestiary"));
 import LightCone from "./LightCone";
 import { polygonPath, sightPolygon, wallSegments } from "../server/lighting";
 import "./board-tools.css";
@@ -197,6 +199,9 @@ export default function BoardTools({
   const [monsterKey, setMonsterKey] = useState(monsters[0].key);
   const [monsterCount, setMonsterCount] = useState(1);
   const [monsterHidden, setMonsterHidden] = useState(false);
+  // Buku monster (Bestiary): dimuat lazy saat dibuka.
+  const [bestiaryOpen, setBestiaryOpen] = useState(false);
+  const pickedMonster = monsters.find((m) => m.key === monsterKey);
   const [selectedMarkId, setSelectedMarkId] = useState<string | null>(null);
   useEffect(() => { const toggle = () => { if(!dm)return;setDmMenu(true); setTab('scene'); setOpen(true); }; window.addEventListener('tabletop:dm-menu',toggle); return () => window.removeEventListener('tabletop:dm-menu',toggle); }, [dm]);
   useEffect(() => setSelectedMarkId(null), [scene.id]);
@@ -944,6 +949,9 @@ export default function BoardTools({
                         ))}
                       </select>
                     </label>
+                    <button type="button" className="bestiary-open" onClick={() => setBestiaryOpen(true)}>
+                      <BookOpen size={16} /> Buka Bestiary <small>· semua monster + Monster Manual 2024</small>
+                    </button>
                     <div className="monster-row">
                       <div className="monster-count" aria-label="Jumlah monster">
                         <button type="button" aria-label="Kurangi jumlah" disabled={monsterCount <= 1} onClick={() => setMonsterCount((n) => Math.max(1, n - 1))}>−</button>
@@ -956,9 +964,19 @@ export default function BoardTools({
                       </label>
                     </div>
                     <button type="button" className="dm-primary" disabled={!connected} onClick={() => action({ type: "token:monster", monster: monsterKey, count: monsterCount, hidden: monsterHidden })}>
-                      Taruh {monsterCount} {monsters.find((m) => m.key === monsterKey)?.name} di peta
+                      Taruh {monsterCount} {pickedMonster?.name} di peta
                     </button>
-                    <p className="dm-hint">Token muncul di tengah peta. Initiative monster dilempar dengan bonusnya saat combat dimulai. Ikon token dari game-icons.net (CC BY 3.0).</p>
+                    <p className="dm-hint">Token muncul di tengah peta. Initiative monster dilempar dengan bonusnya saat combat dimulai. Pilih token lalu buka <b>Stat block</b> untuk roll serangan. Sumber gambar: public/monsters/CREDITS.txt.</p>
+                    {bestiaryOpen && (
+                      <Suspense fallback={null}>
+                        <Bestiary
+                          connected={connected}
+                          onClose={() => setBestiaryOpen(false)}
+                          onPlace={(monster, count, hidden) => action({ type: "token:monster", monster, count, hidden })}
+                          onRoll={(expression, mode, label) => socket?.emit("dice:roll", { expression, mode, label })}
+                        />
+                      </Suspense>
+                    )}
                   </section>
                 )}
                 {dm && dmMenu && (
@@ -1263,13 +1281,13 @@ export default function BoardTools({
       )}
       {localPointer && (
         <g className="board-pointer" transform={`translate(${(localPointer.x / 100) * width} ${(localPointer.y / 100) * height})`}>
-          <circle r="7" />
+          <circle r="4" />
         </g>
       )}
       {Object.values(pointers).filter((pointer) => pointer.playerId !== playerId).map((pointer) => (
         <g key={pointer.playerId} className="board-pointer board-pointer-remote" style={{ transform: `translate(${(pointer.x / 100) * width}px, ${(pointer.y / 100) * height}px)` }}>
-          <circle r="7" />
-          <text x="11" y="4">{pointer.name}</text>
+          <circle r="4" />
+          <text x="8" y="3">{pointer.name}</text>
         </g>
       ))}
       {pings.map((p) => (

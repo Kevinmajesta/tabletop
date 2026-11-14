@@ -127,6 +127,7 @@ const readIdentity = (id: string): Identity | null => {
   }
 };
 const Characters = lazy(() => import("./Characters"));
+const MonsterSheet = lazy(() => import("./MonsterSheet"));
 
 function App() {
   const [roomId, setRoomId] = useState(getRoomId);
@@ -188,6 +189,8 @@ function App() {
     void fetch('/api/token-screen').then(response => response.ok ? response.json() : null).then(data => setTokenScreen(data?.portraits || []));
   }, []);
   const [charactersLoaded, setCharactersLoaded] = useState(false);
+  // Token monster yang stat block-nya sedang dibuka DM.
+  const [monsterSheet, setMonsterSheet] = useState<string | null>(null);
   const [requestedCharacter, setRequestedCharacter] = useState<{
     id: string;
     nonce: number;
@@ -326,6 +329,10 @@ function App() {
   const columns = activeScene?.grid.columns ?? 20;
   const selectedToken = room?.tokens.find((token) => token.id === selected);
   const canEditSelected = selectedToken && (isDM || selectedToken.ownerId === identity?.playerId);
+  // Stat block yang sedang terbuka ikut pindah ke monster lain yang dipilih DM.
+  useEffect(() => {
+    if (monsterSheet && selectedToken?.monster && selectedToken.id !== monsterSheet) setMonsterSheet(selectedToken.id);
+  }, [selectedToken?.id]);
   const arrowMoveRef = useRef<(dx: number, dy: number) => boolean>(() => false);
   useEffect(() => {
     const onArrow = (event: KeyboardEvent) => {
@@ -1150,6 +1157,23 @@ function App() {
           Buka sheet {selectedToken.name}
         </button>
       )}
+      {isDM && selectedToken?.monster && monsterSheet !== selectedToken.id && (
+        <button className="token-sheet-launch" onClick={() => setMonsterSheet(selectedToken.id)}>
+          Stat block {selectedToken.name}
+        </button>
+      )}
+      {isDM && monsterSheet && (() => {
+        const token = (room?.tokens || []).find((t) => t.id === monsterSheet);
+        return token ? (
+          <Suspense fallback={null}>
+            <MonsterSheet
+              token={token}
+              onClose={() => setMonsterSheet(null)}
+              onRoll={(expression, mode, label) => socketRef.current?.emit("dice:roll", { expression, mode, label })}
+            />
+          </Suspense>
+        ) : null;
+      })()}
       {charactersLoaded ? (
         <Suspense fallback={<span role="status">Memuat karakter…</span>}>
           <Characters

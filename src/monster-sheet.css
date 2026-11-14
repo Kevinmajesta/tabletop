@@ -1,0 +1,115 @@
+/* Stat block monster: panel mengambang, gaya sama dengan quick sheet. */
+.monster-sheet { position: fixed; z-index: 14; top: 70px; left: 76px; width: min(390px, calc(100vw - 100px)); max-height: calc(100dvh - 150px); display: flex; flex-direction: column; background: #1b2024f7; color: #e4dccd; border: 1px solid #87765b; border-radius: 14px; box-shadow: 0 18px 50px #0009; backdrop-filter: blur(6px); overflow: hidden; }
+.monster-sheet button { font: inherit; color: #f4ead8; cursor: pointer; }
+.ms-head { display: flex; align-items: center; gap: 10px; padding: 12px; border-bottom: 1px solid #ffffff17; background: #15191c; }
+.ms-head img { width: 54px; height: 54px; flex: none; border-radius: 50%; object-fit: cover; }
+.ms-head > div { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.ms-head h2 { margin: 0; font: 700 19px Georgia, serif; color: #f4ead8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ms-head span { font-size: 11px; font-style: italic; color: #a6afad; }
+.ms-head small { font-size: 11px; color: #dfbb80; }
+.ms-close { align-self: flex-start; display: grid; place-items: center; width: 30px; height: 30px; padding: 0; border: 1px solid #ffffff26; border-radius: 50%; background: transparent; }
+.ms-close:hover { border-color: #dfbb80; }
+.ms-body { overflow-y: auto; overscroll-behavior: contain; padding: 12px; display: grid; gap: 10px; scrollbar-color: #87765b transparent; }
+.ms-vitals { display: grid; grid-template-columns: 0.8fr 1fr 0.8fr 1.3fr; gap: 5px; }
+.ms-vitals > * { display: grid; justify-items: center; align-content: center; gap: 1px; padding: 6px 4px; min-height: 64px; border: 1px solid #dfbb8030; border-radius: 10px; background: #dfbb800c; text-align: center; }
+.ms-vitals span { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: #a6afad; }
+.ms-vitals strong { font: 700 20px Georgia, serif; color: #f4ead8; line-height: 1.1; }
+.ms-vitals strong small { font-size: 12px; color: #a6afad; }
+.ms-vitals small { font-size: 9px; color: #a6afad; line-height: 1.2; }
+.ms-vitals .ms-speed { font: 600 11px 'DM Sans', system-ui, sans-serif; }
+.ms-vitals button:hover { border-color: #dfbb80; background: #dfbb801f; }
+.ms-toggles { display: flex; gap: 8px; align-items: center; }
+.ms-mode { flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; padding: 3px; border-radius: 999px; background: #0f1516; border: 1px solid #ffffff17; }
+.ms-mode button { min-height: 26px; border: 0; border-radius: 999px; background: transparent; font-size: 11px; color: #a6afad !important; }
+.ms-mode button[aria-checked=true] { background: #dfbb8026; color: #dfbb80 !important; font-weight: 700; }
+.ms-crit { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #a6afad; white-space: nowrap; }
+.ms-crit input { accent-color: #dfbb80; }
+.ms-abilities { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
+.ms-abilities > div { display: grid; border: 1px solid #ffffff17; border-radius: 9px; overflow: hidden; background: #ffffff06; }
+.ms-abilities button { border: 0; background: transparent; }
+.ms-abilities button:first-child { display: grid; justify-items: center; padding: 5px 2px 3px; }
+.ms-abilities button:first-child span { font-size: 9px; letter-spacing: 1px; color: #a6afad; }
+.ms-abilities button:first-child strong { font: 700 16px Georgia, serif; }
+.ms-abilities button:first-child small { font-size: 10px; color: #a6afad; }
+.ms-abilities button:last-child { padding: 3px 2px; font-size: 9px; color: #a6afad !important; border-top: 1px solid #ffffff17; background: #0f1516; }
+.ms-abilities button.prof { color: #dfbb80 !important; font-weight: 700; }
+.ms-abilities button:hover { background: #dfbb8014; }
+.ms-props { margin: 0; display: grid; gap: 4px; font-size: 12px; }
+.ms-props > div { display: grid; grid-template-columns: 86px 1fr; gap: 6px; }
+.ms-props dt { color: #dfbb80; font-weight: 600; }
+.ms-props dd { margin: 0; color: #e4dccd; display: flex; flex-wrap: wrap; gap: 4px; }
+.ms-props dd button { padding: 1px 8px; font-size: 11px; border: 1px solid #dfbb8040; border-radius: 999px; background: #dfbb800c; }
+.ms-props dd button:hover { border-color: #dfbb80; }
+.monster-sheet section { display: grid; gap: 6px; padding-top: 8px; border-top: 1px solid #ffffff17; }
+.monster-sheet h3 { margin: 0; color: #dfbb80; font: 700 10px 'DM Sans', system-ui, sans-serif; letter-spacing: 1.5px; text-transform: uppercase; }
+.ms-action { padding: 7px 8px; border: 1px solid #ffffff14; border-radius: 10px; background: #ffffff05; }
+.ms-action-head { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.ms-action-head strong { flex: 1 1 100%; font-size: 13px; color: #f4ead8; }
+.ms-action-head strong small { font-weight: 400; color: #a6afad; }
+.ms-hit, .ms-dmg { display: inline-flex; align-items: center; gap: 4px; min-height: 28px; padding: 2px 9px; font-size: 12px; border-radius: 8px; }
+.ms-hit { border: 1px solid #dfbb8070; background: #dfbb801a; font-weight: 700; }
+.ms-dmg { border: 1px solid #a5544a99; background: #4a242055; }
+.ms-dmg small { font-size: 10px; color: #f0b4a8; }
+.ms-hit:hover { background: #dfbb8033; }
+.ms-dmg:hover { background: #4a2420aa; }
+.ms-dmg-static, .ms-dc { font-size: 11px; padding: 3px 8px; border-radius: 8px; border: 1px dashed #ffffff26; color: #a6afad; }
+.ms-dc { border-style: solid; border-color: #6f9bc066; color: #b8d3ea; }
+.monster-sheet details { margin: 0; }
+.monster-sheet summary { cursor: pointer; font-size: 11px; color: #a6afad; padding: 3px 0; }
+.ms-trait summary { font-size: 13px; color: #f4ead8; font-weight: 600; }
+.monster-sheet details p { margin: 4px 0 2px; font-size: 12px; line-height: 1.55; color: #d6cfc2; white-space: pre-wrap; }
+.ms-credit { margin: 0; font-size: 10px; color: #7e8784; }
+/* Pencarian Monster Manual di menu DM */
+.monster-quick .monster-search { display: grid; gap: 4px; margin-top: 8px; font-size: 12px; }
+.monster-quick .monster-results { list-style: none; margin: 4px 0 0; padding: 4px; max-height: 240px; overflow-y: auto; border: 1px solid #ffffff1f; border-radius: 10px; background: #0f1516; }
+.monster-quick .monster-results button { display: grid; width: 100%; gap: 1px; min-height: 40px; padding: 5px 8px; text-align: left; border: 0; border-radius: 7px; background: transparent; color: #f4ead8; cursor: pointer; }
+.monster-quick .monster-results button:hover, .monster-quick .monster-results button[aria-selected=true] { background: #dfbb801c; }
+.monster-quick .monster-results small { color: #a6afad; font-size: 11px; }
+.monster-quick .monster-results-empty { padding: 8px; color: #a6afad; font-size: 12px; }
+.monster-quick .monster-picked { margin: 6px 0 0; font-size: 12px; color: #e4dccd; }
+.monster-quick .link-button { border: 0; background: none; padding: 0; color: #dfbb80; text-decoration: underline; cursor: pointer; font-size: 12px; }
+
+/* Bestiary: buku monster untuk DM (daftar kiri, halaman stat block kanan). */
+.bestiary-backdrop { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; background: #000a; }
+.bestiary { width: min(1180px, calc(100vw - 40px)); height: min(840px, calc(100dvh - 40px)); display: flex; flex-direction: column; background: #1b2024; color: #e4dccd; border: 1px solid #87765b; border-radius: 14px; box-shadow: 0 30px 90px #000c; overflow: hidden; }
+.bestiary button { font: inherit; color: #f4ead8; cursor: pointer; }
+.bestiary-head { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: #15191c; border-bottom: 1px solid #ffffff17; color: #dfbb80; }
+.bestiary-head > div { flex: 1; }
+.bestiary-head h2 { margin: 0; font: 700 22px Georgia, serif; color: #f4ead8; }
+.bestiary-head span { font-size: 12px; color: #a6afad; }
+.bestiary-filters { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 16px; border-bottom: 1px solid #ffffff17; }
+.bestiary-search { flex: 1 1 260px; display: flex; align-items: center; gap: 8px; padding: 0 10px; border: 1px solid #ffffff26; border-radius: 8px; background: #0f1516; color: #a6afad; }
+.bestiary-search input { flex: 1; min-height: 38px; border: 0; background: transparent; color: #f4ead8; outline: none; }
+.bestiary-filters select { min-height: 40px; padding: 0 10px; border: 1px solid #ffffff26; border-radius: 8px; background: #0f1516; color: #f4ead8; }
+.bestiary-sort { display: flex; gap: 3px; padding: 3px; border: 1px solid #ffffff17; border-radius: 999px; background: #0f1516; }
+.bestiary-sort button { min-width: 48px; border: 0; border-radius: 999px; background: transparent; font-size: 12px; color: #a6afad !important; }
+.bestiary-sort button[aria-checked=true] { background: #dfbb8026; color: #dfbb80 !important; font-weight: 700; }
+.bestiary-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); }
+.bestiary-list { list-style: none; margin: 0; padding: 6px; overflow-y: auto; overscroll-behavior: contain; border-right: 1px solid #ffffff17; background: #0f1516; scrollbar-color: #87765b transparent; outline: none; }
+.bestiary-letter { position: sticky; top: -6px; z-index: 1; margin: 4px -6px 2px; padding: 4px 14px; font: 700 11px 'DM Sans', system-ui, sans-serif; letter-spacing: 1.5px; color: #dfbb80; background: #0f1516f2; border-bottom: 1px solid #ffffff10; }
+.bestiary-list li button { width: 100%; display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 5px 8px; text-align: left; border: 1px solid transparent; border-radius: 8px; background: transparent; }
+.bestiary-list li button:hover { background: #dfbb8012; }
+.bestiary-list li button[aria-selected=true] { background: #dfbb801f; border-color: #dfbb8070; }
+.bestiary-list img { width: 34px; height: 34px; flex: none; border-radius: 50%; object-fit: cover; }
+.bestiary-list span { flex: 1; min-width: 0; display: grid; }
+.bestiary-list strong { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bestiary-list small { font-size: 11px; color: #a6afad; }
+.bestiary-list em { font-style: normal; font-size: 11px; color: #dfbb80; white-space: nowrap; }
+.bestiary-empty { padding: 16px; color: #a6afad; font-size: 13px; }
+.bestiary-page { min-width: 0; min-height: 0; display: flex; flex-direction: column; }
+.bestiary-page .ms-head img { width: 72px; height: 72px; }
+.bestiary-page .ms-head h2 { font-size: 26px; }
+.bestiary-page .ms-body { flex: 1; padding: 14px 22px; }
+.bestiary-page .ms-abilities { max-width: 640px; }
+.ms-trait.ms-open { font-size: 13px; line-height: 1.55; }
+.ms-trait.ms-open strong { color: #f4ead8; }
+.ms-trait.ms-open p, .ms-desc { display: inline; margin: 0; font-size: 12.5px; line-height: 1.6; color: #d6cfc2; white-space: pre-wrap; }
+.ms-desc { display: block; margin-top: 4px; }
+.bestiary-place { display: flex; align-items: center; gap: 12px; padding: 10px 16px; border-top: 1px solid #ffffff17; background: #15191c; }
+.bestiary-place .monster-count { display: flex; align-items: center; gap: 4px; padding: 3px; border: 1px solid #ffffff26; border-radius: 999px; }
+.bestiary-place .monster-count button { width: 30px; height: 30px; border: 0; border-radius: 50%; background: #ffffff10; }
+.bestiary-place .monster-count strong { min-width: 22px; text-align: center; }
+.bestiary-placed { font-size: 12px; color: #a9d3b4; }
+.bestiary-place-btn { margin-left: auto; min-height: 40px; padding: 0 18px; border: 0; border-radius: 10px; background: #dfbb80 !important; color: #17201f !important; font-weight: 700 !important; }
+.bestiary-place-btn:disabled { opacity: .5; }
+.ms-body button:disabled { cursor: default; opacity: .75; }

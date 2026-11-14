@@ -80,3 +80,6 @@
 .board-tools-panel button:focus-visible,.board-tools-panel summary:focus-visible,.board-tools-panel input:focus-visible,.board-tools-panel select:focus-visible{outline:2px solid #f3e5cb;outline-offset:3px}
 .board-tools-panel button:hover:not(:disabled){border-color:#f3e5cb}
 @media(max-width:600px){.board-tab-content{padding:12px}.board-tool-buttons button{min-height:70px}.board-panel-heading{padding:12px}}
+/* Pointer: kecil, satu warna neon tanpa outline. */
+.board-pointer circle{fill:#22f0ff;stroke:none;filter:drop-shadow(0 0 3px #22f0ff) drop-shadow(0 0 7px #22f0ffaa)}
+.board-pointer text{fill:#22f0ff;stroke:none;font-size:9px;font-weight:700;filter:drop-shadow(0 0 3px #22f0ffaa)}

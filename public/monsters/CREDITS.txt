@@ -20,3 +20,36 @@ Ogre: "ogre" oleh Delapouite, https://game-icons.net
 Skeleton: "skull-crossed-bones" oleh Lorc, https://game-icons.net
 Zombie: "shambling-zombie" oleh Delapouite, https://game-icons.net
 Ghoul: "haunting" oleh Lorc, https://game-icons.net
+
+
+Token bergambar (*.webp) dari Wikimedia Commons. Semua berlisensi domain publik atau CC0
+(dicek dari metadata lisensi tiap file). Gambar dipotong bulat dan diberi bingkai; karya aslinya tidak diubah selain itu.
+
+Skeleton: "Vesalius Fabrica p163.jpg" oleh Andreas Vesalius (De humani corporis fabrica, 1543), Public domain, https://commons.wikimedia.org/wiki/File:Vesalius_Fabrica_p163.jpg
+Lich: "Takiyasha the Witch and the Skeleton Spectre 2.jpg" oleh Utagawa Kuniyoshi, Public domain, https://commons.wikimedia.org/wiki/File:Takiyasha_the_Witch_and_the_Skeleton_Spectre_2.jpg
+Zombie: "Le Transi de René de Chalon (Ligier Richier).jpg" oleh Coin-coin, Public domain, https://commons.wikimedia.org/wiki/File:Le_Transi_de_Ren%C3%A9_de_Chalon_(Ligier_Richier).jpg
+Ghoul: "Amine Discovered with the Goule.jpg" oleh R. Smirke, Esq., R.A. Digitized by Google Books., Public domain, https://commons.wikimedia.org/wiki/File:Amine_Discovered_with_the_Goule.jpg
+Mummy: "Mummy of Ramesses II - 02 (front).JPG" oleh G. Elliot Smith, Public domain, https://commons.wikimedia.org/wiki/File:Mummy_of_Ramesses_II_-_02_(front).JPG
+Vampire Spawn: "Morphy Le vampire, 1886 (page 9).jpg" oleh Unknown authorUnknown author, Public domain, https://commons.wikimedia.org/wiki/File:Morphy_Le_vampire,_1886_(page_9).jpg
+Specter: "Banshee.jpg" oleh W.H. Brooke, Public domain, https://commons.wikimedia.org/wiki/File:Banshee.jpg
+Wraith: "Tis but a magic shape, a lifeless wraith (The Works of J. W. von Goethe, Volume 7).png" oleh "Photogravure after the painting by A. Liezen-Meyer", Public domain, https://commons.wikimedia.org/wiki/File:Tis_but_a_magic_shape,_a_lifeless_wraith_(The_Works_of_J._W._von_Goethe,_Volume_7).png
+Ghost: "File-Hamlet, Prince of Denmark Act I Scene IV.png" oleh Robert Thew / After Henry Fuseli, Public domain, https://commons.wikimedia.org/wiki/File:File-Hamlet,_Prince_of_Denmark_Act_I_Scene_IV.png
+Werewolf: "Werwolf.png" oleh Lucas Cranach the Elder, Public domain, https://commons.wikimedia.org/wiki/File:Werwolf.png
+Troll: "John Bauer 1915.jpg" oleh John Bauer, Public domain, https://commons.wikimedia.org/wiki/File:John_Bauer_1915.jpg
+Ogre: "Poucet10.jpg" oleh Gustave Doré, Public domain, https://commons.wikimedia.org/wiki/File:Poucet10.jpg
+Goblin: "Goblin-market-rossetti.jpg" oleh The Public Domain Review, Public domain, https://commons.wikimedia.org/wiki/File:Goblin-market-rossetti.jpg
+Orc: "Shield with Greyhound Held by Wild Man MET DP820020.jpg" oleh Martin Schongauer, CC0, https://commons.wikimedia.org/wiki/File:Shield_with_Greyhound_Held_by_Wild_Man_MET_DP820020.jpg
+Harpy: "Aldrovandi-0337.jpg" oleh Jean-Baptiste Coriolan, Public domain, https://commons.wikimedia.org/wiki/File:Aldrovandi-0337.jpg
+Minotaur: "George Frederic Watts, "Le Minotaure", 1885, détail.jpg" oleh Tableau de George Frederic Watts. Photographie par Eunostos., Public domain, https://commons.wikimedia.org/wiki/File:George_Frederic_Watts,_%22Le_Minotaure%22,_1885,_d%C3%A9tail.jpg
+Medusa: "Caravaggio - Medusa Uffizi - High quality.jpg" oleh Caravaggio, CC0, https://commons.wikimedia.org/wiki/File:Caravaggio_-_Medusa_Uffizi_-_High_quality.jpg
+Basilisk: "Basilisk aldrovandi.jpg" oleh User Male1979 on en.wikipedia, Public domain, https://commons.wikimedia.org/wiki/File:Basilisk_aldrovandi.jpg
+Gargoyle: "Charles Meryon, Le stryge (The Vampire), 1853, NGA 35111.jpg" oleh Charles Meryon, CC0, https://commons.wikimedia.org/wiki/File:Charles_Meryon,_Le_stryge_(The_Vampire),_1853,_NGA_35111.jpg
+Young Red Dragon: "Ulyssis Aldrovandi BHL41765368.jpg" oleh Aldrovandi, Ulisse; Ambrosini, Bartolommeo, Public domain, https://commons.wikimedia.org/wiki/File:Ulyssis_Aldrovandi_BHL41765368.jpg
+Wolf: "Duskywolf.jpg" oleh William Home Lizars, Public domain, https://commons.wikimedia.org/wiki/File:Duskywolf.jpg
+Dire Wolf: "Canis dirus.jpg" oleh Charles Robert Knight, Public domain, https://commons.wikimedia.org/wiki/File:Canis_dirus.jpg
+Bandit: "Brigand by C.Brullov (1830s).TIF" oleh Karl Brullov, Public domain, https://commons.wikimedia.org/wiki/File:Brigand_by_C.Brullov_(1830s).TIF
+Cultist: "Gyzis Study of a man in a hood.jpg" oleh Nikolaos Gyzis, Public domain, https://commons.wikimedia.org/wiki/File:Gyzis_Study_of_a_man_in_a_hood.jpg
+Guard: "Landsknecht staand bij een boom, RP-P-OB-10.919.jpg" oleh Rijksmuseum, CC0, https://commons.wikimedia.org/wiki/File:Landsknecht_staand_bij_een_boom,_RP-P-OB-10.919.jpg
+Thug: "Landsknecht met zwaarden, RP-P-OB-54.789.jpg" oleh Rijksmuseum, CC0, https://commons.wikimedia.org/wiki/File:Landsknecht_met_zwaarden,_RP-P-OB-54.789.jpg
+Dryad: "Evelyn De Morgan - The Dryad.jpg" oleh Evelyn De Morgan (1884–85), Public domain, https://commons.wikimedia.org/wiki/File:Evelyn_De_Morgan_-_The_Dryad.jpg
+Giant Snapping Turtle: "Macrochelys temminckiiHolbrookV1P24A flipped.jpg" oleh John Edwards Holbrook, North American Herpetology (1842), Public domain, https://commons.wikimedia.org/wiki/File:Macrochelys_temminckiiHolbrookV1P24A_flipped.jpg

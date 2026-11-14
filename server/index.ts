@@ -26,6 +26,7 @@ import {
   type Mark,
 } from "./tabletop.js";
 import { monsters, monsterTokens } from "./monsters.js";
+import { bestiaryMonsters } from "./bestiary.js";
 import {
   catalogFor,
   equipItem,
@@ -1154,7 +1155,7 @@ io.on("connection", (socket) => {
           fail("Hanya DM bisa menambahkan monster.");
           return;
         }
-        const monster = monsters.find((m) => m.key === p.monster);
+        const monster = monsters.find((m) => m.key === p.monster) ?? bestiaryMonsters.find((m) => m.key === p.monster);
         const count = number(p.count, 1, 8);
         if (!monster || count === undefined || !Number.isInteger(count)) {
           fail("Pilih monster dan jumlahnya (1–8).");
@@ -2370,6 +2371,9 @@ io.on("connection", (socket) => {
         const request = expression as Record<string, unknown>;
         if (typeof request.expression === "string") {
           expression = request.expression;
+          // DM boleh memberi nama roll (mis. "Goblin 1 · Scimitar") untuk roll monster dari stat block.
+          if (socket.data.isDM && typeof request.label === "string")
+            characterName = clean(request.label, 60);
           rollMode =
             request.mode === "advantage" || request.mode === "disadvantage"
               ? request.mode
