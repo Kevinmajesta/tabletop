@@ -18,12 +18,22 @@ import {
   blocksMovement,
   conditions,
   weathers,
+  coneDefaults,
+  PROP_MIN,
+  PROP_MAX,
   type Scene,
   type BoardToken,
   type Mark,
 } from "./tabletop.js";
 import { monsters, monsterTokens } from "./monsters.js";
-import { catalogFor, validateBuild, startingCurrency, coinDenominations, type Currency, type Character } from "./characters.js";
+import {
+  catalogFor,
+  validateBuild,
+  startingCurrency,
+  coinDenominations,
+  type Currency,
+  type Character,
+} from "./characters.js";
 import {
   existsSync,
   mkdirSync,
@@ -35,16 +45,45 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { Server } from "socket.io";
-import { gameKinds, gameCatalog, newGame, gameView, gameAction, declareGame, closeMemoryMismatch, type Game, type GameKind } from './minigames.js';
+import {
+  gameKinds,
+  gameCatalog,
+  newGame,
+  gameView,
+  gameAction,
+  declareGame,
+  closeMemoryMismatch,
+  type Game,
+  type GameKind,
+} from "./minigames.js";
+import {
+  dedupeMembers,
+  mergeMembers,
+  sameName,
+  transferOwnership,
+} from "./members.js";
+import {
+  addToLibrary,
+  canUse,
+  libraryView,
+  seedLibrary,
+  type LibraryItem,
+} from "./library.js";
+import {
+  applyRest,
+  restSummary,
+  type RestKind,
+  type RestResult,
+} from "./rest.js";
 
-type Member = { name: string; secret: string };
+type Member = { name: string; secret: string; status?: "afk" | "hand" };
 type Token = BoardToken;
 type Message = {
   id: string;
   name: string;
   text: string;
   time: number;
-  kind: "chat" | "roll" | "system";
+  kind: "chat" | "roll" | "system" | "status";
   roll?: Omit<DiceRoll, "frames">;
 };
 type Room = {
@@ -58,17 +97,30 @@ type Room = {
   scenes?: Scene[];
   activeSceneId?: string;
   preparedSceneId?: string;
+  // Split party: pemain yang dikirim ke scene selain scene utama (playerId -> sceneId).
+  playerScenes?: Record<string, string>;
   shownImage?: string | null;
   ambience?: { url: string; name: string } | null;
   // Layar jeda/istirahat yang dinyalakan DM untuk semua orang di ruang.
-  rest?: { kind: "pause" | "short" | "long"; note: string; since: number } | null;
+  rest?: {
+    kind: "pause" | "short" | "long" | "countdown";
+    note: string;
+    since: number;
+  } | null;
   characters?: Character[];
+  library?: LibraryItem[];
   minigames?: Game[];
   portraits?: string[];
 };
 type SafeRoom = Omit<Room, "dmKey" | "members"> & {
   publishedSceneId?: string;
-  members: { id: string; name: string; online: boolean; dm: boolean }[];
+  members: {
+    id: string;
+    name: string;
+    online: boolean;
+    dm: boolean;
+    status?: "afk" | "hand";
+  }[];
 };
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -83,14 +135,30 @@ let removedLegacyGames = false;
 try {
   if (existsSync(dbFile)) rooms = JSON.parse(readFileSync(dbFile, "utf8"));
   for (const room of Object.values(rooms)) {
-    for (const character of room.characters || []) character.currency ??= startingCurrency();
-    const removed = new Set((room.minigames || []).filter(game => !gameKinds.includes(game.kind)).map(game => game.tokenId));
+    for (const character of room.characters || [])
+      character.currency ??= startingCurrency();
+    const removed = new Set(
+      (room.minigames || [])
+        .filter((game) => !gameKinds.includes(game.kind))
+        .map((game) => game.tokenId),
+    );
     if (removed.size) removedLegacyGames = true;
-    room.minigames = (room.minigames || []).filter(game => gameKinds.includes(game.kind));
+    room.minigames = (room.minigames || []).filter((game) =>
+      gameKinds.includes(game.kind),
+    );
     // Puzzle jigsaw versi lama (berpapan) punya bentuk data berbeda: kembalikan ke menunggu supaya dimulai ulang.
-    for (const game of room.minigames) if (game.kind === 'jigsaw' && game.jigsaw && !game.jigsaw.config) { delete game.jigsaw; game.phase = 'waiting'; }
-    room.tokens = (room.tokens || []).filter(token => !removed.has(token.id));
-    for (const scene of room.scenes || []) scene.tokens = scene.tokens.filter(token => !removed.has(token.id));
+    for (const game of room.minigames)
+      if (game.kind === "jigsaw" && game.jigsaw && !game.jigsaw.config) {
+        delete game.jigsaw;
+        game.phase = "waiting";
+      }
+    room.tokens = (room.tokens || []).filter((token) => !removed.has(token.id));
+    for (const scene of room.scenes || [])
+      scene.tokens = scene.tokens.filter((token) => !removed.has(token.id));
+    // Anggota bernama sama yang menumpuk dari sesi-sesi lama digabung menjadi satu.
+    if (dedupeMembers(room)) removedLegacyGames = true;
+    // Gudang Token: data lama diisi dari token yang sudah ada di scene.
+    if (seedLibrary(room)) removedLegacyGames = true;
   }
 } catch (error) {
   console.error("Gagal membaca data ruang:", error);
@@ -129,21 +197,61 @@ app.get("/api/character-catalog", (_req, res) =>
   res.json(catalogFor({ ruleset: "srd-2024" })),
 );
 app.use("/uploads", express.static(uploadDir, { maxAge: "1d" }));
-app.use("/manual", express.static(path.join(root, "public", "manual"), { maxAge: "1d" }));
+app.use(
+  "/manual",
+  express.static(path.join(root, "public", "manual"), { maxAge: "1d" }),
+);
 const tokenScreenDir = path.join(root, "token_screen");
 app.use("/token_screen", express.static(tokenScreenDir, { maxAge: "1d" }));
 app.get("/api/token-screen", async (_req, res) => {
   try {
-    const portraits = (await readdir(tokenScreenDir)).filter(file => /\.(png|jpe?g|webp|gif)$/i.test(file)).sort().slice(0, 4);
+    const portraits = (await readdir(tokenScreenDir))
+      .filter((file) => /\.(png|jpe?g|webp|gif)$/i.test(file))
+      .sort()
+      .slice(0, 4);
     if (portraits.length !== 4) throw new Error();
-    res.json({ portraits: portraits.map(file => `/token_screen/${encodeURIComponent(file)}`) });
+    res.json({
+      portraits: portraits.map(
+        (file) => `/token_screen/${encodeURIComponent(file)}`,
+      ),
+    });
   } catch {
-    res.status(500).json({ error: "Folder token_screen harus berisi empat gambar." });
+    res
+      .status(500)
+      .json({ error: "Folder token_screen harus berisi empat gambar." });
   }
 });
 const code = () => randomBytes(4).toString("hex").toUpperCase();
 const clean = (value: unknown, max: number) =>
   typeof value === "string" ? value.trim().slice(0, max) : "";
+// ---------- Istirahat ----------
+const hitDieOf = (character: Character) =>
+  catalogFor(character.build).classes.find(
+    (c) => c.index === character.build.classId,
+  )?.hit_die || 8;
+function pushRestMessage(room: Room, kind: RestKind, results: RestResult[]) {
+  if (!results.length) return;
+  room.messages.push({
+    id: randomUUID(),
+    name: kind === "long" ? "Long Rest" : "Short Rest",
+    text: results.map(restSummary).join("\n"),
+    time: Date.now(),
+    kind: "system",
+  });
+  room.messages = room.messages.slice(-100);
+}
+// HP dan kondisi token mengikuti karakter yang terhubung.
+function syncCharacterTokens(room: Room) {
+  for (const scene of room.scenes || [])
+    for (const token of scene.tokens) {
+      const linked = room.characters?.find((c) => c.id === token.characterId);
+      if (linked) {
+        token.hp = linked.hp;
+        token.maxHp = linked.sheet.hp;
+        token.conditions = linked.conditions;
+      }
+    }
+}
 const admission = new Map<string, { start: number; count: number }>();
 function admitted(key: string, limit: number) {
   const now = Date.now();
@@ -188,7 +296,9 @@ app.get("/api/rooms/:id", (req, res) => {
   res.json({ id: room.id, title: room.title });
 });
 
-function sceneFor(room: Room, dm = false) {
+// Scene yang dilihat seseorang. DM melihat scene yang sedang disiapkannya. Pemain melihat scene tempat ia dikirim
+// (split party), atau scene utama bila belum pernah dikirim ke scene tertentu.
+function sceneFor(room: Room, dm = false, playerId = "") {
   if (!room.scenes?.length) {
     const scene = newScene("Peta pertama", randomUUID());
     scene.map = room.map;
@@ -197,22 +307,42 @@ function sceneFor(room: Room, dm = false) {
     room.activeSceneId = scene.id;
   }
   room.preparedSceneId ||= room.activeSceneId;
-  const id = dm ? room.preparedSceneId : room.activeSceneId;
+  const own = !dm && playerId ? room.playerScenes?.[playerId] : undefined;
+  const id = dm
+    ? room.preparedSceneId
+    : own && room.scenes.some((s) => s.id === own)
+      ? own
+      : room.activeSceneId;
   return room.scenes.find((s) => s.id === id) || room.scenes[0];
 }
+// Pemain lain hanya menerima ping/penunjuk/penggaris dari scene yang sedang mereka lihat.
+function inScene(
+  room: Room,
+  peer: { data: { isDM?: boolean; playerId?: string } },
+  scene: Scene,
+) {
+  return (
+    sceneFor(room, !!peer.data.isDM, peer.data.playerId || "").id === scene.id
+  );
+}
 function safeRoom(room: Room, playerId = "", dm = false): SafeRoom {
-  const scene = sceneFor(room, dm);
+  const scene = sceneFor(room, dm, playerId);
   const tokens = scene.tokens
     .filter(
       (t) =>
         (!t.minigame || gameKinds.includes(t.minigame)) &&
-        (dm || (!t.hidden && (t.ownerId === playerId || visible(t, scene, playerId)))),
+        (dm ||
+          (!t.hidden &&
+            // Gambar di peta adalah bagian dari peta: selalu dikirim, tertutup lapisan gelap fog/vision di klien.
+            (t.prop || t.ownerId === playerId || visible(t, scene, playerId)))),
     )
     .map((t) => ({
       ...t,
       ...(!dm && t.minigame ? { name: "???" } : {}),
       // AC dan bonus initiative monster adalah rahasia DM.
-      ...(!dm && t.ownerId !== playerId ? { ac: undefined, initBonus: undefined } : {}),
+      ...(!dm && t.ownerId !== playerId
+        ? { ac: undefined, initBonus: undefined }
+        : {}),
       characterRevision: room.characters?.find((c) => c.id === t.characterId)
         ?.revision,
     }));
@@ -243,12 +373,32 @@ function safeRoom(room: Room, playerId = "", dm = false): SafeRoom {
     map: scene.map,
     shownImage: room.shownImage ?? null,
     ambience: room.ambience ?? null,
-    rest: room.rest ?? null,
+    // Hitung mundur yang sudah lewat (mis. server sempat mati) tidak ditampilkan lagi.
+    rest:
+      room.rest &&
+      !(
+        room.rest.kind === "countdown" &&
+        Date.now() > room.rest.since + countdownMs + countdownHoldMs
+      )
+        ? room.rest
+        : null,
+    library: libraryView(room, playerId, dm),
     tokens,
     messages: room.messages,
-    minigames: (room.minigames || []).filter(game => gameKinds.includes(game.kind) && (tokens.some(token => token.id === game.tokenId) || (game.declaration && game.players.includes(playerId) && scene.tokens.some(token => token.id === game.tokenId)))).map(game => gameView(game, playerId, dm)),
+    minigames: (room.minigames || [])
+      .filter(
+        (game) =>
+          gameKinds.includes(game.kind) &&
+          (tokens.some((token) => token.id === game.tokenId) ||
+            (game.declaration &&
+              game.players.includes(playerId) &&
+              scene.tokens.some((token) => token.id === game.tokenId))),
+      )
+      .map((game) => gameView(game, playerId, dm)),
     activeSceneId: scene.id,
     publishedSceneId: room.activeSceneId,
+    // Hanya DM yang melihat pemain mana sedang berada di scene mana.
+    ...(dm ? { playerScenes: room.playerScenes || {} } : {}),
     scenes: dm
       ? room.scenes!.map((s) =>
           s.id === scene.id ? sceneView : { ...s, tokens: [], marks: [] },
@@ -274,10 +424,27 @@ function safeRoom(room: Room, playerId = "", dm = false): SafeRoom {
       name: member.name,
       online: connected.some((s) => s.data.playerId === id),
       dm: connected.some((s) => s.data.playerId === id && s.data.isDM),
+      ...(member.status ? { status: member.status } : {}),
     })),
   };
 }
+const propMaxSize = 80;
+const countdownMs = 5_000,
+  countdownHoldMs = 2_500;
 const sentStates = new WeakMap<object, SafeRoom>();
+const STRUCTURAL = new Set(["wall", "door", "window"]);
+const MAX_STRUCTURAL = 5000;
+// Daftar dinding bisa ribuan. Saat yang berubah hanya token, kirim scene tanpa marks (keepMarks) supaya
+// pemain tidak menerima ulang ratusan KB tiap token digeser.
+function slimScenes(previous: Scene[] | undefined, next: Scene[] | undefined) {
+  if (!previous || !next) return next;
+  return next.map((scene) => {
+    const old = previous.find((s) => s.id === scene.id);
+    if (!old || scene.marks.length < 50 || JSON.stringify(old.marks) !== JSON.stringify(scene.marks)) return scene;
+    const { marks: _marks, ...rest } = scene;
+    return { ...rest, keepMarks: true } as unknown as Scene;
+  });
+}
 function broadcast(room: Room) {
   for (const socket of io.sockets.sockets.values())
     if (socket.data.roomId === room.id) {
@@ -289,7 +456,7 @@ function broadcast(room: Room) {
         const patch: Record<string, unknown> = {};
         for (const key of Object.keys(next) as (keyof SafeRoom)[])
           if (JSON.stringify(previous[key]) !== JSON.stringify(next[key]))
-            patch[key] = next[key];
+            patch[key] = key === "scenes" ? slimScenes(previous.scenes, next.scenes) : next[key];
         if (Object.keys(patch).length)
           socket.emit("room:patch", { id: next.id, patch });
       }
@@ -351,9 +518,15 @@ function physicalRoll(
 
 const undoStates = new Map<
   string,
-  { scenes?: Scene[]; characters?: Character[]; activeSceneId?:string; preparedSceneId?:string; after: string }
+  {
+    scenes?: Scene[];
+    characters?: Character[];
+    activeSceneId?: string;
+    preparedSceneId?: string;
+    after: string;
+  }
 >();
-const pendingExports=new Set<string>();
+const pendingExports = new Set<string>();
 io.on("connection", (socket) => {
   socket.on("campaign:undo", (reply?: (result: unknown) => void) => {
     const room = rooms[socket.data.roomId];
@@ -379,11 +552,17 @@ io.on("connection", (socket) => {
       return;
     }
     room.scenes = previous.scenes;
-    const currentRevisions=new Map((room.characters || []).map(c=>[c.id,c.revision]));
-    room.characters = previous.characters?.map(c=>({...c,revision:Math.max(c.revision,currentRevisions.get(c.id) || 0)+1}));
-    if(previous.activeSceneId)room.activeSceneId=previous.activeSceneId;
-    if(previous.preparedSceneId)room.preparedSceneId=previous.preparedSceneId;
-    const active = sceneFor(room, socket.data.isDM);
+    const currentRevisions = new Map(
+      (room.characters || []).map((c) => [c.id, c.revision]),
+    );
+    room.characters = previous.characters?.map((c) => ({
+      ...c,
+      revision: Math.max(c.revision, currentRevisions.get(c.id) || 0) + 1,
+    }));
+    if (previous.activeSceneId) room.activeSceneId = previous.activeSceneId;
+    if (previous.preparedSceneId)
+      room.preparedSceneId = previous.preparedSceneId;
+    const active = sceneFor(room, socket.data.isDM, socket.data.playerId);
     room.map = active.map;
     room.tokens = active.tokens;
     undoStates.delete(room.id);
@@ -399,7 +578,17 @@ io.on("connection", (socket) => {
       return;
     }
     const { dmKey, members, ...campaign } = room;
-    if(pendingExports.size>=1 || !admitted(`export:${socket.handshake.address}`,2)){if(typeof reply==='function')reply({error:'Backup sedang berjalan atau terlalu sering. Tunggu satu menit.'});return;}
+    if (
+      pendingExports.size >= 1 ||
+      !admitted(`export:${socket.handshake.address}`, 2)
+    ) {
+      if (typeof reply === "function")
+        reply({
+          error:
+            "Backup sedang berjalan atau terlalu sering. Tunggu satu menit.",
+        });
+      return;
+    }
     pendingExports.add(room.id);
     const references = new Set<string>();
     for (const scene of room.scenes || []) {
@@ -408,6 +597,7 @@ io.on("connection", (socket) => {
     }
     if (room.map) references.add(room.map);
     if (room.shownImage) references.add(room.shownImage);
+    for (const item of room.library || []) references.add(item.image);
     for (const game of room.minigames || []) {
       if (game.jigsaw?.config.image) references.add(game.jigsaw.config.image);
       if (game.jigsawSetup?.image) references.add(game.jigsawSetup.image);
@@ -417,8 +607,10 @@ io.on("connection", (socket) => {
       let total = 0;
       for (const url of references) {
         if (!url.startsWith("/uploads/")) continue;
-        const size=(await stat(path.join(uploadDir,path.basename(url)))).size;
-        if(total+size>100*1024*1024)throw new Error('Backup gambar maksimal 100 MB.');
+        const size = (await stat(path.join(uploadDir, path.basename(url))))
+          .size;
+        if (total + size > 100 * 1024 * 1024)
+          throw new Error("Backup gambar maksimal 100 MB.");
         const buffer = await import("node:fs/promises").then((fs) =>
           fs.readFile(path.join(uploadDir, path.basename(url))),
         );
@@ -433,7 +625,9 @@ io.on("connection", (socket) => {
         reply({
           error: error instanceof Error ? error.message : "Export gagal.",
         });
-    } finally {pendingExports.delete(room.id);}
+    } finally {
+      pendingExports.delete(room.id);
+    }
   });
   socket.on(
     "character:action",
@@ -542,12 +736,25 @@ io.on("connection", (socket) => {
           }
           if (p.type === "currency") {
             const submitted = p.currency as Record<string, unknown> | null;
-            if (!submitted || typeof submitted !== "object" || Array.isArray(submitted) ||
-                Object.keys(submitted).length !== coinDenominations.length ||
-                coinDenominations.some(coin => !Object.hasOwn(submitted, coin) ||
-                  typeof submitted[coin] !== "number" || !Number.isSafeInteger(submitted[coin]) || (submitted[coin] as number) < 0))
-              throw new Error("Saldo koin harus bilangan bulat aman minimal 0 untuk CP, SP, EP, GP, dan PP.");
-            character!.currency = Object.fromEntries(coinDenominations.map(coin => [coin, submitted[coin]])) as Currency;
+            if (
+              !submitted ||
+              typeof submitted !== "object" ||
+              Array.isArray(submitted) ||
+              Object.keys(submitted).length !== coinDenominations.length ||
+              coinDenominations.some(
+                (coin) =>
+                  !Object.hasOwn(submitted, coin) ||
+                  typeof submitted[coin] !== "number" ||
+                  !Number.isSafeInteger(submitted[coin]) ||
+                  (submitted[coin] as number) < 0,
+              )
+            )
+              throw new Error(
+                "Saldo koin harus bilangan bulat aman minimal 0 untuk CP, SP, EP, GP, dan PP.",
+              );
+            character!.currency = Object.fromEntries(
+              coinDenominations.map((coin) => [coin, submitted[coin]]),
+            ) as Currency;
           }
           if (p.type === "prepared") updatePrepared(character!, p.spells);
           if (p.type === "concentration") {
@@ -557,7 +764,9 @@ io.on("connection", (socket) => {
             );
             if (
               id &&
-              (!character!.sheet.prepared.includes(id) ||
+              // Cantrip selalu siap dipakai, jadi juga boleh jadi concentration.
+              ((!character!.sheet.prepared.includes(id) &&
+                !character!.sheet.cantrips.includes(id)) ||
                 !(spell as typeof spell & { concentration?: boolean })
                   ?.concentration)
             )
@@ -581,37 +790,31 @@ io.on("connection", (socket) => {
           respond({ error: "Pilih short atau long rest." });
           return;
         }
-        character!.resourcesUsed ||= {};
-        for (const resource of resources(character!.build, character!.sheet)) {
-          if (p.rest === "long" || resource.shortRest)
-            character!.resourcesUsed[resource.id] = 0;
-          else if (resource.shortRecovery)
-            character!.resourcesUsed[resource.id] = Math.max(
-              0,
-              (character!.resourcesUsed[resource.id] || 0) -
-                resource.shortRecovery,
-            );
-        }
-        if (p.rest === "long") {
-          character!.hp = character!.sheet.hp;
-          character!.tempHp = 0;
-          character!.deathSuccess = 0;
-          character!.deathFailure = 0;
-          character!.concentration = "";
-          character!.concentrationSaveDC = undefined;
-        }
-        if (p.rest === "long" || character!.build.classId === "warlock") {
-          character!.spellSlotsUsed = {};
-          character!.slotsUsed = 0;
-        }
+        // Seperti tombol rest di sheet Roll20: pulihkan otomatis, Short Rest boleh langsung memakai Hit Dice,
+        // lalu tulis ringkasannya di chat.
+        const hitDice =
+          typeof p.hitDice === "number" && Number.isInteger(p.hitDice)
+            ? Math.max(0, Math.min(20, p.hitDice))
+            : 0;
+        const result = applyRest(character!, p.rest, {
+          hitDice,
+          die: hitDieOf(character!),
+          roll: (sides) => randomInt(1, sides + 1),
+        });
+        pushRestMessage(room, p.rest, [result]);
         character!.revision++;
       } else if (p.type === "hitdie") {
         if (p.revision !== character!.revision) {
           respond({ error: "Sheet berubah. Coba lagi." });
           return;
         }
-        const left = character!.sheet.level - (character!.resourcesUsed?.["hit-dice"] || 0);
-        const die = catalogFor(character!.build).classes.find((c) => c.index === character!.build.classId)?.hit_die || 8;
+        const left =
+          character!.sheet.level -
+          (character!.resourcesUsed?.["hit-dice"] || 0);
+        const die =
+          catalogFor(character!.build).classes.find(
+            (c) => c.index === character!.build.classId,
+          )?.hit_die || 8;
         if (left < 1 || character!.hp >= character!.sheet.hp) {
           respond({ error: left < 1 ? "Hit Dice habis." : "HP sudah penuh." });
           return;
@@ -620,8 +823,15 @@ io.on("connection", (socket) => {
         const healed = Math.max(1, rolled + character!.sheet.modifiers.con);
         character!.hp = Math.min(character!.sheet.hp, character!.hp + healed);
         character!.resourcesUsed ||= {};
-        character!.resourcesUsed["hit-dice"] = (character!.resourcesUsed["hit-dice"] || 0) + 1;
-        room.messages.push({ id: randomUUID(), name: character!.sheet.name, text: `Hit Die d${die}: ${rolled}${character!.sheet.modifiers.con >= 0 ? "+" : ""}${character!.sheet.modifiers.con} → pulih ${healed} HP (${character!.hp}/${character!.sheet.hp})`, time: Date.now(), kind: "roll" });
+        character!.resourcesUsed["hit-dice"] =
+          (character!.resourcesUsed["hit-dice"] || 0) + 1;
+        room.messages.push({
+          id: randomUUID(),
+          name: character!.sheet.name,
+          text: `Hit Die d${die}: ${rolled}${character!.sheet.modifiers.con >= 0 ? "+" : ""}${character!.sheet.modifiers.con} → pulih ${healed} HP (${character!.hp}/${character!.sheet.hp})`,
+          time: Date.now(),
+          kind: "roll",
+        });
         room.messages = room.messages.slice(-100);
         character!.revision++;
       } else if (p.type === "resources") {
@@ -688,7 +898,11 @@ io.on("connection", (socket) => {
         }
         character!.revision++;
       } else if (p.type === "link") {
-        const token = sceneFor(room, socket.data.isDM).tokens.find((t) => t.id === p.tokenId);
+        const token = sceneFor(
+          room,
+          socket.data.isDM,
+          socket.data.playerId,
+        ).tokens.find((t) => t.id === p.tokenId);
         if (
           !token ||
           (!socket.data.isDM && token.ownerId !== socket.data.playerId) ||
@@ -699,7 +913,11 @@ io.on("connection", (socket) => {
         }
         token.characterId = character!.id;
       } else if (p.type === "unlink") {
-        const token = sceneFor(room, socket.data.isDM).tokens.find((t) => t.id === p.tokenId);
+        const token = sceneFor(
+          room,
+          socket.data.isDM,
+          socket.data.playerId,
+        ).tokens.find((t) => t.id === p.tokenId);
         if (
           !token ||
           token.characterId !== character!.id ||
@@ -749,13 +967,18 @@ io.on("connection", (socket) => {
       }
       const p = payload as Record<string, unknown>;
       const dm = socket.data.isDM;
-      const scene = sceneFor(room, dm);
+      const scene = sceneFor(room, dm, socket.data.playerId);
       if (p.sceneId !== scene.id) {
         fail("Scene sudah berganti. Coba lagi.");
         return;
       }
       const beforeUndo = dm
-        ? structuredClone({ scenes: room.scenes, characters: room.characters, activeSceneId: room.activeSceneId, preparedSceneId: room.preparedSceneId })
+        ? structuredClone({
+            scenes: room.scenes,
+            characters: room.characters,
+            activeSceneId: room.activeSceneId,
+            preparedSceneId: room.preparedSceneId,
+          })
         : undefined;
       const number = (value: unknown, min: number, max: number) =>
         typeof value === "number" && Number.isFinite(value)
@@ -812,9 +1035,37 @@ io.on("connection", (socket) => {
           fail("Hanya DM bisa menerbitkan scene.");
           return;
         }
+        // Kirim ke semua pemain: jadi scene utama dan party disatukan lagi.
         room.activeSceneId = scene.id;
+        delete room.playerScenes;
+      } else if (p.type === "scene:send") {
+        // Split party: kirim pemain tertentu saja ke scene yang sedang disiapkan DM.
+        const ids = Array.isArray(p.players)
+          ? [
+              ...new Set(
+                p.players.filter(
+                  (id): id is string =>
+                    typeof id === "string" && !!room.members[id],
+                ),
+              ),
+            ]
+          : [];
+        if (!dm || !ids.length) {
+          fail("Pilih minimal satu pemain untuk dikirim.");
+          return;
+        }
+        const map = (room.playerScenes ??= {});
+        for (const id of ids) {
+          if (scene.id === room.activeSceneId) delete map[id];
+          else map[id] = scene.id;
+        }
+        if (!Object.keys(map).length) delete room.playerScenes;
       } else if (p.type === "image:show") {
-        const allowedImages = new Set(room.scenes!.flatMap(s => [s.map, ...s.tokens.map(t => t.image)]).filter((url): url is string => !!url));
+        const allowedImages = new Set(
+          room
+            .scenes!.flatMap((s) => [s.map, ...s.tokens.map((t) => t.image)])
+            .filter((url): url is string => !!url),
+        );
         if (!dm || typeof p.url !== "string" || !allowedImages.has(p.url)) {
           fail("Hanya DM bisa menampilkan gambar.");
           return;
@@ -827,11 +1078,33 @@ io.on("connection", (socket) => {
         }
         room.ambience = null;
       } else if (p.type === "rest:start") {
-        if (!dm || (p.kind !== "pause" && p.kind !== "short" && p.kind !== "long")) {
+        if (
+          !dm ||
+          (p.kind !== "pause" &&
+            p.kind !== "short" &&
+            p.kind !== "long" &&
+            p.kind !== "countdown")
+        ) {
           fail("Hanya DM bisa menjeda permainan.");
           return;
         }
-        room.rest = { kind: p.kind, note: clean(p.note, 140), since: Date.now() };
+        room.rest = {
+          kind: p.kind,
+          note: clean(p.note, 140),
+          since: Date.now(),
+        };
+        // Short/Long Rest dari menu Jeda hanya layar suasana; pemulihan HP/slot lewat tombol rest di sheet karakter.
+        // Hitung mundur 5 detik: setelah 0 dan "Waktu habis!" sebentar, lapisan hilang sendiri untuk semua.
+        if (p.kind === "countdown") {
+          const since = room.rest.since;
+          setTimeout(() => {
+            if (room.rest?.kind !== "countdown" || room.rest.since !== since)
+              return;
+            room.rest = null;
+            save();
+            broadcast(room);
+          }, countdownMs + countdownHoldMs);
+        }
       } else if (p.type === "rest:end") {
         if (!dm) {
           fail("Hanya DM bisa melanjutkan permainan.");
@@ -851,9 +1124,18 @@ io.on("connection", (socket) => {
         }
         for (const key of ["fog", "vision", "daylight"] as const)
           if (typeof p[key] === "boolean") scene[key] = p[key];
+        // Garis grid: hanya DM yang menyalakan/mematikan, semua pemain mengikuti.
+        if (typeof p.gridHidden === "boolean") {
+          if (p.gridHidden) scene.gridHidden = true;
+          else delete scene.gridHidden;
+        }
         // Efek suasana: salah satu dari daftar, atau kosong untuk mematikan.
         if (p.weather === null || p.weather === "") delete scene.weather;
-        else if (typeof p.weather === "string" && (weathers as readonly string[]).includes(p.weather)) scene.weather = p.weather as Scene["weather"];
+        else if (
+          typeof p.weather === "string" &&
+          (weathers as readonly string[]).includes(p.weather)
+        )
+          scene.weather = p.weather as Scene["weather"];
       } else if (p.type === "token:monster") {
         if (!dm) {
           fail("Hanya DM bisa menambahkan monster.");
@@ -870,15 +1152,25 @@ io.on("connection", (socket) => {
           return;
         }
         const at = point(p.at) ?? { x: 50, y: 50 };
-        scene.tokens.push(...monsterTokens(monster, count, scene.tokens, at, socket.data.playerId, p.hidden === true, randomUUID));
+        scene.tokens.push(
+          ...monsterTokens(
+            monster,
+            count,
+            scene.tokens,
+            at,
+            socket.data.playerId,
+            p.hidden === true,
+            randomUUID,
+          ),
+        );
       } else if (p.type === "token:update") {
         const token = scene.tokens.find((t) => t.id === p.id);
         if (!token || (!dm && token.ownerId !== socket.data.playerId)) {
           fail("Token bukan milikmu.");
           return;
         }
-        if (p.dead !== undefined && (!dm || typeof p.dead !== 'boolean')) {
-          fail('Hanya DM boleh mengubah status Dead dengan nilai boolean.');
+        if (p.dead !== undefined && (!dm || typeof p.dead !== "boolean")) {
+          fail("Hanya DM boleh mengubah status Dead dengan nilai boolean.");
           return;
         }
         const linkedCharacter = room.characters?.find(
@@ -912,13 +1204,41 @@ io.on("connection", (socket) => {
         }
         if (p.initiative !== undefined && scene.combat.active) {
           const currentId = scene.combat.ids[scene.combat.turn];
-          scene.combat.ids.sort((a, b) => (scene.tokens.find((t) => t.id === b)?.initiative ?? 0) - (scene.tokens.find((t) => t.id === a)?.initiative ?? 0));
+          scene.combat.ids.sort(
+            (a, b) =>
+              (scene.tokens.find((t) => t.id === b)?.initiative ?? 0) -
+              (scene.tokens.find((t) => t.id === a)?.initiative ?? 0),
+          );
           scene.combat.turn = Math.max(0, scene.combat.ids.indexOf(currentId));
         }
-        if (typeof p.dead === 'boolean' && dm) token.dead = p.dead;
+        if (typeof p.dead === "boolean" && dm) token.dead = p.dead;
         if (typeof p.hidden === "boolean" && dm) token.hidden = p.hidden;
         if (typeof p.visionSource === "boolean" && dm)
           token.visionSource = p.visionSource;
+        // Bentuk cahaya: bulat (default) atau lancip/kerucut. Lebar sudut diatur DM; arah boleh diputar pemilik token.
+        if (dm && (p.lightShape === "cone" || p.lightShape === "circle")) {
+          if (p.lightShape === "cone") token.lightShape = "cone";
+          else delete token.lightShape;
+        }
+        if (
+          dm &&
+          typeof p.lightAngle === "number" &&
+          Number.isFinite(p.lightAngle)
+        )
+          token.lightAngle = Math.round(
+            Math.max(10, Math.min(350, p.lightAngle)),
+          );
+        if (typeof p.lightDir === "number" && Number.isFinite(p.lightDir))
+          token.lightDir = Math.round(((p.lightDir % 360) + 360) % 360);
+        // Putar token: cahaya lancip ikut berputar sebesar perubahan sudutnya.
+        else if (typeof p.rotation === "number" && Number.isFinite(p.rotation)) {
+          const rotation = Math.round(((p.rotation % 360) + 360) % 360);
+          const delta = rotation - (token.rotation ?? 0);
+          if (token.lightShape === "cone")
+            token.lightDir = Math.round(((((token.lightDir ?? coneDefaults.dir) + delta) % 360) + 360) % 360);
+          if (rotation) token.rotation = rotation;
+          else delete token.rotation;
+        }
         if (Array.isArray(p.conditions))
           token.conditions = [
             ...new Set(
@@ -971,12 +1291,21 @@ io.on("connection", (socket) => {
           fail("Bentuk tidak valid.");
           return;
         }
-        if (["wall", "door", "window", "light", "reveal"].includes(kind) && !dm) {
+        if (
+          ["wall", "door", "window", "light", "reveal"].includes(kind) &&
+          !dm
+        ) {
           fail("Alat ini khusus DM.");
           return;
         }
-        if (scene.marks.length >= 200) {
-          fail("Maksimal 200 bentuk per scene. Hapus bentuk lama dulu.");
+        // Dinding/pintu/jendela punya batas sendiri (peta besar seperti labirin butuh ribuan); gambar biasa tetap 200.
+        const structural = ["wall", "door", "window"].includes(kind);
+        if (
+          structural
+            ? scene.marks.filter((m) => STRUCTURAL.has(m.kind)).length >= MAX_STRUCTURAL
+            : scene.marks.filter((m) => !STRUCTURAL.has(m.kind)).length >= 200
+        ) {
+          fail(structural ? `Maksimal ${MAX_STRUCTURAL} dinding per scene.` : "Maksimal 200 bentuk per scene. Hapus bentuk lama dulu.");
           return;
         }
         scene.marks.push({
@@ -988,12 +1317,52 @@ io.on("connection", (socket) => {
           text: clean(p.text, 120),
           open: kind === "door" || kind === "window" ? false : undefined,
         });
+      } else if (p.type === "walls:import") {
+        // Impor dinding dari file (mis. labirin buatan generator): satu aksi, satu undo.
+        if (!dm) {
+          fail("Hanya DM bisa mengimpor dinding.");
+          return;
+        }
+        const list = p.walls;
+        if (!Array.isArray(list) || !list.length || list.length > MAX_STRUCTURAL) {
+          fail(`File dinding kosong atau lebih dari ${MAX_STRUCTURAL} dinding.`);
+          return;
+        }
+        const walls: Mark[] = [];
+        for (const item of list as unknown[]) {
+          const w = (item && typeof item === "object" ? item : {}) as Record<string, unknown>;
+          const a = point(w.a), b = point(w.b), kind = w.kind ?? "wall";
+          if (!a || !b || (kind !== "wall" && kind !== "door" && kind !== "window")) {
+            fail("Isi file dinding tidak valid.");
+            return;
+          }
+          walls.push({ id: randomUUID(), ownerId: socket.data.playerId, kind, a, b, text: "", open: kind === "wall" ? undefined : false });
+        }
+        const kept = p.replace === false ? scene.marks : scene.marks.filter((m) => !STRUCTURAL.has(m.kind));
+        if (kept.filter((m) => STRUCTURAL.has(m.kind)).length + walls.length > MAX_STRUCTURAL) {
+          fail(`Maksimal ${MAX_STRUCTURAL} dinding per scene.`);
+          return;
+        }
+        scene.marks = [...kept, ...walls];
+        const columns = number(p.columns, 4, 100);
+        if (columns !== undefined) scene.grid.columns = Math.round(columns);
+        if (p.offset === true) { scene.grid.offsetX = 0; scene.grid.offsetY = 0; }
+      } else if (p.type === "walls:clear") {
+        if (!dm) {
+          fail("Hanya DM bisa menghapus dinding.");
+          return;
+        }
+        scene.marks = scene.marks.filter((m) => !STRUCTURAL.has(m.kind));
       } else if (p.type === "door:toggle") {
         if (!dm) {
           fail("Hanya DM bisa membuka pintu atau jendela.");
           return;
         }
-        const door = scene.marks.find((mark) => mark.id === p.id && (mark.kind === "door" || mark.kind === "window"));
+        const door = scene.marks.find(
+          (mark) =>
+            mark.id === p.id &&
+            (mark.kind === "door" || mark.kind === "window"),
+        );
         if (!door) {
           fail("Pintu atau jendela tidak tersedia.");
           return;
@@ -1038,10 +1407,16 @@ io.on("connection", (socket) => {
           fail("Hanya DM mengatur combat.");
           return;
         }
-        const fighters = scene.tokens.filter((t) => !t.minigame && !t.conditions?.includes("Defeated"));
+        const fighters = scene.tokens.filter(
+          (t) => !t.minigame && !t.conditions?.includes("Defeated"),
+        );
         // Monster melempar d20 ditambah bonus initiative-nya sendiri.
-        for (const t of fighters) if (!t.characterId) t.initiative = randomInt(1, 21) + (t.initBonus ?? 0);
-        scene.combat.ids = fighters.sort((a, b) => (b.initiative ?? 0) - (a.initiative ?? 0)).map((t) => t.id);
+        for (const t of fighters)
+          if (!t.characterId)
+            t.initiative = randomInt(1, 21) + (t.initBonus ?? 0);
+        scene.combat.ids = fighters
+          .sort((a, b) => (b.initiative ?? 0) - (a.initiative ?? 0))
+          .map((t) => t.id);
         scene.combat.turn = 0;
         scene.combat.round = 1;
         scene.combat.active = scene.combat.ids.length > 0;
@@ -1082,7 +1457,7 @@ io.on("connection", (socket) => {
         fail("Alat tidak dikenal.");
         return;
       }
-      const active = sceneFor(room, socket.data.isDM);
+      const active = sceneFor(room, socket.data.isDM, socket.data.playerId);
       room.map = active.map;
       room.tokens = active.tokens;
       // Jeda/istirahat tidak mengubah peta, jadi tidak menimpa catatan undo terakhir DM.
@@ -1096,9 +1471,29 @@ io.on("connection", (socket) => {
         });
       save();
       broadcast(room);
-      if ((p.type === "combat:set" || p.type === "combat:next") && scene.combat.active) {
-        const token = scene.tokens.find((item) => item.id === scene.combat.ids[scene.combat.turn]);
-        if (token) for (const peer of io.sockets.sockets.values()) if (peer.data.roomId === room.id && (peer.data.isDM || visible(token, scene, peer.data.playerId))) peer.emit("tabletop:ping", { x: token.x, y: token.y, id: randomUUID(), sceneId: scene.id, name: token.name, focus: false });
+      if (
+        (p.type === "combat:set" || p.type === "combat:next") &&
+        scene.combat.active
+      ) {
+        const token = scene.tokens.find(
+          (item) => item.id === scene.combat.ids[scene.combat.turn],
+        );
+        if (token)
+          for (const peer of io.sockets.sockets.values())
+            if (
+              peer.data.roomId === room.id &&
+              (peer.data.isDM ||
+                (inScene(room, peer, scene) &&
+                  visible(token, scene, peer.data.playerId)))
+            )
+              peer.emit("tabletop:ping", {
+                x: token.x,
+                y: token.y,
+                id: randomUUID(),
+                sceneId: scene.id,
+                name: token.name,
+                focus: false,
+              });
       }
       if (typeof reply === "function") reply({ ok: true });
     },
@@ -1113,7 +1508,7 @@ io.on("connection", (socket) => {
     )
       return;
     const p = payload as Record<string, unknown>,
-      scene = sceneFor(room, socket.data.isDM);
+      scene = sceneFor(room, socket.data.isDM, socket.data.playerId);
     if (
       p.sceneId !== scene.id ||
       typeof p.x !== "number" ||
@@ -1131,7 +1526,9 @@ io.on("connection", (socket) => {
     for (const peer of io.sockets.sockets.values())
       if (
         peer.data.roomId === room.id &&
-        (peer.data.isDM || visible(location, scene, peer.data.playerId))
+        (peer.data.isDM ||
+          (inScene(room, peer, scene) &&
+            visible(location, scene, peer.data.playerId)))
       )
         peer.emit("tabletop:ping", {
           ...location,
@@ -1144,14 +1541,82 @@ io.on("connection", (socket) => {
   socket.on("tabletop:pointer", (payload: unknown) => {
     const room = rooms[socket.data.roomId];
     if (!room || !payload || typeof payload !== "object") return;
-    const p = payload as Record<string, unknown>, scene = sceneFor(room, socket.data.isDM);
-    if (p.sceneId !== scene.id || typeof p.active !== "boolean" || typeof p.x !== "number" || typeof p.y !== "number" || !Number.isFinite(p.x) || !Number.isFinite(p.y)) return;
-    const location = { x: Math.max(0, Math.min(100, p.x)), y: Math.max(0, Math.min(100, p.y)) };
-    if (p.active && (!admitted(`pointer:${socket.id}`, 3600) || (!socket.data.isDM && !visible(location, scene, socket.data.playerId)))) return;
-    for (const peer of io.sockets.sockets.values()) if (peer.data.roomId === room.id) {
-      const active = p.active && (peer.data.isDM || visible(location, scene, peer.data.playerId));
-      peer.emit("tabletop:pointer", { ...(active ? location : { x: 0, y: 0 }), active, sceneId: scene.id, playerId: socket.data.playerId, name: room.members[socket.data.playerId].name });
-    }
+    const p = payload as Record<string, unknown>,
+      scene = sceneFor(room, socket.data.isDM, socket.data.playerId);
+    if (
+      p.sceneId !== scene.id ||
+      typeof p.active !== "boolean" ||
+      typeof p.x !== "number" ||
+      typeof p.y !== "number" ||
+      !Number.isFinite(p.x) ||
+      !Number.isFinite(p.y)
+    )
+      return;
+    const location = {
+      x: Math.max(0, Math.min(100, p.x)),
+      y: Math.max(0, Math.min(100, p.y)),
+    };
+    if (
+      p.active &&
+      (!admitted(`pointer:${socket.id}`, 3600) ||
+        (!socket.data.isDM && !visible(location, scene, socket.data.playerId)))
+    )
+      return;
+    for (const peer of io.sockets.sockets.values())
+      if (peer.data.roomId === room.id) {
+        const active =
+          p.active &&
+          (peer.data.isDM ||
+            (inScene(room, peer, scene) &&
+              visible(location, scene, peer.data.playerId)));
+        peer.emit("tabletop:pointer", {
+          ...(active ? location : { x: 0, y: 0 }),
+          active,
+          sceneId: scene.id,
+          playerId: socket.data.playerId,
+          name: room.members[socket.data.playerId].name,
+        });
+      }
+  });
+  // Posisi keping jigsaw yang sedang diseret, diteruskan ke pemain lain supaya gerakannya terlihat halus.
+  // Tidak disimpan: posisi akhir tetap lewat aksi jigsaw:drop.
+  socket.on("jigsaw:drag", (payload: unknown) => {
+    const room = rooms[socket.data.roomId];
+    if (
+      !room ||
+      !payload ||
+      typeof payload !== "object" ||
+      !admitted(`jigsaw-drag:${socket.id}`, 2400)
+    )
+      return;
+    const p = payload as Record<string, unknown>;
+    if (
+      typeof p.tokenId !== "string" ||
+      !Number.isInteger(p.g) ||
+      typeof p.dx !== "number" ||
+      typeof p.dy !== "number" ||
+      !Number.isFinite(p.dx) ||
+      !Number.isFinite(p.dy)
+    )
+      return;
+    const game = room.minigames?.find((g) => g.tokenId === p.tokenId);
+    const hold =
+      game?.kind === "jigsaw" && game.phase === "open"
+        ? game.jigsaw?.held[String(p.g)]
+        : undefined;
+    if (!hold || hold.by !== socket.data.playerId) return;
+    const clamp = (n: number) =>
+      Math.round(Math.max(-1e5, Math.min(1e5, n)) * 10) / 10;
+    const msg = {
+      tokenId: p.tokenId,
+      g: p.g,
+      dx: clamp(p.dx),
+      dy: clamp(p.dy),
+      by: socket.data.playerId,
+    };
+    for (const peer of io.sockets.sockets.values())
+      if (peer.data.roomId === room.id && peer.id !== socket.id)
+        peer.volatile.emit("jigsaw:drag", msg);
   });
   socket.on("tabletop:ruler", (payload: unknown) => {
     const room = rooms[socket.data.roomId];
@@ -1163,7 +1628,7 @@ io.on("connection", (socket) => {
     )
       return;
     const p = payload as Record<string, unknown>,
-      scene = sceneFor(room, socket.data.isDM);
+      scene = sceneFor(room, socket.data.isDM, socket.data.playerId);
     if (
       p.sceneId !== scene.id ||
       !Array.isArray(p.points) ||
@@ -1193,7 +1658,8 @@ io.on("connection", (socket) => {
       if (
         peer.data.roomId === room.id &&
         (peer.data.isDM ||
-          points.every((point) => visible(point, scene, peer.data.playerId)))
+          (inScene(room, peer, scene) &&
+            points.every((point) => visible(point, scene, peer.data.playerId))))
       )
         peer.emit("tabletop:ruler", {
           sceneId: scene.id,
@@ -1235,17 +1701,28 @@ io.on("connection", (socket) => {
         return;
       }
       if (socket.data.roomId) socket.leave(socket.data.roomId);
-      const returningIds = Object.entries(room.members)
-        .filter(([id, member]) => id !== playerId && member.name.toLowerCase() === name.toLowerCase())
+      // Orang yang kembali dengan nama sama tapi identitas baru: identitas lama yang offline digabung ke yang baru
+      // (karakter, token, minigame) lalu dihapus, supaya daftar party tidak menumpuk.
+      const onlineIds = new Set(
+        [...io.sockets.sockets.values()]
+          .filter(
+            (peer) => peer.data.roomId === roomId && peer.id !== socket.id,
+          )
+          .map((peer) => peer.data.playerId as string),
+      );
+      const sameNameIds = Object.entries(room.members)
+        .filter(
+          ([id, member]) => id !== playerId && sameName(member.name, name),
+        )
         .map(([id]) => id);
-      if (returningIds.length) {
-        for (const character of room.characters || [])
-          if (returningIds.includes(character.ownerId)) character.ownerId = playerId;
-        for (const scene of room.scenes || [])
-          for (const token of scene.tokens)
-            if (returningIds.includes(token.ownerId)) token.ownerId = playerId;
-      }
       room.members[playerId] = { name, secret: playerSecret };
+      // Karakter dan token selalu ikut ke identitas yang baru masuk; anggota lama hanya dihapus bila sedang offline.
+      transferOwnership(room, playerId, sameNameIds);
+      mergeMembers(
+        room,
+        playerId,
+        sameNameIds.filter((id) => !onlineIds.has(id)),
+      );
       socket.data.roomId = roomId;
       socket.data.playerId = playerId;
       socket.data.isDM = name.toLowerCase() === "dm" || p.dmKey === room.dmKey;
@@ -1259,68 +1736,223 @@ io.on("connection", (socket) => {
   socket.on("room:patches", () => {
     socket.data.patches = true;
   });
-  socket.on('minigame:action', (payload: unknown, reply?: (result: { error?: string; ok?: boolean }) => void) => {
-    const respond = (result: { error?: string; ok?: boolean }) => { if (typeof reply === 'function') reply(result); };
-    const room = rooms[socket.data.roomId];
-    if (!room || !payload || typeof payload !== 'object') { respond({ error: 'Ruang tidak tersedia.' }); return; }
-    const isJigsaw = typeof (payload as Record<string, unknown>).type === 'string' && String((payload as Record<string, unknown>).type).startsWith('jigsaw:');
-    if (!admitted(`${isJigsaw ? 'jigsaw' : 'minigame'}:${socket.id}`, isJigsaw ? 600 : 120)) { respond({ error: 'Terlalu banyak aksi. Tunggu sebentar.' }); return; }
-    const action = payload as Record<string, unknown>;
-    if (typeof action.type !== 'string') { respond({ error: 'Aksi permainan tidak valid.' }); return; }
-    const scene = sceneFor(room, socket.data.isDM);
-    if (action.type === 'create') {
-      if (!socket.data.isDM || action.kind === 'crossword' || !gameKinds.includes(action.kind as GameKind) || (room.minigames?.length || 0) >= 30) { respond({ error: 'Token tidak bisa ditambahkan.' }); return; }
-      const id = randomUUID();
-      const kind = action.kind as GameKind;
-      const positions = Array.from({ length: 64 }, (_, i) => ({ x: 15 + (i % 8) * 10, y: 15 + Math.floor(i / 8) * 10 }));
-      const position = positions.find(point => scene.tokens.every(token => Math.hypot(token.x - point.x, token.y - point.y) >= 9)) || positions[(room.minigames?.length || 0) % positions.length];
-      scene.tokens.push({ id, ownerId: socket.data.playerId, name: gameCatalog[kind].name, image: '', minigame: kind, ...position, size: 1.5 });
-      room.tokens = scene.tokens;
-      (room.minigames ??= []).push(newGame(id, kind));
-    } else {
-      const token = scene.tokens.find(token => token.id === action.tokenId);
-      const game = room.minigames?.find(game => game.tokenId === token?.id);
-      if (!token || !game || !gameKinds.includes(game.kind) || (!socket.data.isDM && !(game.declaration && game.players.includes(socket.data.playerId)) && (token.hidden || !visible(token, scene, socket.data.playerId)))) { respond({ error: 'Token permainan tidak tersedia.' }); return; }
-      let error: string | null;
-      if (game.kind === 'cooprooms' && action.type === 'declare') { respond({ error: 'Gunakan pembagian dua tim di dalam sesi.' }); return; }
-      if (game.kind === 'cooprooms' && action.type === 'coop:assign') {
-        if (!socket.data.isDM || !Array.isArray(action.teams) || !action.teams.every(team => Array.isArray(team) && team.every(id => typeof id === 'string' && room.members[id]))) { respond({ error: 'Pilih anggota ruangan yang valid.' }); return; }
+  socket.on(
+    "minigame:action",
+    (
+      payload: unknown,
+      reply?: (result: { error?: string; ok?: boolean }) => void,
+    ) => {
+      const respond = (result: { error?: string; ok?: boolean }) => {
+        if (typeof reply === "function") reply(result);
+      };
+      const room = rooms[socket.data.roomId];
+      if (!room || !payload || typeof payload !== "object") {
+        respond({ error: "Ruang tidak tersedia." });
+        return;
       }
-      if (action.type === 'declare') {
-        if (!socket.data.isDM) { respond({ error: 'Hanya GM boleh deklarasikan permainan.' }); return; }
-        const roomPeers = [...io.sockets.sockets.values()].filter(peer => peer.data.roomId === room.id);
-        const gmIds = new Set(roomPeers.filter(peer => peer.data.isDM).map(peer => peer.data.playerId));
-        const eligible = [...new Set(roomPeers.map(peer => peer.data.playerId as string))].filter(id => gmIds.has(id) || (!token.hidden && visible(token, scene, id)));
-        const fixed = gameCatalog[game.kind].mode === 'duel' ? 2 : gameCatalog[game.kind].mode === 'solo' ? 1 : 0;
-        if (fixed) {
-          if (!Array.isArray(action.players) || action.players.length !== fixed || !action.players.every(id => typeof id === 'string' && eligible.includes(id))) { respond({ error: fixed === 1 ? 'Pilih satu pemain online yang bisa melihat token.' : 'Pilih dua pemain online yang bisa melihat token.' }); return; }
-          error = declareGame(game, action.players as string[]);
-        } else {
-          // Ritual membagi gulungan ke setiap peserta, jadi GM tidak ikut supaya tidak ada gulungan yang tak terbaca pemain.
-          const party = game.kind === 'ritual' || game.kind === 'mirrors' ? eligible.filter(id => !gmIds.has(id)) : eligible;
-          if (!party.length) { respond({ error: 'Belum ada pemain online yang bisa melihat token.' }); return; }
-          error = declareGame(game, party);
+      // Aksi ketik cepat (keping jigsaw, huruf TTS) punya batas lebih longgar; TTS penuh bisa >100 huruf.
+      const isJigsaw =
+        typeof (payload as Record<string, unknown>).type === "string" &&
+        /^(jigsaw:|crossword:(letter|answer)$|coop:crossword$)/.test(String((payload as Record<string, unknown>).type));
+      if (
+        !admitted(
+          `${isJigsaw ? "jigsaw" : "minigame"}:${socket.id}`,
+          isJigsaw ? 600 : 120,
+        )
+      ) {
+        respond({ error: "Terlalu banyak aksi. Tunggu sebentar." });
+        return;
+      }
+      const action = payload as Record<string, unknown>;
+      if (typeof action.type !== "string") {
+        respond({ error: "Aksi permainan tidak valid." });
+        return;
+      }
+      const scene = sceneFor(room, socket.data.isDM, socket.data.playerId);
+      if (action.type === "create") {
+        if (
+          !socket.data.isDM ||
+          action.kind === "crossword" ||
+          !gameKinds.includes(action.kind as GameKind) ||
+          (room.minigames?.length || 0) >= 30
+        ) {
+          respond({ error: "Token tidak bisa ditambahkan." });
+          return;
         }
+        const id = randomUUID();
+        const kind = action.kind as GameKind;
+        const positions = Array.from({ length: 64 }, (_, i) => ({
+          x: 15 + (i % 8) * 10,
+          y: 15 + Math.floor(i / 8) * 10,
+        }));
+        const position =
+          positions.find((point) =>
+            scene.tokens.every(
+              (token) => Math.hypot(token.x - point.x, token.y - point.y) >= 9,
+            ),
+          ) || positions[(room.minigames?.length || 0) % positions.length];
+        scene.tokens.push({
+          id,
+          ownerId: socket.data.playerId,
+          name: gameCatalog[kind].name,
+          image: "",
+          minigame: kind,
+          ...position,
+          size: 1.5,
+        });
+        room.tokens = scene.tokens;
+        (room.minigames ??= []).push(newGame(id, kind));
       } else {
-        const openParty = game.kind === 'crossword' || game.kind === 'ttspilihan' || game.kind === 'seating' || game.kind === 'wallclock' || game.kind === 'relicscale' || game.kind === 'journal' || game.kind === 'cryptex' || game.kind === 'whodunit' || game.kind === 'lockpick' || game.kind === 'tavern' || game.kind === 'alchemy' || game.kind === 'potion' || game.kind === 'compass' || game.kind === 'runes' || game.kind === 'shift' || game.kind === 'jigsaw';
-        if (['join', 'leave', 'remove-player'].includes(action.type) || (action.type === 'start' && !game.declaration && !openParty)) { respond({ error: 'GM harus deklarasikan peserta lewat token.' }); return; }
-        error = gameAction(game, socket.data.playerId, socket.data.isDM, action, randomInt);
+        const token = scene.tokens.find((token) => token.id === action.tokenId);
+        const game = room.minigames?.find((game) => game.tokenId === token?.id);
+        if (
+          !token ||
+          !game ||
+          !gameKinds.includes(game.kind) ||
+          (!socket.data.isDM &&
+            !(
+              game.declaration && game.players.includes(socket.data.playerId)
+            ) &&
+            (token.hidden || !visible(token, scene, socket.data.playerId)))
+        ) {
+          respond({ error: "Token permainan tidak tersedia." });
+          return;
+        }
+        let error: string | null;
+        if (game.kind === "cooprooms" && action.type === "declare") {
+          respond({ error: "Gunakan pembagian dua tim di dalam sesi." });
+          return;
+        }
+        if (game.kind === "cooprooms" && action.type === "coop:assign") {
+          if (
+            !socket.data.isDM ||
+            !Array.isArray(action.teams) ||
+            !action.teams.every(
+              (team) =>
+                Array.isArray(team) &&
+                team.every((id) => typeof id === "string" && room.members[id]),
+            )
+          ) {
+            respond({ error: "Pilih anggota ruangan yang valid." });
+            return;
+          }
+        }
+        if (action.type === "declare") {
+          if (!socket.data.isDM) {
+            respond({ error: "Hanya GM boleh deklarasikan permainan." });
+            return;
+          }
+          const roomPeers = [...io.sockets.sockets.values()].filter(
+            (peer) => peer.data.roomId === room.id,
+          );
+          const gmIds = new Set(
+            roomPeers
+              .filter((peer) => peer.data.isDM)
+              .map((peer) => peer.data.playerId),
+          );
+          const eligible = [
+            ...new Set(roomPeers.map((peer) => peer.data.playerId as string)),
+          ].filter(
+            (id) =>
+              gmIds.has(id) || (!token.hidden && visible(token, scene, id)),
+          );
+          const fixed =
+            gameCatalog[game.kind].mode === "duel"
+              ? 2
+              : gameCatalog[game.kind].mode === "solo"
+                ? 1
+                : 0;
+          if (fixed) {
+            if (
+              !Array.isArray(action.players) ||
+              action.players.length !== fixed ||
+              !action.players.every(
+                (id) => typeof id === "string" && eligible.includes(id),
+              )
+            ) {
+              respond({
+                error:
+                  fixed === 1
+                    ? "Pilih satu pemain online yang bisa melihat token."
+                    : "Pilih dua pemain online yang bisa melihat token.",
+              });
+              return;
+            }
+            error = declareGame(game, action.players as string[]);
+          } else {
+            // Ritual membagi gulungan ke setiap peserta, jadi GM tidak ikut supaya tidak ada gulungan yang tak terbaca pemain.
+            const party =
+              game.kind === "ritual" || game.kind === "mirrors"
+                ? eligible.filter((id) => !gmIds.has(id))
+                : eligible;
+            if (!party.length) {
+              respond({
+                error: "Belum ada pemain online yang bisa melihat token.",
+              });
+              return;
+            }
+            error = declareGame(game, party);
+          }
+        } else {
+          const openParty =
+            game.kind === "crossword" ||
+            game.kind === "ttspilihan" ||
+            game.kind === "seating" ||
+            game.kind === "wallclock" ||
+            game.kind === "relicscale" ||
+            game.kind === "journal" ||
+            game.kind === "cryptex" ||
+            game.kind === "whodunit" ||
+            game.kind === "lockpick" ||
+            game.kind === "tavern" ||
+            game.kind === "alchemy" ||
+            game.kind === "potion" ||
+            game.kind === "compass" ||
+            game.kind === "runes" ||
+            game.kind === "shift" ||
+            game.kind === "jigsaw";
+          if (
+            ["join", "leave", "remove-player"].includes(action.type) ||
+            (action.type === "start" && !game.declaration && !openParty)
+          ) {
+            respond({ error: "GM harus deklarasikan peserta lewat token." });
+            return;
+          }
+          error = gameAction(
+            game,
+            socket.data.playerId,
+            socket.data.isDM,
+            action,
+            randomInt,
+          );
+        }
+        if (error) {
+          respond({ error });
+          return;
+        }
+        if (game.memoryCloseAt) {
+          const closeAt = game.memoryCloseAt;
+          setTimeout(
+            () => {
+              if (game.memoryCloseAt === closeAt && closeMemoryMismatch(game)) {
+                save();
+                broadcast(room);
+              }
+            },
+            Math.max(0, closeAt - Date.now()),
+          );
+        }
       }
-      if (error) { respond({ error }); return; }
-      if (game.memoryCloseAt) {
-        const closeAt = game.memoryCloseAt;
-        setTimeout(() => {
-          if (game.memoryCloseAt === closeAt && closeMemoryMismatch(game)) { save(); broadcast(room); }
-        }, Math.max(0, closeAt - Date.now()));
-      }
-    }
-    save(); broadcast(room); respond({ ok: true });
-  });
+      save();
+      broadcast(room);
+      respond({ ok: true });
+    },
+  );
   socket.on("token:move", (payload: unknown) => {
     const room = rooms[socket.data.roomId];
     if (!room || !payload || typeof payload !== "object") return;
     const p = payload as Record<string, unknown>;
-    const scene = sceneFor(room, socket.data.isDM);
+    const scene = sceneFor(room, socket.data.isDM, socket.data.playerId);
     const token = scene.tokens.find((t) => t.id === p.id);
     if (!token || (!socket.data.isDM && token.ownerId !== socket.data.playerId))
       return;
@@ -1331,9 +1963,11 @@ io.on("connection", (socket) => {
       !Number.isFinite(p.y)
     )
       return;
+    // Gambar peta (prop) boleh berada di luar tabel; token biasa tetap di dalam peta.
+    const [lo, hi] = token.prop ? [PROP_MIN, PROP_MAX] : [0, 100];
     const destination = {
-      x: Math.max(0, Math.min(100, p.x)),
-      y: Math.max(0, Math.min(100, p.y)),
+      x: Math.max(lo, Math.min(hi, p.x)),
+      y: Math.max(lo, Math.min(hi, p.y)),
     };
     if (token.x === destination.x && token.y === destination.y) return;
     if (
@@ -1354,32 +1988,99 @@ io.on("connection", (socket) => {
       broadcast(room);
     }
   });
-
-  socket.on("token:duplicate", (id: unknown, reply?: (result: { error?: string; ok?: boolean; id?: string }) => void) => {
+  // Pindah beberapa token sekaligus (seleksi grup). Semua atau tidak sama sekali:
+  // kalau satu token tidak boleh/terhalang, seluruh grup tidak bergerak.
+  socket.on("token:moveMany", (payload: unknown) => {
     const room = rooms[socket.data.roomId];
-    const scene = room && sceneFor(room, socket.data.isDM);
-    const token = scene?.tokens.find((item) => item.id === id);
-    if (!room || !scene || !token || token.minigame || (!socket.data.isDM && token.ownerId !== socket.data.playerId) || scene.tokens.length >= 100) {
-      reply?.({ error: "Token tidak bisa disalin." });
-      return;
+    if (!room || !payload || typeof payload !== "object") return;
+    const p = payload as Record<string, unknown>;
+    if (!Array.isArray(p.moves) || !p.moves.length || p.moves.length > 50) return;
+    const scene = sceneFor(room, socket.data.isDM, socket.data.playerId);
+    const planned: { token: (typeof scene.tokens)[number]; x: number; y: number }[] = [];
+    const seen = new Set<string>();
+    for (const move of p.moves as unknown[]) {
+      if (!move || typeof move !== "object") return;
+      const m = move as Record<string, unknown>;
+      const token = scene.tokens.find((t) => t.id === m.id);
+      if (!token || seen.has(token.id) || (!socket.data.isDM && token.ownerId !== socket.data.playerId)) return;
+      if (typeof m.x !== "number" || typeof m.y !== "number" || !Number.isFinite(m.x) || !Number.isFinite(m.y)) return;
+      seen.add(token.id);
+      const [lo, hi] = token.prop ? [PROP_MIN, PROP_MAX] : [0, 100];
+      const destination = { x: Math.max(lo, Math.min(hi, m.x)), y: Math.max(lo, Math.min(hi, m.y)) };
+      if (
+        !socket.data.isDM &&
+        (token.x !== destination.x || token.y !== destination.y) &&
+        ((scene.vision && !visible(destination, scene, socket.data.playerId)) ||
+          blocksMovement(token, destination, scene.marks))
+      )
+        return;
+      planned.push({ token, ...destination });
     }
-    const copy = { ...token, id: randomUUID(), x: Math.min(100, token.x + 2), y: Math.min(100, token.y + 2) };
-    scene.tokens.push(copy);
-    room.tokens = scene.tokens;
-    save();
-    broadcast(room);
-    reply?.({ ok: true, id: copy.id });
+    if (
+      !admitted(`move:${socket.id}`, 3600) ||
+      !admitted(`move-room:${room.id}`, 18000)
+    )
+      return;
+    for (const { token, x, y } of planned) {
+      if (token.x === x && token.y === y) continue;
+      Object.assign(token, { x, y });
+      socket.to(room.id).emit("token:moved", { id: token.id, x, y });
+    }
+    if (p.final !== false) {
+      save();
+      broadcast(room);
+    }
   });
+
+  socket.on(
+    "token:duplicate",
+    (
+      id: unknown,
+      reply?: (result: { error?: string; ok?: boolean; id?: string }) => void,
+    ) => {
+      const room = rooms[socket.data.roomId];
+      const scene =
+        room && sceneFor(room, socket.data.isDM, socket.data.playerId);
+      const token = scene?.tokens.find((item) => item.id === id);
+      if (
+        !room ||
+        !scene ||
+        !token ||
+        token.minigame ||
+        (!socket.data.isDM && token.ownerId !== socket.data.playerId) ||
+        scene.tokens.length >= 100
+      ) {
+        reply?.({ error: "Token tidak bisa disalin." });
+        return;
+      }
+      const copy = {
+        ...token,
+        id: randomUUID(),
+        x: Math.min(100, token.x + 2),
+        y: Math.min(100, token.y + 2),
+      };
+      scene.tokens.push(copy);
+      room.tokens = scene.tokens;
+      save();
+      broadcast(room);
+      reply?.({ ok: true, id: copy.id });
+    },
+  );
 
   socket.on("token:resize", (payload: unknown) => {
     const room = rooms[socket.data.roomId];
     if (!room || !payload || typeof payload !== "object") return;
     const p = payload as Record<string, unknown>;
-    const token = sceneFor(room, socket.data.isDM).tokens.find((t) => t.id === p.id);
+    const token = sceneFor(
+      room,
+      socket.data.isDM,
+      socket.data.playerId,
+    ).tokens.find((t) => t.id === p.id);
     if (!token || (!socket.data.isDM && token.ownerId !== socket.data.playerId))
       return;
     if (typeof p.size !== "number" || !Number.isFinite(p.size)) return;
-    const size = Math.round(Math.max(0.25, Math.min(6, p.size)) * 100) / 100;
+    // Gambar di peta (prop) boleh jauh lebih besar dari token biasa.
+    const size = Math.round(Math.max(0.25, Math.min(token.prop ? propMaxSize : 6, p.size)) * 100) / 100;
     if ((token.size ?? 1) === size) return;
     if (
       !admitted(`resize:${socket.handshake.address}`, 120) ||
@@ -1393,31 +2094,240 @@ io.on("connection", (socket) => {
   socket.on("token:remove", (id: unknown) => {
     const room = rooms[socket.data.roomId];
     if (!room) return;
-    const scene = sceneFor(room, socket.data.isDM);
+    const scene = sceneFor(room, socket.data.isDM, socket.data.playerId);
     const token = scene.tokens.find((t) => t.id === id);
     if (!token || (!socket.data.isDM && token.ownerId !== socket.data.playerId))
       return;
     // Hapus token biasa oleh DM bisa dibatalkan lewat Undo. Token minigame tidak, karena ronde permainannya ikut terhapus.
-    const beforeUndo = socket.data.isDM && !token.minigame
-      ? structuredClone({ scenes: room.scenes, characters: room.characters, activeSceneId: room.activeSceneId, preparedSceneId: room.preparedSceneId })
-      : undefined;
+    const beforeUndo =
+      socket.data.isDM && !token.minigame
+        ? structuredClone({
+            scenes: room.scenes,
+            characters: room.characters,
+            activeSceneId: room.activeSceneId,
+            preparedSceneId: room.preparedSceneId,
+          })
+        : undefined;
     scene.tokens = scene.tokens.filter((t) => t.id !== id);
-    room.minigames = room.minigames?.filter(game => game.tokenId !== id);
+    room.minigames = room.minigames?.filter((game) => game.tokenId !== id);
     scene.combat.ids = scene.combat.ids.filter((value) => value !== id);
     scene.combat.turn = Math.min(
       scene.combat.turn,
       Math.max(0, scene.combat.ids.length - 1),
     );
     room.tokens = scene.tokens;
-    if (beforeUndo) undoStates.set(room.id, { ...beforeUndo, after: JSON.stringify({ scenes: room.scenes, characters: room.characters }) });
+    if (beforeUndo)
+      undoStates.set(room.id, {
+        ...beforeUndo,
+        after: JSON.stringify({
+          scenes: room.scenes,
+          characters: room.characters,
+        }),
+      });
     save();
     broadcast(room);
   });
+
+  // ---------- Gudang Token ----------
+  // Taruh token dari gudang ke scene yang sedang dilihat. Pemilik token tetap pemilik gambar di gudang,
+  // jadi token milik player yang ditaruh DM tetap bisa digerakkan player itu.
+  socket.on(
+    "library:place",
+    (
+      payload: unknown,
+      reply?: (result: { ok?: boolean; error?: string; id?: string }) => void,
+    ) => {
+      const respond = (result: {
+        ok?: boolean;
+        error?: string;
+        id?: string;
+      }) => {
+        if (typeof reply === "function") reply(result);
+      };
+      const room = rooms[socket.data.roomId];
+      if (!room || !payload || typeof payload !== "object")
+        return respond({ error: "Masuk ke ruang dulu." });
+      if (!admitted(`library:${socket.id}`, 60))
+        return respond({ error: "Terlalu cepat. Tunggu sebentar." });
+      const p = payload as Record<string, unknown>;
+      const item = room.library?.find((entry) => entry.id === p.id);
+      if (!canUse(item, socket.data.playerId, socket.data.isDM))
+        return respond({ error: "Token tidak ada di gudangmu." });
+      const scene = sceneFor(room, socket.data.isDM, socket.data.playerId);
+      if (scene.tokens.length >= 100)
+        return respond({ error: "Maksimal 100 token per scene." });
+      const num = (v: unknown) =>
+        typeof v === "number" && Number.isFinite(v)
+          ? Math.max(0, Math.min(100, v))
+          : 50;
+      const id = randomUUID();
+      scene.tokens.push({
+        id,
+        name: item.name,
+        image: item.image,
+        x: num(p.x),
+        y: num(p.y),
+        ownerId: item.ownerId,
+        size: item.size || 1,
+      });
+      room.tokens = scene.tokens;
+      save();
+      broadcast(room);
+      respond({ ok: true, id });
+    },
+  );
+  // Simpan token yang sudah ada di peta ke gudang pemiliknya.
+  socket.on(
+    "library:save",
+    (
+      tokenId: unknown,
+      reply?: (result: { ok?: boolean; error?: string }) => void,
+    ) => {
+      const respond = (result: { ok?: boolean; error?: string }) => {
+        if (typeof reply === "function") reply(result);
+      };
+      const room = rooms[socket.data.roomId];
+      if (!room) return respond({ error: "Masuk ke ruang dulu." });
+      const token = sceneFor(
+        room,
+        socket.data.isDM,
+        socket.data.playerId,
+      ).tokens.find((t) => t.id === tokenId);
+      if (
+        !token ||
+        token.minigame ||
+        (!socket.data.isDM && token.ownerId !== socket.data.playerId)
+      )
+        return respond({ error: "Token ini tidak bisa disimpan." });
+      const before = room.library?.length ?? 0;
+      const item = addToLibrary(room, {
+        name: token.name,
+        image: token.image,
+        ownerId: token.ownerId,
+        size: token.size,
+      });
+      if (!item)
+        return respond({
+          error: "Gambar token ini tidak bisa disimpan ke gudang.",
+        });
+      if ((room.library?.length ?? 0) === before)
+        return respond({ error: "Token ini sudah ada di gudang." });
+      save();
+      broadcast(room);
+      respond({ ok: true });
+    },
+  );
+  socket.on(
+    "library:rename",
+    (
+      payload: unknown,
+      reply?: (result: { ok?: boolean; error?: string }) => void,
+    ) => {
+      const respond = (result: { ok?: boolean; error?: string }) => {
+        if (typeof reply === "function") reply(result);
+      };
+      const room = rooms[socket.data.roomId];
+      const p = (payload || {}) as Record<string, unknown>;
+      const item = room?.library?.find((entry) => entry.id === p.id);
+      const name = clean(p.name, 32);
+      if (
+        !room ||
+        !canUse(item, socket.data.playerId, socket.data.isDM) ||
+        !name
+      )
+        return respond({ error: "Nama tidak bisa diubah." });
+      item.name = name;
+      save();
+      broadcast(room);
+      respond({ ok: true });
+    },
+  );
+  // Hapus dari gudang saja; token yang sudah ada di peta tidak ikut terhapus.
+  socket.on(
+    "library:remove",
+    (
+      id: unknown,
+      reply?: (result: { ok?: boolean; error?: string }) => void,
+    ) => {
+      const respond = (result: { ok?: boolean; error?: string }) => {
+        if (typeof reply === "function") reply(result);
+      };
+      const room = rooms[socket.data.roomId];
+      const item = room?.library?.find((entry) => entry.id === id);
+      if (!room || !canUse(item, socket.data.playerId, socket.data.isDM))
+        return respond({ error: "Token tidak ada di gudangmu." });
+      room.library = room.library!.filter((entry) => entry.id !== id);
+      save();
+      broadcast(room);
+      respond({ ok: true });
+    },
+  );
+
+  // Makro status seperti Roll20: AFK, Kembali, dan angkat tangan (ingin berbicara).
+  // Statusnya tampil di daftar party; pesannya masuk chat sebagai baris status.
+  socket.on(
+    "member:status",
+    (
+      payload: unknown,
+      reply?: (result: { ok?: boolean; error?: string }) => void,
+    ) => {
+      const respond = (result: { ok?: boolean; error?: string }) => {
+        if (typeof reply === "function") reply(result);
+      };
+      const room = rooms[socket.data.roomId];
+      if (!room || !payload || typeof payload !== "object")
+        return respond({ error: "Masuk ke ruang dulu." });
+      if (!admitted(`status:${socket.id}`, 30))
+        return respond({ error: "Terlalu cepat. Tunggu sebentar." });
+      const p = payload as Record<string, unknown>;
+      // DM boleh menurunkan tangan pemain lain (sudah dipersilakan bicara).
+      const targetId =
+        socket.data.isDM && typeof p.playerId === "string"
+          ? p.playerId
+          : socket.data.playerId;
+      const member = room.members[targetId];
+      if (!member) return respond({ error: "Pemain tidak ditemukan." });
+      const say = (text: string) => {
+        room.messages.push({
+          id: randomUUID(),
+          name: member.name,
+          text,
+          time: Date.now(),
+          kind: "status",
+        });
+        room.messages = room.messages.slice(-100);
+      };
+      if (p.status === "afk" && targetId === socket.data.playerId) {
+        if (member.status === "afk") return respond({ error: "Udah AFK" });
+        member.status = "afk";
+        say(`${member.name} AFK bentar`);
+      } else if (p.status === "back" && targetId === socket.data.playerId) {
+        if (!member.status) return respond({ error: "Udah di meja" });
+        delete member.status;
+        say(`${member.name} dah balik`);
+      } else if (p.status === "hand" && targetId === socket.data.playerId) {
+        if (member.status === "hand")
+          return respond({ error: "Tanganmu sudah terangkat." });
+        member.status = "hand";
+        say(`${member.name} mau ngomong`);
+      } else if (p.status === "lower") {
+        if (member.status !== "hand")
+          return respond({ error: "Tidak ada tangan yang terangkat." });
+        delete member.status;
+      } else return respond({ error: "Status tidak dikenal." });
+      save();
+      broadcast(room);
+      respond({ ok: true });
+    },
+  );
 
   socket.on("chat:send", (text: unknown) => {
     const room = rooms[socket.data.roomId];
     const message = clean(text, 500);
     if (!room || !message) return;
+    // Orang yang mengangkat tangan sudah bicara: tangannya turun otomatis.
+    const speaker = room.members[socket.data.playerId];
+    if (speaker?.status === "hand") delete speaker.status;
     room.messages.push({
       id: randomUUID(),
       name: room.members[socket.data.playerId]?.name || "Pemain",
@@ -1447,121 +2357,152 @@ io.on("connection", (socket) => {
         const request = expression as Record<string, unknown>;
         if (typeof request.expression === "string") {
           expression = request.expression;
-          rollMode = request.mode === "advantage" || request.mode === "disadvantage" ? request.mode : "normal";
+          rollMode =
+            request.mode === "advantage" || request.mode === "disadvantage"
+              ? request.mode
+              : "normal";
         } else {
-        const character = room.characters?.find(
-          (c) =>
-            c.id === request.characterId &&
-            (socket.data.isDM || c.ownerId === socket.data.playerId),
-        );
-        if (!character) {
-          if (typeof reply === "function")
-            reply({ error: "Karakter tidak tersedia." });
-          return;
-        }
-        let bonus: number | undefined;
-        if (request.kind === "skill")
-          bonus = character.sheet.skills.find(
-            (s) => s.id === request.key,
-          )?.bonus;
-        if (request.kind === "save")
-          bonus = character.sheet.saves.find(
-            (s) => s.id === request.key,
-          )?.bonus;
-        if (
-          request.kind === "ability" &&
-          ["str", "dex", "con", "int", "wis", "cha"].includes(
-            String(request.key),
-          )
-        )
-          bonus =
-            character.sheet.modifiers[
-              request.key as keyof typeof character.sheet.modifiers
-            ];
-        if (request.kind === "attack")
-          bonus = character.sheet.attacks.find(
-            (s) => s.id === request.key,
-          )?.bonus;
-        if (request.kind === "initiative") bonus = character.sheet.initiative;
-        if (request.kind === "initiative") {
-          const scene = sceneFor(room, socket.data.isDM);
-          if (
-            !scene.tokens.some(
-              (token) =>
-                token.characterId === character.id &&
-                (socket.data.isDM || token.ownerId === socket.data.playerId),
-            )
-          ) {
+          const character = room.characters?.find(
+            (c) =>
+              c.id === request.characterId &&
+              (socket.data.isDM || c.ownerId === socket.data.playerId),
+          );
+          if (!character) {
             if (typeof reply === "function")
-              reply({
-                error:
-                  "Hubungkan karakter ke token pada scene aktif sebelum roll initiative.",
-              });
+              reply({ error: "Karakter tidak tersedia." });
             return;
           }
-          initiativeCharacter = {
-            id: character.id,
-            ownerId: socket.data.playerId,
-            sceneId: scene.id,
-          };
-        }
-        if (request.kind === "spell") bonus = character.sheet.spellAttack;
-        const damage =
-          request.kind === "damage"
-            ? character.sheet.attacks.find((s) => s.id === request.key)?.damage
-            : undefined;
-        if ((typeof bonus !== "number" || !Number.isFinite(bonus)) && !damage) {
-          if (typeof reply === "function")
-            reply({ error: "Roll tidak tersedia." });
-          return;
-        }
-        if (damage && /^\d+$/.test(damage)) {
-          room.messages.push({
-            id: randomUUID(),
-            name: character.sheet.name,
-            text: `Unarmed Strike: ${damage} damage tetap (tanpa die).`,
-            time: Date.now(),
-            kind: "roll",
-          });
-          room.messages = room.messages.slice(-100);
-          save();
-          broadcast(room);
-          if (typeof reply === "function") reply({ ok: true });
-          return;
-        }
-        rollMode =
-          request.mode === "advantage" || request.mode === "disadvantage"
-            ? request.mode
-            : "normal";
-        // Poisoned/Blinded/Restrained: disadvantage on attacks and ability checks. Advantage and disadvantage cancel.
-        const penalized = character.conditions?.some((c) => ["Poisoned", "Blinded", "Restrained"].includes(c)) && ["attack", "spell", "ability", "skill"].includes(String(request.kind));
-        if (penalized && !damage) {
-          rollMode = rollMode === "advantage" ? "normal" : "disadvantage";
-          conditionNote = rollMode === "disadvantage" ? " (disadvantage dari kondisi)" : " (advantage dan disadvantage saling batal)";
-        }
-        expression = damage
-          ? request.critical === true
-            ? damage.replace(/^(\d+)d/, (_, n) => `${Number(n) * 2}d`)
-            : damage
-          : `${rollMode === "normal" ? 1 : 2}d20${bonus! >= 0 ? "+" : ""}${bonus}`;
-        if (damage) rollMode = "normal";
-        characterName = character.sheet.name;
+          let bonus: number | undefined;
+          if (request.kind === "skill")
+            bonus = character.sheet.skills.find(
+              (s) => s.id === request.key,
+            )?.bonus;
+          if (request.kind === "save")
+            bonus = character.sheet.saves.find(
+              (s) => s.id === request.key,
+            )?.bonus;
+          if (
+            request.kind === "ability" &&
+            ["str", "dex", "con", "int", "wis", "cha"].includes(
+              String(request.key),
+            )
+          )
+            bonus =
+              character.sheet.modifiers[
+                request.key as keyof typeof character.sheet.modifiers
+              ];
+          if (request.kind === "attack")
+            bonus = character.sheet.attacks.find(
+              (s) => s.id === request.key,
+            )?.bonus;
+          if (request.kind === "initiative") bonus = character.sheet.initiative;
+          if (request.kind === "initiative") {
+            const scene = sceneFor(
+              room,
+              socket.data.isDM,
+              socket.data.playerId,
+            );
+            if (
+              !scene.tokens.some(
+                (token) =>
+                  token.characterId === character.id &&
+                  (socket.data.isDM || token.ownerId === socket.data.playerId),
+              )
+            ) {
+              if (typeof reply === "function")
+                reply({
+                  error:
+                    "Hubungkan karakter ke token pada scene aktif sebelum roll initiative.",
+                });
+              return;
+            }
+            initiativeCharacter = {
+              id: character.id,
+              ownerId: socket.data.playerId,
+              sceneId: scene.id,
+            };
+          }
+          if (request.kind === "spell") bonus = character.sheet.spellAttack;
+          const damage =
+            request.kind === "damage"
+              ? character.sheet.attacks.find((s) => s.id === request.key)
+                  ?.damage
+              : undefined;
+          if (
+            (typeof bonus !== "number" || !Number.isFinite(bonus)) &&
+            !damage
+          ) {
+            if (typeof reply === "function")
+              reply({ error: "Roll tidak tersedia." });
+            return;
+          }
+          if (damage && /^\d+$/.test(damage)) {
+            room.messages.push({
+              id: randomUUID(),
+              name: character.sheet.name,
+              text: `Unarmed Strike: ${damage} damage tetap (tanpa die).`,
+              time: Date.now(),
+              kind: "roll",
+            });
+            room.messages = room.messages.slice(-100);
+            save();
+            broadcast(room);
+            if (typeof reply === "function") reply({ ok: true });
+            return;
+          }
+          rollMode =
+            request.mode === "advantage" || request.mode === "disadvantage"
+              ? request.mode
+              : "normal";
+          // Poisoned/Blinded/Restrained: disadvantage on attacks and ability checks. Advantage and disadvantage cancel.
+          const penalized =
+            character.conditions?.some((c) =>
+              ["Poisoned", "Blinded", "Restrained"].includes(c),
+            ) &&
+            ["attack", "spell", "ability", "skill"].includes(
+              String(request.kind),
+            );
+          if (penalized && !damage) {
+            rollMode = rollMode === "advantage" ? "normal" : "disadvantage";
+            conditionNote =
+              rollMode === "disadvantage"
+                ? " (disadvantage dari kondisi)"
+                : " (advantage dan disadvantage saling batal)";
+          }
+          expression = damage
+            ? request.critical === true
+              ? damage.replace(/^(\d+)d/, (_, n) => `${Number(n) * 2}d`)
+              : damage
+            : `${rollMode === "normal" ? 1 : 2}d20${bonus! >= 0 ? "+" : ""}${bonus}`;
+          if (damage) rollMode = "normal";
+          characterName = character.sheet.name;
         }
       }
       if (!room || typeof expression !== "string" || expression.length > 64)
         return;
-      if (expression === 'coin') {
+      if (expression === "coin") {
         if (!admitted(`roll:${socket.id}`, 20)) {
-          if (typeof reply === 'function') reply({ error: 'Tunggu sebentar sebelum lempar lagi.' });
+          if (typeof reply === "function")
+            reply({ error: "Tunggu sebentar sebelum lempar lagi." });
           return;
         }
-        const result = { id: randomUUID(), name: room.members[socket.data.playerId]?.name || 'Pemain', face: randomInt(2) === 0 ? 'Angka' : 'Gambar' };
-        io.to(room.id).emit('coin:animation', result);
-        room.messages.push({ id: result.id, name: result.name, text: `Koin flip → ${result.face}`, time: Date.now(), kind: 'roll' });
+        const result = {
+          id: randomUUID(),
+          name: room.members[socket.data.playerId]?.name || "Pemain",
+          face: randomInt(2) === 0 ? "Angka" : "Gambar",
+        };
+        io.to(room.id).emit("coin:animation", result);
+        room.messages.push({
+          id: result.id,
+          name: result.name,
+          text: `Koin flip → ${result.face}`,
+          time: Date.now(),
+          kind: "roll",
+        });
         room.messages = room.messages.slice(-100);
         save();
         broadcast(room);
-        if (typeof reply === 'function') reply({ ok: true });
+        if (typeof reply === "function") reply({ ok: true });
         return;
       }
       const match = expression
@@ -1572,7 +2513,11 @@ io.on("connection", (socket) => {
       const count = Number(match[1]);
       if (count < 1 || count > 20) return;
       const caller = socket.id;
-      if (pendingCallers.has(caller) || jobs.length >= 8 || !admitted(`roll:${caller}`, 20)) {
+      if (
+        pendingCallers.has(caller) ||
+        jobs.length >= 8 ||
+        !admitted(`roll:${caller}`, 20)
+      ) {
         if (typeof reply === "function")
           reply({ error: "Tunggu sebentar sebelum lempar lagi." });
         return;
@@ -1598,7 +2543,7 @@ io.on("connection", (socket) => {
             : Math.min(...simulation.values)) + modifier;
       if (!socket.connected || socket.data.roomId !== room.id) return;
       if (initiativeCharacter) {
-        const scene = sceneFor(room, socket.data.isDM);
+        const scene = sceneFor(room, socket.data.isDM, socket.data.playerId);
         const character = room.characters?.find(
           (c) => c.id === initiativeCharacter!.id,
         );
@@ -1635,8 +2580,16 @@ io.on("connection", (socket) => {
       const id = randomUUID();
       const name =
         characterName || room.members[socket.data.playerId]?.name || "Pemain";
-      const colors = [0xe07a5f, 0x4d96ff, 0x6bcB77, 0xc77dff, 0xffc857, 0xf28482];
-      const color = colors[[...socket.data.playerId].reduce((sum, char) => sum + char.charCodeAt(0), 0) % colors.length];
+      const colors = [
+        0xe07a5f, 0x4d96ff, 0x6bcb77, 0xc77dff, 0xffc857, 0xf28482,
+      ];
+      const color =
+        colors[
+          [...socket.data.playerId].reduce(
+            (sum, char) => sum + char.charCodeAt(0),
+            0,
+          ) % colors.length
+        ];
       const text = `${rollMode === "normal" ? "" : rollMode + ": "}${count}d${sides}${modifier ? (modifier > 0 ? "+" : "") + modifier : ""} → [${roll.values.join(", ")}]${modifier ? ` ${modifier > 0 ? "+" : "−"} ${Math.abs(modifier)}` : ""} = ${roll.total}${conditionNote}`;
       io.to(room.id).emit("dice:animation", {
         id,
@@ -1662,7 +2615,29 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     const room = rooms[socket.data.roomId];
-    if (room) broadcast(room);
+    if (!room) return;
+    // Identitas yang keluar sementara orang bernama sama masih online (misalnya tab lama ditutup):
+    // gabungkan ke identitas yang masih online supaya tidak tertinggal sebagai anggota ganda.
+    const id = socket.data.playerId as string | undefined;
+    const leaving = id ? room.members[id] : undefined;
+    const peers = [...io.sockets.sockets.values()].filter(
+      (peer) => peer.id !== socket.id && peer.data.roomId === room.id,
+    );
+    if (id && leaving && !peers.some((peer) => peer.data.playerId === id)) {
+      const twin = peers
+        .map((peer) => peer.data.playerId as string)
+        .find(
+          (other) =>
+            other !== id &&
+            room.members[other] &&
+            sameName(room.members[other].name, leaving.name),
+        );
+      if (twin) {
+        mergeMembers(room, twin, [id]);
+        save();
+      }
+    }
+    broadcast(room);
   });
 });
 
@@ -1686,7 +2661,10 @@ const uploadOptions: multer.Options = {
   },
 };
 const mapUpload = multer(uploadOptions);
-const tokenUpload = multer({ ...uploadOptions, limits: { fileSize: 10 * 1024 * 1024 } });
+const tokenUpload = multer({
+  ...uploadOptions,
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 app.post("/api/hero-lobby/reset", (_req, res) => {
   delete rooms.AGEOFHEROES;
   save();
@@ -1699,24 +2677,55 @@ app.post("/api/hero-lobby", async (_req, res) => {
     return;
   }
   try {
-    const portraits = (await readdir(tokenScreenDir)).filter(file => /\.(png|jpe?g|webp|gif)$/i.test(file)).sort().slice(0, 4);
+    const portraits = (await readdir(tokenScreenDir))
+      .filter((file) => /\.(png|jpe?g|webp|gif)$/i.test(file))
+      .sort()
+      .slice(0, 4);
     if (portraits.length !== 4) throw new Error();
     const dmKey = randomBytes(24).toString("hex");
-    rooms[id] = { id, title: "The Age of Heroes", dmKey, map: null, members: {}, tokens: [], messages: [], portraits: portraits.map(file => `/token_screen/${encodeURIComponent(file)}`) };
+    rooms[id] = {
+      id,
+      title: "The Age of Heroes",
+      dmKey,
+      map: null,
+      members: {},
+      tokens: [],
+      messages: [],
+      portraits: portraits.map(
+        (file) => `/token_screen/${encodeURIComponent(file)}`,
+      ),
+    };
     save();
-    res.json({ id, dmKey, title: rooms[id].title, portraits: rooms[id].portraits });
+    res.json({
+      id,
+      dmKey,
+      title: rooms[id].title,
+      portraits: rooms[id].portraits,
+    });
   } catch {
-    res.status(500).json({ error: "Folder token_screen harus berisi empat gambar." });
+    res
+      .status(500)
+      .json({ error: "Folder token_screen harus berisi empat gambar." });
   }
 });
 
 const audioUpload = multer({
   storage: multer.diskStorage({
     destination: uploadDir,
-    filename: (_req, file, cb) => cb(null, `${randomUUID()}${({ "audio/mpeg": ".mp3", "audio/ogg": ".ogg", "audio/wav": ".wav", "audio/x-wav": ".wav" } as Record<string, string>)[file.mimetype] || ".bin"}`),
+    filename: (_req, file, cb) =>
+      cb(
+        null,
+        `${randomUUID()}${({ "audio/mpeg": ".mp3", "audio/ogg": ".ogg", "audio/wav": ".wav", "audio/x-wav": ".wav" } as Record<string, string>)[file.mimetype] || ".bin"}`,
+      ),
   }),
   limits: { fileSize: 15 * 1024 * 1024 },
-  fileFilter: (_req, file, cb) => cb(null, ["audio/mpeg", "audio/ogg", "audio/wav", "audio/x-wav"].includes(file.mimetype)),
+  fileFilter: (_req, file, cb) =>
+    cb(
+      null,
+      ["audio/mpeg", "audio/ogg", "audio/wav", "audio/x-wav"].includes(
+        file.mimetype,
+      ),
+    ),
 });
 app.post(
   "/api/rooms/:id/audio",
@@ -1724,10 +2733,22 @@ app.post(
     const room = rooms[req.params.id.toUpperCase()];
     const player = clean(req.headers["x-player-id"], 100);
     const secret = req.headers["x-player-secret"];
-    const member = room && Object.hasOwn(room.members, player) ? room.members[player] : undefined;
-    const dm = !!member && typeof secret === "string" && member.secret === secret && (member.name.toLowerCase() === "dm" || req.headers["x-dm-key"] === room.dmKey);
+    const member =
+      room && Object.hasOwn(room.members, player)
+        ? room.members[player]
+        : undefined;
+    const dm =
+      !!member &&
+      typeof secret === "string" &&
+      member.secret === secret &&
+      (member.name.toLowerCase() === "dm" ||
+        req.headers["x-dm-key"] === room.dmKey);
     if (!dm || !admitted(`upload:${player}`, 12)) {
-      res.status(dm ? 429 : 403).json({ error: dm ? "Terlalu banyak upload. Tunggu satu menit." : "Hanya DM bisa mengunggah audio." });
+      res.status(dm ? 429 : 403).json({
+        error: dm
+          ? "Terlalu banyak upload. Tunggu satu menit."
+          : "Hanya DM bisa mengunggah audio.",
+      });
       return;
     }
     next();
@@ -1737,10 +2758,15 @@ app.post(
     const room = rooms[req.params.id.toUpperCase()];
     if (!room || !req.file) {
       if (req.file) unlinkSync(req.file.path);
-      res.status(400).json({ error: "Gunakan file MP3, OGG, atau WAV (maks 15 MB)." });
+      res
+        .status(400)
+        .json({ error: "Gunakan file MP3, OGG, atau WAV (maks 15 MB)." });
       return;
     }
-    room.ambience = { url: `/uploads/${req.file.filename}`, name: clean(req.body?.name, 60) || req.file.originalname.slice(0, 60) };
+    room.ambience = {
+      url: `/uploads/${req.file.filename}`,
+      name: clean(req.body?.name, 60) || req.file.originalname.slice(0, 60),
+    };
     save();
     broadcast(room);
     res.json({ ok: true });
@@ -1761,8 +2787,10 @@ app.post(
       typeof secret !== "string" ||
       !secret ||
       room.members[player].secret !== secret ||
-      !["map", "token", "handout", "puzzle"].includes(kind) ||
-      (kind !== "token" && room.members[player].name.toLowerCase() !== "dm" && req.headers["x-dm-key"] !== room.dmKey)
+      !["map", "token", "handout", "puzzle", "prop"].includes(kind) ||
+      (kind !== "token" &&
+        room.members[player].name.toLowerCase() !== "dm" &&
+        req.headers["x-dm-key"] !== room.dmKey)
     ) {
       res.status(403).json({ error: "Upload ditolak." });
       return;
@@ -1788,28 +2816,34 @@ app.post(
     res.once("close", release);
     next();
   },
-  (req, res, next) => (req.params.kind === "token" ? tokenUpload : mapUpload).single("image")(req, res, next),
+  (req, res, next) =>
+    (req.params.kind === "token" ? tokenUpload : mapUpload).single("image")(
+      req,
+      res,
+      next,
+    ),
   (req, res) => {
     const room = rooms[req.params.id.toUpperCase()];
     const kind = req.params.kind;
     const playerId = clean(req.headers["x-player-id"], 100);
     const playerSecret = clean(req.headers["x-player-secret"], 100);
     const authorized = room && room.members[playerId]?.secret === playerSecret;
-    const dm = authorized && (room.members[playerId].name.toLowerCase() === "dm" || req.headers["x-dm-key"] === room.dmKey);
+    const dm =
+      authorized &&
+      (room.members[playerId].name.toLowerCase() === "dm" ||
+        req.headers["x-dm-key"] === room.dmKey);
     if (
       !room ||
       !authorized ||
-      !["map", "token", "handout", "puzzle"].includes(kind) ||
+      !["map", "token", "handout", "puzzle", "prop"].includes(kind) ||
       (kind !== "token" && !dm) ||
       !req.file
     ) {
       if (req.file) unlinkSync(req.file.path);
-      res
-        .status(403)
-        .json({
-          error:
-            "Upload ditolak. Periksa akses dan format gambar (PNG, JPG, WebP, GIF).",
-        });
+      res.status(403).json({
+        error:
+          "Upload ditolak. Periksa akses dan format gambar (PNG, JPG, WebP, GIF).",
+      });
       return;
     }
     const url = `/uploads/${req.file.filename}`;
@@ -1818,13 +2852,31 @@ app.post(
       res.json({ ok: true, url });
       return;
     }
-    const scene = sceneFor(room, dm);
-    if (kind === "token" && scene.tokens.length >= 100) {
+    const scene = sceneFor(room, dm, playerId);
+    if (
+      ((kind === "token" && req.body.place !== "0") || kind === "prop") &&
+      scene.tokens.length >= 100
+    ) {
       unlinkSync(req.file.path);
       res.status(429).json({ error: "Maksimal 100 token per scene." });
       return;
     }
-    if (kind === "handout") {
+    if (kind === "prop") {
+      // Gambar bebas di peta (bukan token): persegi panjang sesuai rasio gambar, DM yang menaruh.
+      const aspect = Number(req.body.aspect);
+      const columns = scene.grid.columns || 20;
+      scene.tokens.push({
+        id: randomUUID(),
+        name: clean(req.body.name, 32) || "Gambar",
+        image: url,
+        x: 50,
+        y: 50,
+        ownerId: playerId,
+        prop: true,
+        aspect: Number.isFinite(aspect) ? Math.round(Math.max(0.05, Math.min(20, aspect)) * 1000) / 1000 : 1,
+        size: Math.max(1, Math.round(columns * 0.3 * 4) / 4),
+      });
+    } else if (kind === "handout") {
       // Handout: shown to everyone immediately, not added to the scene or tokens.
       room.shownImage = url;
     } else if (kind === "map") {
@@ -1837,6 +2889,7 @@ app.post(
           (r) =>
             r.map === previous ||
             r.tokens.some((t) => t.image === previous) ||
+            r.library?.some((item) => item.image === previous) ||
             r.scenes?.some(
               (s) =>
                 s.map === previous ||
@@ -1852,21 +2905,29 @@ app.post(
       const linked = room.characters?.find(
         (c) => c.id === req.body.characterId && c.ownerId === playerId,
       );
-      scene.tokens.push({
-        id: randomUUID(),
+      // Setiap token yang diunggah ikut tersimpan di Gudang Token pemiliknya.
+      addToLibrary(room, {
         name: clean(req.body.name, 32) || "Token",
         image: url,
-        x: 50,
-        y: 50,
         ownerId: playerId,
-        size: 1,
-        ...(linked && {
-          characterId: linked.id,
-          hp: linked.hp,
-          maxHp: linked.sheet.hp,
-          conditions: linked.conditions,
-        }),
       });
+      // place=0: hanya simpan ke Gudang, tidak langsung ditaruh di peta.
+      if (req.body.place !== "0")
+        scene.tokens.push({
+          id: randomUUID(),
+          name: clean(req.body.name, 32) || "Token",
+          image: url,
+          x: 50,
+          y: 50,
+          ownerId: playerId,
+          size: 1,
+          ...(linked && {
+            characterId: linked.id,
+            hp: linked.hp,
+            maxHp: linked.sheet.hp,
+            conditions: linked.conditions,
+          }),
+        });
     }
     room.tokens = scene.tokens;
     save();
@@ -1882,14 +2943,12 @@ app.use(
     res: express.Response,
     _next: express.NextFunction,
   ) => {
-    res
-      .status(error instanceof multer.MulterError ? 413 : 500)
-      .json({
-        error:
-          error instanceof multer.MulterError
-            ? "Gambar token maksimal 10 MB."
-            : "Terjadi kesalahan server.",
-      });
+    res.status(error instanceof multer.MulterError ? 413 : 500).json({
+      error:
+        error instanceof multer.MulterError
+          ? "Gambar token maksimal 10 MB."
+          : "Terjadi kesalahan server.",
+    });
   },
 );
 

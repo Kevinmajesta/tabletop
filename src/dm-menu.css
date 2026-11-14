@@ -77,3 +77,7 @@
 .board-tools-body .combat-list li > span { flex: 1; text-align: left; }
 .board-tab-combat .combat-list li.current-turn { background: #d7b77e; color: #171d1b; }
 .board-tab-combat .combat-list li.current-turn:before { color: #171d1b; }
+.board-tools-body .dm-file-button { position: relative; display: flex; align-items: center; justify-content: center; min-height: 36px; padding: 8px 12px; border: 1px solid #6e644f; border-radius: 6px; background: #2a2b29; color: #e2c397; font-size: 12px; font-weight: 700; cursor: pointer; }
+.board-tools-body .dm-file-button:hover { background: #3d382f; }
+.board-tools-body .dm-file-button:focus-within { outline: 2px solid #d6ae70; outline-offset: 2px; }
+.board-tools-body .dm-file-button input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }

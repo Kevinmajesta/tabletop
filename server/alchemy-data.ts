@@ -55,14 +55,15 @@ export const elements: Element[] = names.map(([symbol, name], i) => {
 });
 
 export type SealInfo = { title: string; intro: string; clues: string[]; slots: number };
+// Jawaban tiap segel sengaja tidak membentuk kata, supaya segel berikutnya tidak bisa ditebak dari pola.
 export const sealInfo: SealInfo[] = [
   {
     title: 'Segel Pertama · Tiga Teka-teki',
     intro: 'Tiga unsur terkunci di segel ini. Temukan ketiganya, lalu susun dari nomor atom terkecil ke terbesar.',
     clues: [
       'Satu-satunya nonlogam padat di periode 2.',
-      'Gas mulia yang berada tepat di bawah tetangga kanan fluorin.',
-      'Halogen padat yang simbolnya hanya satu huruf.',
+      'Logam alkali tanah yang berada tepat di bawah magnesium.',
+      'Satu-satunya logam yang berwujud cair.',
     ],
     slots: 3,
   },
@@ -70,8 +71,8 @@ export const sealInfo: SealInfo[] = [
     title: 'Segel Kedua · Jejak Bersyarat',
     intro: 'Setiap baris memberi titik awal dan cara bergerak di tabel. Unsur tempat kalian berhenti adalah jawaban baris itu. Susun jawaban sesuai urutan baris.',
     clues: [
-      'Mulai dari logam alkali di periode 5. Naiklah terus, dan berhentilah tepat sebelum kalian menginjak unsur yang bukan logam.',
-      'Mulai dari tetangga kanan natrium. Naik satu kotak, lalu bergeraklah ke kiri sampai tidak bisa bergerak lagi.',
+      'Mulai dari logam alkali di periode 5. Naik dua kotak, lalu geser satu kotak ke kanan.',
+      'Mulai dari besi. Turun satu kotak, lalu bergeraklah ke kanan dan berhentilah di logam pertama yang bukan logam transisi.',
       'Mulai dari nonlogam padat golongan 16 di periode 3. Naiklah sampai menginjak gas, lalu bergeraklah ke kiri sampai menginjak gas berikutnya.',
     ],
     slots: 3,
@@ -84,7 +85,7 @@ export const sealInfo: SealInfo[] = [
       'Unsur yang segolongan dengan besi itu seperiode dengan unsur terakhir di Segel Pertama.',
       'Unsur yang lain segolongan dengan unsur terakhir di Segel Kedua.',
       'Unsur yang lain itu seperiode dengan emas.',
-      'Unsur dengan nomor atom lebih besar diletakkan lebih dulu.',
+      'Unsur dengan nomor atom lebih kecil diletakkan lebih dulu.',
     ],
     slots: 2,
   },

@@ -2,29 +2,28 @@
 // Kunci jawaban tugas sengaja tidak ada di sini (lihat runes.ts) supaya tidak ikut terkirim ke browser pemain.
 //
 // Tata bahasa rahasia (untuk GM): kata kerja selalu di depan. Kalimat biasa: Kerja–Subjek–Objek.
-// Kalimat menyangkal (awalan ᛜ pada kata kerja): Kerja–Objek–Subjek. Akhiran ᛁ = jamak, ᛞ = lampau (telah),
-// ᛊ = kepemilikan (diletakkan pada pemilik, sesudah benda yang dimiliki; jamak dulu baru ᛊ).
+// Kalimat menyangkal diawali kata ᛜᚢ (tidak) dan urutannya terbalik: ᛜᚢ–Kerja–Objek–Subjek. Tidak ada imbuhan.
 
 export type RuneExample = { runes: string; meaning: string };
 // Urutan sengaja diacak supaya pola tidak langsung terlihat.
 export const runeExamples: RuneExample[] = [
-  { runes: 'ᛟᛈᛖᛞ ᚱᚨᚲ ᛒᚨᚱᛁ', meaning: 'Raja telah membuka gerbang-gerbang.' },
+  { runes: 'ᛟᛈᛖ ᚱᚨᚲ ᛒᚨᚱ', meaning: 'Raja membuka gerbang.' },
   { runes: 'ᛊᛚᛖ ᚱᚨᚲ', meaning: 'Raja tidur.' },
-  { runes: 'ᛜᚹᚨᚱ ᛒᚨᚱ ᛞᚹᛖᛁ', meaning: 'Para kurcaci tidak menjaga gerbang.' },
+  { runes: 'ᛜᚢ ᚹᚨᚱ ᛒᚨᚱ ᛞᚹᛖ', meaning: 'Kurcaci tidak menjaga gerbang.' },
   { runes: 'ᚹᚨᚱ ᚦᚢᚱ ᚷᛟᛚ', meaning: 'Naga menjaga harta.' },
-  { runes: 'ᛜᛊᛚᛖ ᚦᚢᚱ', meaning: 'Naga tidak tidur.' },
-  { runes: 'ᛏᚺᚠᛞ ᛞᚹᛖ ᚷᛟᛚ', meaning: 'Kurcaci telah mencuri harta.' },
-  { runes: 'ᛊᛚᛖ ᛞᚹᛖᛁ', meaning: 'Para kurcaci tidur.' },
-  { runes: 'ᛜᛏᚺᚠ ᚷᛟᛚ ᚱᚨᚲ', meaning: 'Raja tidak mencuri harta.' },
-  { runes: 'ᛟᛈᛖ ᚦᚢᚱ ᛒᚨᚱ ᛞᚹᛖᛁᛊ', meaning: 'Naga membuka gerbang para kurcaci.' },
+  { runes: 'ᛜᚢ ᛊᛚᛖ ᚦᚢᚱ', meaning: 'Naga tidak tidur.' },
+  { runes: 'ᛏᚺᚠ ᛞᚹᛖ ᚷᛟᛚ', meaning: 'Kurcaci mencuri harta.' },
+  { runes: 'ᛊᛚᛖ ᛞᚹᛖ', meaning: 'Kurcaci tidur.' },
+  { runes: 'ᛜᚢ ᛏᚺᚠ ᚷᛟᛚ ᚱᚨᚲ', meaning: 'Raja tidak mencuri harta.' },
+  { runes: 'ᛟᛈᛖ ᚦᚢᚱ ᛒᚨᚱ', meaning: 'Naga membuka gerbang.' },
 ];
 
-// Empat pintu, makin dalam makin sulit. Pemain menulis kalimat rune untuk setiap arti.
+// Empat pillar, makin dalam makin sulit. Pemain menulis kalimat rune untuk setiap arti.
 export const runeTasks: string[] = [
-  'Para naga tidur.',
-  'Para raja tidak membuka gerbang.',
-  'Kurcaci telah membuka gerbang-gerbang raja.',
-  'Para naga tidak menjaga harta para kurcaci.',
+  'Naga tidur.',
+  'Raja menjaga harta.',
+  'Kurcaci menjaga raja.',
+  'Raja tidak menjaga kurcaci.',
 ];
 
 // Papan rune: semua huruf yang dipakai bahasa ini, ditambah beberapa pengecoh.

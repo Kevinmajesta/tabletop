@@ -1,0 +1,50 @@
+/* Panel lempar dadu: tenang dan ringkas. Rumus lemparan di atas, satu baris dadu tipis,
+   stepper jumlah & modifier berdampingan, mode d20 bergaris bawah. Tanpa kotak-kotak tebal. */
+.app-shell .tabletop-popover.dice-panel {
+  width: 356px; padding: 0; border-radius: 12px;
+  background: linear-gradient(180deg, #1a1511f7, #120f0cf7);
+  border: 1px solid #3f3424;
+  box-shadow: 0 18px 44px #000a;
+}
+.dice-panel .dp-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 16px 16px 12px; }
+.dice-panel .dp-kicker { display: block; font-size: 10px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: #8f8168; }
+.dice-panel .dp-formula { display: block; margin-top: 2px; font-family: Georgia, "Times New Roman", serif; font-size: 30px; font-weight: 400; line-height: 1.1; color: #f3e6c4; font-variant-numeric: lining-nums tabular-nums; }
+.app-shell .dice-panel .dp-close { width: 28px; height: 28px; min-width: 0; min-height: 0; display: grid; place-items: center; padding: 0; border: 0; border-radius: 6px; background: none; color: #8f8168; }
+.app-shell .dice-panel .dp-close:hover { background: #ffffff0d; color: #ece2cc; }
+
+.dice-panel .dp-dice { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; padding: 4px 10px 12px; border-bottom: 1px solid #2c251a; }
+.app-shell .dice-panel .dp-die {
+  min-width: 0; min-height: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 0 6px;
+  border: 0; border-radius: 8px; background: none; color: #b5a689; cursor: pointer; transition: background .12s ease, color .12s ease;
+}
+.dice-panel .dp-die .die-icon { width: 24px; height: 24px; }
+.dice-panel .dp-die span { font-size: 11px; font-weight: 600; letter-spacing: .02em; }
+.app-shell .dice-panel .dp-die:hover:not(:disabled), .app-shell .dice-panel .dp-die:focus-visible { background: #cfa95f14; color: #f3e6c4; }
+.app-shell .dice-panel .dp-die:disabled { opacity: .4; cursor: default; }
+
+.dice-panel .dp-steppers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px 16px; border-bottom: 1px solid #2c251a; }
+.dice-panel .dp-stepper > span, .dice-panel .dp-mode > span { display: block; margin-bottom: 6px; font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #8f8168; }
+.dice-panel .dp-stepper > div { display: grid; grid-template-columns: 30px 1fr 30px; align-items: center; height: 34px; border: 1px solid #3a3124; border-radius: 8px; overflow: hidden; }
+.app-shell .dice-panel .dp-stepper button { width: 30px; height: 32px; min-width: 0; min-height: 0; display: grid; place-items: center; padding: 0; border: 0; border-radius: 0; background: none; color: #cfa95f; }
+.app-shell .dice-panel .dp-stepper button:hover:not(:disabled) { background: #ffffff0a; }
+.app-shell .dice-panel .dp-stepper button:disabled { color: #4d4333; }
+.dice-panel .dp-stepper output, .app-shell .dice-panel .dp-stepper input {
+  width: 100%; min-height: 0; height: 32px; margin: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none;
+  color: #ece2cc; font-size: 15px; font-weight: 600; text-align: center; line-height: 32px; font-variant-numeric: tabular-nums; -moz-appearance: textfield;
+}
+.dice-panel .dp-stepper input::-webkit-outer-spin-button, .dice-panel .dp-stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+.dice-panel .dp-mode { padding: 12px 16px 4px; }
+.dice-panel .dp-mode > div { display: flex; gap: 16px; }
+.app-shell .dice-panel .dp-mode button {
+  min-width: 0; min-height: 0; padding: 4px 0 6px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none;
+  color: #8f8168; font-size: 13px; font-weight: 600;
+}
+.app-shell .dice-panel .dp-mode button:hover:not(:disabled) { color: #ece2cc; }
+.app-shell .dice-panel .dp-mode button[aria-checked="true"] { border-bottom-color: #cfa95f; color: #f3e6c4; }
+.app-shell .dice-panel .dp-mode button:disabled { opacity: .35; cursor: default; }
+.dice-panel .dp-mode small { display: block; margin-top: 4px; font-size: 11px; color: #a99c84; }
+
+.app-shell .dice-panel .dp-anim { display: flex; align-items: center; gap: 8px; width: auto; margin: 0; padding: 10px 16px 14px; font-size: 12px; color: #8f8168; cursor: pointer; }
+.dice-panel .dp-anim input { width: 14px; height: 14px; margin: 0; accent-color: #cfa95f; }
+.dice-panel .dp-error { margin: 0; padding: 0 16px 14px; font-size: 12px; color: #f0a596; }

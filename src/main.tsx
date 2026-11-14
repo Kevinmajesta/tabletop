@@ -7,6 +7,7 @@ import {
   ArrowRight,
   BookOpen,
   Check,
+  Coffee,
   Compass,
   Crown,
   Dice5,
@@ -15,11 +16,14 @@ import {
   Hand,
   ImagePlus,
   Link2,
+  LogIn,
   MessageCircle,
   Minus,
   MousePointer2,
+  Package,
   Plus,
   RotateCcw,
+  RotateCw,
   Send,
   Shield,
   Sparkles,
@@ -34,14 +38,17 @@ import "./tabletop.css";
 import "./characters.css";
 import "./theme.css";
 import "./start-templates/template-3.css"; // ganti ke template-1.css / template-2.css untuk tampilan lain
-import CoinFlip, { type CoinResult } from './CoinFlip';
 import DieIcon from "./DieIcon";
 import RollCard from "./RollCard";
 import RuleSearch from "./RuleSearch";
-import RestScreen, { RestControl, type RestState } from "./RestScreen";
+import TokenLibrary, { LIBRARY_DRAG, type LibraryItem } from "./TokenLibrary";
+import { RestControl, RestOverlay, type RestState } from "./RestScreen";
 import "./table-polish.css";
 import "./weather.css";
 import "./table-motion.css";
+import "./dice-panel.css";
+import "./chat-macros.css";
+import "./split-party.css";
 const AnimatedDiceScene = lazy(() => import("./DiceScene"));
 const NaturalRollEffect = lazy(() => import("./NaturalRollEffect"));
 const BoardTools = lazy(() => import("./BoardTools"));
@@ -62,7 +69,7 @@ function DiceScene(props: { roll: DiceRoll; onComplete: () => void; zoom?: numbe
 import type { Game } from '../server/minigames';
 import { gameCatalog } from '../server/game-catalog';
 import type { Character } from "../server/characters";
-import { blocksMovement, distance, type BoardToken, type Scene } from "../server/tabletop";
+import { blocksMovement, distance, PROP_MIN, PROP_MAX, type BoardToken, type Scene } from "../server/tabletop";
 import type { DiceRoll } from "../server/dice-physics";
 import { randomId } from "./random-id";
 
@@ -81,7 +88,7 @@ type Message = {
   name: string;
   text: string;
   time: number;
-  kind: "chat" | "roll" | "system";
+  kind: "chat" | "roll" | "system" | "status";
   roll?: { sides: number; modifier: number; values: number[]; total: number };
 };
 type Room = {
@@ -93,12 +100,14 @@ type Room = {
   scenes?: Scene[];
   activeSceneId?: string;
   publishedSceneId?: string;
+  playerScenes?: Record<string, string>;
   shownImage?: string | null;
   ambience?: { url: string; name: string } | null;
   rest?: RestState | null;
+  library?: LibraryItem[];
   characters?: Character[];
   minigames?: Game[];
-  members: { id: string; name: string; online: boolean; dm: boolean }[];
+  members: { id: string; name: string; online: boolean; dm: boolean; status?: "afk" | "hand" }[];
 };
 type Identity = {
   name: string;
@@ -135,6 +144,11 @@ function App() {
   const [busy, setBusy] = useState(false);
   const [chat, setChat] = useState("");
   const [selected, setSelected] = useState<string | null>(null);
+  // Seleksi grup: Ctrl+klik token atau Shift+seret kotak di peta. Seret salah satu anggota memindahkan semuanya.
+  const [group, setGroup] = useState<string[]>([]);
+  const [box, setBox] = useState<{ pointerId: number; x0: number; y0: number; x1: number; y1: number; add: boolean } | null>(null);
+  const groupDrag = useRef<{ lead: { x: number; y: number }; prop: boolean; members: { id: string; x: number; y: number; prop: boolean }[] } | null>(null);
+  const groupPositions = useRef<{ id: string; x: number; y: number }[] | null>(null);
   const [openMinigame, setOpenMinigame] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [sidebar, setSidebar] = useState<"chat" | "players">("chat");
@@ -156,7 +170,6 @@ function App() {
     localStorage.setItem("meja-audio-muted", audioMuted ? "1" : "0");
     localStorage.setItem("meja-audio-volume", String(audioVolume));
   }, [room?.ambience?.url, audioMuted, audioVolume]);
-  const [gridVisible, setGridVisible] = useState(true);
   const [zoom, setZoom] = useState(1);
   const zoomRef = useRef(zoom);
   zoomRef.current = zoom;
@@ -166,6 +179,8 @@ function App() {
   const [uploading, setUploading] = useState(false);
   const [diceOpen, setDiceOpen] = useState(false);
   const [rulesOpen, setRulesOpen] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(false);
+  const [libraryDrop, setLibraryDrop] = useState(false);
   useEffect(() => {
     if (diceOpen && window.innerWidth <= 900) setPanelOpen(false);
   }, [diceOpen]);
@@ -188,6 +203,8 @@ function App() {
   );
   const [modifier, setModifier] = useState(0);
   const [rollMode, setRollMode] = useState<"normal" | "advantage" | "disadvantage">("normal");
+  const [diceCount, setDiceCount] = useState(1);
+  const [diceHover, setDiceHover] = useState<number | null>(null);
   type DiceAnimation = {
     id: string;
     name: string;
@@ -199,13 +216,13 @@ function App() {
   };
   const [diceAnimations, setDiceAnimations] = useState<DiceAnimation[]>([]);
   const [pendingRollIds, setPendingRollIds] = useState<string[]>([]);
-  const [coinAnimations, setCoinAnimations] = useState<CoinResult[]>([]);
   const [rolling, setRolling] = useState(false);
   const [rollError, setRollError] = useState("");
   const socketRef = useRef<Socket | null>(null);
   const mapInput = useRef<HTMLInputElement>(null);
   const tokenInput = useRef<HTMLInputElement>(null);
   const handoutInput = useRef<HTMLInputElement>(null);
+  const propInput = useRef<HTMLInputElement>(null);
   const audioInput = useRef<HTMLInputElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
@@ -283,6 +300,14 @@ function App() {
     }
   }
   const activeScene = room?.scenes?.find((s) => s.id === room.activeSceneId);
+  // Garis grid diatur DM per scene dan berlaku untuk semua pemain.
+  const gridVisible = !activeScene?.gridHidden;
+  function toggleGrid() {
+    if (!isDM || !activeScene) return;
+    socketRef.current?.emit("tabletop:action", { type: "scene:settings", sceneId: activeScene.id, gridHidden: gridVisible });
+  }
+  const toggleGridRef = useRef(toggleGrid);
+  toggleGridRef.current = toggleGrid;
 
   const combatants = activeScene?.combat.active
     ? activeScene.combat.ids.map((id) => activeScene.tokens.find((token) => token.id === id)).filter((token): token is Token => !!token)
@@ -301,8 +326,40 @@ function App() {
   const columns = activeScene?.grid.columns ?? 20;
   const selectedToken = room?.tokens.find((token) => token.id === selected);
   const canEditSelected = selectedToken && (isDM || selectedToken.ownerId === identity?.playerId);
+  const arrowMoveRef = useRef<(dx: number, dy: number) => boolean>(() => false);
+  useEffect(() => {
+    const onArrow = (event: KeyboardEvent) => {
+      const dir = ({ ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] } as Record<string, [number, number]>)[event.key];
+      if (!dir || event.ctrlKey || event.metaKey || event.altKey) return;
+      if ((event.target as HTMLElement)?.closest("input,textarea,select,[contenteditable],[role=dialog],dialog")) return;
+      if (document.querySelector("dialog[open]")) return;
+      if (arrowMoveRef.current(dir[0], dir[1])) event.preventDefault();
+    };
+    window.addEventListener("keydown", onArrow);
+    return () => window.removeEventListener("keydown", onArrow);
+  }, []);
+  // Q/E memutar token terpilih 15° (hanya token yang boleh diubah).
+  const rotateHotkeyRef = useRef((_step: number) => {});
+  rotateHotkeyRef.current = (step: number) => {
+    if (!canEditSelected || !selectedToken || selectedToken.minigame) return;
+    turnToken(selectedToken.id, (selectedToken.rotation ?? 0) + step, true);
+  };
+  // Esc menutup panel token (Dead/ukuran) dengan melepas pilihan, kecuali saat sedang mengetik.
+  useEffect(() => {
+    if (!selected && !group.length) return;
+    const close = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (e.key !== "Escape" || el?.closest("input, textarea, select, [contenteditable=true], [role=dialog]")) return;
+      setSelected(null);
+      setGroup([]);
+    };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [selected, group.length]);
   useEffect(() => {
     setSelected(null);
+    setGroup([]);
+    groupDrag.current = null;
     setPan({ x: 0, y: 0 });
     setMovement(null);
     dragging.current = null;
@@ -324,8 +381,9 @@ function App() {
       const key = event.key.toLowerCase();
       if (key === "v") setMapTool("select");
       else if (key === "h") setMapTool("pan");
-      else if (key === "g") setGridVisible((value) => !value);
+      else if (key === "g") toggleGridRef.current();
       else if (key === "d") { setDiceOpen((value) => !value); setToolsOpen(false); }
+      else if (key === "q" || key === "e") rotateHotkeyRef.current(key === "e" ? 15 : -15);
     };
     window.addEventListener("keydown", hotkeys);
     return () => window.removeEventListener("keydown", hotkeys);
@@ -370,6 +428,14 @@ function App() {
     return () => window.clearTimeout(timer);
   }, [removedNotice]);
   function removeSelectedToken() {
+    if (group.length > 1 && socketRef.current) {
+      const doomed = (room?.tokens || []).filter((t) => group.includes(t.id) && !t.minigame && (isDM || t.ownerId === identity?.playerId));
+      for (const t of doomed) socketRef.current.emit("token:remove", t.id);
+      setSelected(null);
+      setGroup([]);
+      if (doomed.length) setRemovedNotice({ name: doomed.length === 1 ? doomed[0].name : `${doomed.length} token`, at: Date.now() });
+      return;
+    }
     if (!selectedToken || !canEditSelected || !socketRef.current) return;
     socketRef.current.emit("token:remove", selectedToken.id);
     setSelected(null);
@@ -381,6 +447,7 @@ function App() {
       if (event.ctrlKey || event.metaKey || event.altKey) return;
       if ((event.target as HTMLElement)?.closest("input,textarea,select,[contenteditable]")) return;
       if (document.querySelector("dialog[open]")) return;
+      if (group.length > 1) { event.preventDefault(); removeSelectedToken(); return; }
       if (!selectedToken || !canEditSelected) return;
       event.preventDefault();
       if (selectedToken.minigame) { setError("Token minigame dihapus lewat menu Minigame, karena ronde permainannya ikut terhapus."); return; }
@@ -388,7 +455,7 @@ function App() {
     };
     window.addEventListener("keydown", onDelete);
     return () => window.removeEventListener("keydown", onDelete);
-  }, [canEditSelected, selectedToken]);
+  }, [canEditSelected, selectedToken, group, room?.tokens]);
 
   useEffect(() => {
     if (!roomId || !identity) return;
@@ -434,7 +501,6 @@ function App() {
         }
       },
     );
-    socket.on('coin:animation', (result: CoinResult) => setCoinAnimations(current => [...current, result].slice(-4)));
     socket.on("room:state", (next: Room) => {
       setRoom(next);
     });
@@ -444,9 +510,17 @@ function App() {
     socket.on(
       "room:patch",
       ({ id, patch }: { id: string; patch: Partial<Room> }) =>
-        setRoom((current) =>
-          current?.id === id ? { ...current, ...patch } : current,
-        ),
+        setRoom((current) => {
+          if (current?.id !== id) return current;
+          // Server tidak mengirim ulang daftar dinding yang tidak berubah (keepMarks): pakai milik kita.
+          const scenes = patch.scenes?.map((scene) => {
+            const slim = scene as typeof scene & { keepMarks?: boolean };
+            if (!slim.keepMarks) return scene;
+            const { keepMarks: _keep, ...rest } = slim;
+            return { ...rest, marks: current.scenes?.find((s) => s.id === scene.id)?.marks || [] };
+          });
+          return { ...current, ...patch, ...(scenes ? { scenes } : {}) };
+        }),
     );
     socket.on("token:moved", ({ id, x, y }: { id: string; x: number; y: number }) =>
       setRoom((current) =>
@@ -472,7 +546,6 @@ function App() {
       socket.disconnect();
       socketRef.current = null;
       setDiceAnimations([]);
-      setCoinAnimations([]);
       setRolling(false);
       setConnected(false);
     };
@@ -492,16 +565,23 @@ function App() {
     setDiceAnimations((current) => current.filter((animation) => animation.id !== id));
   }
 
-  function throwDice(sides: number | 'coin') {
+  // Rumus lemparan yang ditampilkan dan dikirim, mis. "2d6 + 3". Advantage/disadvantage melempar 2d20.
+  function diceFormula(sides: number) {
+    const count = sides === 20 && diceCount === 1 && rollMode !== "normal" ? 2 : diceCount;
+    return `${count}d${sides}${modifier ? ` ${modifier > 0 ? "+" : "−"} ${Math.abs(modifier)}` : ""}`;
+  }
+
+  function throwDice(sides: number) {
     if (!socketRef.current || rolling) return;
     setDiceOpen(false);
+    setDiceHover(null);
     setRolling(true);
     setRollError("");
     socketRef.current
       .timeout(15000)
       .emit(
         "dice:roll",
-        { expression: sides === 'coin' ? 'coin' : `${rollMode === "normal" || sides !== 20 ? 1 : 2}d${sides}${modifier ? (modifier > 0 ? "+" : "") + modifier : ""}`, mode: sides === 20 ? rollMode : "normal" },
+        { expression: diceFormula(sides).replace(/\s/g, '').replace('−', '-'), mode: sides === 20 && diceCount === 1 ? rollMode : "normal" },
         (error: Error | null, result?: { error?: string }) => {
           setRolling(false);
           if (error || result?.error)
@@ -665,7 +745,7 @@ function App() {
     return result.url;
   }
 
-  async function upload(kind: "map" | "token" | "handout", file?: File, extra?: { name?: string; characterId?: string }) {
+  async function upload(kind: "map" | "token" | "handout", file?: File, extra?: { name?: string; characterId?: string; place?: boolean }) {
     if (!file || !identity) return;
     if (
       !["image/png", "image/jpeg", "image/webp", "image/gif"].includes(
@@ -691,6 +771,8 @@ function App() {
       form.append("image", file);
       if (tokenName) form.append("name", tokenName);
       if (extra?.characterId) form.append("characterId", extra.characterId);
+      // place=false: hanya simpan ke Gudang Token tanpa menaruhnya di peta.
+      if (extra?.place === false) form.append("place", "0");
       const response = await fetch(`/api/rooms/${roomId}/upload/${kind}`, {
         method: "POST",
         headers: {
@@ -712,8 +794,56 @@ function App() {
     }
   }
 
-  function tokenPosition(event: React.PointerEvent) {
+  // Gambar bebas di peta (prop): DM mengunggah, rasio gambar ikut dikirim supaya bentuknya tidak gepeng.
+  async function uploadProp(file?: File) {
+    if (!file || !identity) return;
+    if (!["image/png", "image/jpeg", "image/webp", "image/gif"].includes(file.type)) { setError("Gunakan gambar PNG, JPG, WebP, atau GIF."); return; }
+    setUploading(true);
+    setError("");
+    try {
+      const aspect = await new Promise<number>((resolve) => {
+        const img = new Image(), url = URL.createObjectURL(file);
+        img.onload = () => { resolve(img.naturalWidth && img.naturalHeight ? img.naturalWidth / img.naturalHeight : 1); URL.revokeObjectURL(url); };
+        img.onerror = () => { resolve(1); URL.revokeObjectURL(url); };
+        img.src = url;
+      });
+      const form = new FormData();
+      form.append("image", file);
+      form.append("name", file.name.replace(/.[^.]+$/, "").slice(0, 32));
+      form.append("aspect", String(aspect));
+      const response = await fetch(`/api/rooms/${roomId}/upload/prop`, {
+        method: "POST",
+        headers: { "x-player-id": identity.playerId, "x-player-secret": identity.playerSecret, "x-dm-key": identity.dmKey || "" },
+        body: form,
+      });
+      if (!response.ok) throw new Error((await response.json()).error || "Upload gagal.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload gagal.");
+    } finally {
+      setUploading(false);
+      if (propInput.current) propInput.current.value = "";
+    }
+  }
+
+  // ---------- Gudang Token ----------
+  function libraryCall(event: string, payload: unknown, fallback: string, done?: (result: { id?: string }) => void) {
+    socketRef.current?.timeout(5000).emit(event, payload, (timeout: Error | null, result?: { error?: string; id?: string }) => {
+      if (timeout || result?.error) setError(result?.error || fallback);
+      else done?.(result || {});
+    });
+  }
+  function placeFromLibrary(id: string, at: { x: number; y: number } = { x: 50, y: 50 }) {
+    if (!displayMap) { setError("Pasang peta dulu sebelum menaruh token."); return; }
+    libraryCall("library:place", { id, ...at }, "Token gagal ditaruh di peta.", (result) => { if (result.id) setSelected(result.id); });
+  }
+
+  // free: gambar peta (prop) boleh ditaruh di luar tabel, tanpa snap ke grid.
+  function tokenPosition(event: { clientX: number; clientY: number; altKey: boolean }, free = false) {
     const rect = mapRef.current!.getBoundingClientRect();
+    if (free) {
+      const loose = (v: number) => Math.round(Math.max(PROP_MIN, Math.min(PROP_MAX, v)) * 100) / 100;
+      return { x: loose(((event.clientX - rect.left) / rect.width) * 100), y: loose(((event.clientY - rect.top) / rect.height) * 100) };
+    }
     const cell = rect.width / columns;
     const coordinate = (
       pointer: number,
@@ -743,10 +873,42 @@ function App() {
       ),
     };
   }
+  // Posisi baru setiap anggota grup, dengan pergeseran yang sama seperti token yang diseret.
+  function groupTargets(event: React.PointerEvent) {
+    const drag = groupDrag.current!;
+    const lead = tokenPosition(event, drag.prop);
+    const dx = lead.x - drag.lead.x, dy = lead.y - drag.lead.y;
+    const clamp = (v: number, prop: boolean) => Math.round(Math.max(prop ? PROP_MIN : 0, Math.min(prop ? PROP_MAX : 100, v)) * 100) / 100;
+    const moves = drag.members.map((m) => ({ id: m.id, x: clamp(m.x + dx, m.prop), y: clamp(m.y + dy, m.prop) }));
+    const blocked = !isDM && !!activeScene && moves.some((m) => {
+      const t = room?.tokens.find((item) => item.id === m.id);
+      return !!t && blocksMovement(t, m, activeScene.marks);
+    });
+    return { lead, moves, blocked };
+  }
+  function applyLocalMoves(moves: { id: string; x: number; y: number }[]) {
+    const at = new Map(moves.map((m) => [m.id, m]));
+    const place = (t: Token) => { const m = at.get(t.id); return m ? { ...t, x: m.x, y: m.y } : t; };
+    setRoom((current) => current ? { ...current, tokens: current.tokens.map(place), scenes: current.scenes?.map((scene) => ({ ...scene, tokens: scene.tokens.map(place) })) } : current);
+  }
   function moveToken(event: React.PointerEvent) {
     if (!dragging.current || !mapRef.current) return;
-    const { x, y } = tokenPosition(event);
+    if (groupDrag.current) {
+      const { lead, moves, blocked } = groupTargets(event);
+      if (blocked) return;
+      groupPositions.current = moves;
+      const now = performance.now();
+      if (now - lastTokenMove.current >= 50) {
+        lastTokenMove.current = now;
+        socketRef.current?.emit("token:moveMany", { moves, final: false });
+      }
+      const start = groupDrag.current.lead;
+      setMovement((current) => ({ id: dragging.current!, a: current?.a || start, b: lead }));
+      applyLocalMoves(moves);
+      return;
+    }
     const original = room?.tokens.find((t) => t.id === dragging.current);
+    const { x, y } = tokenPosition(event, !!original?.prop);
     if (!isDM && original && activeScene && blocksMovement(original, { x, y }, activeScene.marks)) return;
     const now = performance.now();
     if (now - lastTokenMove.current >= 50) {
@@ -780,8 +942,15 @@ function App() {
     setMovement(null);
     if (!dragging.current || !mapRef.current) return;
     if (event.type === "pointercancel") {
+      if (groupDrag.current) {
+        const back = groupDrag.current.members.map(({ id, x, y }) => ({ id, x, y }));
+        applyLocalMoves(back);
+        socketRef.current?.emit("token:moveMany", { moves: back, final: true });
+      }
       dragging.current = null;
       tokenDragStart.current = null;
+      groupDrag.current = null;
+      groupPositions.current = null;
       return;
     }
     if (
@@ -791,12 +960,27 @@ function App() {
         event.clientY - tokenDragStart.current.y,
       ) < 3
     ) {
+      // Klik biasa (tanpa seret) pada anggota grup: pilih token itu saja.
+      if (groupDrag.current) { setGroup([]); setSelected(dragging.current); }
       dragging.current = null;
       tokenDragStart.current = null;
+      groupDrag.current = null;
+      groupPositions.current = null;
       return;
     }
-    const destination = tokenPosition(event);
+    if (groupDrag.current) {
+      const { moves, blocked } = groupTargets(event);
+      const final = blocked ? groupPositions.current || groupDrag.current.members.map(({ id, x, y }) => ({ id, x, y })) : moves;
+      applyLocalMoves(final);
+      socketRef.current?.emit("token:moveMany", { moves: final, final: true });
+      dragging.current = null;
+      tokenDragStart.current = null;
+      groupDrag.current = null;
+      groupPositions.current = null;
+      return;
+    }
     const token = room?.tokens.find((item) => item.id === dragging.current);
+    const destination = tokenPosition(event, !!token?.prop);
     const blockedMove = !isDM && token && activeScene && blocksMovement(token, destination, activeScene.marks);
     socketRef.current?.emit("token:move", {
       id: dragging.current,
@@ -805,6 +989,32 @@ function App() {
     });
     dragging.current = null;
     tokenDragStart.current = null;
+  }
+
+  // Putar token: tampilan lokal langsung berubah (termasuk arah cahaya lancip), server dikirimi tiap ~80 ms.
+  const lastTokenTurn = useRef(0);
+  function turnToken(id: string, rotation: number, final: boolean) {
+    const deg = ((Math.round(rotation) % 360) + 360) % 360;
+    setRoom((current) => {
+      if (!current) return current;
+      const turn = (t: Token) => {
+        if (t.id !== id) return t;
+        const delta = deg - (t.rotation ?? 0);
+        return { ...t, rotation: deg, ...(t.lightShape === "cone" ? { lightDir: ((((t.lightDir ?? 0) + delta) % 360) + 360) % 360 } : {}) };
+      };
+      return { ...current, tokens: current.tokens.map(turn), scenes: current.scenes?.map((scene) => ({ ...scene, tokens: scene.tokens.map(turn) })) };
+    });
+    const now = performance.now();
+    if (final || now - lastTokenTurn.current >= 80) {
+      lastTokenTurn.current = now;
+      socketRef.current?.emit("tabletop:action", { type: "token:update", sceneId: activeScene?.id, id, rotation: deg });
+    }
+  }
+  const turningToken = useRef<string | null>(null);
+  function rotationFromPointer(event: React.PointerEvent, tokenEl: HTMLElement, free: boolean) {
+    const box = tokenEl.getBoundingClientRect();
+    const deg = (Math.atan2(event.clientY - (box.top + box.height / 2), event.clientX - (box.left + box.width / 2)) * 180) / Math.PI + 90;
+    return free ? deg : Math.round(deg / 15) * 15;
   }
 
   function changeZoom(next: number, clientX?: number, clientY?: number) {
@@ -853,6 +1063,22 @@ function App() {
     (viewportSize.height || 800) * 0.92 * mapRatio,
   ) * mapScale;
   const canvasHeight = canvasWidth / mapRatio;
+  // Tombol panah: geser token terpilih (atau seluruh grup) satu kotak grid.
+  arrowMoveRef.current = (dx: number, dy: number) => {
+    if (!room || !activeScene || mapTool !== "select" || dragging.current) return false;
+    const ids = group.length > 1 ? group : selected ? [selected] : [];
+    const movers = room.tokens.filter((t) => ids.includes(t.id) && (isDM || (t.ownerId === identity?.playerId && !t.minigame)));
+    if (!movers.length) return false;
+    const stepX = 100 / columns, stepY = (canvasWidth / columns / canvasHeight) * 100;
+    const clamp = (v: number, prop: boolean) => Math.round(Math.max(prop ? PROP_MIN : 0, Math.min(prop ? PROP_MAX : 100, v)) * 10000) / 10000;
+    const moves = movers.map((t) => ({ id: t.id, x: clamp(t.x + dx * stepX, !!t.prop), y: clamp(t.y + dy * stepY, !!t.prop) }));
+    // Pemain tidak bisa menembus dinding atau pintu tertutup; seluruh grup ikut berhenti.
+    if (!isDM && moves.some((m) => blocksMovement(movers.find((t) => t.id === m.id)!, m, activeScene.marks))) return true;
+    applyLocalMoves(moves);
+    if (moves.length === 1) socketRef.current?.emit("token:move", { ...moves[0], final: true });
+    else socketRef.current?.emit("token:moveMany", { moves, final: true });
+    return true;
+  };
 
   if (!roomId || !identity)
     return (
@@ -889,13 +1115,9 @@ function App() {
       <span className="campaign-save-status" role="status">
         {!connected
           ? "Koneksi terputus"
-          : saveStatus === "saving"
-            ? "Menyimpan…"
-            : saveStatus === "saved"
-              ? "Tersimpan"
-              : saveStatus === "error"
-                ? "Gagal menyimpan. Periksa server."
-                : ""}
+          : saveStatus === "error"
+            ? "Gagal menyimpan. Periksa server."
+            : ""}
       </span>
       {isDM && (
         <button
@@ -956,9 +1178,6 @@ function App() {
         </Suspense>
       )}
       </div>
-      {coinAnimations.length > 0 && boardRef.current && createPortal(
-        <div className="coin-animation-layer">{coinAnimations.map(result => <CoinFlip key={result.id} result={result} onComplete={() => setCoinAnimations(current => current.filter(item => item.id !== result.id))} />)}</div>, boardRef.current
-      )}
       {diceAnimations.length > 0 && boardRef.current && createPortal(
         <div className="dice-animation">
           {diceAnimations.map((animation) => (
@@ -1016,14 +1235,17 @@ function App() {
           </button>
           <div className="rail-caption">ALAT</div>
           <div id="player-tools-slot" />
-          <button
-            className={`rail-toggle${gridVisible ? " active" : ""}`}
-            aria-pressed={gridVisible}
-            title="Tampilkan atau sembunyikan grid (G)"
-            onClick={() => setGridVisible((value) => !value)}
-          >
-            <Grid2X2 size={20} /><span className="rail-label">Grid</span>
-          </button>
+          {isDM && (
+            <button
+              className={`rail-toggle${gridVisible ? " active" : ""}`}
+              aria-pressed={gridVisible}
+              title="Tampilkan atau sembunyikan grid untuk semua pemain (G)"
+              disabled={!connected}
+              onClick={toggleGrid}
+            >
+              <Grid2X2 size={20} /><span className="rail-label">Grid</span>
+            </button>
+          )}
           <button
             className={toolsOpen ? "active" : ""}
             aria-expanded={toolsOpen}
@@ -1034,6 +1256,18 @@ function App() {
             }}
           >
             <ImagePlus size={20} /><span className="rail-label">Token</span>
+          </button>
+          <button
+            className={libraryOpen ? "active" : ""}
+            aria-expanded={libraryOpen}
+            title="Gudang Token: seret token tersimpan ke peta"
+            onClick={() => {
+              setLibraryOpen((value) => !value);
+              setToolsOpen(false);
+              setDiceOpen(false);
+            }}
+          >
+            <Package size={20} /><span className="rail-label">Gudang</span>
           </button>
           <button
             className={diceOpen ? "active" : ""}
@@ -1085,12 +1319,29 @@ function App() {
         </nav>
         <main className="stage">
           <div
-            className="map-viewport"
+            className={`map-viewport${libraryDrop ? " library-drop" : ""}`}
             ref={boardRef}
             onPointerDown={startPan}
             onPointerMove={panMove}
             onPointerUp={stopPan}
             onPointerCancel={stopPan}
+            // Cegah browser menyeret gambar peta/token secara native (bikin token "nyangkut").
+            onDragStart={(event) => event.preventDefault()}
+            // Token yang diseret dari Gudang dijatuhkan di peta: buat token baru tepat di titik itu.
+            onDragOver={(event) => {
+              if (!event.dataTransfer.types.includes(LIBRARY_DRAG) || !mapRef.current) return;
+              event.preventDefault();
+              event.dataTransfer.dropEffect = "copy";
+              if (!libraryDrop) setLibraryDrop(true);
+            }}
+            onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setLibraryDrop(false); }}
+            onDrop={(event) => {
+              setLibraryDrop(false);
+              const id = event.dataTransfer.getData(LIBRARY_DRAG);
+              if (!id || !mapRef.current) return;
+              event.preventDefault();
+              placeFromLibrary(id, tokenPosition(event));
+            }}
           >
             {displayMap ? (
               <div
@@ -1105,6 +1356,14 @@ function App() {
                 onPointerDown={(e) => {
                   if (e.target !== e.currentTarget || e.button !== 0) return;
                   e.stopPropagation();
+                  if (e.shiftKey && mapTool === "select") {
+                    // Shift+seret di peta kosong: kotak seleksi (tambah Ctrl untuk menambah ke pilihan).
+                    const r = e.currentTarget.getBoundingClientRect();
+                    const px = ((e.clientX - r.left) / r.width) * 100, py = ((e.clientY - r.top) / r.height) * 100;
+                    setBox({ pointerId: e.pointerId, x0: px, y0: py, x1: px, y1: py, add: e.ctrlKey || e.metaKey });
+                    e.currentTarget.setPointerCapture(e.pointerId);
+                    return;
+                  }
                   panning.current = {
                     pointerId: e.pointerId,
                     x: e.clientX,
@@ -1114,10 +1373,25 @@ function App() {
                   };
                   e.currentTarget.setPointerCapture(e.pointerId);
                 }}
-                onPointerMove={panMove}
-                onPointerUp={stopPan}
-                onPointerCancel={stopPan}
+                onPointerMove={(e) => {
+                  if (box?.pointerId === e.pointerId) {
+                    const r = e.currentTarget.getBoundingClientRect();
+                    setBox({ ...box, x1: ((e.clientX - r.left) / r.width) * 100, y1: ((e.clientY - r.top) / r.height) * 100 });
+                  } else panMove(e);
+                }}
+                onPointerUp={(e) => {
+                  if (box?.pointerId !== e.pointerId) return stopPan(e);
+                  const [l, rr] = [Math.min(box.x0, box.x1), Math.max(box.x0, box.x1)], [t, b] = [Math.min(box.y0, box.y1), Math.max(box.y0, box.y1)];
+                  const hit = (room?.tokens || []).filter((tk) => !tk.minigame && (isDM || tk.ownerId === identity.playerId) && tk.x >= l && tk.x <= rr && tk.y >= t && tk.y <= b).map((tk) => tk.id);
+                  const base = box.add ? (group.length ? group : selected ? [selected] : []) : [];
+                  const next = [...new Set([...base, ...hit])];
+                  setBox(null);
+                  setGroup(next.length > 1 ? next : []);
+                  setSelected(next[0] ?? null);
+                }}
+                onPointerCancel={(e) => { if (box?.pointerId === e.pointerId) setBox(null); else stopPan(e); }}
               >
+                {box && <div className="select-box" style={{ left: `${Math.min(box.x0, box.x1)}%`, top: `${Math.min(box.y0, box.y1)}%`, width: `${Math.abs(box.x1 - box.x0)}%`, height: `${Math.abs(box.y1 - box.y0)}%` }} />}
                 {gridVisible && (
                   <div
                     className="map-grid"
@@ -1128,17 +1402,20 @@ function App() {
                   />
                 )}
                 {activeScene?.weather && <div className={`weather weather-${activeScene.weather}`} aria-hidden="true"><i /><i /></div>}
-                {room?.tokens.map((token) => (
+                {[...(room?.tokens || [])].sort((a, b) => Number(!!b.prop) - Number(!!a.prop)).map((token) => (
                   <button
                     key={token.id}
-                    className={`map-token ${selected === token.id ? "selected" : ""} ${dragging.current === token.id ? "dragging" : ""} ${activeScene?.combat.active && activeScene.combat.ids[activeScene.combat.turn] === token.id ? "combat-active" : ""}`}
+                    className={`map-token${token.prop ? " map-prop" : ""} ${selected === token.id || group.includes(token.id) ? "selected" : ""} ${dragging.current === token.id ? "dragging" : ""} ${activeScene?.combat.active && activeScene.combat.ids[activeScene.combat.turn] === token.id ? "combat-active" : ""}`}
                     style={{
                       left: `${token.x}%`,
                       top: `${token.y}%`,
                       width: `${((token.size ?? 1) * 100) / columns}%`,
+                      ...(token.prop ? { aspectRatio: String(token.aspect ?? 1), height: "auto", ...(token.rotation ? { transform: `translate(-50%, -50%) rotate(${token.rotation}deg)` } : {}) } : {}),
                     }}
                     onClick={(e) => {
-                      if (mapTool === "select") { setSelected(token.id); if (token.minigame && !e.shiftKey) setOpenMinigame(token.id); }
+                      if (mapTool !== "select" || e.ctrlKey || e.metaKey) return;
+                      if (!(group.length > 1 && group.includes(token.id))) setSelected(token.id);
+                      if (token.minigame && !e.shiftKey) setOpenMinigame(token.id);
                     }}
                     onContextMenu={(e) => e.preventDefault()}
                     onPointerDown={(e) => {
@@ -1155,10 +1432,27 @@ function App() {
                         return;
                       }
                       e.stopPropagation();
+                      const mine = isDM || token.ownerId === identity.playerId;
+                      if (e.ctrlKey || e.metaKey) {
+                        // Ctrl+klik: tambah/lepas token dari grup.
+                        if (!mine || e.button !== 0) return;
+                        const base = group.length ? group : selected && selected !== token.id && room?.tokens.some((t) => t.id === selected && (isDM || t.ownerId === identity.playerId)) ? [selected] : [];
+                        const next = base.includes(token.id) ? base.filter((id) => id !== token.id) : [...base, token.id];
+                        setGroup(next.length > 1 ? next : []);
+                        setSelected(next.length ? (next.includes(token.id) ? token.id : next[next.length - 1]) : null);
+                        return;
+                      }
+                      const inGroup = group.length > 1 && group.includes(token.id);
+                      if (!inGroup) setGroup([]);
                       setSelected(token.id);
-                      if ((isDM || token.ownerId === identity.playerId) && (!token.minigame || e.shiftKey)) {
+                      if (mine && (!token.minigame || e.shiftKey || inGroup)) {
                         dragging.current = token.id;
                         tokenDragStart.current = { x: e.clientX, y: e.clientY };
+                        groupDrag.current = inGroup ? {
+                          lead: { x: token.x, y: token.y },
+                          prop: !!token.prop,
+                          members: (room?.tokens || []).filter((t) => group.includes(t.id) && (isDM || t.ownerId === identity.playerId)).map((t) => ({ id: t.id, x: t.x, y: t.y, prop: !!t.prop })),
+                        } : null;
                         e.currentTarget.setPointerCapture(e.pointerId);
                       }
                     }}
@@ -1179,15 +1473,44 @@ function App() {
                     }}
                     title={token.name}
                   >
-                    {token.minigame ? <div className="minigame-token-mark" aria-hidden="true">{isDM ? gameCatalog[token.minigame].mark : '?'}</div> : <img src={token.image} alt={token.name} loading="lazy" decoding="async" />}
+                    {token.minigame ? <div className="minigame-token-mark" aria-hidden="true">{isDM ? gameCatalog[token.minigame].mark : '?'}</div> : <img src={token.image} alt={token.name} loading="lazy" decoding="async" style={token.rotation && !token.prop ? { transform: `rotate(${token.rotation}deg)` } : undefined} />}
+                    {selected === token.id && group.length < 2 && !token.minigame && (isDM || token.ownerId === identity.playerId) && mapTool === "select" && (
+                      <span
+                        className="token-rotate-handle"
+                        role="slider"
+                        aria-label={`Putar ${token.name}`}
+                        aria-valuenow={token.rotation ?? 0}
+                        title="Seret untuk memutar (Shift: bebas) · Q/E memutar 15°"
+                        style={{ transform: `translateX(-50%) scale(${1 / zoom})` }}
+                        onClick={(e) => e.stopPropagation()}
+                        onPointerDown={(e) => {
+                          if (e.button !== 0) return;
+                          e.stopPropagation();
+                          turningToken.current = token.id;
+                          e.currentTarget.setPointerCapture(e.pointerId);
+                        }}
+                        onPointerMove={(e) => {
+                          if (turningToken.current !== token.id) return;
+                          e.stopPropagation();
+                          turnToken(token.id, rotationFromPointer(e, e.currentTarget.parentElement as HTMLElement, e.shiftKey), false);
+                        }}
+                        onPointerUp={(e) => {
+                          if (turningToken.current !== token.id) return;
+                          e.stopPropagation();
+                          turningToken.current = null;
+                          turnToken(token.id, rotationFromPointer(e, e.currentTarget.parentElement as HTMLElement, e.shiftKey), true);
+                        }}
+                        onPointerCancel={(e) => { e.stopPropagation(); turningToken.current = null; }}
+                      ><RotateCw size={12} /></span>
+                    )}
                     {isDM && !!token.maxHp && <div className="token-hp-bar" aria-label={`HP ${token.name}: ${token.hp ?? 0}/${token.maxHp}`}><i style={{ width: `${Math.max(0, Math.min(100, ((token.hp ?? 0) / token.maxHp) * 100))}%` }} /></div>}
                     {isDM && token.ac !== undefined && <b className="token-ac" title={`AC ${token.ac}`} style={{ transform: `scale(${1 / zoom})` }}>{token.ac}</b>}
                     {token.dead && <svg className="token-dead-mark" viewBox="0 0 100 100" role="img" aria-label={`${token.name}: Dead`}><path d="M 18 18 L 82 82 M 82 18 L 18 82" /></svg>}
                     {!!token.conditions?.length && <div className="token-conditions" aria-label={`Kondisi ${token.name}: ${token.conditions.join(', ')}`}>{token.conditions.map((condition) => <b key={condition} title={conditionDescriptions[condition] || condition}>{condition[0]}</b>) }</div>}
-                    <span style={{ transform: `translateX(-50%) scale(${1 / zoom})` }}>
+                    {!token.prop && <span style={{ transform: `translateX(-50%) scale(${1 / zoom})` }}>
                       {token.name}
                       {token.hidden ? " · DM saja" : ""}
-                    </span>
+                    </span>}
                   </button>
                 ))}
                 {movement && activeScene && (() => {
@@ -1246,6 +1569,8 @@ function App() {
               <BoardTools
                 scene={activeScene}
                 publishedSceneId={room?.publishedSceneId}
+                players={(room?.members || []).filter((m) => !m.dm && m.id !== identity.playerId).map((m) => ({ id: m.id, name: m.name, online: m.online }))}
+                playerScenes={room?.playerScenes}
                 scenes={room?.scenes || []}
                 socket={socketRef.current}
                 dm={isDM}
@@ -1308,7 +1633,7 @@ function App() {
             {room?.map
               ? mapTool === "pan"
                 ? "Seret untuk menggeser · scroll untuk zoom"
-                : "Seret token untuk memindahkan · klik kanan dan seret untuk menggeser"
+                : "Seret token atau tekan panah untuk memindahkan · Ctrl+klik atau Shift+seret untuk pilih banyak · klik kanan dan seret untuk menggeser"
               : isDM
                 ? "Unggah peta lewat alat gambar untuk mulai"
                 : "Menunggu peta dari Dungeon Master"}
@@ -1351,6 +1676,12 @@ function App() {
                   <Plus size={18} />
                   {uploading ? "Mengunggah..." : "Tambah token"}
                 </button>
+                {isDM && (
+                  <button onClick={() => propInput.current?.click()} disabled={uploading || !connected || !displayMap} title={displayMap ? "Gambar persegi panjang di atas peta: bisa digeser, diubah ukuran, dan diputar" : "Pasang peta dulu"}>
+                    <Plus size={18} />
+                    Taruh gambar di peta
+                  </button>
+                )}
                 {isDM && (
                   <button onClick={() => audioInput.current?.click()} disabled={uploading || !connected}>
                     <Plus size={18} />
@@ -1397,11 +1728,18 @@ function App() {
           )}
           {canEditSelected && selectedToken && (
             <div className="token-size-control">
-              {isDM && <button disabled={!connected} aria-pressed={!!selectedToken.dead} onClick={() => {
+              <button type="button" className="token-size-close" aria-label="Tutup" title="Tutup (Esc)" onClick={() => { setSelected(null); setGroup([]); }}><X size={14} /></button>
+              {group.length > 1 && <p className="token-group-note"><b>{group.length} token dipilih.</b> Seret salah satunya untuk memindahkan semua. Delete menghapus semuanya, Esc melepas pilihan.</p>}
+              {isDM && !selectedToken.prop && <button disabled={!connected} aria-pressed={!!selectedToken.dead} onClick={() => {
                 socketRef.current?.timeout(5000).emit('tabletop:action', { type: 'token:update', sceneId: activeScene?.id, id: selectedToken.id, dead: !selectedToken.dead }, (timeout: Error | null, result?: { error?: string }) => {
                   if (timeout || result?.error) setError(result?.error || 'Status Dead gagal diperbarui.');
                 });
               }}>{selectedToken.dead ? 'Batalkan Dead' : 'Dead'}</button>}
+              {!selectedToken.minigame && !selectedToken.prop && selectedToken.image && !(room?.library || []).some((item) => item.image === selectedToken.image && item.ownerId === selectedToken.ownerId) && (
+                <button className="lib-save" disabled={!connected} title="Simpan token ini ke Gudang supaya bisa dipakai lagi di peta lain" onClick={() => libraryCall("library:save", selectedToken.id, "Token gagal disimpan ke gudang.")}>
+                  <Package size={14} /> Simpan ke Gudang
+                </button>
+              )}
               <label htmlFor="token-size">Ukuran {selectedToken.name}</label>
               <div>
                 <input
@@ -1409,13 +1747,13 @@ function App() {
                   aria-label="Ukuran token dalam kotak grid"
                   type="number"
                   min="0.25"
-                  max="6"
+                  max={selectedToken.prop ? 80 : 6}
                   step="0.25"
                   value={selectedToken.size ?? 1}
                   disabled={!connected}
                   onChange={(event) => {
                     const size = event.currentTarget.valueAsNumber;
-                    if (Number.isFinite(size) && size >= 0.25 && size <= 6)
+                    if (Number.isFinite(size) && size >= 0.25 && size <= (selectedToken.prop ? 80 : 6))
                       socketRef.current?.emit("token:resize", {
                         id: selectedToken.id,
                         size,
@@ -1426,86 +1764,102 @@ function App() {
               </div>
             </div>
           )}
+          {libraryOpen && identity && (
+            <TokenLibrary
+              items={room?.library || []}
+              isDM={isDM}
+              playerId={identity.playerId}
+              members={room?.members || []}
+              connected={connected}
+              uploading={uploading}
+              onClose={() => setLibraryOpen(false)}
+              onPlace={(id) => placeFromLibrary(id)}
+              onRename={(id, name) => libraryCall("library:rename", { id, name }, "Nama token gagal diubah.")}
+              onRemove={(item) => { if (confirm(`Hapus "${item.name}" dari gudang? Token yang sudah ada di peta tidak ikut terhapus.`)) libraryCall("library:remove", item.id, "Token gagal dihapus dari gudang."); }}
+              onUpload={(file) => void upload("token", file, { place: false })}
+            />
+          )}
           {diceOpen && (
-            <div className="tabletop-popover dice-popover">
-              <div className="popover-heading">
-                <strong>Lempar dadu</strong>
-                <button title="Tutup dadu" onClick={() => setDiceOpen(false)}>
-                  <X size={17} />
-                </button>
-              </div>
-              <div className="dice-tray dice-tray-v2">
-                <p className="dice-tray-status">{rolling ? "Menyiapkan lemparan…" : "Pilih dadu untuk dilempar"}</p>
-                <div className="dice-grid">
-                  {[4, 6, 8, 10, 12, 20, 100].map((sides) => (
-                    <button
-                      key={sides}
-                      type="button"
-                      className={`die-btn d${sides}`}
-                      disabled={!connected || rolling}
-                      onClick={() => throwDice(sides)}
-                      aria-label={`Lempar d${sides}`}
-                    >
-                      <DieIcon sides={sides} />
-                      <span>d{sides}</span>
-                    </button>
-                  ))}
-                  <button type="button" className="die-btn coin" disabled={!connected || rolling} onClick={() => throwDice('coin')} aria-label="Lempar koin">
-                    <DieIcon sides={0} />
-                    <span>Koin</span>
-                  </button>
+            <div className="tabletop-popover dice-popover dice-panel" role="dialog" aria-label="Lempar dadu">
+              <header className="dp-head">
+                <div>
+                  <span className="dp-kicker">Lempar dadu</span>
+                  <strong className="dp-formula" aria-live="polite">
+                    {rolling ? "Melempar…" : diceFormula(diceHover ?? 20)}
+                  </strong>
                 </div>
-                <div className="dice-option">
-                  <span>Mode d20</span>
-                  <div className="dice-mode" role="radiogroup" aria-label="Mode d20">
-                    {([["normal", "Normal"], ["advantage", "Advantage"], ["disadvantage", "Disadvantage"]] as const).map(([value, label]) => (
-                      <button key={value} type="button" role="radio" aria-checked={rollMode === value} onClick={() => setRollMode(value)}>{label}</button>
-                    ))}
+                <button type="button" className="dp-close" title="Tutup dadu" onClick={() => setDiceOpen(false)}>
+                  <X size={16} />
+                </button>
+              </header>
+              <div className="dp-dice" onPointerLeave={() => setDiceHover(null)}>
+                {[4, 6, 8, 10, 12, 20, 100].map((sides) => (
+                  <button
+                    key={sides}
+                    type="button"
+                    className="dp-die"
+                    disabled={!connected || rolling}
+                    onPointerEnter={() => setDiceHover(sides)}
+                    onFocus={() => setDiceHover(sides)}
+                    onClick={() => throwDice(sides)}
+                    aria-label={`Lempar ${diceFormula(sides)}`}
+                  >
+                    <DieIcon sides={sides} />
+                    <span>d{sides}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="dp-steppers">
+                <div className="dp-stepper">
+                  <span>Jumlah</span>
+                  <div>
+                    <button type="button" aria-label="Kurangi jumlah dadu" disabled={diceCount <= 1} onClick={() => setDiceCount((n) => Math.max(1, n - 1))}><Minus size={13} /></button>
+                    <output aria-label="Jumlah dadu">{diceCount}</output>
+                    <button type="button" aria-label="Tambah jumlah dadu" disabled={diceCount >= 10} onClick={() => setDiceCount((n) => Math.min(10, n + 1))}><Plus size={13} /></button>
                   </div>
                 </div>
-                <div className="dice-option">
+                <div className="dp-stepper">
                   <span>Modifier</span>
-                  <div className="dice-stepper">
-                    <button type="button" aria-label="Kurangi modifier" onClick={() => setModifier((m) => Math.max(-99, m - 1))}><Minus size={15} /></button>
+                  <div>
+                    <button type="button" aria-label="Kurangi modifier" onClick={() => setModifier((m) => Math.max(-99, m - 1))}><Minus size={13} /></button>
                     <input
                       type="number"
                       aria-label="Modifier"
                       min={-99}
                       max={99}
                       value={modifier}
-                      onChange={(e) =>
-                        setModifier(
-                          Math.max(
-                            -99,
-                            Math.min(99, Number(e.target.value) || 0),
-                          ),
-                        )
-                      }
+                      onChange={(e) => setModifier(Math.max(-99, Math.min(99, Number(e.target.value) || 0)))}
                     />
-                    <button type="button" aria-label="Tambah modifier" onClick={() => setModifier((m) => Math.min(99, m + 1))}><Plus size={15} /></button>
+                    <button type="button" aria-label="Tambah modifier" onClick={() => setModifier((m) => Math.min(99, m + 1))}><Plus size={13} /></button>
                   </div>
                 </div>
-                <label className="dice-effects-setting dice-effects-inline">
-                  <input
-                    type="checkbox"
-                    checked={diceEffects}
-                    onChange={(e) => {
-                      setDiceEffects(e.target.checked);
-                      localStorage.setItem(
-                        "meja-dice-animation",
-                        e.target.checked ? "on" : "off",
-                      );
-                    }}
-                  />
-                  Animasi dadu 3D
-                </label>
-                {rollError && <p role="alert">{rollError}</p>}
               </div>
+              <div className="dp-mode">
+                <span>Mode d20</span>
+                <div role="radiogroup" aria-label="Mode d20">
+                  {([["normal", "Normal"], ["advantage", "Advantage"], ["disadvantage", "Disadvantage"]] as const).map(([value, label]) => (
+                    <button key={value} type="button" role="radio" aria-checked={rollMode === value} disabled={diceCount > 1 && value !== "normal"} onClick={() => setRollMode(value)}>{label}</button>
+                  ))}
+                </div>
+                {diceCount > 1 && rollMode !== "normal" && <small>Advantage/disadvantage hanya untuk satu d20.</small>}
+              </div>
+              <label className="dp-anim">
+                <input
+                  type="checkbox"
+                  checked={diceEffects}
+                  onChange={(e) => {
+                    setDiceEffects(e.target.checked);
+                    localStorage.setItem("meja-dice-animation", e.target.checked ? "on" : "off");
+                  }}
+                />
+                Animasi dadu 3D
+              </label>
+              {rollError && <p className="dp-error" role="alert">{rollError}</p>}
             </div>
           )}
           <RuleSearch open={rulesOpen} onClose={() => setRulesOpen(false)} />
           {room?.rest && (
-            <RestScreen
+            <RestOverlay
               rest={room.rest}
               isDM={isDM}
               onEnd={() => socketRef.current?.emit("tabletop:action", { type: "rest:end", sceneId: activeScene?.id })}
@@ -1568,7 +1922,14 @@ function App() {
                     petualangan bersama.
                   </p>
                 </div>}
-                {room?.messages.filter((message) => !pendingRollIds.includes(message.id)).map((message) => (
+                {room?.messages.filter((message) => !pendingRollIds.includes(message.id)).map((message) => message.kind === "status" ? (
+                  // Baris status dari makro (AFK, kembali, ingin berbicara): ringkas di tengah chat.
+                  <div className={`message-status${/berbicara$/.test(message.text) ? " hand" : /AFK/.test(message.text) ? " afk" : ""}`} key={message.id}>
+                    {/berbicara$/.test(message.text) ? <Hand size={14} /> : /AFK/.test(message.text) ? <Coffee size={14} /> : <LogIn size={14} />}
+                    <span>{message.text}</span>
+                    <time>{new Date(message.time).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })}</time>
+                  </div>
+                ) : (
                   <div className={`message ${message.kind}`} key={message.id}>
                     <div className="message-avatar">
                       {message.kind === "roll" ? (
@@ -1601,6 +1962,20 @@ function App() {
                   </div>
                 ))}
                 <div ref={messagesEnd} />
+              </div>
+              <div className="chat-macros" role="group" aria-label="Makro status">
+                {(() => {
+                  const mine = room?.members.find((m) => m.id === identity.playerId)?.status;
+                  const setStatus = (status: "afk" | "back" | "hand") =>
+                    socketRef.current?.timeout(5000).emit("member:status", { status }, (timeout: Error | null, result?: { error?: string }) => {
+                      if (timeout || result?.error) setError(result?.error || "Status gagal dikirim.");
+                    });
+                  return <>
+                    <button type="button" className={mine === "afk" ? "on" : ""} disabled={!connected || mine === "afk"} onClick={() => setStatus("afk")} title="Beri tahu meja bahwa kamu pergi sebentar"><Coffee size={14} />AFK</button>
+                    <button type="button" disabled={!connected || !mine} onClick={() => setStatus("back")} title="Info klo udah balik"><LogIn size={14} />Kembali</button>
+                    <button type="button" className={mine === "hand" ? "on" : ""} disabled={!connected || mine === "hand"} onClick={() => setStatus("hand")} title="Angkat tangan: kamu mau ngomong"><Hand size={14} />Mau ngomong</button>
+                  </>;
+                })()}
               </div>
               <form
                 className="chat-compose"
@@ -1651,6 +2026,14 @@ function App() {
                         {member.online ? "Online" : "Offline"}
                       </small>
                     </div>
+                    {member.status === "afk" && <span className="member-status afk" title="Sedang AFK"><Coffee size={12} />AFK</span>}
+                    {member.status === "hand" && (
+                      <button type="button" className="member-status hand" disabled={!isDM}
+                        title={isDM ? "mau ngomong · klik untuk menurunkan tangan" : "mau ngomong"}
+                        onClick={() => socketRef.current?.emit("member:status", { status: "lower", playerId: member.id })}>
+                        <Hand size={12} />Mau ngomong
+                      </button>
+                    )}
                     {member.dm && <Crown size={17} className="crown" />}
                   </div>
                 ))}
@@ -1687,6 +2070,13 @@ function App() {
         accept="image/png,image/jpeg,image/webp,image/gif"
         hidden
         onChange={(e) => void upload("handout", e.target.files?.[0])}
+      />
+      <input
+        ref={propInput}
+        type="file"
+        accept="image/png,image/jpeg,image/webp,image/gif"
+        hidden
+        onChange={(e) => void uploadProp(e.target.files?.[0])}
       />
       <input
         ref={tokenInput}

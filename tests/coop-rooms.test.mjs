@@ -14,12 +14,12 @@ test('two-room puzzle enforces teams, hides other room, exchanges keys and finis
  let a=gameView(g,'a',false),b=gameView(g,'c',false),x=gameView(g,'x',false);
  assert.ok(a.coop.crossword);assert.equal(a.coop.cipher,undefined);assert.equal(b.coop.crossword,undefined);assert.equal(x.coop.cipher,undefined);assert.equal(x.coop.seats.length,0);
  assert.ok(!JSON.stringify(a).includes('KAPKG'));assert.ok(!JSON.stringify(b).includes('answer'));
- const first='HANA BERADA TIGA KURSI SEARAH JARUM JAM DARI BUDI';
+ const first='FANI BERADA DUA KURSI SEARAH JARUM JAM DARI EKA';
  assert.equal(act(g,'c','coop:cipher',{answer:first}),null);
- assert.ok(act(g,'c','coop:cipher',{answer:'IWAN BERADA EMPAT KURSI SEARAH JARUM JAM DARI FANI DAN DODI BERADA DUA KURSI SEARAH JARUM JAM DARI BUDI'}));
+ // Sandi kedua bisa dijawab tanpa menunggu TTS (tim sandi boleh mendekripsi duluan kalau sudah tahu kuncinya).
+ assert.equal(act(g,'c','coop:cipher',{answer:'ANI DAN BUDI TERPISAH DUA ORANG MELALUI JALUR TERPENDEK DAN DODI BERADA DUA KURSI SEARAH JARUM JAM DARI BUDI'}),null);
  for(const id of ['7M','5T','9T','15M','12T']) {const e=g.coop.crossword.crosswordEntries.find(e=>e.id===id);assert.equal(act(g,'a','coop:crossword',{id,answer:e.answer}),null);}
- assert.equal(act(g,'c','coop:cipher',{answer:'IWAN BERADA EMPAT KURSI SEARAH JARUM JAM DARI FANI DAN DODI BERADA DUA KURSI SEARAH JARUM JAM DARI BUDI'}),null);
- assert.equal(gameView(g,'a',false).coop.clues.length,4);
+ assert.equal(gameView(g,'a',false).coop.clues.length,5);
  const last = gameView(g,'c',false).coop;
  assert.match(last.cipher, /Transposisi/);
  assert.doesNotMatch(last.cipher, /Vigenere/);
@@ -65,4 +65,15 @@ test('actual seating constraints have one solution; neither room alone determine
  function matches(rule,p){const a=p.indexOf(rule.a);if(rule.kind==='seat')return a===rule.value;const b=p.indexOf(rule.b);return rule.kind==='clockwise'?(b-a+9)%9===rule.value:Math.min((b-a+9)%9,(a-b+9)%9)===rule.value;}
  function visit(prefix,left){if(!left.length){checked++;if(seatRules.every(r=>matches(r,prefix)))solutions.push(prefix);for(const room of ['chairs','cipher'])if(seatRules.filter(r=>room==='chairs'?r.room==='chairs':r.room!=='chairs').every(r=>matches(r,prefix)))counts[room]++;return;}for(const name of left)visit([...prefix,name],left.filter(n=>n!==name));}
  visit([],names);assert.equal(checked,362880);assert.equal(solutions.length,1);assert.deepEqual(solutions[0],seatSolution);assert.ok(counts.chairs>1);assert.ok(counts.cipher>1);assert.notDeepEqual(seatSolution,names);
+});
+test('GM mendapat kunci jawaban lengkap Dua Ruangan, pemain tidak', () => {
+ const g = newGame('k', 'cooprooms');
+ assert.equal(act(g, 'gm', 'coop:assign', { teams: [['a', 'b'], ['c', 'd']] }, true), null);
+ assert.equal(act(g, 'gm', 'start', {}, true), null);
+ const key = gameView(g, 'gm', true).coop.key;
+ assert.deepEqual(key.map(s => s.title.split(' ')[0]), ['Teka-teki', 'Susunan', 'Sandi', 'Sandi', 'Sandi']);
+ const text = JSON.stringify(key);
+ for (const e of g.coop.crossword.crosswordEntries) assert.ok(text.includes(`${e.id}: ${e.answer}`), e.id);
+ assert.ok(text.includes('Kursi 1: HANA') && text.includes('KAPKG') && text.includes('832659147238954761'));
+ for (const id of ['a', 'c', 'x']) assert.equal(gameView(g, id, false).coop.key, undefined);
 });

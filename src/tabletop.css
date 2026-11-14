@@ -14,7 +14,10 @@
 .rail-spacer{flex:1}
 .workspace .stage{flex:1;min-width:0;width:auto;max-width:none;height:100%;padding:0;position:relative;overflow:hidden;background:#706472}
 .workspace .stage .toast-error{position:absolute;bottom:55px;left:18px;z-index:9;max-width:min(360px,calc(100% - 36px));box-shadow:0 8px 25px #0008}
-.map-viewport{position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:grab;background:#706472}
+.map-viewport{position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:grab;background:#706472;user-select:none;-webkit-user-select:none}
+.map-viewport img{-webkit-user-drag:none;user-select:none}
+.map-viewport ::selection{background:transparent}
+.map-viewport input,.map-viewport textarea,.map-viewport [contenteditable]{user-select:text;-webkit-user-select:text}
 .map-viewport:active{cursor:grabbing}
 .combat-order{position:absolute;top:115px;left:12px;z-index:6;width:min(210px,calc(100% - 85px));padding:6px;background:#171d1bf2;color:#f3e5cb;border:1px solid #b99459;border-radius:6px;box-shadow:0 8px 24px #0008}.combat-order>button{display:flex;align-items:center;justify-content:space-between;width:100%;padding:4px;color:#d7b77e;background:transparent;border:0;font-size:10px;font-weight:700;letter-spacing:.12em}.combat-order>button span{font-size:18px;line-height:12px}.combat-order ol{display:grid;gap:3px;margin:4px 0 0;padding:0;list-style:none;counter-reset:initiative}.combat-order li{min-width:0;padding:5px 7px;overflow:hidden;color:#cfc7bb;text-overflow:ellipsis;white-space:nowrap;font-size:12px;border-radius:3px}.combat-order li.current{color:#1b1915;background:#d7b77e;font-weight:700}.combat-order small{display:block;margin:7px 4px 2px;color:#d7b77e;font-size:10px}.map-canvas .map-token.combat-active{outline:3px solid #e34b4b;outline-offset:4px;border-radius:50%;filter:drop-shadow(0 0 8px #e34b4b);animation:combat-pulse 1.2s ease-in-out infinite}.token-conditions{position:absolute;right:-5px;top:-5px;z-index:2;display:flex;flex-wrap:wrap;gap:1px;max-width:30px}.token-conditions b{display:grid;place-items:center;width:13px;height:13px;color:#241829;background:#f0d49a;border:1px solid #171d1b;border-radius:50%;font-size:8px;line-height:1}@keyframes combat-pulse{50%{filter:drop-shadow(0 0 15px #e34b4b)}}@media(prefers-reduced-motion:reduce){.map-canvas .map-token.combat-active{animation:none}}
 .map-canvas{position:absolute;top:50%;left:50%;transform-origin:center;background-size:100% 100%;background-repeat:no-repeat;box-shadow:0 0 0 1px #29212e,0 7px 22px #20162480;touch-action:none;cursor:grab}
@@ -94,3 +97,22 @@
 .workspace .player-info small{color:#b7a6bf}
 @media(max-width:900px){.workspace .side-panel{position:absolute;top:0;bottom:0;right:0;height:100%;width:min(340px,calc(100vw - 48px));box-shadow:-8px 0 28px #1c10278c}.workspace .stage{width:auto;max-width:none}}
 @media(max-width:600px){.tabletop-rail{width:43px;padding-left:2px;padding-right:2px}.tabletop-rail button{width:36px;height:36px}.rail-caption{font-size:7px}.canvas-info{left:7px;top:7px;max-width:calc(100% - 64px);gap:5px;padding:5px 7px}.canvas-info strong{max-width:105px;font-size:11px}.canvas-status{display:none}.invite-button{padding:5px}.invite-button span{display:none}.map-controls{top:8px;right:7px}.map-controls input[type=range]{height:105px}.tabletop-popover{left:5px;top:165px;width:min(285px,calc(100% - 55px))}.dice-popover{top:200px}.canvas-help{left:7px;bottom:7px;max-width:calc(100% - 60px)}.sidebar-toggle{top:47px;right:49px;padding:6px 8px}.sidebar-toggle span{display:none}}
+/* Tombol tutup panel token (Dead/ukuran). */
+.token-size-control{padding-right:40px}
+.token-size-control>.token-size-close{position:absolute;top:6px;right:6px;display:grid;place-items:center;width:26px;height:26px;min-height:0;margin:0;padding:0;border:1px solid #ffffff22;border-radius:6px;background:transparent;color:#cbbd9f;cursor:pointer}
+.token-size-control>.token-size-close:hover{border-color:#cfa95f;color:#f6e2a8}
+/* Pegangan putar token terpilih: bulatan kecil di atas token, diseret untuk memutar. */
+.map-token img{transition:transform .08s linear}
+.map-canvas .map-token .token-rotate-handle{position:absolute;left:50%;bottom:calc(100% + 6px);top:auto;display:grid;place-items:center;width:22px;height:22px;padding:0;border:2px solid #fff1b1;border-radius:50%;background:#1a140c;color:#fff1b1;box-shadow:0 2px 6px #000a;cursor:grab;touch-action:none;pointer-events:auto;transform-origin:50% 100%}
+.map-canvas .map-token .token-rotate-handle:active{cursor:grabbing}
+.map-canvas .map-token .token-rotate-handle:hover{background:#cfa95f;color:#1a140c}
+@media(prefers-reduced-motion:reduce){.map-token img{transition:none}}
+.map-canvas .map-token.selected:has(.token-rotate-handle){z-index:3}
+/* Gambar bebas di peta (prop): persegi panjang sesuai rasio gambar, di bawah token. */
+.map-canvas .map-token.map-prop{cursor:grab}
+.map-canvas .map-token.map-prop img{height:100%;object-fit:fill;filter:none}
+.map-canvas .map-token.map-prop.selected{outline:2px dashed #fff1b1;outline-offset:2px}
+.map-canvas .select-box{position:absolute;z-index:8;pointer-events:none;border:2px dashed #fff1b1;background:#ffe9a03d;border-radius:3px;box-shadow:0 0 0 1px #000c,inset 0 0 0 1px #000c}
+.token-size-control .token-group-note{margin:0 0 10px;max-width:260px;font-size:12px;line-height:1.45;color:#e8dcc4}
+.token-size-control .token-group-note b{color:#fff1b1}
+.map-canvas .map-token:focus,.map-canvas .map-token:focus-visible{outline:none}

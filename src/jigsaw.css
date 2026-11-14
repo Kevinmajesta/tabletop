@@ -51,7 +51,10 @@
 .jg-svg.dragging { cursor: grabbing; }
 .jg-table { fill: var(--jg-table); }
 .jg-zone { fill: #ffffff08; stroke: #ffffff26; stroke-width: 4; stroke-dasharray: 22 16; }
-.jg-piece { cursor: grab; }
+.jg-piece { cursor: grab; transition: transform .12s linear; }
+/* Keping yang sedang kuseret (atau baru kulepas) mengikuti kursor langsung, tanpa animasi. */
+.jg-piece.dragging { transition: none; }
+@media (prefers-reduced-motion: reduce) { .jg-piece { transition: none; } }
 .jg-piece path { stroke: #0000004d; stroke-width: 1.6; filter: drop-shadow(0 3px 3px #0009); }
 .jg-piece:hover path { stroke: #fff6dcaa; stroke-width: 3; }
 .jg-piece.joined path { stroke: #00000022; stroke-width: 1; filter: drop-shadow(0 2px 2px #0006); }

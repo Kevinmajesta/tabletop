@@ -4,7 +4,7 @@ import { wireStages, wireLives, type WireState } from '../server/wirehack';
 import GameRules from './GameRules';
 import './wirehack.css';
 
-const cableColor = ['#ff4d6d', '#3cf2c4', '#ffd23f', '#4da6ff'];
+const cableColor = ['#ff4d6d', '#3cf2c4', '#ffd23f', '#4da6ff', '#c77dff'];
 const ROW = 84, TOP = 50, W = 464;
 
 export default function WireHack({ game, disabled, send, playerId, name, dm }: { game: Game; disabled: boolean; send: (action: Record<string, unknown>) => void; playerId: string; name: (id: string) => string; dm: boolean }) {
@@ -32,7 +32,7 @@ export default function WireHack({ game, disabled, send, playerId, name, dm }: {
   const rules = <GameRules phase={game.phase}>
     <p>Satu peretas memegang kabel. Di kiri ada beberapa angka, di kanan ada pengali. <strong>Sambungkan setiap angka ke satu pengali</strong> sampai jumlah semua hasil kalinya sama persis dengan <strong>tegangan target</strong>.</p>
     <p>Total tegangan tidak ditampilkan sampai kamu menekan Kirim arus, jadi hitung dulu di kepala. Contoh: angka 4 ke ×10, angka 7 ke ×2, dan angka 3 ke ×1 menghasilkan 40 + 14 + 3 = 57.</p>
-    <p>Ada tiga panel yang makin sulit, dengan batas waktu di setiap panel. Salah kirim atau waktu habis memicu alarm dan panel diganti. <strong>Tiga alarm berarti peretasan gagal.</strong> Pemain lain bisa menonton dan membantu menghitung.</p>
+    <p>Ada lima panel yang makin sulit, dengan batas waktu di setiap panel. Salah kirim atau waktu habis memicu alarm dan panel diganti. <strong>Tiga alarm berarti peretasan gagal.</strong> Pemain lain bisa menonton dan membantu menghitung.</p>
   </GameRules>;
   if (!t) return <section className="mg-skin wirehack-skin" data-phase={game.phase}>{rules}</section>;
 
@@ -107,7 +107,7 @@ export default function WireHack({ game, disabled, send, playerId, name, dm }: {
       {t.last && open && <p className={`wh-result ${t.last.ok ? 'ok' : 'bad'}`} role="status">
         {t.last.ok ? `AKSES DITERIMA · panel ${t.stage} terbobol` : t.last.reason === 'timeout' ? 'ALARM! Waktu habis. Panel diganti.' : `ALARM! Tegangan ${t.last.got} V, target ${t.last.target} V. Panel diganti.`}
       </p>}
-      {game.phase === 'finished' && <p className={`wh-result ${game.result === 'win' ? 'ok' : 'bad'}`} role="status">{game.result === 'win' ? `AKSES PENUH · ${name(game.players[0])} membobol ketiga panel.` : 'PERETASAN GAGAL · sistem terkunci.'}</p>}
+      {game.phase === 'finished' && <p className={`wh-result ${game.result === 'win' ? 'ok' : 'bad'}`} role="status">{game.result === 'win' ? `AKSES PENUH · ${name(game.players[0])} membobol kelima panel.` : 'PERETASAN GAGAL · sistem terkunci.'}</p>}
       {dm && t.solution && open && <p className="wh-dm">Jawaban (GM): {t.solution.map((j, i) => `${t.panel.values[i]}×${t.panel.mults[j]}`).join(' + ')}</p>}
 
       {hacker && open && <div className="wh-actions">

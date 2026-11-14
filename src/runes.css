@@ -1,4 +1,4 @@
-/* Bahasa Rune yang Hilang: empat pintu di atas, prasasti batu di kiri, papan ukir di kanan.
+/* Check bahasa: empat pintu di atas, prasasti batu di kiri, papan ukir di kanan.
    Memakai komponen bersama dari alchemy.css (tombol, log, kartu menang) dan potion.css (pesan gagal). */
 
 .minigame-dialog:has(.runes-skin) { width: min(1120px, calc(100vw - 32px)); }

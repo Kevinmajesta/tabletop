@@ -1,25 +1,22 @@
 // Segel Sang Alkemis (party, semua pemain melihat hal yang sama).
 // Lemari alkemis terkunci tiga segel. Setiap segel dibuka dengan menyusun unsur dari tabel periodik;
-// simbol-simbolnya membentuk satu kata. Ketiga kata menjadi pesan rahasia: CARI · LILIN · BIRU.
+// jawaban sengaja tidak membentuk kata, supaya segel berikutnya tidak bisa ditebak dari pola.
 // Tidak ada batas percobaan; setiap percobaan hanya dijawab benar atau salah.
 // Segel 1: teka-teki sifat unsur. Segel 2: jejak panah di tabel. Segel 3: deduksi berantai dari dua segel sebelumnya.
 // Kunci jawaban hanya ada di file ini (server). Klien memakai alchemy-data.ts.
 import { elements, sealInfo, type SealInfo } from './alchemy-data.js';
 export { elements } from './alchemy-data.js';
 
-export type Seal = SealInfo & { answer: number[]; word: string };
-const keys = [
-  { answer: [6, 18, 53], word: 'CARI' },
-  { answer: [3, 3, 7], word: 'LILIN' },
-  { answer: [83, 44], word: 'BIRU' },
-];
-export const seals: Seal[] = sealInfo.map((info, i) => ({ ...info, ...keys[i] }));
-export const defaultAlchemyReward = 'Ketiga segel terbuka dan pintu lemari berderit. Di dalamnya tergores pesan sang alkemis: "CARI LILIN BIRU."';
+export type Seal = SealInfo & { answer: number[] };
+// Segel 1: C · Ca · Hg. Segel 2: Mg · In · N. Segel 3: Os · Bi.
+const keys = [[6, 20, 80], [12, 49, 7], [76, 83]];
+export const seals: Seal[] = sealInfo.map((info, i) => ({ ...info, answer: keys[i] }));
+export const defaultAlchemyReward = 'Ketiga segel terbuka.';
 
 export type AlchemyAttempt = { by: string; seal: number; guess: number[]; ok: boolean };
 export type AlchemyState = { seal: number; draft: number[]; mistakes: number; log: AlchemyAttempt[]; reward: string };
 // solved: jawaban segel yang sudah terbuka (boleh dilihat semua). answers: semua jawaban, hanya GM atau setelah selesai.
-export type AlchemyView = AlchemyState & { solved: { answer: number[]; word: string }[]; answers?: number[][] };
+export type AlchemyView = AlchemyState & { solved: { answer: number[] }[]; answers?: number[][] };
 
 type GameLike = { phase: string; result: string; scores: Record<string, number>; alchemy?: AlchemyState };
 
@@ -29,7 +26,7 @@ export function newAlchemy(reward = defaultAlchemyReward): AlchemyState {
 
 export function alchemyView(t: AlchemyState, dm: boolean, finished: boolean): AlchemyView {
   const won = t.seal >= seals.length;
-  return { ...t, reward: dm || won ? t.reward : '', solved: seals.slice(0, t.seal).map(s => ({ answer: s.answer, word: s.word })), ...(dm || finished ? { answers: seals.map(s => s.answer) } : {}) };
+  return { ...t, reward: dm || won ? t.reward : '', solved: seals.slice(0, t.seal).map(s => ({ answer: s.answer })), ...(dm || finished ? { answers: seals.map(s => s.answer) } : {}) };
 }
 
 const validZ = (z: unknown) => typeof z === 'number' && Number.isInteger(z) && z >= 1 && z <= elements.length;

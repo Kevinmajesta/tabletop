@@ -1,16 +1,16 @@
-// Bahasa Rune yang Hilang (party, semua pemain melihat hal yang sama).
+// Check bahasa (party, semua pemain melihat hal yang sama).
 // Party membaca sembilan contoh kalimat rune kurcaci kuno beserta artinya, menyimpulkan tata bahasanya,
-// lalu menulis kalimat rune untuk empat pintu. Tidak ada batas percobaan; jawaban hanya benar atau salah.
+// lalu menulis kalimat rune untuk empat pillar. Tidak ada batas percobaan; jawaban hanya benar atau salah.
 import { normalizeRunes, runeKeys, runeTasks } from './runes-data.js';
 export { runeExamples, runeTasks, runeKeys, normalizeRunes } from './runes-data.js';
 
 export const runeAnswers = [
-  'ᛊᛚᛖ ᚦᚢᚱᛁ',
-  'ᛜᛟᛈᛖ ᛒᚨᚱ ᚱᚨᚲᛁ',
-  'ᛟᛈᛖᛞ ᛞᚹᛖ ᛒᚨᚱᛁ ᚱᚨᚲᛊ',
-  'ᛜᚹᚨᚱ ᚷᛟᛚ ᛞᚹᛖᛁᛊ ᚦᚢᚱᛁ',
+  'ᛊᛚᛖ ᚦᚢᚱ',
+  'ᚹᚨᚱ ᚱᚨᚲ ᚷᛟᛚ',
+  'ᚹᚨᚱ ᛞᚹᛖ ᚱᚨᚲ',
+  'ᛜᚢ ᚹᚨᚱ ᛞᚹᛖ ᚱᚨᚲ',
 ];
-export const defaultRuneReward = 'Pintu keempat bergeser. Di baliknya, rune yang sama terukir di sebuah peta: tempat harta sang raja kurcaci.';
+export const defaultRuneReward = 'Pillar keempat menyala. Di dasarnya, rune yang sama terukir di sebuah peta: tempat harta sang raja kurcaci.';
 
 export type RuneAttempt = { by: string; task: number; text: string; ok: boolean };
 export type RuneState = { task: number; draft: string; misses: number; log: RuneAttempt[]; reward: string };

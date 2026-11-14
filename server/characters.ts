@@ -1025,7 +1025,7 @@ export function buildGroups(build: BuildInput): ChoiceGroup[] {
         .map((s) => ({ id: s.index, name: s.name }));
       add(
         "subclass.savant",
-        "Evocation Savant: dua spell bonus level 1–2",
+        `${school[0].toUpperCase()}${school.slice(1)} Savant: dua spell bonus level 1–2`,
         2,
         options.filter((o) => !build.spells.includes(o.id)),
         "spell",
@@ -1033,7 +1033,7 @@ export function buildGroups(build: BuildInput): ChoiceGroup[] {
       if (level >= 5)
         add(
           "subclass.savant.5",
-          "Savant: spell bonus level 3",
+          `${school[0].toUpperCase()}${school.slice(1)} Savant: spell bonus level 3`,
           1,
           catalog.spells
             .filter(
@@ -1940,10 +1940,14 @@ export function validateBuild(input: unknown): {
     }
   }
   // Base spells are normal level-up acquisitions; Savant bonuses are separate choices.
-  if (build.classId === "wizard" && [2, 3, 4, 5, 6, 7, 8, 9].some(rank =>
+  const wizardRank = build.classId === "wizard" ? [2, 3, 4, 5, 6, 7, 8, 9].find(rank =>
     build.spells.filter(id => (catalog.spells.find(s => s.index === id)?.level || 0) >= rank).length > Math.max(0, 2 * (levelFor(build) - 2 * (rank - 1)))
-  )) {
-    const message = "Spellbook: progresi Wizard memerlukan enam spell level 1 awal, dua tambahan tiap level, sesuai slot saat diperoleh.";
+  ) : undefined;
+  if (wizardRank) {
+    const allowed = Math.max(0, 2 * (levelFor(build) - 2 * (wizardRank - 1)));
+    const picked = build.spells.filter(id => (catalog.spells.find(s => s.index === id)?.level || 0) >= wizardRank).length;
+    // Wizard baru dapat slot level N di level karakter 2N-1, jadi hanya spell yang dipelajari sejak itu boleh level N ke atas.
+    const message = `Spellbook: di level ${levelFor(build)}, spell level ${wizardRank}+ maksimal ${allowed} (kamu memilih ${picked}). Ganti sisanya dengan spell level lebih rendah. Spell bonus Savant tidak dihitung.`;
     errors.push(message);
     issues.push({ message, section: "spell", groupKey: "spells" });
   }

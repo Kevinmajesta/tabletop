@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import SpeciesCard from "./SpeciesCard";
 import ActionEconomy, { Requirement } from "./ActionEconomy";
+import SpellBook from "./SpellBook";
 import CurrencyWallet from "./CurrencyWallet";
 import { choiceLabel } from "./character-labels";
 import "./species-guide.css";
@@ -70,6 +71,8 @@ export default function Characters({
   uploadToken?: (file: File, name: string, characterId: string) => void;
 }) {
   const characters = savedCharacters.filter((c) => c.ruleset === "srd-2024");
+  // Jumlah Hit Dice yang dipakai saat Short Rest dari sheet.
+  const [restDice, setRestDice] = useState(0);
   const [rollMode, setRollMode] = useState<
     "normal" | "advantage" | "disadvantage"
   >("normal");
@@ -122,8 +125,6 @@ export default function Characters({
   };
   const [speciesBook, setSpeciesBook] = useState("phb-2024");
   const [search, setSearch] = useState("");
-  const [spellFilter, setSpellFilter] = useState("all");
-  const [preparedDraft, setPreparedDraft] = useState<string[] | null>(null);
   const [open, setOpen] = useState(initialOpen),
     [build, setBuild] = useState<BuildInput | null>(null),
     [step, setStep] = useState(0),
@@ -219,7 +220,9 @@ export default function Characters({
   const groups = build ? buildGroups(build) : [];
   function choose(group: ChoiceGroup, id: string) {
     if (!build) return;
-    const previous = build.choices[group.key] || [];
+    // Buang pilihan yang sudah tidak ada di daftar (mis. bahasa yang kini dipilih di grup lain), supaya slotnya terbuka lagi.
+    const allowed = new Set(group.options.map((o) => o.id));
+    const previous = (build.choices[group.key] || []).filter((v) => allowed.has(v));
     const values = previous.includes(id)
       ? previous.filter((v) => v !== id)
       : group.count === 1
@@ -235,7 +238,7 @@ export default function Characters({
         <legend id={`character-choice-${group.key}`} tabIndex={-1}>
           {group.name}{" "}
           <small>
-            ({build?.choices[group.key]?.length || 0}/{group.count})
+            ({build?.choices[group.key]?.filter((v) => group.options.some((o) => o.id === v)).length || 0}/{group.count})
           </small>
         </legend>
         <div className="character-options">
@@ -992,7 +995,7 @@ export default function Characters({
                                 : key === "spells" && build.classId === "wizard"
                                   ? "Spellbook"
                                   : key}{" "}
-                              ({build[key].length}/{count})
+                              ({build[key].filter((id) => options.some((o) => o.index === id)).length}/{count})
                             </legend>
                             <div className="character-options">
                               {[...options].sort((a, b) => (a.level || 0) - (b.level || 0) || a.name.localeCompare(b.name)).map((s) => {
@@ -1005,16 +1008,18 @@ export default function Characters({
                                     type="checkbox"
                                     checked={build[key].includes(s.index)}
                                     onChange={(e) =>
-                                      setBuild({
-                                        ...build,
-                                        [key]: e.target.checked
-                                          ? build[key].length < count
-                                            ? [...build[key], s.index]
-                                            : build[key]
-                                          : build[key].filter(
-                                              (id) => id !== s.index,
-                                            ),
-                                      })
+                                      {
+                                        // Buang spell yang sudah tidak ada di daftar (mis. dikeluarkan dari spellbook) supaya slotnya terbuka.
+                                        const current = build[key].filter((id) => options.some((o) => o.index === id));
+                                        setBuild({
+                                          ...build,
+                                          [key]: e.target.checked
+                                            ? current.length < count
+                                              ? [...current, s.index]
+                                              : current
+                                            : current.filter((id) => id !== s.index),
+                                        });
+                                      }
                                     }
                                   />
                                   <span className="spell-option-main">
@@ -1131,7 +1136,7 @@ export default function Characters({
                         )
                       }
                     >
-                      {busy ? "Menyimpan…" : "Simpan karakter"}
+                      Simpan karakter
                     </button>
                   )}
                 </footer>
@@ -1414,19 +1419,34 @@ export default function Characters({
                         ),
                       )}
                     </div>
-                    <button
-                      disabled={!connected || busy}
-                      onClick={() =>
-                        request({
-                          type: "rest",
-                          rest: "short",
-                          id: character.id,
-                          revision: character.revision,
-                        })
-                      }
-                    >
-                      Short rest
-                    </button>
+                    <div className="sheet-rest-short">
+                      <label title="Hit Dice yang dilempar untuk memulihkan HP saat Short Rest">
+                        Pakai Hit Dice
+                        <input
+                          type="number"
+                          min={0}
+                          max={character.sheet.level - (character.resourcesUsed?.["hit-dice"] || 0)}
+                          value={Math.min(restDice, character.sheet.level - (character.resourcesUsed?.["hit-dice"] || 0))}
+                          disabled={!connected || busy || character.hp >= character.sheet.hp}
+                          onChange={(e) => setRestDice(Math.max(0, Math.min(20, Number.isFinite(e.target.valueAsNumber) ? e.target.valueAsNumber : 0)))}
+                        />
+                      </label>
+                      <button
+                        disabled={!connected || busy}
+                        onClick={() => {
+                          request({
+                            type: "rest",
+                            rest: "short",
+                            hitDice: character.hp >= character.sheet.hp ? 0 : Math.min(restDice, character.sheet.level - (character.resourcesUsed?.["hit-dice"] || 0)),
+                            id: character.id,
+                            revision: character.revision,
+                          });
+                          setRestDice(0);
+                        }}
+                      >
+                        Short rest
+                      </button>
+                    </div>
                     <button
                       disabled={!connected || busy}
                       title="Roll 1 Hit Die + CON untuk memulihkan HP (memakai 1 Hit Dice)"
@@ -1454,8 +1474,9 @@ export default function Characters({
                       Long rest
                     </button>
                     <p>
-                      Short rest memulihkan resource sesuai class. Healing Hit
-                      Dice dicatat lewat HP dan Hit Dice terpakai.
+                      Short rest memulihkan kemampuan short rest (dan slot Pact Magic Warlock), lalu melempar Hit Dice
+                      yang dipilih untuk HP. Long rest memulihkan HP, semua spell slot, kemampuan, dan Hit Dice.
+                      Hasilnya tercatat di chat.
                     </p>
                   </fieldset>
                 </section>
@@ -1566,225 +1587,7 @@ export default function Characters({
                   hidden={sheetTab !== "spells"}
                   className="sheet-section"
                 >
-                  <h3>Spellbook & prepared spells</h3>
-                  {!!character.sheet.innateSpells?.length && <section aria-label="Spell bawaan species"><h4>Spell bawaan species (manual)</h4><p>Terpisah dari ability spell class. Penggunaan gratis per rest tidak memakai slot; jika memakai slot, catat slot secara manual.</p>{character.sheet.innateSpells.map(spell=><p key={spell.id}><strong>{catalog.spells.find(s=>s.index===spell.id)?.name||spell.id}</strong> <ActionEconomy castingTime={catalog.spells.find(s=>s.index===spell.id)?.casting_time} ritual={(catalog.spells.find(s=>s.index===spell.id) as { ritual?: boolean } | undefined)?.ritual} /> · {spell.ability.toUpperCase()} · DC {spell.dc} · attack +{spell.attack} · {spell.uses}</p>)}</section>}
-                  <div className="spell-slot-tracker" aria-label="Pelacak spell slot">
-                    {Object.entries(character.sheet.slotsByLevel || {})
-                      .filter(([, max]) => max > 0)
-                      .map(([level, max]) => {
-                        const used = character.spellSlotsUsed?.[level] ?? (level === "1" ? character.slotsUsed : 0);
-                        return (
-                          <div className="spell-slot" key={level}>
-                            <span>Level {level}</span>
-                            <button type="button" disabled={!connected || busy || used <= 0} onClick={() => request({ type: "resources", id: character.id, revision: character.revision, spellSlotsUsed: { [level]: used - 1 } })}>−</button>
-                            <strong>{used}/{max}</strong>
-                            <button type="button" disabled={!connected || busy || used >= max} onClick={() => request({ type: "resources", id: character.id, revision: character.revision, spellSlotsUsed: { [level]: used + 1 } })}>+</button>
-                          </div>
-                        );
-                      })}
-                  </div>
-                  <label>
-                    Cari spell
-                    <input
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      placeholder="Nama atau deskripsi spell"
-                    />
-                  </label>
-                  <label>
-                    Filter spell
-                    <select
-                      value={spellFilter}
-                      onChange={(e) => setSpellFilter(e.target.value)}
-                    >
-                      <option value="all">Semua</option>
-                      <option value="prepared">Prepared</option>
-                      <option value="concentration">Concentration</option>
-                      <option value="ritual">Ritual</option>
-                      {[0, 1, 2, 3].map((level) => (
-                        <option key={level} value={String(level)}>
-                          {level === 0 ? "Cantrip" : `Level ${level}`}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-                  <label>
-                    Concentration
-                    <select
-                      disabled={!connected || busy}
-                      value={character.concentration || ""}
-                      onChange={(e) =>
-                        request({
-                          type: "concentration",
-                          spell: e.target.value,
-                          id: character.id,
-                          revision: character.revision,
-                        })
-                      }
-                    >
-                      <option value="">Tidak concentration</option>
-                      {catalog.spells
-                        .filter(
-                          (s) =>
-                            character.sheet.prepared.includes(s.index) &&
-                            (s as typeof s & { concentration?: boolean })
-                              .concentration,
-                        )
-                        .map((s) => (
-                          <option key={s.index} value={s.index}>
-                            {s.name}
-                          </option>
-                        ))}
-                    </select>
-                  </label>
-                  {["wizard", "cleric", "druid", "paladin"].includes(
-                    character.build.classId,
-                  ) && (
-                    <>
-                      <button
-                        onClick={() =>
-                          setPreparedDraft(
-                            character.build.classId === "wizard"
-                              ? [...character.build.prepared]
-                              : [...character.build.spells],
-                          )
-                        }
-                      >
-                        Ganti prepared spells
-                      </button>
-                      {preparedDraft && (
-                        <fieldset>
-                          <legend>
-                            Prepared spells ({preparedDraft.length}/
-                            {character.build.classId === "wizard"
-                              ? spellLimits(character.build).prepared
-                              : spellLimits(character.build).spells}
-                            )
-                          </legend>
-                          <p>
-                            Ganti sesuai aturan rest class. Spell yang selalu prepared tetap otomatis. Spell Savant masuk spellbook dan perlu dipilih sebagai prepared.
-                          </p>
-                          <div className="character-options">
-                            {catalog.spells
-                              .filter((s) =>
-                                character.build.classId === "wizard"
-                                  ? [
-                                      ...character.build.spells,
-                                      ...(character.build.choices[
-                                        "subclass.savant"
-                                      ] || []),
-                                      ...(character.build.choices[
-                                        "subclass.savant.5"
-                                      ] || []),
-                                    ].includes(s.index)
-                                  : s.level &&
-                                    s.level <=
-                                      spellLimits(character.build)
-                                        .maxSpellLevel &&
-                                    s.classes?.some(
-                                      (c) =>
-                                        c.index === character.build.classId,
-                                    ),
-                              )
-                              .map((s) => (
-                                <label key={s.index}>
-                                  <input
-                                    type="checkbox"
-                                    checked={preparedDraft.includes(s.index)}
-                                    onChange={(e) =>
-                                      setPreparedDraft(
-                                        e.target.checked
-                                          ? [...preparedDraft, s.index]
-                                          : preparedDraft.filter(
-                                              (id) => id !== s.index,
-                                            ),
-                                      )
-                                    }
-                                  />
-                                  {s.name} <ActionEconomy castingTime={s.casting_time} ritual={(s as typeof s & { ritual?: boolean }).ritual} />
-                                </label>
-                              ))}
-                          </div>
-                          <button
-                            disabled={!connected || busy}
-                            onClick={() =>
-                              request(
-                                {
-                                  type: "prepared",
-                                  spells: preparedDraft,
-                                  id: character.id,
-                                  revision: character.revision,
-                                },
-                                () => setPreparedDraft(null),
-                              )
-                            }
-                          >
-                            Simpan prepared
-                          </button>
-                          <button onClick={() => setPreparedDraft(null)}>
-                            Batal
-                          </button>
-                        </fieldset>
-                      )}
-                    </>
-                  )}
-                  {!character.sheet.cantrips.length &&
-                    !character.sheet.spells.length && (
-                      <p className="sheet-empty-note">
-                        Karakter belum memiliki spell pada level ini.
-                      </p>
-                    )}
-                  {character.sheet.spellAbility && (
-                    <p>
-                      Ability {character.sheet.spellAbility.toUpperCase()} · DC{" "}
-                      {character.sheet.spellDC} · Attack +
-                      {character.sheet.spellAttack}
-                      <button
-                        disabled={!connected || busy}
-                        onClick={() => roll("spell")}
-                      >
-                        Roll spell attack
-                      </button>
-                    </p>
-                  )}
-                  {([0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const).map((level) => {
-                    const ids = [...new Set(level === 0 ? character.sheet.cantrips : character.sheet.spells)]
-                      .filter((id) => {
-                        const spell = catalog.spells.find((s) => s.index === id);
-                        return spell?.level === level &&
-                          `${spell.name} ${spell.desc?.join(" ") || ""}`.toLowerCase().includes(search.toLowerCase()) &&
-                          (spellFilter === "all" ||
-                            (spellFilter === "prepared" && character.sheet.prepared.includes(id)) ||
-                            (spellFilter === "concentration" && (spell as typeof spell & { concentration?: boolean }).concentration) ||
-                            (spellFilter === "ritual" && (spell as typeof spell & { ritual?: boolean }).ritual) ||
-                            String(spell.level) === spellFilter);
-                      });
-                    if (!ids.length) return null;
-                    return (
-                      <fieldset key={level} className="spell-level-group">
-                        <legend>{level === 0 ? "Cantrip" : `Spell level ${level}`}</legend>
-                        {ids.map((id) => {
-                          const spell = catalog.spells.find((s) => s.index === id);
-                          if (!spell) return null;
-                          const description = `${spell.casting_time || ""} · ${spell.range || ""} · ${spell.duration || ""}\n${spell.desc?.join("\\n") || ""}`;
-                          return (
-                            <div className="spell-card" key={id}>
-                              <strong>{spell.name}</strong>
-                              <ActionEconomy castingTime={spell.casting_time} ritual={(spell as typeof spell & { ritual?: boolean }).ritual} />
-                              {character.sheet.prepared.includes(id) && <small>Prepared</small>}
-                              <div className="spell-actions">
-                                <button type="button" title="Kirim deskripsi ke chat" aria-label={`Kirim deskripsi ${spell.name} ke chat`} onClick={() => sendToChat(`📖 ${spell.name}`, description)}>↗</button>
-                                <details className="spell-details">
-                                  <summary title="Lihat deskripsi" aria-label={`Lihat deskripsi ${spell.name}`}>⌄</summary>
-                                  <p>{description}</p>
-                                </details>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </fieldset>
-                    );
-                  })}
+                  <SpellBook character={character} connected={connected} busy={busy} request={request} roll={roll} sendToChat={sendToChat} />
                 </section>
                 <section
                   hidden={sheetTab !== "equipment"}

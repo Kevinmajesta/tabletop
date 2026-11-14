@@ -118,6 +118,16 @@ export default function CoopPuzzle({ game, disabled, send, dm, members }: Props)
       </ol>
     </div>
 
+    {dm && !!coop.key?.length && <details className="coop-key">
+      <summary><KeyRound size={15} aria-hidden="true" />Kunci jawaban (hanya GM)</summary>
+      <div className="coop-key-grid">
+        {coop.key.map(section => <section key={section.title}>
+          <h5>{section.title}</h5>
+          <ul>{section.lines.map(line => <li key={line}>{line}</li>)}</ul>
+        </section>)}
+      </div>
+    </details>}
+
     {coop.finalDone && <p className="coop-victory" role="status"><DoorOpen size={20} aria-hidden="true" /> Pintu terbuka. Kedua ruang berhasil dipecahkan!</p>}
 
     <nav className="coop-tabs" aria-label="Panel puzzle">
@@ -142,7 +152,7 @@ export default function CoopPuzzle({ game, disabled, send, dm, members }: Props)
             <p>Ambil huruf pertama dari jawaban berikut, sesuai urutan:</p>
             <ol>{extractKeys.map(key => <li key={key}>{key}</li>)}</ol>
           </div>
-          {coop.crossword ? <Crossword key={`${game.tokenId}-${game.round}`} game={coop.crossword} disabled={locked} send={action => send({ type: 'coop:crossword', ...action })} /> : <p>Menunggu papan TTS.</p>}
+          {coop.crossword ? <Crossword key={`${game.tokenId}-${game.round}`} game={coop.crossword} disabled={locked} send={action => send({ ...action, type: 'coop:crossword' })} /> : <p>Menunggu papan TTS.</p>}
         </section>}
 
         {chairs && <section hidden={panel !== 'chairs'} className="coop-panel">

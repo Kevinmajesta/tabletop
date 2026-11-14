@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as RPointerEvent, type WheelEvent as RWheelEvent } from 'react';
 import { Expand, Image as ImageIcon, Maximize2, Minus, Plus, Shrink, Sparkles, Timer, Upload } from 'lucide-react';
+import type { Socket } from 'socket.io-client';
 import type { Game } from '../server/minigames';
 import type { JigsawState } from '../server/jigsaw';
 import { geometry, gridFor, homeCenter, jigsawPresets, pieceOptions, piecePath, tabs, type JigsawConfig } from '../server/jigsaw-data';
@@ -9,6 +10,10 @@ import './jigsaw.css';
 
 type View = { x: number; y: number; w: number; h: number };
 type Drag = { id: number; g: number; sx: number; sy: number; dx: number; dy: number; moved: boolean };
+// Keping yang baru dilepas tetap digambar di posisi lepasnya sampai server membalas, supaya tidak meloncat balik.
+type Settle = { id: number; g: number; dx: number; dy: number; x0: number; y0: number };
+type Remote = Record<string, { dx: number; dy: number; by: string }>;
+const DRAG_SEND_MS = 40;
 const HOLD_COLORS = ['#e0675d', '#5c9ae8', '#5fb67a', '#e5c552', '#a77be0', '#e08ad0'];
 const TABLES = [
   { id: 'wood', label: 'Kayu', color: '#2b2016' },
@@ -20,7 +25,7 @@ const TABLE_KEY = 'meja-petualang:jigsaw-table';
 const readTable = () => { try { return localStorage.getItem(TABLE_KEY) || 'wood'; } catch { return 'wood'; } };
 const clock = (ms: number) => { const s = Math.max(0, Math.floor(ms / 1000)); const h = Math.floor(s / 3600); const m = String(Math.floor((s % 3600) / 60)).padStart(2, '0'); const ss = String(s % 60).padStart(2, '0'); return h ? `${h}:${m}:${ss}` : `${m}:${ss}`; };
 
-export default function Jigsaw({ game, disabled, send, playerId, name, dm, upload }: { game: Game; disabled: boolean; send: (action: Record<string, unknown>) => void; playerId: string; name: (id: string) => string; dm: boolean; upload?: (file: File) => Promise<string> }) {
+export default function Jigsaw({ game, disabled, send, playerId, name, dm, upload, socket }: { game: Game; socket?: Socket | null; disabled: boolean; send: (action: Record<string, unknown>) => void; playerId: string; name: (id: string) => string; dm: boolean; upload?: (file: File) => Promise<string> }) {
   const t = game.jigsaw as JigsawState | undefined;
   const setup = (game.jigsawSetup as JigsawConfig | undefined) ?? null;
   const cfg = t?.config ?? null;
@@ -31,6 +36,23 @@ export default function Jigsaw({ game, disabled, send, playerId, name, dm, uploa
   const wrapRef = useRef<HTMLDivElement>(null);
   const [view, setView] = useState<View | null>(null);
   const [drag, setDrag] = useState<Drag | null>(null);
+  const [settle, setSettle] = useState<Settle | null>(null);
+  const [remote, setRemote] = useState<Remote>({});
+  const lastSent = useRef(0);
+  // Gerakan seret pemain lain (posisi sementara, tidak disimpan server).
+  useEffect(() => {
+    if (!socket) return;
+    const onDrag = (m: { tokenId: string; g: number; dx: number; dy: number; by: string }) => {
+      if (m.tokenId === game.tokenId) setRemote(r => ({ ...r, [String(m.g)]: { dx: m.dx, dy: m.dy, by: m.by } }));
+    };
+    socket.on('jigsaw:drag', onDrag);
+    return () => { socket.off('jigsaw:drag', onDrag); };
+  }, [socket, game.tokenId]);
+  // Buang posisi sementara begitu keping tidak lagi dipegang (sudah dilepas dan posisinya tersimpan).
+  useEffect(() => {
+    setRemote(r => { const keep = Object.entries(r).filter(([g, v]) => t?.held[g]?.by === v.by); return keep.length === Object.keys(r).length ? r : Object.fromEntries(keep); });
+  }, [t?.held]);
+  useEffect(() => { if (!settle) return; const id = setTimeout(() => setSettle(null), 1500); return () => clearTimeout(id); }, [settle]);
   const pan = useRef<{ sx: number; sy: number; view: View } | null>(null);
   const [preview, setPreview] = useState(false);
   const [table, setTable] = useState(readTable);
@@ -129,6 +151,8 @@ export default function Jigsaw({ game, disabled, send, playerId, name, dm, uploa
     if (drag) {
       const w = toWorld(e.clientX, e.clientY), dx = w.x - drag.sx, dy = w.y - drag.sy;
       setDrag({ ...drag, dx, dy, moved: drag.moved || Math.hypot(dx, dy) > Math.min(PW, PH) * 0.08 });
+      const nowMs = performance.now();
+      if (socket && nowMs - lastSent.current >= DRAG_SEND_MS) { lastSent.current = nowMs; socket.volatile.emit('jigsaw:drag', { tokenId: game.tokenId, g: drag.g, dx, dy }); }
       return;
     }
     if (pan.current) {
@@ -140,7 +164,7 @@ export default function Jigsaw({ game, disabled, send, playerId, name, dm, uploa
   const up = () => {
     if (drag) {
       const p = t.pieces[drag.id];
-      if (drag.moved) send({ type: 'jigsaw:drop', id: drag.id, x: p.x + drag.dx, y: p.y + drag.dy });
+      if (drag.moved) { send({ type: 'jigsaw:drop', id: drag.id, x: p.x + drag.dx, y: p.y + drag.dy }); setSettle({ id: drag.id, g: drag.g, dx: drag.dx, dy: drag.dy, x0: p.x, y0: p.y }); }
       else if (cfg.rotate) { send({ type: 'jigsaw:rotate', id: drag.id }); send({ type: 'jigsaw:release', id: drag.id }); }
       else send({ type: 'jigsaw:release', id: drag.id });
       setDrag(null);
@@ -209,17 +233,23 @@ export default function Jigsaw({ game, disabled, send, playerId, name, dm, uploa
           {order.map(id => {
             const p = t.pieces[id];
             const inDrag = !!drag && p.g === drag.g;
-            const x = p.x + (inDrag ? drag!.dx : 0), y = p.y + (inDrag ? drag!.dy : 0);
+            const settling = !inDrag && !!settle && p.g === settle.g && t.pieces[settle.id].x === settle.x0 && t.pieces[settle.id].y === settle.y0;
+            const far = !inDrag && !settling ? remote[String(p.g)] : undefined;
+            const live = far && t.held[String(p.g)]?.by === far.by ? far : undefined;
+            const ox = inDrag ? drag!.dx : settling ? settle!.dx : live ? live.dx : 0;
+            const oy = inDrag ? drag!.dy : settling ? settle!.dy : live ? live.dy : 0;
+            const x = p.x + ox, y = p.y + oy;
             const h = homeCenter(id, cfg.cols, PW, PH);
             const other = heldByOther(p.g);
             const single = groups.get(p.g)!.length === 1;
-            const cls = `jg-piece${inDrag ? ' dragging' : ''}${other ? ' held' : ''}${single ? '' : ' joined'}`;
+            const cls = `jg-piece${inDrag || settling ? ' dragging' : ''}${other ? ' held' : ''}${single ? '' : ' joined'}`;
             const label = other && groups.get(p.g)![0] === id;
-            return <g key={id} data-id={id} className={cls} transform={`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${p.r * 90}) translate(${(-h.x).toFixed(1)} ${(-h.y).toFixed(1)})`}
-              onPointerDown={e => down(e, id)} onContextMenu={e => rotateNow(e, id)}>
+            // Posisi lewat CSS transform (bisa dianimasikan), putaran lewat atribut di g dalam.
+            return <g key={id} data-id={id} className={cls} style={{ transform: `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)` }}
+              onPointerDown={e => down(e, id)} onContextMenu={e => rotateNow(e, id)}><g transform={`rotate(${p.r * 90}) translate(${(-h.x).toFixed(1)} ${(-h.y).toFixed(1)})`}>
               <path d={paths[id]} fill={`url(#${patternId})`} style={other ? { stroke: colorOf(other) } : undefined} />
               {label && <text x={h.x} y={h.y - PH * 0.62} textAnchor="middle" className="jg-holder" style={{ fill: colorOf(other!) }} transform={`rotate(${-p.r * 90} ${h.x} ${h.y})`}>{name(other!)}</text>}
-            </g>;
+            </g></g>;
           })}
         </svg>
         {preview && <figure className="jg-preview" onClick={() => setPreview(false)}>

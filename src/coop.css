@@ -345,3 +345,10 @@
   .coop-stepper li + li::before { width: 10px; margin-right: 6px; }
 }
 @media (prefers-reduced-motion: reduce) { .coop-meter > i { transition: none; } }
+
+/* Kunci jawaban GM */
+.coop-key{margin:0 0 12px;border:1px dashed #d7b77e88;border-radius:8px;background:#0f0c0999;color:#eadfca}
+.coop-key summary{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;color:#d7b77e;font-weight:700;font-size:13px}
+.coop-key-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px 18px;padding:4px 14px 14px}
+.coop-key h5{margin:0 0 6px;color:#d7b77e;font-size:12px;letter-spacing:.04em}
+.coop-key ul{margin:0;padding:0;list-style:none;display:grid;gap:3px;font-size:13px;line-height:1.4;overflow-wrap:anywhere}

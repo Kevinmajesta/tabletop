@@ -23,6 +23,7 @@ import Compass from './Compass';
 import Runes from './Runes';
 import Shift from './Shift';
 import Jigsaw from './Jigsaw';
+import Quiz from './Quiz';
 
 export const gameNames = Object.fromEntries(Object.entries(gameCatalog).map(([kind, entry]) => [kind, entry.name]));
 const choices: Record<string, string> = { rock: 'Batu', paper: 'Kertas', scissors: 'Gunting' };
@@ -35,7 +36,7 @@ function DrawingBoard({ strokes = [], enabled, send }: { strokes?: number[][][];
   </svg>;
 }
 // Aksi cepat yang dikirim tanpa menunggu jawaban aksi sebelumnya (lihat send).
-const liveAction = /^(jigsaw:|runes:draft$|alch:draft$|lock:draft$|potion:place$|compass:(step|undo)$|shift:(walk|pull)$)/;
+const liveAction = /^(jigsaw:|crossword:(letter|answer)$|coop:crossword$|runes:draft$|alch:draft$|lock:draft$|potion:place$|compass:(step|undo)$|shift:(walk|pull)$)/;
 
 export default function Minigames({ games, socket, dm, playerId, members, connected, openToken, onClose, onOpen, uploadPuzzle }: { games: Game[]; socket: Socket | null; dm: boolean; playerId: string; members: { id: string; name: string; online: boolean; dm: boolean }[]; connected: boolean; openToken: string | null; onClose: () => void; onOpen: (id: string) => void; uploadPuzzle?: (file: File) => Promise<string> }) {
   const [participants, setParticipants] = useState<string[]>([]);
@@ -96,7 +97,7 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
           <div className="minigame-token-list">{games.map(item => <div key={item.tokenId}><button onClick={() => onOpen(item.tokenId)}>{gameNames[item.kind]} · ronde {item.round}</button><button className="remove-action" aria-label={`Hapus ${gameNames[item.kind]} dari map`} title="Hapus token dari map" disabled={disabled} onClick={() => remove(item)}>Hapus</button></div>)}</div>
           <p>Geser token dengan Shift sambil menyeret. Hapus menghilangkan token dan seluruh ronde game.</p>
         </section>}
-        {([['party', 'Semua pemain'], ['duel', '1 lawan 1'], ['solo', '1 pemain']] as const).map(([mode, label]) => {
+        {([['party', 'Semua pemain'], ['duel', '2 pemain'], ['solo', '1 pemain']] as const).map(([mode, label]) => {
           const list = Object.entries(gameCatalog).filter(([kind, entry]) => kind !== 'crossword' && entry.mode === mode);
           return list.length ? <section key={mode} className="minigame-menu-group">
             <h4>{label}</h4>
@@ -115,7 +116,7 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
       {!openParty && !game.players.length && <p>Menunggu GM deklarasikan peserta.</p>}
       {!openParty && !dm && !game.players.includes(playerId) && <p>Kamu penonton. Aksi permainan hanya untuk peserta yang dipilih GM.</p>}
       {game.phase === 'waiting' && <div className="minigame-actions">
-        {dm && !openParty && game.kind !== 'cooprooms' && <fieldset className="minigame-participants"><legend>{fixedPlayers(game.kind) === 2 ? 'Pilih dua peserta 1v1' : fixedPlayers(game.kind) === 1 ? 'Pilih satu pemain' : 'Seluruh pemain online menjadi peserta'}</legend>
+        {dm && !openParty && game.kind !== 'cooprooms' && <fieldset className="minigame-participants"><legend>{fixedPlayers(game.kind) === 2 ? (game.kind === 'quiz' ? 'Pilih dua pemain (satu tim)' : 'Pilih dua peserta 1v1') : fixedPlayers(game.kind) === 1 ? 'Pilih satu pemain' : 'Seluruh pemain online menjadi peserta'}</legend>
           {fixedPlayers(game.kind) > 0 && members.filter(member => member.online).map(member => <label key={member.id}><input type="checkbox" checked={participants.includes(member.id)} disabled={disabled || (fixedPlayers(game.kind) === 2 && !participants.includes(member.id) && participants.length >= 2)} onChange={e => setParticipants(current => fixedPlayers(game.kind) === 1 ? (e.target.checked ? [member.id] : []) : e.target.checked ? [...current, member.id] : current.filter(id => id !== member.id))} />{member.name}{member.dm ? ' (GM)' : ''}</label>)}
           <button disabled={disabled || (fixedPlayers(game.kind) > 0 && participants.length !== fixedPlayers(game.kind))} onClick={() => send({ type: 'declare', players: participants })}>Deklarasikan {gameNames[game.kind]}</button>
         </fieldset>}
@@ -125,8 +126,9 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
       {game.kind === 'whodunit' && <Whodunit key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}
       {game.kind === 'tilefloor' && game.players.length === 2 && <TileFloor key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
       {game.kind === 'wirehack' && <WireHack key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
-      {game.kind === 'jigsaw' && <Jigsaw key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} upload={uploadPuzzle} />}
+      {game.kind === 'jigsaw' && <Jigsaw key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} upload={uploadPuzzle} socket={socket} />}
       {game.kind === 'runes' && <Runes key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
+      {game.kind === 'quiz' && <Quiz key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
       {game.kind === 'shift' && <Shift key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
       {game.kind === 'compass' && <Compass key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
       {game.kind === 'potion' && <Potion key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
@@ -213,7 +215,7 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
         {dm && game.phase !== 'waiting' && <button disabled={disabled} onClick={() => send({ type: 'reset' })}>{game.phase === 'finished' ? 'Siapkan ronde berikutnya' : 'Batalkan ronde'}</button>}
         {dm && <button className="remove-action" disabled={disabled} onClick={() => remove(game)}>Hapus token dari map</button>}
       </div>
-      {busy && <p role="status">Mengirim aksi…</p>}{error && <p role="alert">{error}</p>}
+      {busy && <p role="status">Mengirim aksi…</p>}{error && <p role="alert" className="minigame-error">{error}</p>}
     </dialog>}
   </section>;
 }

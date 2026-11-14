@@ -26,12 +26,13 @@ import {
 import {
   conditions,
   distance,
-  visible,
   type Scene,
   type Point,
   type Mark,
 } from "../server/tabletop";
 import { monsters } from "../server/monsters";
+import LightCone from "./LightCone";
+import { polygonPath, sightPolygon, wallSegments } from "../server/lighting";
 import "./board-tools.css";
 import "./dm-menu.css";
 
@@ -47,6 +48,9 @@ type Props = {
   scene: Scene;
   scenes: Scene[];
   publishedSceneId?: string;
+  // Split party: pemain (bukan DM) dan scene tujuan masing-masing.
+  players?: { id: string; name: string; online: boolean }[];
+  playerScenes?: Record<string, string>;
   socket: Socket | null;
   dm: boolean;
   previewTokenId?: string | null;
@@ -112,10 +116,39 @@ const toolGroups: { name: string; description: string; ids: Tool[] }[] = [
   },
 ];
 
+// Tepi cahaya/vision: penuh sampai 50% jangkauan, lalu turun mengikuti kurva smootherstep dengan banyak titik
+// supaya tidak ada garis-garis (Mach band) di sambungan titik gradien.
+const smoother = (t: number) => t * t * t * (t * (t * 6 - 15) + 10);
+const lightFade: [number, number][] = [[0, 1], ...Array.from({ length: 25 }, (_, i): [number, number] => { const t = i / 24; return [Number((0.5 + 0.5 * t).toFixed(4)), Number((1 - smoother(t)).toFixed(4))]; })];
+// Sisi kerucut: lapisan juring tipis tiap CONE_STEP derajat; opasitas tiap lapisan dihitung supaya gabungannya
+// mengikuti kurva yang sama (dari terang di tepi inti ke 0 di lapisan terluar).
+const CONE_STEP = 1.25, CONE_LAYERS = 12;
+const coneFade = (() => {
+  const target = (k: number) => 1 - smoother(k / (CONE_LAYERS + 1)); // cakupan yang diinginkan di pita ke-k (1..N)
+  const out: number[] = [];
+  for (let k = CONE_LAYERS; k >= 1; k--) out[k - 1] = 1 - (1 - target(k)) / (1 - (k === CONE_LAYERS ? 0 : target(k + 1)));
+  return out;
+})();
+// Tekstur noise kecil (dibuat sekali) untuk dither di atas lapisan gelap.
+let ditherCache: string | null | undefined;
+function makeDither() {
+  if (ditherCache !== undefined) return ditherCache;
+  try {
+    const c = document.createElement("canvas"); c.width = c.height = 128;
+    const g = c.getContext("2d"); if (!g) return (ditherCache = null);
+    const img = g.createImageData(128, 128);
+    for (let i = 0; i < img.data.length; i += 4) { const v = Math.random() < 0.5 ? 0 : 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 6; }
+    g.putImageData(img, 0, 0);
+    return (ditherCache = c.toDataURL());
+  } catch { return (ditherCache = null); }
+}
+
 export default function BoardTools({
   scene,
   scenes,
   publishedSceneId,
+  players = [],
+  playerScenes = {},
   socket,
   dm,
   previewTokenId,
@@ -130,6 +163,9 @@ export default function BoardTools({
   const [tool, setTool] = useState<Tool>("select");
   const [open, setOpen] = useState(false);
   const [pagesOpen, setPagesOpen] = useState(false);
+  const [sendPick, setSendPick] = useState<string[]>([]);
+  const sceneOfPlayer = (id: string) => playerScenes[id] || publishedSceneId;
+  const playersIn = (sceneId: string) => players.filter((pl) => sceneOfPlayer(pl.id) === sceneId);
   const pagesToggle = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     const toggle = () => { if (dm) { setPagesOpen(value => !value); setOpen(false); } };
@@ -326,6 +362,16 @@ export default function BoardTools({
         },
       );
   }
+  // Impor dinding dari file JSON (format "meja-dinding", mis. dari generator labirin). Mengganti dinding lama di scene ini.
+  async function importWalls(file: File) {
+    let data: { format?: string; name?: string; columns?: number; walls?: unknown[] };
+    try { data = JSON.parse(await file.text()); } catch { setError("File dinding tidak bisa dibaca (harus .json)."); return; }
+    if (data?.format !== "meja-dinding" || !Array.isArray(data.walls) || !data.walls.length) { setError("Ini bukan file dinding Meja Petualang."); return; }
+    const old = scene.marks.filter((m) => m.kind === "wall" || m.kind === "door" || m.kind === "window").length;
+    const grid = typeof data.columns === "number" ? ` dan atur grid ke ${data.columns} kolom` : "";
+    if (!confirm(`Impor ${data.walls.length} dinding${data.name ? ` "${data.name}"` : ""}${grid}?${old ? ` ${old} dinding/pintu lama di scene ini akan diganti.` : ""} Bisa dibatalkan dengan Undo.`)) return;
+    action({ type: "walls:import", walls: data.walls, columns: data.columns, offset: true, replace: true });
+  }
   function backup() { if(!socket || !connected)return;socket.timeout(30000).emit('campaign:export',(err:Error|null,result?:{error?:string})=>{if(err || result?.error){setError(result?.error || 'Backup gagal.');return;}const url=URL.createObjectURL(new Blob([JSON.stringify(result)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='campaign-backup.json';a.click();URL.revokeObjectURL(url);}); }
   function point(event: React.PointerEvent<SVGSVGElement>) {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -473,19 +519,43 @@ export default function BoardTools({
         total + distance(path[i], p, { ...scene.grid, width, height }),
       0,
     );
-  const columns = 100,
-    rows = Math.ceil((columns * height) / width);
-  const fogCells = useMemo(() => {
-    const cells: string[] = [];
-    if ((previewTokenId || !dm) && (scene.fog || scene.vision)) {
-      for (let x = 0; x < columns; x++)
-        for (let y = 0; y < rows; y++) {
-          if (!visible({ x: ((x + 0.5) / columns) * 100, y: ((y + 0.5) / rows) * 100 }, scene, playerId, previewTokenId))
-            cells.push(`M${x * width / columns},${y * height / rows}h${width / columns + 1}v${height / rows + 1}h${-width / columns - 1}Z`);
-        }
-    }
-    return cells;
-  }, [scene, playerId, previewTokenId, dm, width, height, rows]);
+  // Pencahayaan seperti Owlbear: tiap sumber vision/cahaya jadi poligon yang dipotong dinding (bayangan tajam dan
+  // meruncing), diisi gradien radial supaya tepi lingkarannya memudar. Gelap = 1 − (terlihat × terang × fog terbuka).
+  const lightingVersion = useRef(0);
+  const ditherUrl = useMemo(() => (typeof document === "undefined" ? null : makeDither()), []);
+  const lighting = useMemo(() => {
+    if (!((previewTokenId || !dm) && (scene.fog || scene.vision))) return null;
+    const ftPx = width / scene.grid.columns / scene.grid.distance;
+    const segs = wallSegments(scene.marks, width, height);
+    const euclid = { ...scene.grid, diagonal: "euclidean" as const };
+    const shape = (center: { x: number; y: number }, rangeFt: number, cone?: { dir: number; angle: number }) => {
+      const c = { x: (center.x / 100) * width, y: (center.y / 100) * height }, r = Math.max(1, rangeFt * ftPx);
+      if (!cone) return { cx: c.x, cy: c.y, r, layers: [{ d: polygonPath(sightPolygon(c, r, segs)), opacity: 1 }] };
+      // Cahaya lancip: juring inti penuh, ditambah juring yang makin lebar dan tipis supaya sisi kerucut memudar.
+      const rad = (deg: number) => (deg * Math.PI) / 180;
+      const layer = (extra: number, opacity: number) => ({ d: polygonPath(sightPolygon(c, r, segs, 96, { dir: rad(cone.dir), width: rad(cone.angle + extra * 2) })), opacity });
+      return { cx: c.x, cy: c.y, r, layers: [
+        layer(0, 1), ...coneFade.map((a, k) => layer((k + 1) * CONE_STEP, a)),
+        { d: polygonPath(sightPolygon(c, (width / scene.grid.columns) * 0.6, segs)), opacity: 1 },
+      ] };
+    };
+    const coneOf = (t: { lightShape?: string; lightDir?: number; lightAngle?: number }) => (t.lightShape === "cone" ? { dir: t.lightDir ?? 0, angle: t.lightAngle ?? 90 } : undefined);
+    const sources = scene.tokens.filter((t) => !t.hidden && (previewTokenId ? t.id === previewTokenId : t.ownerId === playerId && t.visionSource));
+    // Chrome tidak menggambar ulang <mask> yang isinya berubah, jadi setiap perubahan cahaya memakai id mask baru.
+    lightingVersion.current += 1;
+    return {
+      v: lightingVersion.current,
+      sights: scene.vision ? sources.map((t) => shape(t, t.visionRange ?? 60)) : null,
+      lights: scene.vision && !scene.daylight ? [
+        ...scene.marks.filter((m) => m.kind === "light").map((m) => shape(m.a, distance(m.a, m.b, euclid))),
+        ...scene.tokens.filter((t) => t.lightRange && !t.hidden).map((t) => shape(t, t.lightRange!, coneOf(t))),
+      ] : null,
+      fog: scene.fog ? {
+        lights: sources.filter((t) => t.lightRange).map((t) => shape(t, t.lightRange!, coneOf(t))),
+        reveals: scene.marks.filter((m) => m.kind === "reveal").map((m) => ({ x: (Math.min(m.a.x, m.b.x) / 100) * width, y: (Math.min(m.a.y, m.b.y) / 100) * height, w: (Math.abs(m.a.x - m.b.x) / 100) * width, h: (Math.abs(m.a.y - m.b.y) / 100) * height })),
+      } : null,
+    };
+  }, [scene, playerId, previewTokenId, dm, width, height]);
   const panel = (
     <div
       className="board-tools-panel"
@@ -527,14 +597,35 @@ export default function BoardTools({
                 <strong>{page.name}</strong>
                 <span className="scene-page-badges">
                   {scene.id === page.id && <span>DM · Preview</span>}
-                  {publishedSceneId === page.id && <span className="scene-player-ribbon">Pemain aktif</span>}
+                  {publishedSceneId === page.id && <span className="scene-player-ribbon">Scene utama</span>}
                 </span>
+                {!!playersIn(page.id).length && <span className="scene-page-players" aria-label={`Pemain di ${page.name}`}>
+                  {playersIn(page.id).map((pl) => <i key={pl.id} title={pl.name} className={pl.online ? "online" : ""}>{pl.name.charAt(0).toUpperCase()}</i>)}
+                </span>}
               </button>;
             })}
           </div>
-          <footer>
-            <span>Preview: <strong>{scene.name}</strong></span>
-            <button type="button" disabled={!connected} onClick={() => action({ type: "scene:publish" })}>Tampilkan ke pemain</button>
+          <footer className="scene-send">
+            <div className="scene-send-head">
+              <span>Kirim ke <strong>{scene.name}</strong></span>
+              <small>{playersIn(scene.id).length ? `Di sini: ${playersIn(scene.id).map((pl) => pl.name).join(", ")}` : "Belum ada pemain di sini"}</small>
+            </div>
+            {!!players.length && <div className="scene-send-players" role="group" aria-label="Pilih pemain">
+              {players.map((pl) => {
+                const here = sceneOfPlayer(pl.id) === scene.id;
+                const on = sendPick.includes(pl.id);
+                return <button key={pl.id} type="button" aria-pressed={on} className={`${on ? "on" : ""}${here ? " here" : ""}`} title={here ? `${pl.name} sudah di scene ini` : `Sekarang di: ${scenes.find((sc) => sc.id === sceneOfPlayer(pl.id))?.name || "-"}`}
+                  onClick={() => setSendPick((cur) => (cur.includes(pl.id) ? cur.filter((x) => x !== pl.id) : [...cur, pl.id]))}>
+                  <i className={pl.online ? "online" : ""}>{pl.name.charAt(0).toUpperCase()}</i>{pl.name}
+                </button>;
+              })}
+            </div>}
+            <div className="scene-send-actions">
+              <button type="button" disabled={!connected || !sendPick.length} onClick={() => { action({ type: "scene:send", players: sendPick }); setSendPick([]); }}>
+                Kirim yang dipilih{sendPick.length ? ` (${sendPick.length})` : ""}
+              </button>
+              <button type="button" className="primary" disabled={!connected} onClick={() => { action({ type: "scene:publish" }); setSendPick([]); }}>Semua pemain ke sini</button>
+            </div>
           </footer>
           <form onSubmit={event => { event.preventDefault(); if (name.trim()) { action({ type: "scene:create", name }); setName(""); } }}>
             <label>Scene baru<input value={name} maxLength={60} onChange={event => setName(event.target.value)} /></label>
@@ -715,18 +806,18 @@ export default function BoardTools({
                     <h3>Scene</h3>
                     <div className="dm-scene-now">
                       <strong>{scene.name}</strong>
-                      <span className={publishedSceneId === scene.id ? "live" : ""}>
-                        {publishedSceneId === scene.id ? "Sedang dilihat pemain" : "Belum ditampilkan ke pemain"}
+                      <span className={playersIn(scene.id).length ? "live" : ""}>
+                        {playersIn(scene.id).length ? `Dilihat: ${playersIn(scene.id).map((pl) => pl.name).join(", ")}` : "Belum ada pemain di sini"}
                       </span>
                     </div>
                     <div className="dm-row">
-                      {publishedSceneId !== scene.id && (
+                      {playersIn(scene.id).length < players.length && (
                         <button type="button" className="dm-primary" disabled={!connected} onClick={() => action({ type: "scene:publish" })}>
-                          Tampilkan ke pemain
+                          Semua pemain ke sini
                         </button>
                       )}
                       <button type="button" onClick={() => { setOpen(false); setPagesOpen(true); }}>
-                        Ganti atau buat scene
+                        Pilih pemain / ganti scene
                       </button>
                     </div>
                   </section>
@@ -736,6 +827,15 @@ export default function BoardTools({
                     <button type="button" disabled={!connected} onClick={() => window.dispatchEvent(new Event("tabletop:dm-upload"))}>
                       Unggah atau ganti peta
                     </button>
+                    <label className="dm-file-button">
+                      Impor dinding (.json)
+                      <input type="file" accept=".json,application/json" disabled={!connected} onChange={(e) => { const file = e.currentTarget.files?.[0]; e.currentTarget.value = ""; if (file) void importWalls(file); }} />
+                    </label>
+                    {scene.marks.some((m) => m.kind === "wall" || m.kind === "door" || m.kind === "window") && (
+                      <button type="button" disabled={!connected} onClick={() => { if (confirm("Hapus semua dinding, pintu, dan jendela di scene ini? Bisa dibatalkan dengan Undo.")) action({ type: "walls:clear" }); }}>
+                        Hapus semua dinding ({scene.marks.filter((m) => m.kind === "wall" || m.kind === "door" || m.kind === "window").length})
+                      </button>
+                    )}
                     <label>
                       Ukuran peta · {Math.round((scene.mapScale ?? 1) * 100)}%
                       <input type="range" min={50} max={400} step={10} value={(scene.mapScale ?? 1) * 100} onChange={(e) => action({ type: "grid", mapScale: e.target.valueAsNumber / 100 })} />
@@ -895,6 +995,13 @@ export default function BoardTools({
                         );
                       })}
                     </div>
+                    {!dm && token.lightShape === "cone" && !!token.lightRange && (
+                      <>
+                        <h4>Arah cahaya</h4>
+                        <LightCone shape="cone" angle={token.lightAngle ?? 90} dir={token.lightDir ?? 0} canShape={false} disabled={!connected}
+                          onChange={(patch) => action({ type: "token:update", id: token.id, ...patch })} />
+                      </>
+                    )}
                     {dm && dmMenu && (
                       <section className="dm-section">
                         <h3>Khusus DM</h3>
@@ -914,6 +1021,10 @@ export default function BoardTools({
                             </label>
                           ))}
                         </div>
+                        {!!token.lightRange && (
+                          <LightCone shape={token.lightShape === "cone" ? "cone" : "circle"} angle={token.lightAngle ?? 90} dir={token.lightDir ?? 0} canShape disabled={!connected}
+                            onChange={(patch) => action({ type: "token:update", id: token.id, ...patch })} />
+                        )}
                       </section>
                     )}
                   </div>
@@ -1041,7 +1152,6 @@ export default function BoardTools({
         setWaypoints([]);
       }}
     >
-      <defs><filter id="vision-fog-blur" filterUnits="userSpaceOnUse" x={-20} y={-20} width={width + 40} height={height + 40}><feGaussianBlur stdDeviation={Math.max(width / 100, height / rows)} /></filter></defs>
       {scene.marks
         .filter((m) => m.kind !== "reveal")
         .map((m) => shape(m, m.id))}
@@ -1080,7 +1190,41 @@ export default function BoardTools({
           </text>
         </>
       )}
-      {fogCells.length > 0 && <g filter="url(#vision-fog-blur)"><path d={fogCells.join('')} fill="#11151c" /></g>}
+      {lighting && (() => {
+        const grad = (id: string, s: { cx: number; cy: number; r: number }, color: string) => (
+          <radialGradient key={id} id={id} gradientUnits="userSpaceOnUse" cx={s.cx} cy={s.cy} r={s.r}>
+            {lightFade.map(([o, a]) => <stop key={o} offset={o} stopColor={color} stopOpacity={a} />)}
+          </radialGradient>
+        );
+        const box = { x: 0, y: 0, width, height, maskUnits: "userSpaceOnUse" as const };
+        const id = (name: string) => `lm-${name}-${lighting.v}`;
+        return <g key={lighting.v} pointerEvents="none">
+          <defs>
+            {lighting.sights?.map((s, i) => grad(id(`s${i}`), s, "#000"))}
+            {lighting.lights?.map((s, i) => grad(id(`l${i}`), s, "#fff"))}
+            {lighting.fog?.lights.map((s, i) => grad(id(`f${i}`), s, "#fff"))}
+            {lighting.lights && <mask id={id("lit")} {...box}><rect width={width} height={height} fill="#000" />{lighting.lights.map((s, i) => s.layers.map((l, j) => <path key={`${i}-${j}`} d={l.d} fill={`url(#${id(`l${i}`)})`} fillOpacity={l.opacity} />))}</mask>}
+            {lighting.fog && <mask id={id("fog")} {...box}><rect width={width} height={height} fill="#000" />
+              {lighting.fog.reveals.map((r, i) => <rect key={i} x={r.x} y={r.y} width={r.w} height={r.h} fill="#fff" />)}
+              {lighting.fog.lights.map((s, i) => s.layers.map((l, j) => <path key={`${i}-${j}`} d={l.d} fill={`url(#${id(`f${i}`)})`} fillOpacity={l.opacity} />))}
+            </mask>}
+            <mask id={id("dark")} {...box}>
+              <rect width={width} height={height} fill="#fff" />
+              <g mask={lighting.fog ? `url(#${id("fog")})` : undefined}>
+                <g mask={lighting.lights ? `url(#${id("lit")})` : undefined}>
+                  {lighting.sights ? lighting.sights.map((s, i) => s.layers.map((l, j) => <path key={`${i}-${j}`} d={l.d} fill={`url(#${id(`s${i}`)})`} fillOpacity={l.opacity} />)) : <rect width={width} height={height} fill="#000" />}
+                </g>
+              </g>
+            </mask>
+          </defs>
+          <rect className="vision-darkness" width={width} height={height} fill="#11151c" mask={`url(#${id("dark")})`} />
+          {/* Dither halus: memecah pita warna 8-bit di tepi gradien gelap. */}
+          {ditherUrl && <>
+            <pattern id={id("dither")} patternUnits="userSpaceOnUse" width={128} height={128}><image href={ditherUrl} width={128} height={128} style={{ imageRendering: "pixelated" }} /></pattern>
+            <rect width={width} height={height} fill={`url(#${id("dither")})`} mask={`url(#${id("dark")})`} opacity={0.5} />
+          </>}
+        </g>;
+      })()}
       {Object.entries(sharedRulers).map(
         ([id, ruler]) =>
           ruler.points.length > 1 && (

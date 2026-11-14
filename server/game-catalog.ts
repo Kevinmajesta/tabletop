@@ -1,4 +1,4 @@
-export const gameKinds = ['rps', 'tictactoe', 'connectfour', 'quickmath', 'memory', 'bombdefuse', 'reliccipher', 'chaincipher', 'crossword', 'ttspilihan', 'cooprooms', 'seating', 'drawing', 'wallclock', 'relicscale', 'journal', 'cryptex', 'whodunit', 'lockpick', 'tilefloor', 'ritual', 'mirrors', 'wirehack', 'tavern', 'alchemy', 'potion', 'compass', 'runes', 'shift', 'jigsaw'] as const;
+export const gameKinds = ['rps', 'tictactoe', 'connectfour', 'quickmath', 'memory', 'bombdefuse', 'reliccipher', 'chaincipher', 'crossword', 'ttspilihan', 'cooprooms', 'seating', 'drawing', 'wallclock', 'relicscale', 'journal', 'cryptex', 'whodunit', 'lockpick', 'tilefloor', 'ritual', 'mirrors', 'wirehack', 'tavern', 'alchemy', 'potion', 'compass', 'runes', 'shift', 'jigsaw', 'quiz'] as const;
 export type GameKind = typeof gameKinds[number];
 // duel = tepat 2 pemain, solo = tepat 1 pemain dipilih GM, party = semua pemain online.
 export const gameCatalog: Record<GameKind, { name: string; mark: string; mode: 'duel' | 'solo' | 'party' }> = {
@@ -29,9 +29,10 @@ export const gameCatalog: Record<GameKind, { name: string; mark: string; mode: '
   alchemy: { name: 'Segel Sang Alkemis', mark: '⚗', mode: 'party' },
   potion: { name: 'Ramuan Seimbang', mark: '🜄', mode: 'party' },
   compass: { name: 'Jalur Sang Alkemis', mark: '🧭', mode: 'party' },
-  runes: { name: 'Bahasa Rune yang Hilang', mark: 'ᚱ', mode: 'party' },
+  runes: { name: 'Check bahasa', mark: 'ᚱ', mode: 'party' },
   shift: { name: 'Dungeon yang Berputar', mark: '⟲', mode: 'party' },
   jigsaw: { name: 'Puzzle Gambar (Jigsaw)', mark: '🧩', mode: 'party' },
+  quiz: { name: 'Ujian Sang Sphinx (Kuis)', mark: '?', mode: 'duel' },
 };
 // Jumlah peserta tetap yang dipilih GM: 2 untuk duel, 1 untuk solo, 0 berarti semua pemain online (party).
 export const fixedPlayers = (kind: GameKind) => (gameCatalog[kind].mode === 'duel' ? 2 : gameCatalog[kind].mode === 'solo' ? 1 : 0);

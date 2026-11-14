@@ -1,0 +1,117 @@
+/* Tab Spell di sheet karakter: ringkas, tanpa bingkai bertumpuk. */
+.spellbook { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+.spellbook button { font: inherit; }
+.sb-muted { margin: 0; font-size: 13px; color: #8f8168; }
+
+.sb-summary { display: flex; flex-wrap: wrap; align-items: stretch; gap: 10px; }
+.sb-stats { display: flex; align-items: stretch; flex-wrap: wrap; gap: 0; border: 1px solid #3f3424; border-radius: 10px; overflow: hidden; background: #15110d; }
+.sb-stats > div { display: flex; flex-direction: column; justify-content: center; padding: 8px 16px; border-right: 1px solid #2c251a; }
+.sb-stats small { font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #8f8168; }
+.sb-stats strong { font-family: Georgia, "Times New Roman", serif; font-size: 20px; font-weight: 400; color: #f3e6c4; }
+.spellbook .sb-roll { display: inline-flex; align-items: center; gap: 6px; margin: 0; padding: 0 14px; min-height: 0; border: 0; border-radius: 0; background: #cfa95f14; color: #e3cf9f; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.spellbook .sb-roll:hover:not(:disabled) { background: #cfa95f26; }
+.sb-concentration { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px dashed #3f3424; border-radius: 10px; font-size: 12.5px; color: #8f8168; }
+.sb-concentration.on { border-style: solid; border-color: #9fb7ff66; background: #9fb7ff12; color: #c9d6ff; }
+.sb-concentration strong { font-family: Georgia, "Times New Roman", serif; font-size: 15px; font-weight: 400; color: #eef2ff; }
+.spellbook .sb-concentration button { width: 24px; height: 24px; min-width: 0; min-height: 0; margin: 0; padding: 0; display: grid; place-items: center; border: 0; border-radius: 6px; background: none; color: inherit; cursor: pointer; }
+.spellbook .sb-concentration button:hover:not(:disabled) { background: #ffffff14; }
+
+.sb-slots { display: flex; flex-wrap: wrap; gap: 8px 22px; padding: 10px 14px; border: 1px solid #2c251a; border-radius: 10px; background: #120f0c; }
+.sb-slot-row { display: flex; align-items: center; gap: 10px; }
+.sb-slot-row > span { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #a99c84; }
+.sb-slot-row em { font-size: 12px; font-style: normal; font-weight: 700; color: #cbbd9f; font-variant-numeric: tabular-nums; }
+.sb-pips { display: flex; gap: 5px; }
+.spellbook .sb-pips button {
+  width: 16px; height: 16px; min-width: 0; min-height: 0; margin: 0; padding: 0; border: 1.5px solid #cfa95f; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff0c4, #cfa95f 60%, #8a6a2f); cursor: pointer; transition: transform .1s ease;
+}
+.spellbook .sb-pips button.used { background: #0f0c08; border-color: #5c4a2e; }
+.spellbook .sb-pips button:hover:not(:disabled) { transform: scale(1.15); }
+
+.sb-innate { padding: 10px 14px; border: 1px solid #2c251a; border-radius: 10px; }
+.sb-innate h4 { margin: 0 0 6px; font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #a99c84; }
+.sb-innate p { margin: 2px 0; font-size: 13px; color: #ddd2bb; }
+
+.sb-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.sb-search { display: flex; align-items: center; gap: 6px; flex: 0 1 220px; height: 34px; margin: 0; padding: 0 10px; border: 1px solid #3a3124; border-radius: 8px; background: #0f0c08; color: #8f8168; }
+.sb-search:focus-within { border-color: #cfa95f; }
+.spellbook .sb-search input { flex: 1; min-width: 0; height: 32px; margin: 0; padding: 0; border: 0; background: none; box-shadow: none; color: #ece2cc; font-size: 13px; outline: 0; }
+.sb-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.spellbook .sb-chips button { height: 28px; min-height: 0; margin: 0; padding: 0 11px; border: 1px solid #3a3124; border-radius: 999px; background: none; color: #a99c84; font-size: 12px; font-weight: 600; cursor: pointer; }
+.spellbook .sb-chips button:hover { color: #ece2cc; }
+.spellbook .sb-chips button[aria-checked="true"] { border-color: #cfa95f; background: #cfa95f; color: #1a140c; }
+.spellbook .sb-prepare-btn { display: inline-flex; align-items: center; gap: 6px; height: 32px; min-height: 0; margin: 0 0 0 auto; padding: 0 12px; border: 1px solid #cfa95f88; border-radius: 8px; background: none; color: #e3cf9f; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+
+.sb-prepare { padding: 14px; border: 1px solid #cfa95f55; border-radius: 10px; background: #1a1510; }
+.sb-prepare header { display: flex; align-items: baseline; justify-content: space-between; }
+.sb-prepare header strong { font-family: Georgia, "Times New Roman", serif; font-size: 17px; font-weight: 400; color: #f3e6c4; }
+.sb-prepare header span { font-weight: 700; color: #9fd0a0; font-variant-numeric: tabular-nums; }
+.sb-prepare header span.over { color: #f0a596; }
+.sb-prepare p { margin: 4px 0 10px; font-size: 12px; color: #8f8168; }
+.sb-prepare-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; max-height: 300px; overflow-y: auto; }
+.spellbook .sb-prepare-grid label { display: flex; align-items: center; gap: 8px; margin: 0; padding: 7px 10px; border: 1px solid #2c251a; border-radius: 8px; background: #120f0c; cursor: pointer; font-size: 13px; color: #cbbd9f; }
+.spellbook .sb-prepare-grid label.on { border-color: #cfa95f88; background: #cfa95f12; color: #f3e6c4; }
+.spellbook .sb-prepare-grid input { width: 15px; height: 15px; margin: 0; accent-color: #cfa95f; }
+.sb-prepare-grid span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sb-prepare-grid small { font-size: 10.5px; color: #8f8168; }
+.sb-prepare-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+.spellbook .sb-prepare-actions button { height: 34px; min-height: 0; margin: 0; padding: 0 14px; border: 1px solid #3a3124; border-radius: 8px; background: none; color: #cbbd9f; font-size: 13px; font-weight: 600; cursor: pointer; }
+.spellbook .sb-prepare-actions button.primary { border-color: #cfa95f; background: #cfa95f; color: #1a140c; }
+
+.sb-group h4 { display: flex; align-items: baseline; gap: 10px; margin: 6px 0 6px; padding-bottom: 6px; border-bottom: 1px solid #2c251a; font-family: Georgia, "Times New Roman", serif; font-size: 17px; font-weight: 400; color: #f3e6c4; }
+.sb-group h4 span { font-family: inherit; font-size: 11.5px; color: #8f8168; }
+.sb-group ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.sb-spell { border: 1px solid transparent; border-radius: 8px; }
+.sb-spell.open { border-color: #3f3424; background: #15110d; }
+.spellbook .sb-row {
+  width: 100%; display: grid; grid-template-columns: 10px minmax(0, 1.4fr) minmax(0, 1.6fr) minmax(0, 1fr) 16px; align-items: center; gap: 10px;
+  min-height: 0; margin: 0; padding: 8px 10px; border: 0; border-radius: 8px; background: none; color: #ece2cc; text-align: left; cursor: pointer;
+}
+.spellbook .sb-row:hover { background: #ffffff08; }
+.sb-row > strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 600; }
+.sb-spell.unprepared .sb-row > strong { color: #a99c84; }
+.sb-dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid #5c4a2e; }
+.sb-dot.on { border-color: #cfa95f; background: #cfa95f; }
+.sb-tags { display: flex; flex-wrap: nowrap; align-items: center; gap: 4px; min-width: 0; overflow: hidden; }
+.sb-tags em { padding: 1px 6px; border: 1px solid #9fb7ff66; border-radius: 4px; font-size: 10.5px; font-style: normal; font-weight: 700; color: #c9d6ff; }
+.sb-tags em.active { border-color: #9fd0a0; color: #9fd0a0; }
+.sb-meta { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: #8f8168; text-align: right; }
+.sb-chevron { color: #8f8168; transition: transform .15s ease; }
+.sb-spell.open .sb-chevron { transform: rotate(180deg); }
+.sb-detail { padding: 2px 14px 14px 30px; }
+.sb-detail dl { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0 0 10px; }
+.sb-detail dt { font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #8f8168; }
+.sb-detail dd { margin: 2px 0 0; font-size: 13px; color: #ddd2bb; }
+.sb-desc p { margin: 0 0 8px; font-size: 13.5px; line-height: 1.6; color: #cbbd9f; }
+.sb-detail-actions { display: flex; gap: 8px; margin-top: 4px; }
+.spellbook .sb-detail-actions button { display: inline-flex; align-items: center; gap: 6px; height: 30px; min-height: 0; margin: 0; padding: 0 12px; border: 1px solid #3a3124; border-radius: 7px; background: none; color: #cbbd9f; font-size: 12px; font-weight: 600; cursor: pointer; }
+.spellbook .sb-detail-actions button:hover:not(:disabled) { border-color: #cfa95f88; color: #f3e6c4; }
+
+/* Gaya label/tombol/li global di dialog karakter menimpa tata letak; dipertegas di sini. */
+.character-dialog .spellbook label.sb-search { display: flex; flex-direction: row; align-items: center; gap: 6px; margin: 0; }
+.character-dialog .spellbook label.sb-search input { width: auto; min-height: 0; }
+.character-dialog .spellbook .sb-row { min-height: 0; padding: 7px 10px; }
+.character-dialog .spellbook .sb-group ul, .character-dialog .spellbook .sb-group li { margin: 0; padding: 0; border: 0; }
+.character-dialog .spellbook .sb-spell { border: 1px solid transparent; }
+.character-dialog .spellbook .sb-spell.open { border-color: #3f3424; }
+.character-dialog .spellbook .sb-spell + .sb-spell { border-top-color: #221d15; }
+
+/* Baris spell lebih solid dan kontras (bukan transparan menyatu dengan latar). */
+.character-dialog .spellbook .sb-group ul { gap: 6px; }
+.character-dialog .spellbook .sb-spell { border: 1px solid #3a3124; border-radius: 9px; background: linear-gradient(180deg, #221b14, #1a1510); box-shadow: 0 1px 0 #ffffff08 inset, 0 2px 6px #0006; }
+.character-dialog .spellbook .sb-spell + .sb-spell { border-top-color: #3a3124; }
+.character-dialog .spellbook .sb-spell:hover { border-color: #5c4a2e; }
+.character-dialog .spellbook .sb-spell.open { border-color: #cfa95f88; background: linear-gradient(180deg, #2a2117, #1d1712); }
+.character-dialog .spellbook .sb-row:hover { background: none; }
+.sb-row > strong { font-size: 14.5px; color: #f6ecd6; }
+.sb-spell.unprepared .sb-row > strong { color: #e6dcc6; }
+.sb-spell.unprepared .sb-row > strong::after { content: "belum prepared"; margin-left: 8px; font-size: 10.5px; font-weight: 600; color: #a99c84; }
+.sb-meta { color: #cbbd9f; }
+.sb-chevron { color: #cbbd9f; }
+.sb-dot { width: 9px; height: 9px; border-color: #8a7350; }
+.sb-desc p { color: #e6dcc6; }
+.sb-detail dd { color: #f3e9d2; }
+.sb-detail dt { color: #a99c84; }
+.sb-group h4 { color: #fbf1d8; }
+.sb-group h4 span { color: #b5a689; }
+.sb-tags em { border-color: #9fb7ffaa; color: #dbe4ff; background: #9fb7ff1a; }

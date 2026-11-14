@@ -23,31 +23,28 @@ test('tata letak tabel periodik standar', () => {
 
 test('Segel Pertama: setiap teka-teki punya tepat satu jawaban', () => {
   const c = only(elements.filter(e => e.period === 2 && e.category === 'nonmetal' && e.state === 'padat'), 'nonlogam padat periode 2');
-  const ne = at(bySym.F.row, bySym.F.col + 1);
-  const ar = at(ne.row + 1, ne.col);
-  assert.equal(ar.category, 'noble');
-  const i = only(elements.filter(e => e.category === 'halogen' && e.state === 'padat' && e.symbol.length === 1), 'halogen padat 1 huruf');
-  const order = [c, ar, i].sort((a, b) => a.z - b.z);
+  const ca = at(bySym.Mg.row + 1, bySym.Mg.col);
+  assert.equal(ca.category, 'alkaline');
+  const metal = e => ['alkali', 'alkaline', 'transition', 'post', 'lanthanide', 'actinide'].includes(e.category);
+  const hg = only(elements.filter(e => metal(e) && e.state === 'cair'), 'logam cair');
+  const order = [c, ca, hg].sort((a, b) => a.z - b.z);
   assert.deepEqual(order.map(e => e.z), seals[0].answer);
-  assert.equal(order.map(e => e.symbol).join('').toUpperCase(), seals[0].word);
 });
 
-test('Segel Kedua: jejak bersyarat sampai ke LILIN, setiap titik awal unik', () => {
+test('Segel Kedua: jejak bersyarat, setiap titik awal unik', () => {
   const isMetal = e => ['alkali', 'alkaline', 'transition', 'post', 'lanthanide', 'actinide'].includes(e.category);
   const right = e => elements.filter(x => x.row === e.row && x.col > e.col).sort((p, q) => p.col - q.col)[0];
-  // 1. Logam alkali periode 5, naik terus, berhenti tepat sebelum menginjak bukan-logam.
-  let a = only(elements.filter(e => e.category === 'alkali' && e.period === 5), 'alkali periode 5');
-  while (up(a) && isMetal(up(a))) a = up(a);
-  assert.ok(up(a) && !isMetal(up(a)), 'baris 1 harus berhenti karena bertemu bukan-logam');
-  // 2. Tetangga kanan natrium, naik satu, lalu ke kiri sampai mentok.
-  let b = up(right(bySym.Na));
-  while (left(b)) b = left(b);
+  const down = e => at(e.row + 1, e.col);
+  // 1. Logam alkali periode 5, naik dua kotak, geser satu ke kanan.
+  const a = right(up(up(only(elements.filter(e => e.category === 'alkali' && e.period === 5), 'alkali periode 5'))));
+  // 2. Besi, turun satu, ke kanan sampai logam pertama yang bukan transisi.
+  let b = down(bySym.Fe);
+  do b = right(b); while (!(isMetal(b) && b.category !== 'transition'));
   // 3. Nonlogam padat golongan 16 periode 3, naik sampai gas, lalu ke kiri sampai gas berikutnya.
   let c = only(elements.filter(e => e.category === 'nonmetal' && e.state === 'padat' && e.group === 16 && e.period === 3), 'nonlogam padat gol 16 per 3');
   do c = up(c); while (c.state !== 'gas');
   do c = left(c); while (c.state !== 'gas');
   assert.deepEqual([a, b, c].map(e => e.z), seals[1].answer);
-  assert.equal([a, b, c].map(e => e.symbol).join('').toUpperCase(), seals[1].word);
 });
 
 test('Segel Ketiga: deduksi berantai dua logam', () => {
@@ -56,9 +53,8 @@ test('Segel Ketiga: deduksi berantai dua logam', () => {
   const lastSecond = elements[seals[1].answer.at(-1) - 1];
   const ironMate = only(elements.filter(e => metal(e) && e.group === bySym.Fe.group && e.period === lastFirst.period), 'segolongan besi seperiode I');
   const other = only(elements.filter(e => metal(e) && e.group === lastSecond.group && e.period === bySym.Au.period), 'segolongan N seperiode emas');
-  const pair = [ironMate, other].sort((a, b) => b.z - a.z);
+  const pair = [ironMate, other].sort((a, b) => a.z - b.z);
   assert.deepEqual(pair.map(e => e.z), seals[2].answer);
-  assert.equal(pair.map(e => e.symbol).join('').toUpperCase(), seals[2].word);
 });
 
 function started() {
@@ -68,6 +64,11 @@ function started() {
 }
 const act = (game, id, type, data = {}) => gameAction(game, id, false, { type, ...data });
 
+test('jawaban segel tidak membentuk kata dan tidak ada kode atau pesan bocoran', () => {
+  for (const s of seals) assert.deepEqual(Object.keys(s).filter(k => k === 'word' || k === 'code'), []);
+  assert.doesNotMatch(defaultAlchemyReward, /LILIN|BIRU|CARI|d/i);
+});
+
 test('alur menang lewat tiga segel, jawaban tersembunyi sampai selesai', () => {
   const game = started();
   assert.equal(gameView(game, 'p1', false).alchemy.answers, undefined);
@@ -75,7 +76,7 @@ test('alur menang lewat tiga segel, jawaban tersembunyi sampai selesai', () => {
   assert.deepEqual(gameView(game, 'dm', true).alchemy.answers, seals.map(s => s.answer));
   assert.equal(act(game, 'p1', 'alch:draft', { draft: [6, 18] }), null);
   assert.match(act(game, 'p1', 'alch:submit'), /butuh 3 unsur/);
-  assert.equal(act(game, 'p2', 'alch:draft', { draft: [53, 18, 6] }), null);
+  assert.equal(act(game, 'p2', 'alch:draft', { draft: [80, 20, 6] }), null);
   assert.equal(act(game, 'p2', 'alch:submit'), null);
   assert.equal(game.alchemy.mistakes, 1);
   assert.deepEqual(game.alchemy.draft, []);
@@ -87,6 +88,7 @@ test('alur menang lewat tiga segel, jawaban tersembunyi sampai selesai', () => {
   assert.equal(game.phase, 'finished');
   assert.equal(game.result, 'won');
   assert.equal(gameView(game, 'p2', false).alchemy.reward, defaultAlchemyReward);
+  assert.deepEqual(gameView(game, 'p2', false).alchemy.solved.map(s => s.answer), seals.map(s => s.answer));
 });
 
 test('tanpa batas percobaan: salah berkali-kali tidak mengunci, validasi draft tetap jalan', () => {

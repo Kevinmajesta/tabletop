@@ -14,7 +14,7 @@ test('optimistic player drag cannot cross barriers while DM and open portals can
     const activeScene = { marks: [{ kind, open, a: { x: 40, y: 0 }, b: { x: 40, y: 100 } }] };
     runInNewContext(ts.transpileModule(`${move}\nmoveToken({});`, { compilerOptions: { target: ts.ScriptTarget.ES2022 } }).outputText, {
       room, activeScene, isDM, blocksMovement,
-      dragging: { current: 'hero' }, mapRef: { current: {} }, tokenPosition: () => ({ x: 60, y: 50 }),
+      dragging: { current: 'hero' }, groupDrag: { current: null }, mapRef: { current: {} }, tokenPosition: () => ({ x: 60, y: 50 }),
       performance: { now: () => 100 }, lastTokenMove: { current: 0 },
       socketRef: { current: { emit: () => emitted++ } },
       setMovement() {}, setRoom: fn => { room = fn(room); },

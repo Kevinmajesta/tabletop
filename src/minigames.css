@@ -385,3 +385,6 @@
 .tile-legend b { font-weight: 600; margin-right: 2px; }
 .tile-fall { padding: 8px 12px; border: 1px solid #a8554a; border-radius: 8px; background: #3a1f1b; color: #f2cfc8; }
 .tile-win { padding: 10px 12px; border: 1px solid #4fa86b; border-radius: 8px; background: #1d2e22; color: #cfe8d6; }
+
+/* Pesan error minigame menempel di bawah jendela supaya selalu terlihat walau jendelanya panjang. */
+.minigame-dialog .minigame-error{position:sticky;bottom:0;z-index:5;margin:8px 0 0;padding:10px 14px;border-radius:6px;background:#3a1512;color:#ffd9d2;border:1px solid #c0503f;box-shadow:0 -6px 18px #0008}

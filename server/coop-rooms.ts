@@ -1,6 +1,7 @@
 import { newGame, gameAction, gameView, type Game } from './minigames.js';
 import { seatSolution, seatRules, seatClue } from './seat-puzzle.js';
-export type CoopState = { teams: string[][]; stage: number; cipherStage: number; seats: string[]; seatDone: boolean; finalDone: boolean; room?: 'chairs' | 'cipher' | 'spectator' | 'dm'; cipher?: string; fragments?: { name: string; text: string }[]; clues?: string[]; reward?: string; crossword?: Game };
+import { ttsPilihanEntries } from './tts-pilihan.js';
+export type CoopState = { teams: string[][]; stage: number; cipherStage: number; seats: string[]; seatDone: boolean; finalDone: boolean; room?: 'chairs' | 'cipher' | 'spectator' | 'dm'; cipher?: string; fragments?: { name: string; text: string }[]; clues?: string[]; reward?: string; crossword?: Game; key?: { title: string; lines: string[] }[] };
 const names = ['ANI', 'BUDI', 'CITRA', 'DODI', 'EKA', 'FANI', 'GALIH', 'HANA', 'IWAN'];
 const extracts = ['7M', '5T', '9T', '15M', '12T'];
 const first = seatRules.filter(rule => rule.room === 'morse').map(seatClue).join(' DAN ');
@@ -10,6 +11,18 @@ const final = fragments.join('');
 const fragmentOrder = [5, 2, 8, 0, 6, 3, 1, 7, 4];
 const normalize = (s: string) => s.toUpperCase().replace(/[^A-Z]/g, '');
 const morse: Record<string, string> = { A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.', F: '..-.', G: '--.', H: '....', I: '..', J: '.---', K: '-.-', L: '.-..', M: '--', N: '-.', O: '---', P: '.--.', Q: '--.-', R: '.-.', S: '...', T: '-', U: '..-', V: '...-', W: '.--', X: '-..-', Y: '-.--', Z: '--..' };
+// Kunci jawaban lengkap, hanya dikirim ke GM.
+function answerKey(): { title: string; lines: string[] }[] {
+  const answerOf = (id: string) => ttsPilihanEntries.find(e => e.id === id)?.answer || '';
+  const vigenereKey = extracts.map(id => answerOf(id)[0]).join('');
+  return [
+    { title: 'Teka-teki silang · ★ = huruf awalnya dipakai tim sandi', lines: ttsPilihanEntries.map(e => `${extracts.includes(e.id) ? '★ ' : ''}${e.id}: ${e.answer}`) },
+    { title: 'Susunan kursi', lines: seatSolution.map((name, i) => `Kursi ${i + 1}: ${name}`) },
+    { title: 'Sandi 1 · Morse', lines: [first] },
+    { title: 'Sandi 2 · Vigenère', lines: [`Kunci: ${vigenereKey} (huruf awal ${extracts.join(', ')})`, second] },
+    { title: 'Sandi 3 · Kode pintu', lines: [`${final} (pasangan angka dibaca sesuai urutan kursi 1–9)`] },
+  ];
+}
 function encrypt(text: string, key: string) { return [...normalize(text)].map((letter, i) => String.fromCharCode(65 + (letter.charCodeAt(0) + key.charCodeAt(i % key.length) - 130) % 26)).join(''); }
 export function coopView(game: Game, playerId: string, dm: boolean): CoopState | undefined {
   const c = game.coop;
@@ -19,7 +32,7 @@ export function coopView(game: Game, playerId: string, dm: boolean): CoopState |
   if (room === 'chairs' || dm) {
     view.seats = [...c.seats];
     view.crossword = c.crossword && gameView(c.crossword, playerId, dm);
-    view.clues = ['Kursi 1 berada di atas meja. Nomor bertambah searah jarum jam dan berputar kembali dari 9 ke 1. Jarak dihitung dalam langkah kursi, bukan jumlah orang di antaranya. Gabungkan petunjuk lokal dengan pesan tim sandi.', ...seatRules.filter(rule => rule.room === 'chairs').map(seatClue)];
+    view.clues = ['Kursi 1 berada di atas meja. Nomor bertambah searah jarum jam dan berputar kembali dari 9 ke 1 (kursi 9 + 1 = kursi 1). "N kursi searah jarum jam dari X" artinya nomor kursi X ditambah N. "Terpisah N orang" artinya ada N orang di antara mereka lewat jalur terpendek, jadi jaraknya N + 1 langkah ke arah mana pun. Gabungkan petunjuk lokal dengan pesan tim sandi; satu orang tidak punya petunjuk dan mengisi kursi yang tersisa.', ...seatRules.filter(rule => rule.room === 'chairs').map(seatClue)];
     if (c.seatDone) view.reward = 'Bacakan NAMA LENGKAP penghuni kursi 1 sampai 9 secara berurutan kepada tim sandi. Urutan ini menyusun sembilan pasangan angka menjadi kode pintu 18 digit.';
   }
   if (room === 'cipher' || dm) {
@@ -29,6 +42,7 @@ export function coopView(game: Game, playerId: string, dm: boolean): CoopState |
     if (c.cipherStage > 1) view.clues.push(second);
     if (c.cipherStage > 2) view.clues.push(final);
   }
+  if (dm) view.key = answerKey();
   return view;
 }
 export function coopAction(game: Game, playerId: string, dm: boolean, action: Record<string, unknown>): string | null {
@@ -62,7 +76,6 @@ export function coopAction(game: Game, playerId: string, dm: boolean, action: Re
   }
   if (action.type === 'coop:cipher') {
     if (!cipher || typeof action.answer !== 'string' || action.answer.length > 300 || c.cipherStage >= 3) return fail;
-    if (c.cipherStage === 1 && !extracts.every(id => c.crossword?.crosswordSolved?.includes(id))) return 'Tunggu kunci lima jawaban bertanda dari tim TTS.';
     if (c.cipherStage === 2 && !c.seatDone) return 'Tunggu kunci susunan kursi dari tim kursi.';
     if ((c.cipherStage === 2 ? action.answer.replace(/\s/g, '') : normalize(action.answer)) !== [normalize(first), normalize(second), final][c.cipherStage]) return 'Jawaban belum tepat.';
     c.cipherStage++; c.stage++;

@@ -2,11 +2,13 @@
 // Di kiri ada beberapa angka, di kanan ada pengali. Sambungkan setiap angka ke satu pengali dengan kabel,
 // sampai jumlah semua hasil kali sama persis dengan tegangan target. Total sementara tidak ditampilkan:
 // peretas harus menghitung sendiri, lalu menekan Kirim. Salah kirim atau waktu habis memicu alarm.
-// Tiga panel dengan tingkat kesulitan naik. Tiga alarm berarti peretasan gagal.
+// Lima panel dengan tingkat kesulitan naik. Tiga alarm berarti peretasan gagal.
 export const wireStages = [
   { mults: [1, 2, 10], secs: 45 },
   { mults: [1, 5, 10], secs: 40 },
   { mults: [1, 2, 5, 10], secs: 50 },
+  { mults: [1, 3, 5, 10], secs: 50 },
+  { mults: [1, 2, 5, 10, 20], secs: 65 },
 ];
 export const wireLives = 3;
 

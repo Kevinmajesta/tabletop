@@ -1,0 +1,25 @@
+/* Split party: avatar pemain di kartu scene dan panel "Kirim ke scene". */
+.app-shell .scene-page-players { display: flex; gap: 3px; margin-top: 2px; }
+.app-shell .scene-page-players i, .app-shell .scene-send-players i {
+  position: relative; width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%;
+  background: #3a3124; color: #f3e6c4; font-size: 10.5px; font-style: normal; font-weight: 800;
+}
+.app-shell .scene-page-players i.online::after, .app-shell .scene-send-players i.online::after {
+  content: ""; position: absolute; right: -1px; bottom: -1px; width: 7px; height: 7px; border-radius: 50%; background: #6fcf86; box-shadow: 0 0 0 2px #14110d;
+}
+.app-shell .scene-page-menu footer.scene-send { display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+.app-shell .scene-send-head { display: flex; flex-direction: column; gap: 2px; }
+.app-shell .scene-send-head span { font-size: 13px; color: #cbbd9f; }
+.app-shell .scene-send-head strong { color: #f3e6c4; }
+.app-shell .scene-send-head small { font-size: 11.5px; color: #8f8168; }
+.app-shell .scene-send-players { display: flex; flex-wrap: wrap; gap: 6px; }
+.app-shell .scene-send-players button {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 0; height: 30px; padding: 0 10px 0 5px; border: 1px solid #3a3124; border-radius: 999px;
+  background: #15110d; color: #cbbd9f; font-size: 12.5px; font-weight: 600; cursor: pointer;
+}
+.app-shell .scene-send-players button.here { border-style: dashed; color: #8f8168; }
+.app-shell .scene-send-players button.on { border-color: #cfa95f; background: #cfa95f22; color: #f6e2a8; }
+.app-shell .scene-send-actions { display: flex; gap: 8px; }
+.app-shell .scene-send-actions button { flex: 1; min-height: 0; height: 34px; padding: 0 10px; border: 1px solid #5c4a2e; border-radius: 8px; background: none; color: #e3cf9f; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.app-shell .scene-send-actions button.primary { border-color: #cfa95f; background: #cfa95f; color: #1a140c; }
+.app-shell .scene-send-actions button:disabled { opacity: .45; cursor: default; }

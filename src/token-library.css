@@ -1,0 +1,43 @@
+/* Gudang Token: panel melayang di kiri, kartu token kecil yang bisa diseret ke peta. */
+.app-shell .tabletop-popover.lib-panel {
+  width: 340px; padding: 0; display: flex; flex-direction: column; overflow: hidden; border-radius: 12px;
+  background: linear-gradient(180deg, #1a1511f7, #120f0cf7); border: 1px solid #3f3424; box-shadow: 0 18px 44px #000a;
+  --pop-top: 72px; max-height: calc(100% - 84px);
+}
+.lib-panel .lib-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 14px 6px 16px; }
+.lib-panel .lib-head > div { display: flex; align-items: center; gap: 8px; color: #cfa95f; }
+.lib-panel .lib-head strong { font-family: Georgia, "Times New Roman", serif; font-size: 19px; font-weight: 400; color: #f3e6c4; }
+.lib-panel .lib-head span { padding: 1px 7px; border-radius: 999px; background: #2c251a; font-size: 11px; font-weight: 700; color: #a99c84; }
+.app-shell .lib-panel .lib-icon { width: 26px; height: 26px; min-width: 0; min-height: 0; display: grid; place-items: center; padding: 0; border: 0; border-radius: 6px; background: none; color: #8f8168; cursor: pointer; }
+.app-shell .lib-panel .lib-icon:hover:not(:disabled) { background: #ffffff10; color: #ece2cc; }
+.app-shell .lib-panel .lib-icon.danger:hover:not(:disabled) { color: #f0a596; }
+.lib-panel .lib-hint { margin: 0; padding: 0 16px 10px; font-size: 12px; line-height: 1.45; color: #8f8168; }
+.lib-panel .lib-tools { display: flex; gap: 8px; padding: 0 14px 12px; border-bottom: 1px solid #2c251a; }
+.lib-panel .lib-search { flex: 1; display: flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border: 1px solid #3a3124; border-radius: 8px; background: #0f0c08; color: #8f8168; }
+.lib-panel .lib-search:focus-within { border-color: #cfa95f; }
+.app-shell .lib-panel .lib-search input { flex: 1; min-width: 0; height: 30px; margin: 0; padding: 0; border: 0; background: none; box-shadow: none; color: #ece2cc; font-size: 13px; outline: 0; }
+.app-shell .lib-panel .lib-upload { display: inline-flex; align-items: center; gap: 6px; height: 32px; min-height: 0; padding: 0 12px; border: 1px solid #cfa95f88; border-radius: 8px; background: none; color: #e3cf9f; font-size: 12.5px; font-weight: 700; }
+.app-shell .lib-panel .lib-upload:hover:not(:disabled) { background: #cfa95f14; }
+.lib-panel .lib-body { overflow-y: auto; padding: 10px 14px 14px; scrollbar-width: thin; scrollbar-color: #3a3124 transparent; }
+.lib-panel .lib-empty { padding: 18px 6px; text-align: center; font-size: 12.5px; line-height: 1.5; color: #8f8168; }
+.lib-panel .lib-group + .lib-group { margin-top: 12px; }
+.lib-panel .lib-group h4 { display: flex; align-items: center; gap: 6px; margin: 0 0 6px; font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #a99c84; }
+.lib-panel .lib-group h4 span { color: #6f6553; letter-spacing: 0; }
+.lib-panel .lib-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.lib-panel .lib-card {
+  position: relative; display: flex; flex-direction: column; gap: 4px; padding: 6px; border: 1px solid #2f281c; border-radius: 9px;
+  background: #15110d; cursor: grab; transition: border-color .12s ease, transform .12s ease;
+}
+.lib-panel .lib-card:hover { border-color: #cfa95f88; transform: translateY(-1px); }
+.lib-panel .lib-card:active { cursor: grabbing; }
+.lib-panel .lib-card img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 6px; background: #0b0907; pointer-events: none; }
+.lib-panel .lib-name { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 12px; font-weight: 600; color: #ddd2bb; text-align: center; }
+.lib-panel .lib-actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 2px; opacity: 0; transition: opacity .12s ease; }
+.lib-panel .lib-card:hover .lib-actions, .lib-panel .lib-card:focus-within .lib-actions { opacity: 1; }
+.app-shell .lib-panel .lib-actions .lib-icon { width: 22px; height: 22px; background: #0f0c08e6; }
+.lib-panel .lib-rename { display: flex; align-items: center; gap: 2px; }
+.app-shell .lib-panel .lib-rename input { min-width: 0; width: 100%; height: 22px; margin: 0; padding: 0 4px; border: 1px solid #cfa95f; border-radius: 4px; background: #0f0c08; color: #ece2cc; font-size: 11.5px; }
+
+/* Peta saat token dari gudang sedang diseret di atasnya. */
+.map-viewport.library-drop { outline: 2px dashed #cfa95f; outline-offset: -8px; }
+.token-size-control .lib-save { white-space: nowrap; }

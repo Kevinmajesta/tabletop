@@ -12,6 +12,7 @@ import { newCryptex, checkCryptex, cryptexView, type CryptexState } from './cryp
 import { newRitual, ritualLight, ritualView, type RitualState, type RitualView } from './ritual.js';
 import { newMirrors, mirrorAction, mirrorMinPlayers, mirrorMaxPlayers, type MirrorState } from './mirrors.js';
 import { newWires, wireAction, wireView, type WireState } from './wirehack.js';
+import { newQuiz, quizAction, quizView, type QuizState } from './quiz.js';
 import { newTavern, tavernAction, tavernView, type TavernState } from './tavern.js';
 import { newAlchemy, alchemyAction, alchemyView, type AlchemyState } from './alchemy.js';
 import { newPotion, potionAction, potionView, type PotionState } from './potion.js';
@@ -87,7 +88,7 @@ function bombModules(randomInt: (max: number) => number): BombModule[] {
   ];
 }
 export type Game = {
-  coop?: CoopState; scale?: ScaleState; journal?: JournalState; cryptex?: CryptexState; whodunit?: WhodunitState; lock?: LockState; tiles?: TileState; ritual?: RitualState | RitualView; mirrors?: MirrorState; wirehack?: WireState; tavern?: TavernState; alchemy?: AlchemyState; potion?: PotionState; compass?: CompassState; runes?: RuneState; shift?: ShiftState; jigsaw?: JigsawState; jigsawSetup?: JigsawConfig;
+  coop?: CoopState; scale?: ScaleState; journal?: JournalState; cryptex?: CryptexState; whodunit?: WhodunitState; lock?: LockState; tiles?: TileState; ritual?: RitualState | RitualView; mirrors?: MirrorState; wirehack?: WireState; tavern?: TavernState; alchemy?: AlchemyState; potion?: PotionState; compass?: CompassState; runes?: RuneState; shift?: ShiftState; jigsaw?: JigsawState; jigsawSetup?: JigsawConfig; quiz?: QuizState;
   tokenId: string; kind: GameKind; round: number; phase: 'waiting' | 'open' | 'finished';
   players: string[]; scores: Record<string, number>; choices: Record<string, string>;
   result: string;
@@ -118,6 +119,7 @@ export function gameView(game: Game, playerId: string, dm: boolean): Game {
   if (game.kind === 'cooprooms') return { ...view, coop: coopView(game, playerId, dm) };
   if (game.kind === 'wirehack') { const { wirehack, ...rest } = view as Game; return { ...rest, ...(wirehack && game.phase !== 'waiting' ? { wirehack: wireView(wirehack, dm, game.phase === 'finished') } : {}) } as Game; }
   // Ruang Cermin Cahaya tidak punya rahasia: semua pemain melihat ruangan yang sama.
+  if (game.kind === 'quiz') { const { quiz, ...rest } = view as Game; return { ...rest, ...(quiz && game.phase !== 'waiting' ? { quiz: quizView(quiz, dm, game.phase === 'finished') } : {}) } as Game; }
   if (game.kind === 'jigsaw') { const { jigsaw, ...rest } = view as Game; return { ...rest, ...(jigsaw && game.phase !== 'waiting' ? { jigsaw: jigsawView(jigsaw, dm) } : {}) } as Game; }
   if (game.kind === 'runes') { const { runes, ...rest } = view as Game; return { ...rest, ...(runes && game.phase !== 'waiting' ? { runes: runesView(runes, dm, game.phase === 'finished') } : {}) } as Game; }
   if (game.kind === 'shift') { const { shift, ...rest } = view as Game; return { ...rest, ...(shift && game.phase !== 'waiting' ? { shift: shiftView(shift, dm) } : {}) } as Game; }
@@ -166,6 +168,7 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
   if (game.kind === 'wirehack' && String(action.type).startsWith('wire:')) return wireAction(game, playerId, dm, action, randomInt);
   // Log Ruang Cermin Cahaya menyimpan penanda @indeks; tampilan menggantinya dengan nama pemain.
   if (game.kind === 'mirrors' && String(action.type).startsWith('mirror:')) return mirrorAction(game, playerId, action, randomInt, i => `@${i}`);
+  if (game.kind === 'quiz' && String(action.type).startsWith('quiz:')) return quizAction(game, playerId, dm, action);
   if (game.kind === 'tavern' && String(action.type).startsWith('tavern:')) return tavernAction(game, playerId, dm, action);
   if (game.kind === 'alchemy' && String(action.type).startsWith('alch:')) return alchemyAction(game, playerId, dm, action);
   if (game.kind === 'potion' && String(action.type).startsWith('potion:')) return potionAction(game, playerId, dm, action);
@@ -244,6 +247,10 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
       if (!randomInt) return 'Pembuat acak tidak tersedia.';
       if (game.players.length !== 1) return 'Retas Panel Kabel dimainkan tepat satu peretas.';
       game.wirehack = newWires(randomInt);
+    } else if (game.kind === 'quiz') {
+      if (!randomInt) return 'Pembuat acak tidak tersedia.';
+      if (game.players.length !== 2) return 'Ujian Sang Sphinx dimainkan tepat dua pemain.';
+      game.quiz = newQuiz(randomInt, game.quiz?.reward);
     } else if (game.kind === 'jigsaw') {
       game.jigsaw = newJigsaw(randomInt ? 1 + randomInt(2 ** 30) : Date.now(), game.jigsawSetup ?? defaultConfig(), game.jigsaw?.reward);
     } else if (game.kind === 'runes') {
