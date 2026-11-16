@@ -35,6 +35,8 @@ import {
   validateBuild,
   equippedWeapons,
   visibleAttacks,
+  masteryGlossary,
+  weaponMasteryCount,
   type BuildInput,
   type Ability,
   type Character,
@@ -66,6 +68,157 @@ function stepForGroup(g: ChoiceGroup) {
   return 0;
 }
 // Pilihan milik class (dibuang saat ganti class); sisanya (background/species) dipertahankan.
+// Weapon Mastery: id mastery sebuah senjata, penjelasan di builder, dan daftar di sheet.
+const masteryOf = (weaponId: string) => (catalog.equipment.find((w) => w.index === weaponId) as { mastery?: { index: string } } | undefined)?.mastery?.index;
+function MasteryGlossaryList({ only }: { only?: string[] }) {
+  const ids = only?.length ? Object.keys(masteryGlossary).filter((id) => only.includes(id)) : Object.keys(masteryGlossary);
+  return (
+    <dl className="mastery-glossary">
+      {ids.map((id) => (
+        <div key={id}>
+          <dt><b className="mastery-tag">{masteryGlossary[id].name}</b></dt>
+          <dd>{masteryGlossary[id].text}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+function WeaponMasteryIntro({ classId, count }: { classId: string; count: number }) {
+  const swapAll = ["paladin", "ranger", "rogue"].includes(classId);
+  return (
+    <div className="mastery-intro">
+      <p>
+        <b>Weapon Mastery</b> memberi efek khusus setiap kali kamu menyerang dengan <b>jenis senjata</b> yang kamu kuasai.
+        Pilih <b>{count}</b> jenis senjata di bawah. Efeknya hanya berlaku saat memakai senjata itu, dan tiap senjata punya satu mastery tetap
+        (misalnya Handaxe selalu <b>Vex</b>).
+      </p>
+      <p className="builder-muted">
+        Setelah Long Rest kamu boleh mengganti {swapAll ? "pilihan senjata ini" : "satu pilihan"} lewat Edit pilihan. Saat roll attack,
+        efek mastery otomatis muncul di kartu roll di chat sebagai pengingat.
+      </p>
+      <details>
+        <summary>Arti tiap mastery</summary>
+        <MasteryGlossaryList />
+      </details>
+    </div>
+  );
+}
+function WeaponMasterySheet({ character }: { character: Character }) {
+  const picks = character.build.choices["class.weapon-mastery"] || [];
+  const count = weaponMasteryCount(character.build.classId, character.build.level || 1);
+  const rows = picks.map((id) => {
+    const weapon = catalog.equipment.find((w) => w.index === id) as { name: string; mastery?: { index: string } } | undefined;
+    const attack = character.sheet.attacks.find((x) => x.id === id);
+    const masteryId = weapon?.mastery?.index || "";
+    return { id, name: weapon?.name || id, masteryId, note: attack?.mastery?.note || masteryGlossary[masteryId]?.text || "", owned: !!attack };
+  });
+  return (
+    <section className="mastery-sheet">
+      <h4>Weapon Mastery <small>{picks.length}/{count}</small></h4>
+      {!rows.length ? (
+        <p className="sheet-empty-note">Belum memilih senjata. Buka <b>Edit pilihan</b> → langkah Class → Weapon Mastery.</p>
+      ) : (
+        <ul>
+          {rows.map((row) => (
+            <li key={row.id}>
+              <div>
+                <strong>{row.name}</strong>
+                <b className="mastery-tag">{masteryGlossary[row.masteryId]?.name || row.masteryId}</b>
+                {!row.owned && <small className="mastery-missing">tidak ada di inventory</small>}
+              </div>
+              <p>{row.note}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+      <details>
+        <summary>Apa itu Weapon Mastery?</summary>
+        <p className="sheet-empty-note">Efek khusus saat menyerang dengan jenis senjata yang kamu kuasai. Efeknya muncul otomatis di kartu roll attack sebagai pengingat; jalankan efeknya bersama DM. Pilihan bisa diganti setelah Long Rest lewat Edit pilihan.</p>
+        <MasteryGlossaryList />
+      </details>
+    </section>
+  );
+}
+type SubclassFeatureRow = { index: string; name: string; level?: number; desc?: string[] };
+type SubclassBlock = { kind: "p" | "sub"; text: string } | { kind: "table"; rows: string[][] };
+type SubclassFeature = { name: string; summary: string; blocks: SubclassBlock[] };
+const normName = (text: string) => text.toLowerCase().replace(/[’']/g, "'").trim();
+const firstSentence = (text: string) => {
+  const match = text.match(/^.+?[.!?](?=\s|$)/);
+  const sentence = (match ? match[0] : text).trim();
+  return sentence.length > 170 ? `${sentence.slice(0, 167).trimEnd()}…` : sentence;
+};
+// Teks subclass XPHB berbentuk baris-baris: "Level N", nama fitur, paragraf, sub-judul pendek, dan baris tabel "a | b".
+// Nama fitur dicocokkan dengan catalog.features agar sub-judul (mis. "Archer") tidak dikira fitur baru.
+function parseSubclassText(sub: { name: string; description?: string; levels?: { level: number; features?: { index: string }[] }[] }, features: SubclassFeatureRow[]) {
+  const id = (sub as { index?: string }).index || "";
+  const ownFeatures = features.filter((feature) => feature.index.startsWith(`xphb:${id}:`) || feature.index.startsWith(`${id}-`) || !!sub.levels?.some((row) => row.features?.some((ref) => ref.index === feature.index)));
+  const known = new Set(ownFeatures.map((feature) => normName(feature.name)));
+  const indoSummary = new Map(features.filter((feature) => /^[a-z-]+-\d+$/.test(feature.index) && feature.index.startsWith(`${id}-`)).map((feature) => [normName(feature.name), feature.desc?.[0] || ""]));
+  let tagline = "";
+  const intro: string[] = [];
+  const levels: { level: number; features: SubclassFeature[] }[] = [];
+  let level = 3;
+  let feature: SubclassFeature | null = null;
+  const lines = (sub.description || "").split("\n").map((line) => line.trim()).filter(Boolean);
+  for (const line of lines) {
+    const levelMatch = line.match(/^Level (\d+)$/);
+    if (levelMatch) { level = Number(levelMatch[1]); feature = null; continue; }
+    // Nama subclass menandai blok intro (tagline + flavor), yang kadang muncul setelah fitur pertama.
+    if (normName(line) === normName(sub.name)) { feature = null; continue; }
+    const isHeading = line.length <= 48 && !/[.,:;]$/.test(line) && !line.includes("|");
+    if (isHeading && known.has(normName(line))) {
+      let group = levels.find((row) => row.level === level);
+      if (!group) levels.push((group = { level, features: [] }));
+      feature = { name: line, summary: "", blocks: [] };
+      group.features.push(feature);
+      continue;
+    }
+    if (!feature) {
+      if (!tagline && isHeading) tagline = line;
+      else intro.push(line);
+      continue;
+    }
+    if (line.includes("|")) {
+      const cells = line.split("|").map((cell) => cell.trim());
+      const last = feature.blocks[feature.blocks.length - 1];
+      if (last?.kind === "table") last.rows.push(cells);
+      else feature.blocks.push({ kind: "table", rows: [cells] });
+    } else if (isHeading) feature.blocks.push({ kind: "sub", text: line });
+    else feature.blocks.push({ kind: "p", text: line });
+  }
+  for (const group of levels)
+    for (const row of group.features) {
+      const firstText = row.blocks.find((block) => block.kind === "p") as { text: string } | undefined;
+      row.summary = indoSummary.get(normName(row.name)) || (firstText ? firstSentence(firstText.text) : "");
+    }
+  levels.sort((a, b) => a.level - b.level);
+  return { tagline, intro: intro.join(" "), levels };
+}
+// Teks background XPHB: paragraf cerita, lalu pasangan "Label:" + isi (Ability Scores, Feat, Skill, Tool, Equipment).
+const abilityShort = (name: string) => name.slice(0, 3).toUpperCase();
+function parseBackgroundText(desc: string) {
+  const lines = (desc || "").split("\n").map((line) => line.trim()).filter(Boolean);
+  const lore: string[] = [];
+  const fields: Record<string, string> = {};
+  let key = "";
+  for (const line of lines) {
+    const label = line.match(/^([A-Za-z ]+):$/);
+    if (label) { key = label[1].toLowerCase(); fields[key] = ""; continue; }
+    if (key) fields[key] = fields[key] ? `${fields[key]} ${line}` : line;
+    else lore.push(line);
+  }
+  const equipmentRaw = fields["equipment"] || "";
+  const options = [...equipmentRaw.matchAll(/\(([A-Z])\)\s*([^;]+?)(?=;?\s*(?:or\s*)?\([A-Z]\)|$)/g)].map((m) => ({ label: `Opsi ${m[1]}`, text: m[2].replace(/\s*\(same as above\)/g, "").trim().replace(/[;,]\s*$/, "") }));
+  return {
+    lore: lore.join(" "),
+    abilities: (fields["ability scores"] || "").split(",").map((part) => part.trim()).filter(Boolean),
+    feat: fields["feat"] || "",
+    skills: fields["skill proficiencies"] || "",
+    tool: fields["tool proficiency"] || "",
+    equipment: options.length ? options : equipmentRaw ? [{ label: "", text: equipmentRaw }] : [],
+  };
+}
 const classChoice = (key: string) => /^(class\.|subclass\.|feature\.|invocation\.|level4\.)/.test(key);
 const backgroundChoice = (key: string) => /^(background\.|origin\.)/.test(key);
 const keepChoices = (choices: Record<string, string[]>, drop: (key: string) => boolean) =>
@@ -311,6 +464,7 @@ export default function Characters({
             ({build?.choices[group.key]?.filter((v) => group.options.some((o) => o.id === v)).length || 0}/{group.count})
           </small>
         </legend>
+        {group.key === "class.weapon-mastery" && <WeaponMasteryIntro classId={build?.classId || ""} count={group.count} />}
         <div className="character-options">
           {group.options.map((option) => {
             const checked = build?.choices[group.key]?.includes(option.id) || false;
@@ -325,6 +479,7 @@ export default function Characters({
                 />
                 <span>
                   {choiceLabel(option)}
+                  {group.key === "class.weapon-mastery" && masteryOf(option.id) && <small className="option-from mastery-option-hint">{masteryGlossary[masteryOf(option.id)!]?.short}</small>}
                   {from && <small className="option-from">{checked ? `Ganda dengan ${from} — ganti` : `Sudah dari ${from}`}</small>}
                 </span>
               </label>
@@ -372,6 +527,72 @@ export default function Characters({
           })}
         </ol>
       </>
+    );
+  }
+  // Detail subclass: teks XPHB yang panjang dipecah jadi tagline, sekilas fitur, dan teks lengkap per level.
+  function subclassDetail(id: string) {
+    const sub = catalog.subclasses.find((s) => s.index === id) as
+      | { name: string; description?: string; levels?: { level: number; features?: { index: string }[] }[] }
+      | undefined;
+    if (!sub) return null;
+    const parsed = parseSubclassText(sub, catalog.features as SubclassFeatureRow[]);
+    const level = build?.level || 1;
+    const glance = parsed.levels.flatMap((group) => group.features.map((feature) => ({ ...feature, level: group.level })));
+    const next = glance.find((feature) => feature.level > level);
+    return (
+      <div className="subclass-detail">
+        {parsed.tagline && <p className="subclass-tagline">{parsed.tagline}</p>}
+        {parsed.intro && (
+          <details className="subclass-lore">
+            <summary>Latar cerita</summary>
+            <p className="builder-muted">{parsed.intro}</p>
+          </details>
+        )}
+        <dl className="builder-facts">
+          <div><dt>Fitur aktif di Lv {level}</dt><dd>{glance.filter((feature) => feature.level <= level).length} fitur</dd></div>
+          <div><dt>Fitur berikutnya</dt><dd>{next ? `Lv ${next.level} · ${next.name}` : "Semua sudah terbuka"}</dd></div>
+        </dl>
+        <h4>Sekilas fitur</h4>
+        <ul className="subclass-glance">
+          {glance.map((feature) => (
+            <li key={`${feature.level}-${feature.name}`} className={feature.level <= level ? "reached" : ""}>
+              <b>Lv {feature.level}</b>
+              <div>
+                <strong>{feature.name}</strong>
+                <span>{feature.summary}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <h4>Teks lengkap</h4>
+        <p className="builder-muted">Klik level untuk membuka aturan lengkap tiap fitur. Level yang sudah kamu capai ditandai emas.</p>
+        <ol className="builder-progression">
+          {parsed.levels.map((group) => (
+            <li key={group.level} className={group.level <= level ? "reached" : ""}>
+              <details>
+                <summary><b>Lv {group.level}</b> {group.features.map((feature) => feature.name).join(" · ")}</summary>
+                {group.features.map((feature) => (
+                  <div key={feature.name} className="subclass-feature">
+                    <h5>{feature.name}</h5>
+                    {feature.blocks.map((block, index) =>
+                      block.kind === "table" ? (
+                        <table key={index} className="subclass-table">
+                          <thead><tr>{block.rows[0].map((cell, i) => <th key={i}>{cell}</th>)}</tr></thead>
+                          <tbody>{block.rows.slice(1).map((row, r) => <tr key={r}>{row.map((cell, i) => <td key={i}>{cell}</td>)}</tr>)}</tbody>
+                        </table>
+                      ) : block.kind === "sub" ? (
+                        <h6 key={index}>{block.text}</h6>
+                      ) : (
+                        <p key={index} className="builder-text">{block.text}</p>
+                      ),
+                    )}
+                  </div>
+                ))}
+              </details>
+            </li>
+          ))}
+        </ol>
+      </div>
     );
   }
   function stepForIssue(issue: { section: string; groupKey?: string }) {
@@ -499,7 +720,7 @@ export default function Characters({
                   <h3>Serangan</h3>
                   {visibleAttacks(character).slice(0, 6).map((attack) => (
                     <div className="qs-attack" key={attack.id}>
-                      <span title={attack.name}>{attack.name}<Requirement label="?" text="Roll serangan bukan satu aksi tersendiri. Ikuti Attack action atau fitur yang mengizinkan serangan ini." /></span>
+                      <span title={attack.name}>{attack.name}{attack.mastery && <b className="mastery-tag" title={`Weapon Mastery · ${attack.mastery.name}: ${attack.mastery.note}`}>{attack.mastery.name}</b>}<Requirement label="?" text="Roll serangan bukan satu aksi tersendiri. Ikuti Attack action atau fitur yang mengizinkan serangan ini." /></span>
                       <button disabled={off} onClick={() => roll("attack", attack.id)}>{sign(attack.bonus)}</button>
                       <button disabled={off} onClick={() => roll("damage", attack.id)}>{attack.damage}</button>
                     </div>
@@ -706,15 +927,11 @@ export default function Characters({
                           searchable={false}
                           items={catalog.subclasses
                             .filter((s) => s.class?.index === build.classId)
-                            .map((s) => ({ id: s.index, name: s.name, sub: (s as { summary?: string }).summary }))}
+                            .map((s) => ({ id: s.index, name: s.name, sub: (s as { summary?: string }).summary || parseSubclassText(s as { name: string; description?: string }, []).tagline }))}
                           selected={build.subclassId || ""}
                           onSelect={(id) => setBuild({ ...build, subclassId: id, choices: keepChoices(build.choices, (key) => key.startsWith("subclass.")) })}
                           onClear={() => setBuild({ ...build, subclassId: "", choices: keepChoices(build.choices, (key) => key.startsWith("subclass.")) })}
-                          detail={(id) => (
-                            <p className="builder-text">
-                              {(catalog.subclasses.find((s) => s.index === id) as { description?: string } | undefined)?.description}
-                            </p>
-                          )}
+                          detail={subclassDetail}
                         />
                       </section>
                     )}
@@ -730,7 +947,10 @@ export default function Characters({
                       label="Background"
                       items={catalog.backgrounds
                         .filter((b) => b.available)
-                        .map((b) => ({ id: b.id, name: b.name, sub: b.source }))}
+                        .map((b) => {
+                          const info = parseBackgroundText(b.desc);
+                          return { id: b.id, name: b.name, sub: info.abilities.length ? `${info.abilities.map(abilityShort).join(" · ")} · ${b.feature || info.feat}` : b.source };
+                        })}
                       selected={build.background}
                       onSelect={(id) =>
                         id !== build.background &&
@@ -739,16 +959,48 @@ export default function Characters({
                       onClear={() => setBuild({ ...build, background: "", backgroundName: "", choices: keepChoices(build.choices, backgroundChoice) })}
                       detail={(id) => {
                         const b = catalog.backgrounds.find((x) => x.id === id);
+                        if (!b) return null;
+                        const info = parseBackgroundText(b.desc);
+                        const feat = b.feature || info.feat;
                         return (
-                          <>
-                            <p className="builder-text">{b?.desc}</p>
-                            {b?.feature && (
+                          <div className="subclass-detail">
+                            <dl className="builder-facts">
+                              <div><dt>Ability score</dt><dd>{info.abilities.join(", ") || "—"}</dd></div>
+                              <div><dt>Origin feat</dt><dd>{info.feat || feat || "—"}</dd></div>
+                              <div><dt>Skill</dt><dd>{info.skills || "—"}</dd></div>
+                              <div><dt>Tool</dt><dd>{(/^Choose/.test(info.tool) ? b.toolsText : info.tool) || b.toolsText || "—"}</dd></div>
+                            </dl>
+                            <p className="builder-muted">Bonus ability dari background dibagikan ke tiga ability di atas (+2/+1 atau +1/+1/+1) pada langkah Ability Scores.</p>
+                            {feat && (
                               <>
-                                <h4>{b.feature}</h4>
+                                <h4>Origin feat: {feat}</h4>
                                 <p className="builder-text">{b.featureDesc}</p>
                               </>
                             )}
-                          </>
+                            {(info.equipment.length > 0 || b.equipmentText) && (
+                              <>
+                                <h4>Equipment awal</h4>
+                                {info.equipment.length > 1 ? (
+                                  <ul className="subclass-glance">
+                                    {info.equipment.map((option) => (
+                                      <li key={option.label} className="reached">
+                                        <b>{option.label}</b>
+                                        <div><span>{option.text}</span></div>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                ) : (
+                                  <p className="builder-text">{info.equipment[0]?.text || b.equipmentText}</p>
+                                )}
+                              </>
+                            )}
+                            {info.lore && (
+                              <details className="subclass-lore">
+                                <summary>Latar cerita</summary>
+                                <p className="builder-muted">{info.lore}</p>
+                              </details>
+                            )}
+                          </div>
                         );
                       }}
                     />
@@ -868,7 +1120,7 @@ export default function Characters({
                         <option value="standard">Standard array</option>
                         <option value="point-buy">Point buy (27 poin)</option>
                         <option value="manual">
-                          Manual (nilai disetujui DM)
+                          Manual
                         </option>
                       </select>
                     </label>
@@ -1606,7 +1858,7 @@ export default function Characters({
                   )}
                   {visibleAttacks(character).map((a) => (
                     <div className="character-attack" key={a.id}>
-                      <strong>{a.name}<Requirement label="Serangan · lihat syarat" text="Attack action dapat mencakup beberapa serangan. Serangan sebagai Aksi Bonus atau Reaksi memerlukan fitur atau pemicu yang sesuai." /></strong>
+                      <strong>{a.name}{a.mastery && <b className="mastery-tag" title={`Weapon Mastery · ${a.mastery.name}: ${a.mastery.note}`}>{a.mastery.name}</b>}<Requirement label="Serangan · lihat syarat" text="Attack action dapat mencakup beberapa serangan. Serangan sebagai Aksi Bonus atau Reaksi memerlukan fitur atau pemicu yang sesuai." /></strong>
                       <button
                         disabled={!connected || busy}
                         onClick={() => roll("attack", a.id)}
@@ -1622,6 +1874,9 @@ export default function Characters({
                       </button>
                     </div>
                   ))}
+                  {weaponMasteryCount(character.build.classId, character.build.level || 1) > 0 && (
+                    <WeaponMasterySheet character={character} />
+                  )}
                   {character.sheet.spellAbility && (
                     <div className="character-attack spell-attack-row">
                       <strong>
@@ -1826,13 +2081,6 @@ export default function Characters({
               </div>
             )}
           </main>
-        </div>
-        <div className="character-attribution" title="Resource karakter: Player's Handbook 2024 dan species Monsters of the Multiverse via snapshot lokal 5etools. Katalog dasar SRD 5.2 oleh Wizards of the Coast, CC BY 4.0; tidak mencakup seluruh konten buku tambahan. Efek kondisional dijalankan bersama DM.">
-          Resource karakter: Player's Handbook 2024 dan species Monsters of
-          the Multiverse, diimpor dari snapshot lokal 5etools. Katalog dasar
-          SRD 5.2 oleh Wizards of the Coast, CC BY 4.0; lisensi tersebut tidak
-          mencakup seluruh konten buku tambahan. Efek kondisional dijalankan
-          bersama DM.
         </div>
       </dialog>
     </>

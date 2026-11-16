@@ -197,6 +197,53 @@ export type BuildInput = {
   shield: boolean;
   notes: string;
 };
+// Weapon Mastery (PHB 2024): jumlah jenis senjata per class/level dan senjata yang boleh dipilih.
+export function weaponMasteryCount(classId: string, level: number) {
+  if (classId === "barbarian") return level >= 10 ? 4 : level >= 4 ? 3 : 2;
+  if (classId === "fighter") return level >= 16 ? 6 : level >= 10 ? 5 : level >= 4 ? 4 : 3;
+  if (["paladin", "ranger", "rogue"].includes(classId)) return 2;
+  return 0;
+}
+type MasteryWeapon = Entry & { mastery?: { index: string; name: string } };
+export function masteryWeaponsFor(classId: string, equipment: Entry[]) {
+  const weapons = (equipment as MasteryWeapon[]).filter((w) => w.mastery);
+  const cats = (w: MasteryWeapon) => w.equipment_categories?.map((c) => c.index) || [];
+  const props = (w: MasteryWeapon) => w.properties?.map((p) => p.index) || [];
+  return weapons
+    .filter((w) =>
+      classId === "barbarian"
+        ? cats(w).some((c) => c === "simple-melee-weapons" || c === "martial-melee-weapons")
+        : classId === "rogue"
+          ? cats(w).includes("simple-weapons") || props(w).some((p) => p === "finesse" || p === "light")
+          : true,
+    )
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+// Penjelasan umum tiap mastery (builder & sheet). Versi dengan angka ada di masteryNote.
+export const masteryGlossary: Record<string, { name: string; short: string; text: string }> = {
+  cleave: { name: "Cleave", short: "Serangan tambahan ke musuh di sebelah target", text: "Jika kena, kamu boleh menyerang satu makhluk lain dalam 5 ft dari target (masih dalam jangkauanmu). Damage serangan kedua tanpa modifier ability. Sekali per giliran." },
+  graze: { name: "Graze", short: "Tetap memberi damage walau meleset", text: "Jika serangan meleset, target tetap menerima damage sebesar modifier ability yang kamu pakai untuk menyerang (jenis damage sama dengan senjatanya)." },
+  nick: { name: "Nick", short: "Serangan senjata kedua tanpa Bonus Action", text: "Serangan tambahan dari properti Light bisa dilakukan sebagai bagian dari Attack action, jadi Bonus Action-mu tetap bebas dipakai. Sekali per giliran." },
+  push: { name: "Push", short: "Dorong target 10 ft", text: "Jika kena, kamu boleh mendorong target (ukuran Large atau lebih kecil) sampai 10 ft lurus menjauh darimu." },
+  sap: { name: "Sap", short: "Target disadvantage pada serangan berikutnya", text: "Jika kena, target mendapat disadvantage pada attack roll berikutnya sebelum awal giliranmu berikutnya." },
+  slow: { name: "Slow", short: "Kurangi Speed target 10 ft", text: "Jika kena dan memberi damage, Speed target berkurang 10 ft sampai awal giliranmu berikutnya. Tidak menumpuk walau kena berkali-kali." },
+  topple: { name: "Topple", short: "Jatuhkan target (Prone)", text: "Jika kena, target harus berhasil CON saving throw (DC 8 + modifier ability serangan + proficiency) atau jatuh Prone." },
+  vex: { name: "Vex", short: "Advantage pada serangan berikutnya ke target", text: "Jika kena dan memberi damage, kamu mendapat advantage pada serangan berikutnya ke target itu sebelum akhir giliranmu berikutnya." },
+};
+// Teks efek mastery untuk kartu roll. mod = modifier ability serangan; dc = 8 + mod + proficiency.
+export function masteryNote(id: string, mod: number, dc: number, damageType: string) {
+  switch (id) {
+    case "cleave": return "Jika kena: satu serangan tambahan ke makhluk lain dalam 5 ft dari target (masih dalam jangkauanmu). Damage-nya tanpa modifier ability. Sekali per giliran.";
+    case "graze": return mod > 0 ? `Jika meleset: target tetap menerima ${mod} ${damageType} damage.` : "Jika meleset: tidak ada damage (modifier ability tidak positif).";
+    case "nick": return "Serangan tambahan dari properti Light bisa dilakukan sebagai bagian dari Attack action, bukan Bonus Action. Sekali per giliran.";
+    case "push": return "Jika kena: dorong target (ukuran Large atau lebih kecil) sampai 10 ft lurus menjauh darimu.";
+    case "sap": return "Jika kena: target disadvantage pada attack roll berikutnya sebelum awal giliranmu berikutnya.";
+    case "slow": return "Jika kena dan memberi damage: Speed target −10 ft sampai awal giliranmu berikutnya (tidak menumpuk).";
+    case "topple": return `Jika kena: target harus CON save DC ${dc} atau jatuh Prone.`;
+    case "vex": return "Jika kena dan memberi damage: kamu advantage pada serangan berikutnya ke target itu sebelum akhir giliranmu berikutnya.";
+    default: return "";
+  }
+}
 export const coinDenominations = ["cp", "sp", "ep", "gp", "pp"] as const;
 export type Currency = Record<(typeof coinDenominations)[number], number>;
 export function startingCurrency(sheet?: Pick<Sheet, "equipment">): Currency {
@@ -252,7 +299,7 @@ export type Sheet = {
   saves: { id: Ability; bonus: number; proficient: boolean }[];
   passivePerception: number;
   equipment: { id: string; name: string; count: number }[];
-  attacks: { id: string; name: string; bonus: number; damage: string }[];
+  attacks: { id: string; name: string; bonus: number; damage: string; mastery?: { id: string; name: string; note: string } }[];
   languages: string[];
   proficiencies: string[];
   features: { name: string; desc: string[] }[];
@@ -1168,6 +1215,18 @@ export function buildGroups(build: BuildInput): ChoiceGroup[] {
           "spell",
         );
     }
+    const masteries = weaponMasteryCount(build.classId, level);
+    if (masteries)
+      add(
+        "class.weapon-mastery",
+        "Weapon Mastery",
+        masteries,
+        masteryWeaponsFor(build.classId, catalog.equipment).map((w) => ({
+          id: w.index,
+          name: `${w.name} · ${w.mastery!.name}`,
+        })),
+        "feature",
+      );
     if (level >= 4 && build.levelFourFeat === "grappler")
       add(
         "level4.ability",
@@ -2158,6 +2217,19 @@ export function deriveSheet(build: BuildInput): Sheet {
         : "medium-armor",
     );
   if (armor && build.choices["class.fighting-style"]?.includes("defense")) ac++;
+  const masteryPicks =
+    weaponMasteryCount(build.classId, level) > 0 ? build.choices["class.weapon-mastery"] || [] : [];
+  const masteryFor = (weapon: Entry, ability: number) => {
+    const mastery = (weapon as MasteryWeapon).mastery;
+    if (!mastery || !masteryPicks.includes(weapon.index)) return {};
+    return {
+      mastery: {
+        id: mastery.index,
+        name: mastery.name,
+        note: masteryNote(mastery.index, ability, 8 + ability + proficiency, weapon.damage?.damage_type.name || ""),
+      },
+    };
+  };
   const attacks = equipment.flatMap((e) => {
     const weapon = catalog.equipment.find((w) => w.index === e.id);
     if (!weapon?.damage) return [];
@@ -2202,6 +2274,7 @@ export function deriveSheet(build: BuildInput): Sheet {
             ? 2
             : 0),
         damage: `${weapon.damage.damage_dice}${damage >= 0 ? "+" : ""}${damage}`,
+        ...(masteryFor(weapon, ability)),
       },
     ];
   });

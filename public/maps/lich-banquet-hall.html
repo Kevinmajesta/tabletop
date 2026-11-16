@@ -1,0 +1,163 @@
+<!doctype html><meta charset="utf-8"><title>Lich banquet hall</title><style>body{margin:0;background:#0b0a10}canvas{width:100%;height:auto;display:block}</style><canvas width="2100" height="1470"></canvas><script>
+// Aula perjamuan sang lich. Kanvas logis 700x490 = 20x14 kotak (35 per kotak), cocok dengan grid 20 kolom.
+const c=document.querySelector('canvas'),g=c.getContext('2d');g.scale(3,3);
+let seed=1313;function r(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}
+const S=35;
+function box(x,y,w,h,col){g.fillStyle=col;g.fillRect(x,y,w,h)}
+function line(x,y,a,b,col,w=1){g.strokeStyle=col;g.lineWidth=w;g.beginPath();g.moveTo(x,y);g.lineTo(a,b);g.stroke()}
+function oval(x,y,a,b,col,rot=0){g.fillStyle=col;g.beginPath();g.ellipse(x,y,a,b,rot,0,Math.PI*2);g.fill()}
+function glow(x,y,rad,col,alpha){const q=g.createRadialGradient(x,y,1,x,y,rad);q.addColorStop(0,col+alpha);q.addColorStop(1,col+'00');g.fillStyle=q;g.fillRect(x-rad,y-rad,rad*2,rad*2)}
+
+// Lantai: batu basal gelap, ubin besar tidak beraturan.
+box(0,0,700,490,'#0c0b10');
+g.save();g.beginPath();g.rect(35,35,630,420);g.clip();
+for(let row=0;row<15;row++)for(let col=-1;col<22;col++){const x=35+col*31+(row%2)*15.5,y=35+row*29;
+  box(x+1,y+1,29+r()*1.2,27+r(),['#2a2833','#302d38','#26252e','#2d2b30','#33303b'][Math.floor(r()*5)]);
+  line(x+2,y+2,x+28,y+2,'#4d4a5a66',.6);line(x+29,y+3,x+29,y+27,'#0e0d1388',.8)}
+for(let i=0;i<9000;i++)box(35+r()*630,35+r()*420,.3+r()*1.2,.3+r(),i%3?'#05040815':'#7a74901a');
+// Retakan
+for(let i=0;i<40;i++){let x=40+r()*620,y=40+r()*410;g.strokeStyle='#0a090e99';g.lineWidth=.6;g.beginPath();g.moveTo(x,y);for(let k=0;k<4;k++){x+=r()*14-7;y+=r()*14-7;g.lineTo(x,y)}g.stroke()}
+g.restore();
+
+// Lingkaran ritual samar di bawah meja (garis hijau pudar).
+g.save();g.translate(280,245);g.strokeStyle='#5fd48a22';g.lineWidth=1.2;
+for(const rad of [150,158]){g.beginPath();g.ellipse(0,0,rad*.72,rad*.72,0,0,Math.PI*2);g.stroke()}
+for(let i=0;i<20;i++){const a=i*Math.PI/10;g.save();g.rotate(a);g.font='7px Georgia';g.fillStyle='#6fe09a2a';g.fillText('ᚦᛟᛞᚱ'[i%4],0,-0);g.restore();
+  const x=Math.cos(a)*154*.72,y=Math.sin(a)*154*.72;g.fillStyle='#6fe09a30';g.font='7px Georgia';g.textAlign='center';g.fillText('ᚱᛉᚦᛟᛗᛞᚹᛒ'[i%8],x,y+2)}
+g.restore();
+
+// Karpet lusuh dari pintu barat menuju singgasana.
+box(35,220,490,50,'#2a0f1d');box(35,224,490,42,'#4a1630');
+g.strokeStyle='#a3824a88';g.lineWidth=1;g.strokeRect(36,227,488,36);
+for(let x=40;x<520;x+=14){line(x,231,x+7,236,'#a3824a44');line(x+7,236,x,241,'#a3824a44')}
+// Robekan karpet
+for(const [x,y] of [[88,222],[140,262],[402,224]]){oval(x,y,7,3,'#2a2833');oval(x,y,5,2,'#302d38')}
+
+// Panggung singgasana di timur (3 kotak lebar, 2 anak tangga).
+box(490,105,175,280,'#08070c66');
+box(497,112,168,266,'#3b3846');box(504,119,161,252,'#47435466');
+box(518,133,147,224,'#4b4758');box(525,140,140,210,'#56516266');
+for(const [x,y,w,h] of [[497,112,168,266],[518,133,147,224]]){g.strokeStyle='#1a1820';g.lineWidth=1.5;g.strokeRect(x,y,w,h);line(x+1,y+1,x+w-1,y+1,'#8a849a55')}
+// Ubin panggung
+for(let y=143;y<348;y+=17)line(526,y,664,y,'#2a273255',.7);
+
+// Singgasana tulang.
+g.save();g.translate(612,245);
+oval(6,4,34,38,'#05040a88');
+box(-12,-30,44,60,'#1d1a22');box(-8,-26,36,52,'#5b2340');// dudukan beludru
+box(18,-34,18,68,'#cfc6ad');box(20,-32,14,64,'#e6dec6');// sandaran
+for(let i=-30;i<32;i+=8){oval(27,i,6,3.5,'#d9d0b6');oval(27,i,4,2.2,'#bfb497')}// tulang belakang
+for(const s of [-1,1]){box(-14,s*28-4,30,8,'#d7ceb4');oval(-14,s*28,5,5,'#efe7d0');oval(16,s*28,4,4,'#c7bea4')}// sandaran tangan
+// Tengkorak di puncak sandaran
+oval(36,0,9,11,'#efe8d2');oval(38,-4,2.5,3,'#1a1218');oval(38,4,2.5,3,'#1a1218');box(41,-2,3,4,'#3a2a2a');
+// Mahkota api hijau di tiang sandaran
+for(const y of [-34,34]){glow(30,y,22,'#5ff0a0','55');oval(30,y,3,5,'#7dffb6');oval(30,y,1.5,3,'#e8fff0')}
+g.restore();
+glow(612,245,95,'#4fd88a','22');
+
+// Anglo api hijau di sudut panggung.
+for(const [x,y] of [[540,150],[540,340],[648,150],[648,340]]){glow(x,y,70,'#43e68a','3a');oval(x+2,y+3,10,9,'#05040a88');oval(x,y,10,10,'#2a2730');oval(x,y,8,8,'#4a4552');oval(x,y,6,6,'#163a24');oval(x,y-1,4.5,5.5,'#4ff09a');oval(x,y-2,2.2,3.2,'#d8ffe8')}
+
+// Dinding batu besar.
+for(const [x,y,w,h] of [[0,0,700,35],[0,455,700,35],[0,0,35,490],[665,0,35,490]]){
+  box(x,y,w,h,'#3a3742');g.strokeStyle='#141218';g.lineWidth=2;g.strokeRect(x,y,w,h);
+  if(w>h){for(let xx=x;xx<x+w;xx+=34){const off=(Math.floor(xx/34)%2)*17;line(xx,y,xx,y+h/2,'#1b1920',1.5);line(xx+off,y+h/2,xx+off,y+h,'#1b1920',1.5);line(xx+2,y+2,xx+30,y+2,'#6c667a66')}line(x,y+h/2,x+w,y+h/2,'#1b1920',1.5)}
+  else{for(let yy=y;yy<y+h;yy+=34){const off=(Math.floor(yy/34)%2)*17;line(x,yy,x+w/2,yy,'#1b1920',1.5);line(x+w/2,yy+off,x+w,yy+off,'#1b1920',1.5)}line(x+w/2,y,x+w/2,y+h,'#1b1920',1.5)}}
+// Bayangan dalam dinding
+for(const [x,y,w,h] of [[35,35,630,7],[35,35,7,420]])box(x,y,w,h,'#05040a55');
+
+// Pintu ganda di barat (2 kotak), terbuka ke dalam.
+box(0,210,35,70,'#2b2a30');for(let y=212;y<280;y+=9)line(2,y,33,y,'#1a191e');
+box(14,210,21,70,'#151319');
+g.save();g.translate(36,212);g.rotate(.62);box(-3,0,6,34,'#3c2a1e');line(0,3,0,31,'#8f6d3c',1.5);oval(0,28,1.6,1.6,'#c6a463');g.restore();
+g.save();g.translate(36,278);g.rotate(-.62);box(-3,-34,6,34,'#3c2a1e');line(0,-31,0,-3,'#8f6d3c',1.5);oval(0,-28,1.6,1.6,'#c6a463');g.restore();
+
+// Ceruk peti mati di dinding utara dan selatan.
+function coffin(x,y,flip){g.save();g.translate(x,y);if(flip)g.scale(1,-1);
+  box(-17,0,34,30,'#151319');box(-15,2,30,26,'#100e14');
+  g.beginPath();g.moveTo(-6,4);g.lineTo(6,4);g.lineTo(10,11);g.lineTo(7,27);g.lineTo(-7,27);g.lineTo(-10,11);g.closePath();g.fillStyle='#3d2c22';g.fill();g.strokeStyle='#1a120e';g.lineWidth=1;g.stroke();
+  const top=flip?18:12;line(0,8,0,22,'#8f7a52',1.2);line(-4,top,4,top,'#8f7a52',1.2);g.restore()}
+for(const x of [122,227,402])coffin(x,35,false);
+for(const x of [122,227,402])coffin(x,455,true);
+
+// Pilar batu.
+for(const [x,y] of [[70,105],[70,385],[315,105],[315,385],[490,90],[490,400]]){
+  oval(x+3,y+4,15,15,'#05040a88');oval(x,y,15,15,'#2d2a34');oval(x,y,12.5,12.5,'#57536a');oval(x-2,y-2,9,9,'#6f6a82');
+  g.strokeStyle='#1d1b22';g.lineWidth=1;g.beginPath();g.arc(x,y,12.5,0,Math.PI*2);g.stroke();
+  for(let a=0;a<6;a++){const t=a*Math.PI/3;line(x+Math.cos(t)*6,y+Math.sin(t)*6,x+Math.cos(t)*12,y+Math.sin(t)*12,'#3b384655',.8)}}
+
+// Sarang laba-laba di sudut.
+function web(x,y,sx,sy){g.save();g.translate(x,y);g.scale(sx,sy);g.strokeStyle='#cfcad833';g.lineWidth=.5;
+  for(let i=0;i<=5;i++){const a=i*Math.PI/10;g.beginPath();g.moveTo(0,0);g.lineTo(Math.cos(a)*40,Math.sin(a)*40);g.stroke()}
+  for(let k=1;k<6;k++){g.beginPath();for(let i=0;i<=5;i++){const a=i*Math.PI/10,rr=k*7+(i%2)*1.5;g.lineTo(Math.cos(a)*rr,Math.sin(a)*rr)}g.stroke()}g.restore()}
+web(35,35,1,1);web(665,35,-1,1);web(35,455,1,-1);web(665,455,-1,-1);
+
+// Meja bundar perjamuan: diameter 4 kotak, kayu hitam, tepat di persilangan grid.
+const CX=280,CY=245,TR=70;
+// Batas meja untuk sebaran tulang.
+const TX=CX-TR-40,TY=CY-TR-40,TW=TR*2+80,TH=TR*2+80;
+oval(CX+6,CY+8,TR,TR,'#05040a99');oval(CX,CY,TR,TR,'#21170f');oval(CX,CY,TR-3,TR-3,'#3a2717');
+for(let k=8;k<TR-4;k+=7){g.strokeStyle='#2a1c1088';g.lineWidth=.7;g.beginPath();g.arc(CX,CY,k,0,Math.PI*2);g.stroke()}
+for(let i=0;i<24;i++){const a=r()*Math.PI*2,k=10+r()*(TR-16);g.strokeStyle='#5a3d2244';g.lineWidth=.6;g.beginPath();g.arc(CX,CY,k,a,a+.3+r()*.4);g.stroke()}
+g.strokeStyle='#120c08';g.lineWidth=1.5;g.beginPath();g.arc(CX,CY,TR,0,Math.PI*2);g.stroke();
+// Taplak bundar ungu dengan pinggiran emas.
+oval(CX,CY,52,52,'#2a1530');g.strokeStyle='#a3824a77';g.lineWidth=1;g.beginPath();g.arc(CX,CY,50,0,Math.PI*2);g.stroke();g.beginPath();g.arc(CX,CY,30,0,Math.PI*2);g.stroke();
+
+// Kandil di tengah meja.
+function candelabra(x,y){oval(x,y,7,7,'#4e4030');oval(x,y,4,4,'#a58a52');for(const [dx,dy] of [[0,-5],[-5,3],[5,3]]){glow(x+dx,y+dy,34,'#ffc76a','38');oval(x+dx,y+dy,2,2,'#efe3c4');oval(x+dx,y+dy-1,1,1.8,'#ffd27a')}
+  for(let i=0;i<5;i++)oval(x+r()*16-8,y+r()*16-8,1.4,.9,'#efe3c488')}
+candelabra(CX,CY);
+
+// Delapan piala melingkar, I sampai VIII searah jarum jam dari utara, sesuai bahan di permainan.
+const mats=[['#e2b63c','#fff0a8'],['#c9ced8','#ffffff'],['#b07a3e','#f0c48a'],['#e8dfc4','#fffaf0'],['#a8e2f0','#f2fdff'],['#3a3a44','#8a8a9a'],['#3a2418','#7a5640'],['#3fa36e','#b6f0cc']];
+const ROMAN=['I','II','III','IV','V','VI','VII','VIII'];
+for(let i=0;i<8;i++){const a=-Math.PI/2+Math.PI/8+i*Math.PI/4,x=CX+Math.cos(a)*41,y=CY+Math.sin(a)*41;const [base,shine]=mats[i];
+  oval(x+2,y+3,8,8,'#05040a88');oval(x,y,7.5,7.5,base);oval(x,y,5.8,5.8,'#14080f');
+  oval(x,y,4.6,4.6,['#5a1030','#6a1838','#3a2a4a','#5a0f22'][i%4]);
+  oval(x-1.5,y-1.5,1.6,1,'#ffffff55');g.strokeStyle=shine;g.lineWidth=.7;g.beginPath();g.arc(x,y,7.2,Math.PI*1.1,Math.PI*1.7);g.stroke();
+  // Plakat angka romawi di sisi luar piala.
+  const px=CX+Math.cos(a)*58,py=CY+Math.sin(a)*58;
+  box(px-7,py-4,14,8,'#1a1416');g.strokeStyle='#a3824a';g.lineWidth=.5;g.strokeRect(px-7,py-4,14,8);
+  g.fillStyle='#e6cf92';g.font='bold 6px Georgia';g.textAlign='center';g.fillText(ROMAN[i],px,py+2.2)}
+
+// Empat kursi tamu, satu di tiap sisi meja, menghadap ke tengah.
+function chair(x,y,angle){g.save();g.translate(x,y);g.rotate(angle);
+  oval(2,3,14,13,'#05040a77');
+  box(-12,-14,24,6,'#1a1210');box(-11,-13,22,4,'#5a2340');
+  for(const s of [-11,9])box(s,-16,3,6,'#6a5a3a');
+  box(-11,-8,22,18,'#2c1e14');box(-9,-6,18,14,'#4a1c34');
+  g.restore()}
+chair(CX,CY-TR-17,0);chair(CX+TR+17,CY,Math.PI/2);chair(CX,CY+TR+17,Math.PI);chair(CX-TR-17,CY,-Math.PI/2);
+
+// Segel kutukan di ambang pintu: sihir yang merenggut indra tamu sebelum duduk.
+g.save();g.translate(87,245);glow(0,0,48,'#b06cff','40');
+g.strokeStyle='#c99bff99';g.lineWidth=1.1;for(const rad of [24,30]){g.beginPath();g.arc(0,0,rad,0,Math.PI*2);g.stroke()}
+g.beginPath();for(let i=0;i<=5;i++){const a=-Math.PI/2+i*Math.PI*4/5;g.lineTo(Math.cos(a)*24,Math.sin(a)*24)}g.stroke();
+g.fillStyle='#e2c8ffcc';g.font='6px Georgia';g.textAlign='center';for(let i=0;i<12;i++){const a=i*Math.PI/6;g.fillText('ᚦᛟᛞᚱᛉᛗ'[i%6],Math.cos(a)*27,Math.sin(a)*27+2)}
+oval(0,0,3,3,'#f2e4ff');g.restore();
+
+// Mimbar buku resep sang lich (buku terbuka) di utara panggung.
+const BX=455,BY=158;
+oval(BX+3,BY+4,18,14,'#05040a88');box(BX-14,BY-10,28,22,'#2a1d14');box(BX-12,BY-8,24,18,'#4a3322');
+box(BX-11,BY-7,10.5,15,'#d8caa0');box(BX+.5,BY-7,10.5,15,'#e2d5ac');line(BX,BY-7,BX,BY+8,'#6a5a3a',.8);
+for(let k=-4;k<6;k+=2.3){line(BX-9.5,BY+k,BX-2,BY+k,'#6a5a3a88',.4);line(BX+2,BY+k,BX+9.5,BY+k,'#6a5a3a88',.4)}
+oval(BX+5,BY-11,1.4,3,'#a3241f');glow(BX,BY,32,'#ffc76a','2a');oval(BX-13,BY-11,2,2,'#efe3c4');oval(BX-13,BY-12,1,1.6,'#ffd27a');
+
+// Meja sajian kecil di selatan: kendi, botol, sisa makanan.
+const SX=455,SY=330;
+box(SX-20+4,SY-12+4,40,26,'#05040a88');box(SX-20,SY-12,40,26,'#3a2717');g.strokeStyle='#120c08';g.lineWidth=1;g.strokeRect(SX-20,SY-12,40,26);
+for(const [dx,dy,col] of [[-11,-4,'#3a5a3a'],[-3,4,'#5a2a4a'],[6,-5,'#2a3a5a'],[12,5,'#6a5030']]){oval(SX+dx,SY+dy,3.5,3.5,col);oval(SX+dx-1,SY+dy-1,1,1,'#ffffff55')}
+
+// Tulang berserakan.
+for(let i=0;i<26;i++){let x=50+r()*600,y=50+r()*390;if(x>TX-30&&x<TX+TW+30&&y>TY-40&&y<TY+TH+40)continue;if(x>490)continue;if(x<140&&y>190&&y<300)continue;
+  const a=r()*Math.PI;g.save();g.translate(x,y);g.rotate(a);line(-5,0,5,0,'#cfc6ad',1.4);oval(-5,-1,1.4,1.4,'#e0d8c0');oval(-5,1,1.4,1.4,'#e0d8c0');oval(5,-1,1.4,1.4,'#e0d8c0');oval(5,1,1.4,1.4,'#e0d8c0');g.restore()}
+for(const [x,y] of [[60,440],[640,60],[95,60]]){oval(x,y,5,5.5,'#e6decc');oval(x-1.8,y-.5,1.2,1.4,'#1a1218');oval(x+1.8,y-.5,1.2,1.4,'#1a1218')}
+
+// Obor dinding (cahaya hangat redup) dan kabut dingin.
+for(const [x,y] of [[175,42],[350,42],[175,448],[350,448],[42,150],[42,340]]){glow(x,y,60,'#ffb560','2a');box(x-3,y-3,6,6,'#2a2520');oval(x,y,2.4,3.6,'#ffc06a');oval(x,y-.5,1.2,2,'#fff0c0')}
+for(let i=0;i<60;i++){const x=40+r()*620,y=40+r()*410;const q=g.createRadialGradient(x,y,1,x,y,30+r()*30);q.addColorStop(0,'#9fe0c00d');q.addColorStop(1,'#9fe0c000');g.fillStyle=q;g.fillRect(x-60,y-60,120,120)}
+
+// Vignette.
+const shade=g.createRadialGradient(350,245,160,350,245,440);shade.addColorStop(0,'#05040a00');shade.addColorStop(1,'#05040aaa');g.fillStyle=shade;g.fillRect(0,0,700,490);
+window.ready=true;
+</script>

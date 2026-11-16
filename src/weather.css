@@ -59,6 +59,35 @@
   .weather > i, .weather-storm::after { animation: none; }
 }
 
+/* Angka HP token, hanya untuk DM */
+.map-canvas .map-token .token-hp {
+  position: absolute;
+  right: 16%;
+  bottom: 18%;
+  z-index: 3;
+  height: 18px;
+  padding: 0 5px;
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  line-height: 18px;
+  border: 1px solid #0a0806;
+  border-radius: 999px;
+  background: #1f3a2a;
+  color: #c9f0d2;
+  font-size: 11px;
+  font-weight: 800;
+  font-style: normal;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  transform-origin: bottom right;
+  pointer-events: none;
+  box-shadow: 0 2px 4px #000a;
+}
+.map-canvas .map-token .token-hp small { font-size: 9px; font-weight: 600; opacity: .7; }
+.map-canvas .map-token .token-hp.mid { background: #4a3a14; color: #f3d98f; }
+.map-canvas .map-token .token-hp.low { background: #5a1c18; color: #ffb4a8; }
+
 /* Lencana AC monster, hanya untuk DM */
 .map-canvas .map-token .token-ac {
   position: absolute;

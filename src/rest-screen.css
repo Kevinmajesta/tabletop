@@ -63,3 +63,9 @@
 .rest-countdown.done .countdown-num { color: #ffd6cf; }
 @keyframes countdown-beat { from { opacity: .2; transform: scale(1.35); } 35% { opacity: 1; } to { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .countdown-num { animation: none; } }
+
+/* Hitung mundur: input jumlah detik di samping pilihan menu */
+.rest-countdown-row { display: flex; align-items: stretch; gap: 6px; }
+.rest-countdown-row .rest-option { flex: 1; min-width: 0; }
+.rest-seconds { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 10px; opacity: .8; }
+.rest-seconds input { width: 58px; padding: 4px 6px; text-align: center; font: inherit; font-size: 14px; font-weight: 700; }

@@ -10,6 +10,7 @@ import { newWhodunit, checkWhodunit, whodunitReveal, suspects, type WhodunitStat
 import { newTiles, tilesView, adjacent, isSafe, tileFall, armTimer, tileCols, tileRows, type TileState } from './tilefloor.js';
 import { newCryptex, checkCryptex, cryptexView, type CryptexState } from './cryptex.js';
 import { newRitual, ritualLight, ritualView, type RitualState, type RitualView } from './ritual.js';
+import { holdersOf, lichAction, lichView, newLich, senses as lichSenses, type LichState, type LichView } from './lich.js';
 import { newMirrors, mirrorAction, mirrorMinPlayers, mirrorMaxPlayers, type MirrorState } from './mirrors.js';
 import { newWires, wireAction, wireView, type WireState } from './wirehack.js';
 import { newQuiz, quizAction, quizView, type QuizState } from './quiz.js';
@@ -88,7 +89,7 @@ function bombModules(randomInt: (max: number) => number): BombModule[] {
   ];
 }
 export type Game = {
-  coop?: CoopState; scale?: ScaleState; journal?: JournalState; cryptex?: CryptexState; whodunit?: WhodunitState; lock?: LockState; tiles?: TileState; ritual?: RitualState | RitualView; mirrors?: MirrorState; wirehack?: WireState; tavern?: TavernState; alchemy?: AlchemyState; potion?: PotionState; compass?: CompassState; runes?: RuneState; shift?: ShiftState; jigsaw?: JigsawState; jigsawSetup?: JigsawConfig; quiz?: QuizState;
+  coop?: CoopState; scale?: ScaleState; journal?: JournalState; cryptex?: CryptexState; whodunit?: WhodunitState; lock?: LockState; tiles?: TileState; ritual?: RitualState | RitualView; lich?: LichState | LichView; lichHolders?: number[]; mirrors?: MirrorState; wirehack?: WireState; tavern?: TavernState; alchemy?: AlchemyState; potion?: PotionState; compass?: CompassState; runes?: RuneState; shift?: ShiftState; jigsaw?: JigsawState; jigsawSetup?: JigsawConfig; quiz?: QuizState;
   tokenId: string; kind: GameKind; round: number; phase: 'waiting' | 'open' | 'finished';
   players: string[]; scores: Record<string, number>; choices: Record<string, string>;
   result: string;
@@ -128,6 +129,7 @@ export function gameView(game: Game, playerId: string, dm: boolean): Game {
   if (game.kind === 'alchemy') { const { alchemy, ...rest } = view as Game; return { ...rest, ...(alchemy && game.phase !== 'waiting' ? { alchemy: alchemyView(alchemy, dm, game.phase === 'finished') } : {}) } as Game; }
   if (game.kind === 'tavern') { const { tavern, ...rest } = view as Game; return { ...rest, ...(tavern && game.phase !== 'waiting' ? { tavern: tavernView(tavern, dm, game.phase === 'finished') } : {}) } as Game; }
   if (game.kind === 'mirrors') { const { mirrors, ...rest } = view as Game; return { ...rest, ...(mirrors && game.phase !== 'waiting' ? { mirrors } : {}) } as Game; }
+  if (game.kind === 'lich') { const { lich, ...rest } = view as Game; return { ...rest, ...(lich && game.phase !== 'waiting' ? { lich: lichView(lich as LichState, game.players.indexOf(playerId), game.players.length, dm, game.phase === 'finished') } : {}) } as Game; }
   if (game.kind === 'ritual') { const { ritual, ...rest } = view as Game; return { ...rest, ...(ritual && game.phase !== 'waiting' ? { ritual: ritualView(ritual as RitualState, game.players.indexOf(playerId), game.players.length, dm, game.phase === 'finished') } : {}) } as Game; }
   const memoryViewer = game.players.indexOf(playerId);
   const canSeeMemoryOpen = memoryViewer < 0 || memoryViewer === game.turn;
@@ -176,6 +178,23 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
   if (game.kind === 'runes' && String(action.type).startsWith('runes:')) return runesAction(game, playerId, dm, action);
   if (game.kind === 'jigsaw' && String(action.type).startsWith('jigsaw:')) return jigsawAction(game, playerId, dm, action);
   if (game.kind === 'shift' && String(action.type).startsWith('shift:')) return shiftAction(game, playerId, dm, action);
+  // Perjamuan: GM memilih pemegang keempat indra dari semua anggota room (boleh offline), seperti Dua Ruangan.
+  // Pilihan ini sekaligus menentukan peserta. Bisa dipakai sebelum atau selama ronde.
+  if (game.kind === 'lich' && action.type === 'lich:seat') {
+    if (!dm) return 'Hanya GM yang membagi indra.';
+    const seats = action.seats;
+    if (!Array.isArray(seats) || seats.length !== lichSenses.length || !seats.every(id => typeof id === 'string' && id.length > 0 && id.length <= 100)) return 'Pilih pemegang untuk keempat indra.';
+    const players = [...new Set(seats as string[])];
+    const holders = (seats as string[]).map(id => players.indexOf(id));
+    game.players = players;
+    for (const id of players) if (!Object.hasOwn(game.scores, id)) Object.defineProperty(game.scores, id, { value: 0, writable: true, enumerable: true, configurable: true });
+    game.lichHolders = holders;
+    const t = game.lich as LichState | undefined;
+    if (t && game.phase === 'open') { t.holders = [...holders]; t.agreed = t.agreed.filter(id => players.includes(id)); }
+    game.declaration = (game.declaration || 0) + 1; // membuka dialog di layar peserta
+    return null;
+  }
+  if (game.kind === 'lich' && String(action.type).startsWith('lich:')) return lichAction(game as Game & { lich?: LichState }, playerId, dm, action);
   if (game.kind === 'ritual' && action.type === 'ritual:light') return ritualLight(game as Game & { ritual?: RitualState }, playerId, action.candle);
   const fail = 'Aksi tidak tersedia pada ronde ini.';
   const partyActions = ['cipher:answer'];
@@ -270,6 +289,11 @@ export function gameAction(game: Game, playerId: string, dm: boolean, action: Re
       if (!randomInt) return 'Pembuat acak tidak tersedia.';
       if (game.players.length < mirrorMinPlayers || game.players.length > mirrorMaxPlayers) return `Ruang Cermin Cahaya butuh ${mirrorMinPlayers} sampai ${mirrorMaxPlayers} pemain.`;
       game.mirrors = newMirrors(game.players.length, randomInt);
+    } else if (game.kind === 'lich') {
+      if (!randomInt) return 'Pembuat acak tidak tersedia.';
+      const previous = (game.lich as LichState | undefined)?.holders;
+      game.lich = newLich(randomInt);
+      game.lich.holders = holdersOf({ holders: game.lichHolders ?? previous }, game.players.length);
     } else if (game.kind === 'ritual') {
       if (!randomInt) return 'Pembuat acak tidak tersedia.';
       game.ritual = newRitual(randomInt);

@@ -3,7 +3,7 @@ import './roll-card.css';
 type Roll = { sides: number; modifier: number; values: number[]; total: number };
 
 // Kartu hasil lemparan di chat. Data dadu dari server; mode dan catatan kondisi dibaca dari teks pesan.
-export default function RollCard({ roll, text }: { roll: Roll; text: string }) {
+export default function RollCard({ roll, text, label, mastery }: { roll: Roll; text: string; label?: string; mastery?: { name: string; note: string } }) {
   const mode = text.startsWith('advantage:') ? 'advantage' : text.startsWith('disadvantage:') ? 'disadvantage' : 'normal';
   const count = roll.values.length;
   const formula = `${count}d${roll.sides}${roll.modifier ? (roll.modifier > 0 ? '+' : '−') + Math.abs(roll.modifier) : ''}`;
@@ -16,7 +16,7 @@ export default function RollCard({ roll, text }: { roll: Roll; text: string }) {
   return (
     <div className={`roll-card${natural ? ' ' + natural : ''}`}>
       <div className="roll-card-head">
-        <span className="roll-formula">{formula}</span>
+        <span className="roll-formula">{label ? <><b className="roll-label">{label}</b> · </> : null}{formula}</span>
         {mode !== 'normal' && <span className={`roll-mode ${mode}`}>{mode === 'advantage' ? 'Advantage' : 'Disadvantage'}</span>}
       </div>
       <div className="roll-card-body">
@@ -30,6 +30,12 @@ export default function RollCard({ roll, text }: { roll: Roll; text: string }) {
       </div>
       {natural && <div className="roll-natural">{natural === 'crit' ? 'Natural 20' : 'Natural 1'}</div>}
       {note && <div className="roll-note">{note}</div>}
+      {mastery && (
+        <div className="roll-mastery">
+          <span className="roll-mastery-tag">Mastery · {mastery.name}</span>
+          <p>{mastery.note}</p>
+        </div>
+      )}
     </div>
   );
 }

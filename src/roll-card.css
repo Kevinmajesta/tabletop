@@ -49,3 +49,9 @@
 
 /* Pesan lemparan memakai kartu: tanpa kotak teks lama di sekelilingnya. */
 .message.roll .message-text.has-card { padding: 0; border: 0; background: none; }
+
+/* Nama senjata dan efek Weapon Mastery pada roll serangan */
+.roll-label { color: #f6e6c0; letter-spacing: .04em; }
+.roll-mastery { display: grid; gap: 4px; padding: 7px 9px; border: 1px solid #cfa95f40; border-radius: 6px; background: #cfa95f12; }
+.roll-mastery-tag { justify-self: start; padding: 1px 7px; border-radius: 999px; background: #cfa95f; color: #17130e; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.roll-mastery p { margin: 0; font-size: 12px; line-height: 1.45; color: #ece2cc; }

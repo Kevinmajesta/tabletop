@@ -24,6 +24,7 @@ import Runes from './Runes';
 import Shift from './Shift';
 import Jigsaw from './Jigsaw';
 import Quiz from './Quiz';
+import Lich from './Lich';
 
 export const gameNames = Object.fromEntries(Object.entries(gameCatalog).map(([kind, entry]) => [kind, entry.name]));
 const choices: Record<string, string> = { rock: 'Batu', paper: 'Kertas', scissors: 'Gunting' };
@@ -116,7 +117,7 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
       {!openParty && !game.players.length && <p>Menunggu GM deklarasikan peserta.</p>}
       {!openParty && !dm && !game.players.includes(playerId) && <p>Kamu penonton. Aksi permainan hanya untuk peserta yang dipilih GM.</p>}
       {game.phase === 'waiting' && <div className="minigame-actions">
-        {dm && !openParty && game.kind !== 'cooprooms' && <fieldset className="minigame-participants"><legend>{fixedPlayers(game.kind) === 2 ? (game.kind === 'quiz' ? 'Pilih dua pemain (satu tim)' : 'Pilih dua peserta 1v1') : fixedPlayers(game.kind) === 1 ? 'Pilih satu pemain' : 'Seluruh pemain online menjadi peserta'}</legend>
+        {dm && !openParty && game.kind !== 'cooprooms' && game.kind !== 'lich' && <fieldset className="minigame-participants"><legend>{fixedPlayers(game.kind) === 2 ? (game.kind === 'quiz' ? 'Pilih dua pemain (satu tim)' : 'Pilih dua peserta 1v1') : fixedPlayers(game.kind) === 1 ? 'Pilih satu pemain' : 'Seluruh pemain online menjadi peserta'}</legend>
           {fixedPlayers(game.kind) > 0 && members.filter(member => member.online).map(member => <label key={member.id}><input type="checkbox" checked={participants.includes(member.id)} disabled={disabled || (fixedPlayers(game.kind) === 2 && !participants.includes(member.id) && participants.length >= 2)} onChange={e => setParticipants(current => fixedPlayers(game.kind) === 1 ? (e.target.checked ? [member.id] : []) : e.target.checked ? [...current, member.id] : current.filter(id => id !== member.id))} />{member.name}{member.dm ? ' (GM)' : ''}</label>)}
           <button disabled={disabled || (fixedPlayers(game.kind) > 0 && participants.length !== fixedPlayers(game.kind))} onClick={() => send({ type: 'declare', players: participants })}>Deklarasikan {gameNames[game.kind]}</button>
         </fieldset>}
@@ -135,6 +136,7 @@ export default function Minigames({ games, socket, dm, playerId, members, connec
       {game.kind === 'alchemy' && <Alchemy key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
       {game.kind === 'tavern' && <TavernBill key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
       {game.kind === 'mirrors' && <MirrorRoom key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} />}
+      {game.kind === 'lich' && <Lich key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} members={members} />}
       {game.kind === 'ritual' && <Ritual key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} playerId={playerId} name={name} dm={dm} />}
       {game.kind === 'lockpick' && <Lockpick key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} />}
       {game.kind === 'cryptex' && <Cryptex key={game.tokenId + ':' + game.round} game={game} disabled={disabled} send={send} dm={dm} />}

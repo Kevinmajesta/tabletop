@@ -23,6 +23,7 @@ import {
   Trash2,
   ChevronDown,
   BookOpen,
+  Pencil,
 } from "lucide-react";
 import {
   conditions,
@@ -73,6 +74,7 @@ const labels: [Tool, string][] = [
   ["cone", "Cone"],
   ["rect", "Kotak"],
   ["line", "Garis"],
+  ["draw", "Pensil"],
   ["text", "Teks"],
   ["wall", "Dinding"],
   ["door", "Pintu"],
@@ -88,6 +90,7 @@ const toolIcons = {
   cone: Triangle,
   rect: Square,
   line: Minus,
+  draw: Pencil,
   text: Type,
   wall: BrickWall,
   door: DoorOpen,
@@ -101,6 +104,7 @@ const tabIcons = {
   combat: Swords,
   token: UserRound,
 };
+const penColors = ["#f3d49a", "#ff6b5e", "#6fcf86", "#62b6ff", "#ffffff", "#1b1b1b"];
 const toolGroups: { name: string; description: string; ids: Tool[] }[] = [
   {
     name: "Navigasi",
@@ -109,8 +113,8 @@ const toolGroups: { name: string; description: string; ids: Tool[] }[] = [
   },
   {
     name: "Area & catatan",
-    description: "Template spell dan penanda peta.",
-    ids: ["circle", "cone", "rect", "line", "text"],
+    description: "Template spell, gambar bebas, dan penanda peta.",
+    ids: ["draw", "circle", "cone", "rect", "line", "text"],
   },
   {
     name: "Visibilitas DM",
@@ -215,6 +219,9 @@ export default function BoardTools({
     "tools",
   );
   const [draft, setDraft] = useState<{ a: Point; b: Point } | null>(null);
+  // Goresan pensil yang sedang digambar (persen peta) dan warnanya.
+  const [stroke, setStroke] = useState<Point[] | null>(null);
+  const [penColor, setPenColor] = useState(penColors[0]);
   const [pings, setPings] = useState<Ping[]>([]);
   const [pointers, setPointers] = useState<Record<string, Pointer>>({});
   const [error, setError] = useState("");
@@ -401,7 +408,7 @@ export default function BoardTools({
       y: snap(y, row, ((scene.grid.offsetY ?? 0) / 100) * row),
     };
   }
-  function shape(mark: Pick<Mark, "kind" | "a" | "b" | "text" | "open">, key: string) {
+  function shape(mark: Pick<Mark, "kind" | "a" | "b" | "text" | "open" | "points">, key: string) {
     const a = { x: (mark.a.x / 100) * width, y: (mark.a.y / 100) * height },
       b = { x: (mark.b.x / 100) * width, y: (mark.b.y / 100) * height };
     if (mark.kind === "wall" && (!dm || previewTokenId)) return null;
@@ -426,6 +433,21 @@ export default function BoardTools({
           ? (event: React.PointerEvent<SVGElement>) => selectMark(event, key)
           : undefined,
     };
+    if (mark.kind === "draw") {
+      const pts = mark.points || [mark.a, mark.b];
+      return (
+        <polyline
+          key={key}
+          points={pts.map((q) => `${(q.x / 100) * width},${(q.y / 100) * height}`).join(" ")}
+          {...properties}
+          stroke={selectedMarkId === key ? "#ffffff" : mark.text || "#f3d49a"}
+          strokeWidth={selectedMarkId === key ? 5 : 3}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+      );
+    }
     if (mark.kind === "text")
       return (
         <text
@@ -748,9 +770,27 @@ export default function BoardTools({
                         ? "Klik peta untuk ping. DM: Shift + klik memusatkan kamera party."
                         : tool === "select"
                           ? "Geser token mengikuti grid. Alt untuk bebas."
+                          : tool === "draw"
+                            ? "Seret untuk menggambar bebas. Gambar tetap di peta sampai dihapus (pilih lalu Delete, atau tombol di bawah)."
                           : "Seret peta untuk membuat bentuk."}
                   </p>
                 </div>
+                {tool === "draw" && (
+                  <div className="board-pen">
+                    <div className="board-pen-colors" role="radiogroup" aria-label="Warna pensil">
+                      {penColors.map((c) => (
+                        <button key={c} type="button" role="radio" aria-checked={penColor === c} aria-label={`Warna ${c}`} style={{ background: c }} onClick={() => setPenColor(c)} />
+                      ))}
+                    </div>
+                    <button
+                      type="button"
+                      disabled={!connected || !scene.marks.some((m) => m.kind === "draw" && (dm || m.ownerId === playerId))}
+                      onClick={() => action({ type: "draw:clear" })}
+                    >
+                      <Trash2 size={15} /> {dm ? "Hapus semua gambar" : "Hapus gambarku"}
+                    </button>
+                  </div>
+                )}
                 {tool === "text" && (
                   <label>
                     Teks
@@ -888,7 +928,7 @@ export default function BoardTools({
                     <div className="dm-grid-2">
                       <label>
                         Kolom
-                        <input type="number" min={4} max={100} value={scene.grid.columns} onChange={(e) => action({ type: "grid", columns: e.target.valueAsNumber })} />
+                        <input type="number" min={4} max={200} value={scene.grid.columns} onChange={(e) => action({ type: "grid", columns: e.target.valueAsNumber })} />
                       </label>
                       <label>
                         Jarak per kotak
@@ -1135,6 +1175,11 @@ export default function BoardTools({
           return;
         }
         drawing.current = true;
+        if (tool === "draw") {
+          setStroke([a]);
+          try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
+          return;
+        }
         setWaypoints([]);
         setDraft({ a, b: a });
         try {
@@ -1142,6 +1187,13 @@ export default function BoardTools({
         } catch {}
       }}
       onPointerMove={(e) => {
+        if (stroke && drawing.current) {
+          e.stopPropagation();
+          const q = point(e), last = stroke[stroke.length - 1];
+          // Lewati titik yang terlalu rapat supaya goresan tetap ringan (maks. 600 titik).
+          if (Math.hypot(q.x - last.x, q.y - last.y) > 0.12 && stroke.length < 600) setStroke([...stroke, q]);
+          return;
+        }
         if (draft && drawing.current) {
           e.stopPropagation();
           setDraft({ ...draft, b: point(e) });
@@ -1149,6 +1201,14 @@ export default function BoardTools({
       }}
       onPointerUp={(e) => {
         drawing.current = false;
+        if (stroke) {
+          e.stopPropagation();
+          try { if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId); } catch {}
+          const pts = stroke.length === 1 ? [stroke[0], { x: stroke[0].x + 0.05, y: stroke[0].y + 0.05 }] : stroke;
+          action({ type: "mark:add", kind: "draw", points: pts, text: penColor });
+          setStroke(null);
+          return;
+        }
         if (!draft) return;
         e.stopPropagation();
         const b = point(e);
@@ -1168,6 +1228,7 @@ export default function BoardTools({
       }}
       onPointerCancel={() => {
         drawing.current = false;
+        setStroke(null);
         setDraft(null);
         setWaypoints([]);
       }}
@@ -1175,6 +1236,7 @@ export default function BoardTools({
       {scene.marks
         .filter((m) => m.kind !== "reveal")
         .map((m) => shape(m, m.id))}
+      {stroke && shape({ kind: "draw", a: stroke[0], b: stroke[stroke.length - 1], points: stroke, text: penColor }, "draft")}
       {draft &&
         tool !== "ruler" &&
         shape({ kind: tool as Mark["kind"], ...draft, text }, "draft")}

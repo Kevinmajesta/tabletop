@@ -83,3 +83,10 @@
 /* Pointer: kecil, satu warna neon tanpa outline. */
 .board-pointer circle{fill:#22f0ff;stroke:none;filter:drop-shadow(0 0 3px #22f0ff) drop-shadow(0 0 7px #22f0ffaa)}
 .board-pointer text{fill:#22f0ff;stroke:none;font-size:9px;font-weight:700;filter:drop-shadow(0 0 3px #22f0ffaa)}
+
+/* Pensil: pilihan warna dan tombol hapus gambar */
+.board-pen { display: grid; gap: 8px; }
+.board-pen-colors { display: flex; flex-wrap: wrap; gap: 6px; }
+.board-pen-colors button { width: 26px; height: 26px; padding: 0; border: 2px solid #ffffff30; border-radius: 50%; cursor: pointer; }
+.board-pen-colors button[aria-checked="true"] { border-color: #fff; box-shadow: 0 0 0 2px #cfa95f; }
+.board-pen > button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }

@@ -5,14 +5,16 @@ import type { Mark, Point } from './tabletop.js';
 
 export type Segment = { a: Point; b: Point };
 
-// Dinding, pintu tertutup, dan jendela tertutup dalam koordinat piksel. pad memperpanjang ujung dinding
-// (dalam persen peta, sama seperti blocked()) supaya sinar tidak lolos lewat celah sambungan.
-export function wallSegments(marks: Mark[], width: number, height: number, pad = 0.4): Segment[] {
+// Dinding, pintu tertutup, dan jendela tertutup dalam koordinat piksel. pad (piksel layar peta) sedikit memperpanjang
+// ujung dinding supaya sinar tidak lolos lewat celah sambungan. Sengaja dalam piksel, bukan persen peta: di peta besar
+// (mis. 144 kolom) persen akan membuat ujung dinding menjorok ke lorong dan memunculkan bayangan segitiga palsu.
+export function wallSegments(marks: Mark[], width: number, height: number, pad = 1.5): Segment[] {
   return marks
     .filter(w => w.kind === 'wall' || ((w.kind === 'door' || w.kind === 'window') && !w.open))
     .map(w => {
-      const dx = w.b.x - w.a.x, dy = w.b.y - w.a.y, l = Math.hypot(dx, dy) || 1, ux = (dx / l) * pad, uy = (dy / l) * pad;
-      return { a: { x: ((w.a.x - ux) / 100) * width, y: ((w.a.y - uy) / 100) * height }, b: { x: ((w.b.x + ux) / 100) * width, y: ((w.b.y + uy) / 100) * height } };
+      const ax = (w.a.x / 100) * width, ay = (w.a.y / 100) * height, bx = (w.b.x / 100) * width, by = (w.b.y / 100) * height;
+      const dx = bx - ax, dy = by - ay, l = Math.hypot(dx, dy) || 1, ux = (dx / l) * pad, uy = (dy / l) * pad;
+      return { a: { x: ax - ux, y: ay - uy }, b: { x: bx + ux, y: by + uy } };
     });
 }
 

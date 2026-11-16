@@ -70,7 +70,9 @@ function DiceScene(props: { roll: DiceRoll; onComplete: () => void; zoom?: numbe
 import type { Game } from '../server/minigames';
 import { gameCatalog } from '../server/game-catalog';
 import type { Character } from "../server/characters";
-import { blocksMovement, distance, PROP_MIN, PROP_MAX, type BoardToken, type Scene } from "../server/tabletop";
+import { blocksMovement, distance, PROP_MIN, PROP_MAX, offTable, offTableAllowed, type BoardToken, type Scene } from "../server/tabletop";
+// Gambar peta bebas di mana saja; token minigame boleh keluar tabel tapi snap ke grid di dalam tabel.
+const freeOf = (t?: { prop?: true; minigame?: string }) => (t?.prop ? true : t?.minigame ? ("edge" as const) : false);
 import type { DiceRoll } from "../server/dice-physics";
 import { randomId } from "./random-id";
 
@@ -91,6 +93,8 @@ type Message = {
   time: number;
   kind: "chat" | "roll" | "system" | "status";
   roll?: { sides: number; modifier: number; values: number[]; total: number };
+  label?: string;
+  mastery?: { name: string; note: string };
 };
 type Room = {
   id: string;
@@ -149,7 +153,7 @@ function App() {
   // Seleksi grup: Ctrl+klik token atau Shift+seret kotak di peta. Seret salah satu anggota memindahkan semuanya.
   const [group, setGroup] = useState<string[]>([]);
   const [box, setBox] = useState<{ pointerId: number; x0: number; y0: number; x1: number; y1: number; add: boolean } | null>(null);
-  const groupDrag = useRef<{ lead: { x: number; y: number }; prop: boolean; members: { id: string; x: number; y: number; prop: boolean }[] } | null>(null);
+  const groupDrag = useRef<{ lead: { x: number; y: number }; prop: boolean | "edge"; members: { id: string; x: number; y: number; prop: boolean }[] } | null>(null);
   const groupPositions = useRef<{ id: string; x: number; y: number }[] | null>(null);
   const [openMinigame, setOpenMinigame] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -851,11 +855,13 @@ function App() {
   }
 
   // free: gambar peta (prop) boleh ditaruh di luar tabel, tanpa snap ke grid.
-  function tokenPosition(event: { clientX: number; clientY: number; altKey: boolean }, free = false) {
+  // "edge": token minigame juga boleh di luar tabel, tapi tetap snap ke grid selama di dalam tabel.
+  function tokenPosition(event: { clientX: number; clientY: number; altKey: boolean }, free: boolean | "edge" = false) {
     const rect = mapRef.current!.getBoundingClientRect();
     if (free) {
       const loose = (v: number) => Math.round(Math.max(PROP_MIN, Math.min(PROP_MAX, v)) * 100) / 100;
-      return { x: loose(((event.clientX - rect.left) / rect.width) * 100), y: loose(((event.clientY - rect.top) / rect.height) * 100) };
+      const at = { x: loose(((event.clientX - rect.left) / rect.width) * 100), y: loose(((event.clientY - rect.top) / rect.height) * 100) };
+      if (free === true || offTable(at)) return at;
     }
     const cell = rect.width / columns;
     const coordinate = (
@@ -921,7 +927,7 @@ function App() {
       return;
     }
     const original = room?.tokens.find((t) => t.id === dragging.current);
-    const { x, y } = tokenPosition(event, !!original?.prop);
+    const { x, y } = tokenPosition(event, freeOf(original));
     if (!isDM && original && activeScene && blocksMovement(original, { x, y }, activeScene.marks)) return;
     const now = performance.now();
     if (now - lastTokenMove.current >= 50) {
@@ -993,7 +999,7 @@ function App() {
       return;
     }
     const token = room?.tokens.find((item) => item.id === dragging.current);
-    const destination = tokenPosition(event, !!token?.prop);
+    const destination = tokenPosition(event, freeOf(token));
     const blockedMove = !isDM && token && activeScene && blocksMovement(token, destination, activeScene.marks);
     socketRef.current?.emit("token:move", {
       id: dragging.current,
@@ -1076,6 +1082,13 @@ function App() {
     (viewportSize.height || 800) * 0.92 * mapRatio,
   ) * mapScale;
   const canvasHeight = canvasWidth / mapRatio;
+  // Badge token (HP, AC, panah giliran): ukuran tetap di layar saat token besar, tapi tidak boleh lebih besar
+  // dari ~1/3 lebar token di layar, supaya tidak menutupi token kecil saat zoom out atau di peta yang luas.
+  const badgeScaleFor = (size = 1) => Math.min(1 / zoom, ((canvasWidth * size) / columns) * 0.34 / 18);
+  // Label nama boleh sedikit lebih lebar dari token, tapi tidak boleh tetap besar saat token mengecil (nama saling tumpuk).
+  // Tombol putar: maksimal ~80% lebar token di layar, tapi minimal 14 px supaya tetap bisa diklik.
+  const handleScaleFor = (size = 1) => Math.max(14 / 22 / zoom, Math.min(1 / zoom, ((canvasWidth * size) / columns) * 0.8 / 22));
+  const labelScaleFor = (size = 1) => Math.min(1 / zoom, ((canvasWidth * size) / columns) / 34);
   // Tombol panah: geser token terpilih (atau seluruh grup) satu kotak grid.
   arrowMoveRef.current = (dx: number, dy: number) => {
     if (!room || !activeScene || mapTool !== "select" || dragging.current) return false;
@@ -1084,7 +1097,7 @@ function App() {
     if (!movers.length) return false;
     const stepX = 100 / columns, stepY = (canvasWidth / columns / canvasHeight) * 100;
     const clamp = (v: number, prop: boolean) => Math.round(Math.max(prop ? PROP_MIN : 0, Math.min(prop ? PROP_MAX : 100, v)) * 10000) / 10000;
-    const moves = movers.map((t) => ({ id: t.id, x: clamp(t.x + dx * stepX, !!t.prop), y: clamp(t.y + dy * stepY, !!t.prop) }));
+    const moves = movers.map((t) => ({ id: t.id, x: clamp(t.x + dx * stepX, offTableAllowed(t)), y: clamp(t.y + dy * stepY, offTableAllowed(t)) }));
     // Pemain tidak bisa menembus dinding atau pintu tertutup; seluruh grup ikut berhenti.
     if (!isDM && moves.some((m) => blocksMovement(movers.find((t) => t.id === m.id)!, m, activeScene.marks))) return true;
     applyLocalMoves(moves);
@@ -1145,7 +1158,7 @@ function App() {
         <RestControl
           rest={room?.rest ?? null}
           disabled={!connected}
-          onStart={(kind, note) => socketRef.current?.emit("tabletop:action", { type: "rest:start", sceneId: activeScene?.id, kind, note })}
+          onStart={(kind, note, seconds) => socketRef.current?.emit("tabletop:action", { type: "rest:start", sceneId: activeScene?.id, kind, note, seconds })}
           onEnd={() => socketRef.current?.emit("tabletop:action", { type: "rest:end", sceneId: activeScene?.id })}
         />
       )}
@@ -1480,8 +1493,8 @@ function App() {
                         tokenDragStart.current = { x: e.clientX, y: e.clientY };
                         groupDrag.current = inGroup ? {
                           lead: { x: token.x, y: token.y },
-                          prop: !!token.prop,
-                          members: (room?.tokens || []).filter((t) => group.includes(t.id) && (isDM || t.ownerId === identity.playerId)).map((t) => ({ id: t.id, x: t.x, y: t.y, prop: !!t.prop })),
+                          prop: freeOf(token),
+                          members: (room?.tokens || []).filter((t) => group.includes(t.id) && (isDM || t.ownerId === identity.playerId)).map((t) => ({ id: t.id, x: t.x, y: t.y, prop: offTableAllowed(t) })),
                         } : null;
                         e.currentTarget.setPointerCapture(e.pointerId);
                       }
@@ -1511,7 +1524,7 @@ function App() {
                         aria-label={`Putar ${token.name}`}
                         aria-valuenow={token.rotation ?? 0}
                         title="Seret untuk memutar (Shift: bebas) · Q/E memutar 15°"
-                        style={{ transform: `translateX(-50%) scale(${1 / zoom})` }}
+                        style={{ transform: `translateX(-50%) scale(${handleScaleFor(token.size)})` }}
                         onClick={(e) => e.stopPropagation()}
                         onPointerDown={(e) => {
                           if (e.button !== 0) return;
@@ -1533,11 +1546,15 @@ function App() {
                         onPointerCancel={(e) => { e.stopPropagation(); turningToken.current = null; }}
                       ><RotateCw size={12} /></span>
                     )}
-                    {isDM && !!token.maxHp && <div className="token-hp-bar" aria-label={`HP ${token.name}: ${token.hp ?? 0}/${token.maxHp}`}><i style={{ width: `${Math.max(0, Math.min(100, ((token.hp ?? 0) / token.maxHp) * 100))}%` }} /></div>}
-                    {isDM && token.ac !== undefined && <b className="token-ac" title={`AC ${token.ac}`} style={{ transform: `scale(${1 / zoom})` }}>{token.ac}</b>}
+                    {isDM && !!token.maxHp && (() => {
+                      const hpPct = ((token.hp ?? 0) / token.maxHp) * 100;
+                      return <b className={`token-hp${hpPct <= 25 ? " low" : hpPct <= 50 ? " mid" : ""}`} title={`HP ${token.hp ?? 0}/${token.maxHp}`} aria-label={`HP ${token.name}: ${token.hp ?? 0}/${token.maxHp}`} style={{ transform: `scale(${badgeScaleFor(token.size)})` }}>{token.hp ?? 0}<small>/{token.maxHp}</small></b>;
+                    })()}
+                    {activeScene?.combat.active && activeScene.combat.ids[activeScene.combat.turn] === token.id && <i className="token-turn-marker" aria-hidden="true" style={{ transform: `translateX(-50%) scale(${badgeScaleFor(token.size)})` }}><svg viewBox="0 0 24 16"><path d="M2 2 L12 14 L22 2 Z" /></svg></i>}
+                    {isDM && token.ac !== undefined && <b className="token-ac" title={`AC ${token.ac}`} style={{ transform: `scale(${badgeScaleFor(token.size)})` }}>{token.ac}</b>}
                     {token.dead && <svg className="token-dead-mark" viewBox="0 0 100 100" role="img" aria-label={`${token.name}: Dead`}><path d="M 18 18 L 82 82 M 82 18 L 18 82" /></svg>}
                     {!!token.conditions?.length && <div className="token-conditions" aria-label={`Kondisi ${token.name}: ${token.conditions.join(', ')}`}>{token.conditions.map((condition) => <b key={condition} title={conditionDescriptions[condition] || condition}>{condition[0]}</b>) }</div>}
-                    {!token.prop && <span style={{ transform: `translateX(-50%) scale(${1 / zoom})` }}>
+                    {!token.prop && <span style={{ transform: `translateX(-50%) scale(${labelScaleFor(token.size)})` }}>
                       {token.name}
                       {token.hidden ? " · DM saja" : ""}
                     </span>}
@@ -1550,8 +1567,8 @@ function App() {
                   const speed = speedFt === undefined ? undefined : activeScene.grid.unit === "m" ? speedFt * 0.3048 : speedFt;
                   const overSpeed = speed !== undefined && moved > speed;
                   return <svg className="token-movement" viewBox={`0 0 ${canvasWidth} ${canvasHeight}`}>
-                    <line x1={(movement.a.x / 100) * canvasWidth} y1={(movement.a.y / 100) * canvasHeight} x2={(movement.b.x / 100) * canvasWidth} y2={(movement.b.y / 100) * canvasHeight} className={overSpeed ? "over-speed" : ""} />
-                    <text x={(movement.b.x / 100) * canvasWidth} y={(movement.b.y / 100) * canvasHeight - 12} className={overSpeed ? "over-speed" : ""}>{moved.toFixed(1)} {activeScene.grid.unit}{overSpeed ? ` / maks. ${speed?.toFixed(1)} ${activeScene.grid.unit}` : ""}</text>
+                    <line x1={(movement.a.x / 100) * canvasWidth} y1={(movement.a.y / 100) * canvasHeight} x2={(movement.b.x / 100) * canvasWidth} y2={(movement.b.y / 100) * canvasHeight} className={overSpeed ? "over-speed" : ""} style={{ strokeWidth: 3 / zoom }} />
+                    <text x={(movement.b.x / 100) * canvasWidth} y={(movement.b.y / 100) * canvasHeight - 12 / zoom} className={overSpeed ? "over-speed" : ""} style={{ fontSize: 15 / zoom, strokeWidth: 4 / zoom }}>{moved.toFixed(1)} {activeScene.grid.unit}{overSpeed ? ` / maks. ${speed?.toFixed(1)} ${activeScene.grid.unit}` : ""}</text>
                   </svg>;
                 })()}
               </div>
@@ -2008,7 +2025,7 @@ function App() {
                       </div>
                       {message.kind === "roll" && message.roll ? (
                         <div className="message-text has-card">
-                          <RollCard roll={message.roll} text={message.text} />
+                          <RollCard roll={message.roll} text={message.text} label={message.label} mastery={message.mastery} />
                         </div>
                       ) : (
                         <div className="message-text">

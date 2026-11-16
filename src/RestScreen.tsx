@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Coffee, Pause, Play, Timer, X } from 'lucide-react';
 import './rest-screen.css';
 
-export type RestState = { kind: 'pause' | 'short' | 'long' | 'countdown'; note: string; since: number };
-const COUNTDOWN_MS = 5_000;
+export type RestState = { kind: 'pause' | 'short' | 'long' | 'countdown'; note: string; since: number; seconds?: number };
+const readSeconds = () => { try { return Math.max(1, Math.min(600, Number(localStorage.getItem('meja-petualang:countdown')) || 5)); } catch { return 5; } };
 
 const copy = {
   pause: { title: 'Game Paused', hint: '' },
@@ -21,9 +21,11 @@ function useElapsed(since: number) {
 }
 
 // Tombol DM di toolbar: satu klik untuk jeda, menu kecil untuk Short/Long Rest dan catatan.
-export function RestControl({ rest, onStart, onEnd, disabled }: { rest: RestState | null; onStart: (kind: RestState['kind'], note: string) => void; onEnd: () => void; disabled?: boolean }) {
+export function RestControl({ rest, onStart, onEnd, disabled }: { rest: RestState | null; onStart: (kind: RestState['kind'], note: string, seconds?: number) => void; onEnd: () => void; disabled?: boolean }) {
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState('');
+  // Lama hitung mundur pilihan DM; diingat di perangkat ini untuk lain kali.
+  const [seconds, setSeconds] = useState(readSeconds);
   const [pos, setPos] = useState({ top: 56, left: 8 });
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -32,7 +34,11 @@ export function RestControl({ rest, onStart, onEnd, disabled }: { rest: RestStat
     window.addEventListener('pointerdown', close);
     return () => window.removeEventListener('pointerdown', close);
   }, [open]);
-  const start = (kind: RestState['kind']) => { onStart(kind, note); setOpen(false); setNote(''); };
+  const start = (kind: RestState['kind']) => {
+    const secs = Math.max(1, Math.min(600, Math.round(seconds) || 5));
+    if (kind === 'countdown') try { localStorage.setItem('meja-petualang:countdown', String(secs)); } catch {}
+    onStart(kind, note, kind === 'countdown' ? secs : undefined); setOpen(false); setNote('');
+  };
 
   if (rest) return rest.kind === 'countdown'
     ? <button className="dm-launch rest-launch active" onClick={onEnd} disabled={disabled}><X size={17} />Hentikan</button>
@@ -51,9 +57,15 @@ export function RestControl({ rest, onStart, onEnd, disabled }: { rest: RestStat
           <button role="menuitem" className="rest-option" onClick={() => start('pause')}>
             <Pause size={18} /><span><strong>Jeda permainan</strong><small>Tanda pause di atas peta</small></span>
           </button>
-          <button role="menuitem" className="rest-option" onClick={() => start('countdown')}>
-            <Timer size={18} /><span><strong>Hitung mundur</strong><small>Angka 5 sampai 0 untuk semua</small></span>
-          </button>
+          <div className="rest-countdown-row">
+            <button role="menuitem" className="rest-option" onClick={() => start('countdown')}>
+              <Timer size={18} /><span><strong>Hitung mundur</strong><small>Angka {seconds} sampai 0 untuk semua</small></span>
+            </button>
+            <label className="rest-seconds" title="Lama hitung mundur (1–600 detik)">
+              <input type="number" min={1} max={600} value={seconds} onChange={(e) => setSeconds(e.target.valueAsNumber || 0)} onKeyDown={(e) => { if (e.key === 'Enter') start('countdown'); }} aria-label="Lama hitung mundur dalam detik" />
+              <span>detik</span>
+            </label>
+          </div>
           <button role="menuitem" className="rest-option" onClick={() => start('short')}>
             <Coffee size={18} /><span><strong>Short Rest</strong><small>Layar api unggun · pulihkan lewat sheet</small></span>
           </button>
@@ -74,10 +86,11 @@ export function RestOverlay({ rest, isDM, onEnd }: { rest: RestState; isDM: bool
   return <RestPanel rest={rest} isDM={isDM} onEnd={onEnd} />;
 }
 
-// Hitung mundur 5 → 0 di tengah peta. Waktu mulai memakai jam server (since) bila masuk akal; bila jam
+// Hitung mundur (lama pilihan DM) → 0 di tengah peta. Waktu mulai memakai jam server (since) bila masuk akal; bila jam
 // perangkat ini berbeda jauh, pakai saat state diterima supaya semua orang tetap melihat hitungan penuh.
 function CountdownOverlay({ rest }: { rest: RestState }) {
-  const [start] = useState(() => { const lag = Date.now() - rest.since; return lag >= -1500 && lag <= COUNTDOWN_MS + 3000 ? rest.since : Date.now(); });
+  const total = (rest.seconds ?? 5) * 1000;
+  const [start] = useState(() => { const lag = Date.now() - rest.since; return lag >= -1500 && lag <= total + 3000 ? rest.since : Date.now(); });
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     let frame = 0;
@@ -85,11 +98,13 @@ function CountdownOverlay({ rest }: { rest: RestState }) {
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
   }, []);
-  const n = Math.ceil(Math.max(0, COUNTDOWN_MS - (now - start)) / 1000);
+  const n = Math.ceil(Math.max(0, total - (now - start)) / 1000);
+  // Di atas 60 detik tampil sebagai menit:detik.
+  const shown = n >= 60 ? `${Math.floor(n / 60)}:${String(n % 60).padStart(2, '0')}` : String(n);
   // Hanya angka besar di tengah peta; DM menghentikannya lewat tombol di toolbar.
   return (
     <div className={`rest-overlay rest-countdown${n === 0 ? ' done' : n <= 3 ? ' urgent' : ''}`} role="timer" aria-label={`Hitung mundur, ${n} detik`}>
-      <span key={n} className="countdown-num">{n}</span>
+      <span key={n} className="countdown-num">{shown}</span>
     </div>
   );
 }

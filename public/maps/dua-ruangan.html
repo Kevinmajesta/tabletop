@@ -1,0 +1,124 @@
+<!doctype html><meta charset="utf-8"><title>Dua Ruangan</title><style>body{margin:0;background:#0e0f10}canvas{width:100%;height:auto;display:block}</style><canvas width="2100" height="1470"></canvas><script>
+// Dua Ruangan: barat = Ruang Kursi (9 kursi + papan TTS), timur = Ruang Sandi (Morse, Vigenere, keping angka, pintu kode).
+// Kanvas logis 700x490 = 20x14 kotak (35 per kotak), cocok dengan grid 20 kolom.
+const c=document.querySelector('canvas'),g=c.getContext('2d');g.scale(3,3);
+let seed=2024;function r(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296}
+function box(x,y,w,h,col){g.fillStyle=col;g.fillRect(x,y,w,h)}
+function line(x,y,a,b,col,w=1){g.strokeStyle=col;g.lineWidth=w;g.beginPath();g.moveTo(x,y);g.lineTo(a,b);g.stroke()}
+function oval(x,y,a,b,col,rot=0){g.fillStyle=col;g.beginPath();g.ellipse(x,y,a,b,rot,0,Math.PI*2);g.fill()}
+function glow(x,y,rad,col,alpha){const q=g.createRadialGradient(x,y,1,x,y,rad);q.addColorStop(0,col+alpha);q.addColorStop(1,col+'00');g.fillStyle=q;g.fillRect(x-rad,y-rad,rad*2,rad*2)}
+function text(s,x,y,size,col,bold=true){g.fillStyle=col;g.font=`${bold?'bold ':''}${size}px Georgia`;g.textAlign='center';g.fillText(s,x,y)}
+
+// Lantai dua ruangan.
+box(0,0,700,490,'#101112');
+function floor(x0,y0,w,h,pal,plank){g.save();g.beginPath();g.rect(x0,y0,w,h);g.clip();
+  if(plank){for(let y=y0;y<y0+h;y+=11){let x=x0-r()*60;while(x<x0+w){const len=40+r()*60;box(x+.5,y+.5,len-1,10,pal[Math.floor(r()*pal.length)]);line(x+1,y+1,x+len-2,y+1,'#ffffff12',.6);for(let k=0;k<3;k++){const gx=x+4+r()*(len-8);line(gx,y+3,gx+6+r()*8,y+3+r()*4,'#00000022',.4)}x+=len}}}
+  else for(let row=0;row<16;row++)for(let col=-1;col<12;col++){const x=x0+col*31+(row%2)*15.5,y=y0+row*29;box(x+1,y+1,29+r()*1.2,27+r(),pal[Math.floor(r()*pal.length)]);line(x+2,y+2,x+28,y+2,'#ffffff18',.6);line(x+29,y+3,x+29,y+27,'#00000055',.8)}
+  for(let i=0;i<4000;i++)box(x0+r()*w,y0+r()*h,.3+r()*1.2,.3+r(),i%3?'#0000001a':'#ffffff10');
+  g.restore()}
+floor(35,35,280,420,['#5a4129','#614630','#553d27','#5e4430','#4f3a25'],true);// Ruang Kursi: lantai kayu
+floor(350,35,315,420,['#4a4d50','#53565a','#45484b','#4e5154','#575a5d'],false);// Ruang Sandi: batu
+
+// Karpet bundar di bawah lingkaran kursi.
+const CX=175,CY=245;
+oval(CX,CY,112,112,'#3a1d1a');oval(CX,CY,108,108,'#6b2a24');oval(CX,CY,96,96,'#7d342b');
+g.strokeStyle='#c9a35a88';g.lineWidth=1.2;for(const rad of [104,92]){g.beginPath();g.arc(CX,CY,rad,0,Math.PI*2);g.stroke()}
+for(let i=0;i<36;i++){const a=i*Math.PI/18;oval(CX+Math.cos(a)*98,CY+Math.sin(a)*98,1.6,1.6,'#c9a35a99')}
+
+// Dinding.
+function wall(x,y,w,h){box(x,y,w,h,'#3c3a37');g.strokeStyle='#161514';g.lineWidth=2;g.strokeRect(x,y,w,h);
+  if(w>h){for(let xx=x;xx<x+w;xx+=34){const off=(Math.floor(xx/34)%2)*17;line(xx,y,xx,y+h/2,'#1d1c1a',1.5);line(xx+off,y+h/2,xx+off,y+h,'#1d1c1a',1.5);line(xx+2,y+2,xx+30,y+2,'#77736b55')}line(x,y+h/2,x+w,y+h/2,'#1d1c1a',1.5)}
+  else{for(let yy=y;yy<y+h;yy+=34){const off=(Math.floor(yy/34)%2)*17;line(x,yy,x+w/2,yy,'#1d1c1a',1.5);line(x+w/2,yy+off,x+w,yy+off,'#1d1c1a',1.5)}line(x+w/2,y,x+w/2,y+h,'#1d1c1a',1.5)}}
+for(const w of [[0,0,700,35],[0,455,700,35],[0,0,35,490],[665,0,35,490],[315,35,35,420]])wall(...w);
+for(const [x,y,w,h] of [[35,35,280,6],[350,35,315,6],[35,35,6,420],[350,35,6,420]])box(x,y,w,h,'#00000055');
+
+// Pintu masuk tiap ruangan di dinding selatan (2 kotak), terbuka ke dalam.
+function door(x){box(x,455,70,35,'#2b2926');for(let y=458;y<490;y+=8)line(x+2,y,x+68,y,'#1b1a18');box(x,455,70,14,'#151413');
+  g.save();g.translate(x+2,455);g.rotate(-.7);box(0,-3,33,6,'#4a3420');line(3,0,30,0,'#9a7442',1.4);g.restore();
+  g.save();g.translate(x+68,455);g.rotate(.7+Math.PI);box(0,-3,33,6,'#4a3420');line(3,0,30,0,'#9a7442',1.4);g.restore()}
+door(140);door(455);
+
+// Lubang bicara berjeruji kuningan di dinding tengah: satu-satunya jalur komunikasi kedua tim.
+for(const y of [140,350]){box(313,y-12,39,24,'#1a1917');box(315,y-10,35,20,'#8a6a34');for(let k=-7;k<=7;k+=3.5)line(317,y+k,348,y+k,'#2a2116',1.3);line(316,y-10,349,y-10,'#d8b46e',.8)}
+
+// Ruang Kursi: meja bundar kecil di tengah.
+oval(CX+4,CY+5,32,32,'#00000077');oval(CX,CY,32,32,'#3a2616');oval(CX,CY,29,29,'#6e4a2a');
+for(let k=6;k<28;k+=6){g.strokeStyle='#4f331c66';g.lineWidth=.6;g.beginPath();g.arc(CX,CY,k,0,Math.PI*2);g.stroke()}
+g.strokeStyle='#22160c';g.lineWidth=1.2;g.beginPath();g.arc(CX,CY,32,0,Math.PI*2);g.stroke();
+// Lilin di meja.
+glow(CX,CY,60,'#ffc76a','33');oval(CX,CY,4,4,'#e9e0c8');oval(CX,CY-1,1.4,2.4,'#ffd27a');
+
+// Sembilan kursi melingkar; kursi 1 di atas (utara), bertambah searah jarum jam.
+function chair(x,y,angle){g.save();g.translate(x,y);g.rotate(angle);
+  oval(2,3,12,11,'#00000066');
+  box(-10,-12,20,5,'#2a1a0f');box(-9,-11,18,3,'#7a4a28');
+  box(-9,-7,18,15,'#3d2716');box(-7.5,-5.5,15,12,'#8a5a32');line(-7,-5,7,-5,'#c08a5444',.7);
+  g.restore()}
+for(let i=0;i<9;i++){const a=-Math.PI/2+i*Math.PI*2/9,x=CX+Math.cos(a)*68,y=CY+Math.sin(a)*68;chair(x,y,a+Math.PI/2);
+  // Plakat nomor kuningan di lantai, di luar kursi.
+  const px=CX+Math.cos(a)*88,py=CY+Math.sin(a)*88;oval(px,py,6,6,'#2a1d10');oval(px,py,5,5,'#b8914a');text(String(i+1),px,py+2.4,6.5,'#2a1a0c')}
+
+// Papan teka-teki silang di dinding utara Ruang Kursi.
+const BX=95,BY=44;box(BX+3,BY+4,160,44,'#00000066');box(BX,BY,160,44,'#3a2616');box(BX+3,BY+3,154,38,'#1c2a22');
+const cw=7;for(let row=0;row<5;row++)for(let col=0;col<21;col++){const on=((col*7+row*13+((col*row)%5))%9)>2&&!(row%2&&col%3===1);if(!on)continue;
+  const x=BX+5+col*cw,y=BY+5+row*cw;box(x,y,cw-.8,cw-.8,'#e6dfcb');if((col+row*3)%11===0)box(x,y,1.6,1.6,'#a3241f')}
+for(const s of [-1,1])oval(BX+80+s*74,BY+2,2,2,'#c9a35a');
+// Meja kecil berisi kapur dan lembar catatan di dekat papan.
+box(43,96,30,46,'#00000055');box(40,92,30,46,'#5a3a20');g.strokeStyle='#2a1a0c';g.lineWidth=1;g.strokeRect(40,92,30,46);
+box(45,98,15,19,'#e2d6b2');box(49,120,15,13,'#d6c8a0');for(let k=101;k<115;k+=3)line(47,k,58,k,'#7a6a4a88',.4);line(62,100,66,110,'#f2efe6',1.6);
+
+// Rak buku di sudut barat daya dan barat laut.
+function shelf(x,y,w,h){box(x+3,y+3,w,h,'#00000066');box(x,y,w,h,'#3a2616');for(let k=x+2;k<x+w-2;k+=3.2)box(k,y+2,2.6,h-4,['#6b2a24','#2f4a3a','#3a3a5a','#7a5a2a','#4a2a3a'][Math.floor(r()*5)])}
+shelf(40,410,60,12);shelf(250,410,60,12);
+
+// Ruang Sandi: meja telegraf Morse di barat laut.
+box(373,62,98,44,'#00000066');box(368,56,98,44,'#4a3220');box(370,58,94,40,'#7a5432');for(let y=62;y<98;y+=8)line(371,y,463,y,'#4f341c55');
+box(380,68,30,18,'#2d2a22');box(382,70,26,14,'#a88648');oval(388,77,3,3,'#3b3a30');line(389,77,404,71,'#d8bf7a',3.5);oval(405,71,5,3.6,'#22261f');// kunci telegraf
+box(424,64,22,26,'#55584b');oval(435,77,9,9,'#2a2f28');oval(435,76,6.5,6.5,'#ccb36b');oval(434,74,3.5,3.5,'#fff0b0');glow(435,76,42,'#ffd27a','44');// lampu sinyal
+box(448,78,14,16,'#e2d6b2');for(let k=81;k<92;k+=2.6)line(450,k,460,k,'#7a6a4a88',.4);// buku catatan
+line(366,78,356,78,'#2b2b24',1.6);line(356,78,356,140,'#2b2b24',1.6);line(356,140,350,140,'#2b2b24',1.6);// kabel ke lubang bicara
+// Bangku
+for(const x of [395,440]){oval(x+2,118,9,7,'#00000055');oval(x,116,9,7,'#5a3a20');oval(x,115,7,5,'#7a5432')}
+
+// Tabula recta Vigenere pada meja timur laut.
+const VX=520,VY=52;box(VX+4,VY+4,124,96,'#00000066');box(VX,VY,124,96,'#4a3220');box(VX+3,VY+3,118,90,'#7a5432');
+box(VX+8,VY+6,108,84,'#e6d9b4');g.strokeStyle='#8a7a5a';g.lineWidth=.4;g.strokeRect(VX+10,VY+8,104,80);
+for(let row=0;row<26;row++)for(let col=0;col<26;col++){const ch=String.fromCharCode(65+(row+col)%26);g.fillStyle=row===0||col===0?'#7a2a20':'#4a3a26';g.font='2.6px Georgia';g.textAlign='center';g.fillText(ch,VX+12+col*3.95,VY+11.5+row*3.02)}
+for(const [x,y] of [[VX+8,VY+6],[VX+116,VY+6],[VX+8,VY+90],[VX+116,VY+90]])oval(x,y,2.2,2.2,'#55473a');// pemberat kertas
+glow(VX+62,VY+48,60,'#ffc76a','22');
+
+// Meja keping angka di tengah Ruang Sandi: sembilan keping kertas terserak.
+const FX=440,FY=210,FW=120,FH=70;box(FX+5,FY+6,FW,FH,'#00000077');box(FX,FY,FW,FH,'#3d2716');box(FX+3,FY+3,FW-6,FH-6,'#6e4a2a');
+for(let y=FY+8;y<FY+FH-3;y+=9)line(FX+4,y,FX+FW-4,y,'#4f331c66',.7);g.strokeStyle='#22160c';g.lineWidth=1.2;g.strokeRect(FX,FY,FW,FH);
+for(let i=0;i<9;i++){const x=FX+16+(i%3)*38+r()*8,y=FY+14+Math.floor(i/3)*20+r()*4;g.save();g.translate(x,y);g.rotate(r()*.8-.4);
+  box(-11,-6,22,13,'#00000044');box(-12,-7,22,13,'#e6d9b4');line(-10,-3,6,-3,'#5a4a3288',.6);line(-10,1,2,1,'#5a4a3288',.6);oval(7,2,2.2,2.2,'#a3241f88');g.restore()}
+// Kursi untuk dua anggota tim sandi.
+for(const [x,y,a] of [[FX+40,FY-16,0],[FX+80,FY+FH+16,Math.PI]])chair(x,y,a);
+glow(FX+FW/2,FY+FH/2,70,'#ffc76a','2a');oval(FX+FW-12,FY+12,3,3,'#e9e0c8');oval(FX+FW-12,FY+11,1.2,2,'#ffd27a');
+
+// Pintu besi berkunci kode di dinding timur: tujuan akhir.
+const DY=245;
+// Pintu besi tebal di dinding timur (2 kotak), berpalang dan berpaku keling.
+box(636,DY-38,30,76,'#00000066');box(640,DY-36,28,72,'#3a3d40');box(642,DY-34,24,68,'#55595d');
+for(const y of [DY-24,DY,DY+24])box(640,y-3,28,6,'#2c2e31');
+for(const y of [DY-31,DY-17,DY-7,DY+7,DY+17,DY+31])for(const x of [645,663])oval(x,y,1.3,1.3,'#9a9ea2');
+g.strokeStyle='#1e2022';g.lineWidth=1.2;g.strokeRect(640,DY-36,28,72);
+// Roda pembuka di sisi ruangan.
+oval(656,DY+2,11,11,'#00000066');g.strokeStyle='#7a7e82';g.lineWidth=2.2;g.beginPath();g.arc(654,DY,10,0,Math.PI*2);g.stroke();
+for(let i=0;i<4;i++){const a=i*Math.PI/4;line(654-Math.cos(a)*10,DY-Math.sin(a)*10,654+Math.cos(a)*10,DY+Math.sin(a)*10,'#6a6e72',1.6)}
+oval(654,DY,3,3,'#a8acb0');glow(640,DY,60,'#7fb0d8','1a');
+// Panel 18 digit di samping pintu.
+box(600,DY+42,42,18,'#1a1b1c');for(let i=0;i<18;i++){const x=603+(i%9)*4.2,y=DY+46+Math.floor(i/9)*6.5;box(x,y,3.2,4.8,'#3a4a3a')}
+
+// Peti dan tong di sudut Ruang Sandi.
+for(const [x,y] of [[380,410],[410,420]]){box(x+2,y+3,22,20,'#00000055');box(x,y,22,20,'#6a4a2a');g.strokeStyle='#3a2616';g.lineWidth=1;g.strokeRect(x,y,22,20);line(x,y,x+22,y+20,'#3a2616');line(x+22,y,x,y+20,'#3a2616')}
+for(const [x,y] of [[620,415],[598,428]]){oval(x+2,y+3,11,11,'#00000055');oval(x,y,11,11,'#5a3a20');g.strokeStyle='#2a2a2a';g.lineWidth=1.4;for(const rr of [10,6])g.beginPath(),g.arc(x,y,rr,0,Math.PI*2),g.stroke()}
+
+// Obor dinding.
+for(const [x,y] of [[60,42],[290,42],[42,245],[60,448],[290,448],[375,448],[580,448],[375,42],[658,140],[658,350]]){glow(x,y,55,'#ffb560','30');box(x-3,y-3,6,6,'#2a2520');oval(x,y,2.4,3.6,'#ffc06a');oval(x,y-.5,1.2,2,'#fff0c0')}
+
+
+// Vignette.
+const shade=g.createRadialGradient(350,245,170,350,245,440);shade.addColorStop(0,'#00000000');shade.addColorStop(1,'#000000a0');g.fillStyle=shade;g.fillRect(0,0,700,490);
+window.ready=true;
+</script>

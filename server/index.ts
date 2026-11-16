@@ -20,6 +20,8 @@ import {
   weathers,
   coneDefaults,
   PROP_MIN,
+  offTableAllowed,
+  seesToken,
   PROP_MAX,
   type Scene,
   type BoardToken,
@@ -87,6 +89,9 @@ type Message = {
   time: number;
   kind: "chat" | "roll" | "system" | "status";
   roll?: Omit<DiceRoll, "frames">;
+  // Senjata yang dipakai dan efek Weapon Mastery-nya (hanya roll serangan karakter).
+  label?: string;
+  mastery?: { name: string; note: string };
 };
 type Room = {
   id: string;
@@ -108,6 +113,8 @@ type Room = {
     kind: "pause" | "short" | "long" | "countdown";
     note: string;
     since: number;
+    // Lama hitung mundur dalam detik (dipilih DM, 1–600). Tidak ada = 5 detik.
+    seconds?: number;
   } | null;
   characters?: Character[];
   library?: LibraryItem[];
@@ -338,7 +345,7 @@ function safeRoom(room: Room, playerId = "", dm = false): SafeRoom {
         (dm ||
           (!t.hidden &&
             // Gambar di peta adalah bagian dari peta: selalu dikirim, tertutup lapisan gelap fog/vision di klien.
-            (t.prop || t.ownerId === playerId || visible(t, scene, playerId)))),
+            (t.prop || t.ownerId === playerId || seesToken(t, scene, playerId)))),
     )
     .map((t) => ({
       ...t,
@@ -382,7 +389,7 @@ function safeRoom(room: Room, playerId = "", dm = false): SafeRoom {
       room.rest &&
       !(
         room.rest.kind === "countdown" &&
-        Date.now() > room.rest.since + countdownMs + countdownHoldMs
+        Date.now() > room.rest.since + (room.rest.seconds ?? 5) * 1000 + countdownHoldMs
       )
         ? room.rest
         : null,
@@ -433,8 +440,7 @@ function safeRoom(room: Room, playerId = "", dm = false): SafeRoom {
   };
 }
 const propMaxSize = 80;
-const countdownMs = 5_000,
-  countdownHoldMs = 2_500;
+const countdownHoldMs = 2_500;
 const sentStates = new WeakMap<object, SafeRoom>();
 const STRUCTURAL = new Set(["wall", "door", "window"]);
 const MAX_STRUCTURAL = 5000;
@@ -1013,7 +1019,7 @@ io.on("connection", (socket) => {
           return;
         }
         for (const [key, min, max] of [
-          ["columns", 4, 100],
+          ["columns", 4, 200],
           ["distance", 0.1, 1000],
           ["width", 1, 20000],
           ["height", 1, 20000],
@@ -1104,13 +1110,18 @@ io.on("connection", (socket) => {
           fail("Hanya DM bisa menjeda permainan.");
           return;
         }
+        const seconds =
+          p.kind === "countdown"
+            ? Math.round(Math.max(1, Math.min(600, Number(p.seconds) || 5)))
+            : undefined;
         room.rest = {
           kind: p.kind,
           note: clean(p.note, 140),
           since: Date.now(),
+          ...(seconds ? { seconds } : {}),
         };
         // Short/Long Rest dari menu Jeda hanya layar suasana; pemulihan HP/slot lewat tombol rest di sheet karakter.
-        // Hitung mundur 5 detik: setelah 0 dan "Waktu habis!" sebentar, lapisan hilang sendiri untuk semua.
+        // Hitung mundur (lama dipilih DM): setelah 0 dan "Waktu habis!" sebentar, lapisan hilang sendiri untuk semua.
         if (p.kind === "countdown") {
           const since = room.rest.since;
           setTimeout(() => {
@@ -1119,7 +1130,7 @@ io.on("connection", (socket) => {
             room.rest = null;
             save();
             broadcast(room);
-          }, countdownMs + countdownHoldMs);
+          }, seconds! * 1000 + countdownHoldMs);
         }
       } else if (p.type === "rest:end") {
         if (!dm) {
@@ -1299,9 +1310,18 @@ io.on("connection", (socket) => {
           }
         }
       } else if (p.type === "mark:add") {
-        const a = point(p.a),
-          b = point(p.b);
         const kind = p.kind as Mark["kind"];
+        // Goresan pensil: 2–600 titik; a/b diisi titik pertama/terakhir supaya filter visibilitas tetap jalan.
+        const points =
+          kind === "draw" && Array.isArray(p.points) && p.points.length >= 2 && p.points.length <= 600
+            ? (p.points as unknown[]).map(point)
+            : undefined;
+        if (kind === "draw" && (!points || points.some((q) => !q))) {
+          fail("Goresan tidak valid.");
+          return;
+        }
+        const a = points ? points[0] : point(p.a),
+          b = points ? points[points.length - 1] : point(p.b);
         if (
           ![
             "line",
@@ -1309,6 +1329,7 @@ io.on("connection", (socket) => {
             "cone",
             "rect",
             "text",
+            "draw",
             "wall",
             "door",
             "window",
@@ -1344,9 +1365,13 @@ io.on("connection", (socket) => {
           kind,
           a,
           b,
-          text: clean(p.text, 120),
+          text: kind === "draw" ? (/^#[0-9a-f]{6}$/i.test(String(p.text)) ? String(p.text) : "#f3d49a") : clean(p.text, 120),
           open: kind === "door" || kind === "window" ? false : undefined,
+          ...(points ? { points: points as { x: number; y: number }[] } : {}),
         });
+      } else if (p.type === "draw:clear") {
+        // Hapus goresan pensil: pemain hanya miliknya sendiri, DM semua.
+        scene.marks = scene.marks.filter((m) => m.kind !== "draw" || (!dm && m.ownerId !== socket.data.playerId));
       } else if (p.type === "walls:import") {
         // Impor dinding dari file (mis. labirin buatan generator): satu aksi, satu undo.
         if (!dm) {
@@ -1374,7 +1399,7 @@ io.on("connection", (socket) => {
           return;
         }
         scene.marks = [...kept, ...walls];
-        const columns = number(p.columns, 4, 100);
+        const columns = number(p.columns, 4, 200);
         if (columns !== undefined) scene.grid.columns = Math.round(columns);
         if (p.offset === true) { scene.grid.offsetX = 0; scene.grid.offsetY = 0; }
       } else if (p.type === "walls:clear") {
@@ -1843,7 +1868,7 @@ io.on("connection", (socket) => {
             !(
               game.declaration && game.players.includes(socket.data.playerId)
             ) &&
-            (token.hidden || !visible(token, scene, socket.data.playerId)))
+            (token.hidden || !seesToken(token, scene, socket.data.playerId)))
         ) {
           respond({ error: "Token permainan tidak tersedia." });
           return;
@@ -1851,6 +1876,20 @@ io.on("connection", (socket) => {
         let error: string | null;
         if (game.kind === "cooprooms" && action.type === "declare") {
           respond({ error: "Gunakan pembagian dua tim di dalam sesi." });
+          return;
+        }
+        if (game.kind === "lich" && action.type === "declare") {
+          respond({ error: "Gunakan pembagian indra di dalam permainan." });
+          return;
+        }
+        if (
+          game.kind === "lich" &&
+          action.type === "lich:seat" &&
+          (!socket.data.isDM ||
+            !Array.isArray(action.seats) ||
+            !action.seats.every((id) => typeof id === "string" && room.members[id]))
+        ) {
+          respond({ error: "Pilih anggota ruangan yang valid." });
           return;
         }
         if (game.kind === "cooprooms" && action.type === "coop:assign") {
@@ -1884,7 +1923,7 @@ io.on("connection", (socket) => {
             ...new Set(roomPeers.map((peer) => peer.data.playerId as string)),
           ].filter(
             (id) =>
-              gmIds.has(id) || (!token.hidden && visible(token, scene, id)),
+              gmIds.has(id) || (!token.hidden && seesToken(token, scene, id)),
           );
           const fixed =
             gameCatalog[game.kind].mode === "duel"
@@ -1912,7 +1951,7 @@ io.on("connection", (socket) => {
           } else {
             // Ritual membagi gulungan ke setiap peserta, jadi GM tidak ikut supaya tidak ada gulungan yang tak terbaca pemain.
             const party =
-              game.kind === "ritual" || game.kind === "mirrors"
+              game.kind === "ritual" || game.kind === "mirrors" || game.kind === "lich"
                 ? eligible.filter((id) => !gmIds.has(id))
                 : eligible;
             if (!party.length) {
@@ -1994,25 +2033,31 @@ io.on("connection", (socket) => {
     )
       return;
     // Gambar peta (prop) boleh berada di luar tabel; token biasa tetap di dalam peta.
-    const [lo, hi] = token.prop ? [PROP_MIN, PROP_MAX] : [0, 100];
+    const [lo, hi] = offTableAllowed(token) ? [PROP_MIN, PROP_MAX] : [0, 100];
     const destination = {
       x: Math.max(lo, Math.min(hi, p.x)),
       y: Math.max(lo, Math.min(hi, p.y)),
     };
-    if (token.x === destination.x && token.y === destination.y) return;
-    if (
-      !socket.data.isDM &&
-      ((scene.vision && !visible(destination, scene, socket.data.playerId)) ||
-        blocksMovement(token, destination, scene.marks))
-    )
-      return;
-    if (
-      !admitted(`move:${socket.id}`, 3600) ||
-      !admitted(`move-room:${room.id}`, 18000)
-    )
-      return;
-    Object.assign(token, destination);
-    socket.to(room.id).emit("token:moved", { id: token.id, ...destination });
+    // Saat menyeret, posisi sudah diperbarui oleh pesan final:false. Pesan final biasanya
+    // berada di titik yang sama, tapi tetap harus mengirim state lengkap: hanya lewat
+    // broadcast pemain menerima token yang baru masuk ke pandangan mereka (mis. token minigame).
+    const moved = token.x !== destination.x || token.y !== destination.y;
+    if (!moved && p.final === false) return;
+    if (moved) {
+      if (
+        !socket.data.isDM &&
+        ((scene.vision && !visible(destination, scene, socket.data.playerId)) ||
+          blocksMovement(token, destination, scene.marks))
+      )
+        return;
+      if (
+        !admitted(`move:${socket.id}`, 3600) ||
+        !admitted(`move-room:${room.id}`, 18000)
+      )
+        return;
+      Object.assign(token, destination);
+      socket.to(room.id).emit("token:moved", { id: token.id, ...destination });
+    }
     if (p.final !== false) {
       save();
       broadcast(room);
@@ -2035,7 +2080,7 @@ io.on("connection", (socket) => {
       if (!token || seen.has(token.id) || (!socket.data.isDM && token.ownerId !== socket.data.playerId)) return;
       if (typeof m.x !== "number" || typeof m.y !== "number" || !Number.isFinite(m.x) || !Number.isFinite(m.y)) return;
       seen.add(token.id);
-      const [lo, hi] = token.prop ? [PROP_MIN, PROP_MAX] : [0, 100];
+      const [lo, hi] = offTableAllowed(token) ? [PROP_MIN, PROP_MAX] : [0, 100];
       const destination = { x: Math.max(lo, Math.min(hi, m.x)), y: Math.max(lo, Math.min(hi, m.y)) };
       if (
         !socket.data.isDM &&
@@ -2383,6 +2428,8 @@ io.on("connection", (socket) => {
         | undefined;
       let rollMode: "normal" | "advantage" | "disadvantage" = "normal";
       let conditionNote = "";
+      let rollLabel: string | undefined;
+      let rollMastery: { name: string; note: string } | undefined;
       if (room && expression && typeof expression === "object") {
         const request = expression as Record<string, unknown>;
         if (typeof request.expression === "string") {
@@ -2428,6 +2475,14 @@ io.on("connection", (socket) => {
             bonus = character.sheet.attacks.find(
               (s) => s.id === request.key,
             )?.bonus;
+          if (request.kind === "attack" || request.kind === "damage") {
+            const used = character.sheet.attacks.find((s) => s.id === request.key);
+            if (used) {
+              rollLabel = request.kind === "damage" ? `${used.name} · damage` : used.name;
+              if (request.kind === "attack" && used.mastery)
+                rollMastery = { name: used.mastery.name, note: used.mastery.note };
+            }
+          }
           if (request.kind === "initiative") bonus = character.sheet.initiative;
           if (request.kind === "initiative") {
             const scene = sceneFor(
@@ -2638,6 +2693,8 @@ io.on("connection", (socket) => {
         time: Date.now(),
         kind: "roll",
         roll,
+        ...(rollLabel ? { label: rollLabel } : {}),
+        ...(rollMastery ? { mastery: rollMastery } : {}),
       });
       room.messages = room.messages.slice(-100);
       save();

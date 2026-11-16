@@ -26,27 +26,34 @@
 /* Token yang sedang giliran.
    Denyut lama menganimasikan filter drop-shadow setiap frame dan berat.
    Penggantinya: bayangan statis, cahaya yang hanya berubah opacity, dan riak satu kali saat giliran tiba. */
-.map-canvas .map-token.combat-active { animation: none; filter: drop-shadow(0 0 6px #e34b4b); }
-.map-canvas .map-token.combat-active::before,
-.map-canvas .map-token.combat-active::after {
-  content: "";
+/* Penanda giliran: panah emas mengambang di atas token + cahaya hangat tipis */
+.map-canvas .map-token.combat-active { animation: none; filter: drop-shadow(0 0 5px #f3d49a99); z-index: 2; }
+.map-canvas .map-token .token-turn-marker {
   position: absolute;
-  inset: -14%;
-  z-index: -1;
-  border-radius: 50%;
+  left: 50%;
+  bottom: calc(80% + 4px);
+  z-index: 4;
+  display: block;
+  width: 22px;
+  height: 15px;
+  transform-origin: 50% 100%;
   pointer-events: none;
 }
-.map-canvas .map-token.combat-active::before {
-  background: radial-gradient(circle, #e34b4b66 0%, #e34b4b00 70%);
-  will-change: opacity;
-  animation: combat-glow 1.4s ease-in-out infinite alternate;
+.map-canvas .map-token .token-turn-marker svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: turn-marker-bob 1.1s ease-in-out infinite alternate;
 }
-.map-canvas .map-token.combat-active::after {
-  border: 3px solid #f07a5e;
-  animation: combat-ripple .9s ease-out both;
+.map-canvas .map-token .token-turn-marker path {
+  fill: #f3d49a;
+  stroke: #3a2a10;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 2px 2px #000a);
 }
-@keyframes combat-glow { from { opacity: .35; } to { opacity: 1; } }
-@keyframes combat-ripple { from { opacity: 1; transform: scale(.7); } to { opacity: 0; transform: scale(2.2); } }
+@keyframes turn-marker-bob { from { transform: translateY(-5px); } to { transform: translateY(0); } }
 
 /* Tirai saat scene berganti: layar gelap, nama scene, lalu peta baru muncul */
 .scene-curtain {
@@ -86,11 +93,9 @@
 @media (prefers-reduced-motion: reduce) {
   .combat-order ol.combat-turn-track::before { transition: none; }
   .combat-round-number,
-  .map-canvas .map-token.combat-active::before,
-  .map-canvas .map-token.combat-active::after,
+  .map-canvas .map-token .token-turn-marker svg,
   .scene-curtain span,
   .scene-curtain strong { animation: none; }
-  .map-canvas .map-token.combat-active::after { display: none; }
   .scene-curtain { animation-duration: 1.2s; }
 }
 .combat-round-label { font-style: normal; }
